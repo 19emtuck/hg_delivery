@@ -25,7 +25,16 @@ class Project(Base):
 
   id = Column(Integer, primary_key=True)
   name = Column(String(100))
-  host = Column(String(100), unique=True)
-  path = Column(Text, index=True)
+  host = Column(String(100))
+  path = Column(Text)
 
 
+  def __json__(self, request):
+    """
+    """
+    return { 'id':self.id,
+             'name':self.name,
+             'host':self.host,
+             'path':self.path }
+
+Index('project_unique', Project.host, Project.path, unique=True)

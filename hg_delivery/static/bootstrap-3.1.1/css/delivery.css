@@ -5,3 +5,7 @@ body {
 .starter-template {
   padding: 40px 15px;
 }
+
+#new_project {
+  padding-bottom: 10px;
+}

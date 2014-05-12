@@ -38,6 +38,7 @@
           %if projects_list :
             <form name="view_project" class="navbar-form pull-right">
                <select id="project_name" class="form-control" name="project_name" onchange="">
+                 <option value="">-- projects --</option>
                  % for project in projects_list :
                  <option value="${project.id}">${project.name}</option>
                  % endfor
@@ -59,11 +60,11 @@
         <h1>Welcome to HgDelivery webapp</h1>
         <p class="lead">The purpose of HgDelivery webapp is to allow people to deliver or manage new release
         easily</p>
-        <button type="button" class="btn btn-primary" onclick="$('#new_project').toggle();">Add a new project</button>
+        <button type="button" id="view_new_project" class="btn btn-primary" onclick="$('#new_project').toggle();">Add a new project</button>
       </div>
 
-      <div id="new_project" style="width:300px">
-         <form name="project" action="/project/add" method="post" class="form-horizontal" role="form">
+      <div id="new_project" style="width:300px;display:None">
+         <form id="project" name="project" action="/project/add" method="post" class="form-horizontal" role="form">
             <div class="form-group">
               <label for="new_project_name" class="col-sm-2 control-label">Name</label>
               <div class="col-sm-10">
@@ -89,17 +90,18 @@
               </div>
             </div>
             <div class="form-group">
-              <label for="new_project_password" class="col-sm-2 control-label">User</label>
+              <label for="new_project_password" class="col-sm-2 control-label">Passwd</label>
               <div class="col-sm-10">
                 <input id="new_project_password" class="form-control" name="password" type="password" placeholder="password">
               </div>
             </div>
-            <button class="btn btn-primary" onclick="$('#new_project').toggle();">Add this project</button>
+            <button type="button" class="btn btn-primary" onclick="add_project('${request.route_url('project_add')}');">Add this project</button>
          <form>
       </div>
     </div><!-- /.container -->
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="${request.static_url('hg_delivery:static/jquery-1.11.1.min.js')}"></script>
+    <script src="${request.static_url('hg_delivery:static/main.js')}"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="${request.static_url('hg_delivery:static/bootstrap-3.1.1/js/bootstrap.min.js')}"></script>
   </body>

@@ -1,7 +1,7 @@
 from pyramid.response import Response
 from pyramid.view import view_config
 
-from sqlalchemy.exc import DBAPIError
+from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from .models import (
     DBSession,
@@ -75,15 +75,29 @@ def add_project(request):
     name = request.params['name']
     host = request.params['host']
     path = request.params['path']
+    explanation = None
+    if not host :
+      explanation = u'Your project should contain a valid hostname'
+    elif not path :
+      explanation = u'Your project should contain a valid path'
+    else:
+      try :
+        # folder should be unique
+        project = Project(name=name, host=host, path=path)
+        DBSession.add(project)
+        DBSession.flush()
+        result = True
+        explanation = u'This project (%s %s) has been added...'%(host, path)
+      except IntegrityError as e:
+        DBSession.rollback()
+        result = False
+        explanation = u'This project and this path are already defined (%s %s)...'%(host, path)
 
-    try :
-      # folder should be unique
-      project = Project(name=name, host=host, path=path)
-      DBSession.add(project)
-      result = True
-    except :
-      result = False
-    return {'result':result}
+    projects_list =  DBSession.query(Project).all()
+
+    return { 'result':result,
+             'projects_list':projects_list,
+             'explanation':explanation}
 
 @view_config(route_name='project_delete', renderer='json')
 def delete_project(request):
