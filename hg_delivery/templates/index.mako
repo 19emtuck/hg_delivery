@@ -14,7 +14,7 @@
   % endif
 </div>
 
-% if logged_in is not None and projects_list :
+% if logged_in is not None :
   <div id="new_project" style="width:300px;display:None">
      <form id="project" name="project" action="/project/add" method="post" class="form-horizontal" role="form">
         <div class="form-group">
