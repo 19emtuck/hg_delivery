@@ -16,6 +16,9 @@ def mysubscriber(event):
   event['static_url'] = request.static_url
   event['logged_in'] = request.authenticated_userid
 
-  projects_list =  DBSession.query(Project).all()
+  projects_list =  []
+  if request.authenticated_userid :
+    projects_list =  DBSession.query(Project).all()
+
   event['projects_list'] = projects_list
 
