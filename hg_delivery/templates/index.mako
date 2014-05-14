@@ -2,12 +2,19 @@
 
 <div class="starter-template">
   <h1>Welcome to HgDelivery webapp</h1>
-  <p class="lead">The purpose of HgDelivery webapp is to allow people to deliver or manage new release
-  easily</p>
-  <button type="button" id="view_new_project" class="btn btn-primary" onclick="$('#new_project').toggle();">Add a new project</button>
+  <p class="lead">The purpose of HgDelivery webapp is to allow people to deliver or manage new release easily</p>
+  % if logged_in is not None:
+    <button type="button" id="view_new_project" class="btn btn-primary" onclick="$('#new_project').toggle();">Add a new project</button>
+  % else :
+    <br>
+    <br>
+    <br>
+    <br>
+    <p class="lead"><b>Please login before proceeding</b></p>
+  % endif
 </div>
 
-% if logged_in and projects_list :
+% if logged_in is not None and projects_list :
   <div id="new_project" style="width:300px;display:None">
      <form id="project" name="project" action="/project/add" method="post" class="form-horizontal" role="form">
         <div class="form-group">
