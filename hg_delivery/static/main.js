@@ -21,10 +21,16 @@ function add_project(target_url){
                 });
               }
               if(json_response.explanation){
-                 $('#new_project').after('<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button> <strong>'+json_response.explanation+'</strong></div>');
+                 var _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                 _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+                 $('#new_project').after(_alert_html);
+                 $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove()});
               }
             } else if(json_response.explanation){
-              $('#new_project').after('<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button> <strong>'+json_response.explanation+'</strong></div>');
+                 var _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                 _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+              $('#new_project').after(_alert_html);
+              $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove()});
             }
             },
          });

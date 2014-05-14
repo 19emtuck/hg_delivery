@@ -50,6 +50,4 @@
         <button type="button" class="btn btn-primary" onclick="add_project('${url('project_add')}');">Add this project</button>
      <form>
   </div>
-% else :
-
 % endif
