@@ -1,4 +1,8 @@
-from pyramid.events import NewRequest, BeforeRender, subscriber
+from pyramid.events import (
+     NewRequest,
+     BeforeRender,
+     subscriber
+     )
 
 @subscriber(BeforeRender)
 def mysubscriber(event):

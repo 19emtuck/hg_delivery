@@ -110,3 +110,15 @@ def delete_project(request):
     id = request.matchdict['id']
     return {'result':result}
 
+@view_config(route_name='project_edit', renderer='edit.mako')
+def edit_project(request):
+    """
+    """
+    result = False
+    id_project = request.matchdict['id']
+    project =  DBSession.query(Project).get(id_project)
+    projects_list =  DBSession.query(Project).all()
+             
+    return {'project':project,
+            'projects_list':projects_list}
+

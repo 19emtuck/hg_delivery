@@ -5,6 +5,7 @@ from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 
 from hg_delivery.security import groupfinder
+from hg_delivery.predicates import to_int 
 
 from .models import (
     DBSession,
@@ -39,8 +40,8 @@ def main(global_config, **settings):
     config.add_route('login',          '/login')
     config.add_route('logout',         '/logout')
     config.add_route('project_add',    '/project/add')
-    config.add_route('project_delete', '/project/{id}/delete')
-    config.add_route('project_edit',   '/project/{id}/edit')
+    config.add_route('project_delete', '/project/{id:\d+}/delete', custom_predicates=(to_int('id'),))
+    config.add_route('project_edit',   '/project/{id:\d+}/edit', custom_predicates=(to_int('id'),))
 
     config.scan()
     return config.make_wsgi_app()
