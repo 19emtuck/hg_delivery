@@ -4,10 +4,18 @@ from pyramid.events import (
      subscriber
      )
 
+from .models import (
+    DBSession,
+    Project,
+    )
+
 @subscriber(BeforeRender)
 def mysubscriber(event):
   request = event['request']
   event['url'] = request.route_url
   event['static_url'] = request.static_url
   event['logged_in'] = request.authenticated_userid
+
+  projects_list =  DBSession.query(Project).all()
+  event['projects_list'] = projects_list
 

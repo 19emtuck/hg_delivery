@@ -63,8 +63,7 @@ def default_view(request):
     """
     """
     remote_directory = '/home/sbard/dev/sidexa/hg_power'
-    projects_list =  DBSession.query(Project).all()
-    return {'projects_list':projects_list}
+    return {}
 
 @view_config(route_name='project_add', renderer='json')
 def add_project(request):
@@ -96,7 +95,6 @@ def add_project(request):
         explanation = u'This project and this path are already defined (%s %s)...'%(host, path)
 
     projects_list =  DBSession.query(Project).all()
-
     return { 'result':result,
              'projects_list':projects_list,
              'explanation':explanation}
@@ -117,8 +115,5 @@ def edit_project(request):
     result = False
     id_project = request.matchdict['id']
     project =  DBSession.query(Project).get(id_project)
-    projects_list =  DBSession.query(Project).all()
-             
-    return {'project':project,
-            'projects_list':projects_list}
+    return {'project':project}
 
