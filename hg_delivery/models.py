@@ -1,3 +1,9 @@
+from pyramid.security import (
+    Allow,
+    Everyone,
+    authenticated_userid,
+    )
+
 from sqlalchemy import (
     Column,
     Index,
@@ -38,3 +44,13 @@ class Project(Base):
              'path':self.path }
 
 Index('project_unique', Project.host, Project.path, unique=True)
+
+class RootFactory(object):
+  """
+  """
+  
+  __acl__ = [ (Allow, Everyone, 'view'),
+              (Allow, 'group:editors', 'edit') ]
+
+  def __init__(self, request):
+    pass

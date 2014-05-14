@@ -75,7 +75,9 @@ def add_project(request):
     name = request.params['name']
     host = request.params['host']
     path = request.params['path']
+
     explanation = None
+
     if not host :
       explanation = u'Your project should contain a valid hostname'
     elif not path :
