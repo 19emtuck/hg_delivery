@@ -34,7 +34,7 @@ def login(request):
     login = request.params['login']
     password = request.params['password']
 
-    if True or USERS.get(login) == password:
+    if login and password and USERS.get(login) == password:
         headers = remember(request, login)
         return HTTPFound( location= came_from,
                           headers = headers )
