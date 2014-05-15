@@ -35,9 +35,13 @@
             <li><a href="#about">About</a></li>
             <li><a href="#contact">Contact</a></li>
           </ul>
-          % if logged_in is not None and projects_list :
+          % if logged_in is not None :
             <form name="view_project" class="navbar-form pull-right">
+               % if projects_list :
                <select id="project_name" class="form-control" name="project_name" onchange="">
+               % else :
+               <select id="project_name" class="form-control" name="project_name" onchange="" style="display:none">
+               % endif
                  <option value="">-- projects --</option>
                  % for project in projects_list :
                  <option value="${project.id}">${project.name}</option>

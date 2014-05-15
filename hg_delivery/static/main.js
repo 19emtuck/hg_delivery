@@ -14,6 +14,7 @@ function add_project(target_url){
             if(json_response.result){
               $('#new_project').hide();
               var $sel = $('#project_name');
+              $sel.show();
               if($sel){
                 $sel.find('option').remove();
                 json_response.projects_list.forEach(function(item){
