@@ -1,6 +1,12 @@
 /**
+ * Go to ...
+ */
+function go_to(url) {
+  window.location.href = url;
+}
+
+/**
  * Add a new project
- *
  */
 function add_project(target_url){
   $.ajax({url: target_url,
@@ -37,14 +43,8 @@ function add_project(target_url){
          });
 }
 
-function go_to(url) {
-  window.location.href = url;
-}
-
-
 /**
- *
- *
+ * Delete a project regarding to its id
  */
 function delete_this_project(id_project){
   var $button = $('#view_delete_project');
@@ -61,8 +61,7 @@ function delete_this_project(id_project){
 }
 
 /**
- *
- *
+ * Init js component for project overview page
  */
 function init_page_overview(){
   var $sel = $('#project_name');
