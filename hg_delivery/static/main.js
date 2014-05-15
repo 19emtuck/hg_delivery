@@ -22,7 +22,7 @@ function add_project(target_url){
               var $sel = $('#project_name');
               $sel.show();
               if($sel){
-                $sel.find('option').remove();
+                $sel.find('option').not('[value=""]').remove();
                 json_response.projects_list.forEach(function(item){
                   $sel.append('<option value="'+item.id+'">'+item.name+'</option>');
                 });
@@ -67,10 +67,10 @@ function init_page_overview(){
   var $sel = $('#project_name');
   if($sel){
     $sel.bind('change', function(){
-      var $_this = $(this);
-      var _value = $_this.val();
+      var $sel = $('#project_name');
+      var _value = $sel.val();
       if(_value){
-        go_to($_this.data('url')+_value);
+        go_to($sel.data('url')+_value);
       }
     });
   }

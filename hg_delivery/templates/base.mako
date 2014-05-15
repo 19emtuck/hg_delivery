@@ -40,7 +40,7 @@
                % if projects_list :
                <select id="project_name" class="form-control" name="project_name" data-url="${url(route_name='project_edit', id='')}">
                % else :
-               <select id="project_name" class="form-control" name="project_name" data-url="${url(route_name='project_edit', id='')} style="display:none">
+               <select id="project_name" class="form-control" name="project_name" data-url="${url(route_name='project_edit', id='')}" style="display:none">
                % endif
                  <option value="">-- projects --</option>
                  % for __project in projects_list :
