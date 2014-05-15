@@ -37,3 +37,23 @@ function add_project(target_url){
          });
 }
 
+function go_to(url) {
+  window.location.href = url;
+}
+
+/**
+ *
+ *
+ */
+function init_page_overview(){
+  var $sel = $('#project_name');
+  if($sel){
+    $sel.bind('change', function(){
+      var $_this = $(this);
+      var _value = $_this.val();
+      if(_value){
+        go_to($_this.data('url')+_value);
+      }
+    });
+  }
+}

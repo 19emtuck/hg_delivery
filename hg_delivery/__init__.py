@@ -40,8 +40,8 @@ def main(global_config, **settings):
     config.add_route('login',          '/login')
     config.add_route('logout',         '/logout')
     config.add_route('project_add',    '/project/add')
-    config.add_route('project_delete', '/project/{id:\d+}/delete', custom_predicates=(to_int('id'),))
-    config.add_route('project_edit',   '/project/{id:\d+}/edit', custom_predicates=(to_int('id'),))
+    config.add_route('project_delete', '/project/delete/{id:\d+}', custom_predicates=(to_int('id'),))
+    config.add_route('project_edit',   '/project/edit/{id:\d+}', custom_predicates=(to_int('id'),))
 
     config.scan()
     return config.make_wsgi_app()

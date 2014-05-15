@@ -28,7 +28,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">HgDelivery</a>
+          <a class="navbar-brand" href="/">HgDelivery</a>
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
@@ -38,13 +38,17 @@
           % if logged_in is not None :
             <form name="view_project" class="navbar-form pull-right">
                % if projects_list :
-               <select id="project_name" class="form-control" name="project_name" onchange="">
+               <select id="project_name" class="form-control" name="project_name" data-url="${url(route_name='project_edit', id='')}">
                % else :
-               <select id="project_name" class="form-control" name="project_name" onchange="" style="display:none">
+               <select id="project_name" class="form-control" name="project_name" data-url="${url(route_name='project_edit', id='')} style="display:none">
                % endif
                  <option value="">-- projects --</option>
-                 % for project in projects_list :
-                 <option value="${project.id}">${project.name}</option>
+                 % for __project in projects_list :
+                   % if project is not UNDEFINED and project.id == __project.id:
+                     <option value="${__project.id}" selected>${__project.name}</option>
+                   % else :
+                     <option value="${__project.id}">${__project.name}</option>
+                   % endif
                  % endfor
                </select>
             </form>
@@ -66,11 +70,17 @@
 
     <div class="container">
       ${self.body()}
-    </div><!-- /.container -->
+    </div>
+    <!-- /.container -->
+
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="${request.static_url('hg_delivery:static/jquery-1.11.1.min.js')}"></script>
     <script src="${request.static_url('hg_delivery:static/main.js')}"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="${request.static_url('hg_delivery:static/bootstrap-3.1.1/js/bootstrap.min.js')}"></script>
+    
+    <%block name="local_js">
+    <!-- define local script ... -->
+    </%block>
   </body>
 </html>

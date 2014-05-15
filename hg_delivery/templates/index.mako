@@ -51,3 +51,9 @@
      <form>
   </div>
 % endif
+
+<%block name="local_js">
+<script>
+  init_page_overview();
+</script>
+</%block>
