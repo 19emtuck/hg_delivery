@@ -104,8 +104,15 @@ def delete_project(request):
     """
     """
     result = False
-
-    id = request.matchdict['id']
+    try :
+      id_project = request.matchdict['id']
+      project =  DBSession.query(Project).get(id_project)
+      DBSession.delete(project)
+      DBSession.flush()
+      result = True
+    except :
+      DBSession.rollback()
+      result = False
     return {'result':result}
 
 @view_config(route_name='project_edit', renderer='edit.mako', permission='edit')

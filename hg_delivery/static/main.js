@@ -41,6 +41,25 @@ function go_to(url) {
   window.location.href = url;
 }
 
+
+/**
+ *
+ *
+ */
+function delete_this_project(id_project){
+  var $button = $(this);
+  var target_url = $button.data('url');
+  $.ajax({url:target_url,
+          success:function(json_response){
+            if(json_response.result){
+              // fallback to root
+              go_to('/');
+              return false;
+            }
+          } 
+         });
+}
+
 /**
  *
  *
