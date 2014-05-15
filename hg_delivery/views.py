@@ -65,7 +65,7 @@ def default_view(request):
     remote_directory = '/home/sbard/dev/sidexa/hg_power'
     return {}
 
-@view_config(route_name='project_add', renderer='json')
+@view_config(route_name='project_add', renderer='json', permission='edit')
 def add_project(request):
     """
     """
@@ -99,7 +99,7 @@ def add_project(request):
              'projects_list':projects_list,
              'explanation':explanation}
 
-@view_config(route_name='project_delete', renderer='json')
+@view_config(route_name='project_delete', renderer='json', permission='edit')
 def delete_project(request):
     """
     """
@@ -108,7 +108,7 @@ def delete_project(request):
     id = request.matchdict['id']
     return {'result':result}
 
-@view_config(route_name='project_edit', renderer='edit.mako')
+@view_config(route_name='project_edit', renderer='edit.mako', permission='edit')
 def edit_project(request):
     """
     """
