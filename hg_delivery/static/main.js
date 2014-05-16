@@ -46,9 +46,9 @@ function add_project(target_url){
 /**
  * Delete a project regarding to its id
  */
-function delete_this_project(id_project){
+function delete_this_project(){
   var $button = $('#view_delete_project');
-  var target_url = $button.data('url')+id_project;
+  var target_url = $button.data('url');
   $.ajax({url:target_url,
           success:function(json_response){
             if(json_response.result){

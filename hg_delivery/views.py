@@ -74,6 +74,8 @@ def add_project(request):
     name = request.params['name']
     host = request.params['host']
     path = request.params['path']
+    user = request.params['user']
+    password = request.params['password']
 
     explanation = None
 
@@ -84,7 +86,7 @@ def add_project(request):
     else:
       try :
         # folder should be unique
-        project = Project(name=name, host=host, path=path)
+        project = Project(name=name, host=host, path=path, user=user, password=password)
         DBSession.add(project)
         DBSession.flush()
         result = True
@@ -98,6 +100,35 @@ def add_project(request):
     return { 'result':result,
              'projects_list':projects_list,
              'explanation':explanation}
+
+@view_config(route_name='project_update', permission='edit', renderer='json')
+def update_project(request):
+    """
+    """
+    result = False
+
+    name = request.params['name']
+    host = request.params['host']
+    path = request.params['path']
+
+    user = request.params['user']
+    password = request.params['password']
+
+    id_project = request.matchdict['id']
+
+    try :
+      project =  DBSession.query(Project).get(id_project)
+      project.name = name
+      project.host = host
+      project.path = path
+      project.user = user
+      project.password = password
+      DBSession.flush()
+    except :
+      DBSession.rollback()
+      result = False
+
+    return {'result':result, 'project':project}
 
 @view_config(route_name='project_delete', renderer='json', permission='edit')
 def delete_project(request):

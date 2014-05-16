@@ -31,6 +31,8 @@ class Project(Base):
 
   id = Column(Integer, primary_key=True)
   name = Column(String(100))
+  user = Column(String(100))
+  password = Column(String(100))
   host = Column(String(100))
   path = Column(Text)
 
@@ -41,7 +43,9 @@ class Project(Base):
     return { 'id':self.id,
              'name':self.name,
              'host':self.host,
-             'path':self.path }
+             'path':self.path,
+             'user':self.user,
+             'password':self.password}
 
 Index('project_unique', Project.host, Project.path, unique=True)
 
