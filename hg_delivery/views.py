@@ -74,6 +74,8 @@ def add_project(request):
 
     host = request.params['host']
     path = request.params['path']
+    user = request.params['user']
+    projects_list =  []
 
     if not host :
       explanation = u'Your project should contain a valid hostname'
@@ -85,14 +87,14 @@ def add_project(request):
         project = Project(**request.params)
         DBSession.add(project)
         DBSession.flush()
+        projects_list =  DBSession.query(Project).all()
         result = True
-        explanation = u'This project (%s %s) has been added...'%(host, path)
+        explanation = u'This project : %s@%s/%s has been added ...'%(user, host, path)
       except IntegrityError as e:
         DBSession.rollback()
         result = False
-        explanation = u'This project and this path are already defined (%s %s)...'%(host, path)
+        explanation = u'This project and this path are already defined (%s %s) ...'%(host, path)
 
-    projects_list =  DBSession.query(Project).all()
     return { 'result':result,
              'projects_list':projects_list,
              'explanation':explanation}
@@ -106,8 +108,10 @@ def update_project(request):
 
     host = request.params['host']
     path = request.params['path']
+    user = request.params['user']
     project = None
     explanation = None
+    projects_list = []
 
     if not host :
       explanation = u'Your project should contain a valid hostname'
@@ -119,11 +123,17 @@ def update_project(request):
         for key in request.params :
           setattr(project, key, request.params[key])
         DBSession.flush()
+        projects_list =  DBSession.query(Project).all()
+        explanation = u'This project : %s@%s/%s has been updated ...'%(user, host, path)
+        result = True
       except :
         DBSession.rollback()
         result = False
 
-    return {'result':result, 'project':project, 'explanation':explanation}
+    return { 'result':result,
+             'project':project,
+             'explanation':explanation,
+             'projects_list':projects_list }
 
 @view_config(route_name='project_delete', renderer='json', permission='edit')
 def delete_project(request):

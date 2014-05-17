@@ -14,29 +14,35 @@ function update_project(target_url){
           data:$('#project').serialize(),
           dataType:'json',
           success:function(json_response){
-            $('.alert').remove();
-            if(json_response.result){
-              $('#new_project').hide();
-              var $sel = $('#project_name');
-              $sel.show();
-              if($sel){
-                $sel.find('option').not('[value=""]').remove();
-                json_response.projects_list.forEach(function(item){
-                  $sel.append('<option value="'+item.id+'">'+item.name+'</option>');
-                });
+              $('.alert').remove();
+              if(json_response.result){
+                $('#new_project').hide();
+                var $sel = $('#project_name');
+                $sel.show();
+                if($sel){
+                  $sel.find('option').not('[value=""]').remove();
+                  json_response.projects_list.forEach(function(item){
+                    if (item.id === json_response.project.id){
+                      $sel.append('<option value="'+item.id+'" selected>'+item.name+'</option>');
+                    } else {
+                      $sel.append('<option value="'+item.id+'">'+item.name+'</option>');
+                    }
+                  });
+                }
+                if(json_response.explanation){
+                   var _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                   _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+                   $('#edit_project').after(_alert_html);
+                   $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove()});
+                }
+              } else if(json_response.explanation){
+                   var _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                   _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+                $('#edit_project').after(_alert_html);
+                $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove()});
+              } else {
+              
               }
-              if(json_response.explanation){
-                 var _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
-                 _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-                 $('#new_project').after(_alert_html);
-                 $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove()});
-              }
-            } else if(json_response.explanation){
-                 var _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
-                 _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-              $('#new_project').after(_alert_html);
-              $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove()});
-            }
             },
          });
 }
@@ -51,29 +57,29 @@ function add_project(target_url){
           complete:function(){
           },
           success:function(json_response){
-            $('.alert').remove();
-            if(json_response.result){
-              $('#new_project').hide();
-              var $sel = $('#project_name');
-              $sel.show();
-              if($sel){
-                $sel.find('option').not('[value=""]').remove();
-                json_response.projects_list.forEach(function(item){
-                  $sel.append('<option value="'+item.id+'">'+item.name+'</option>');
-                });
+              $('.alert').remove();
+              if(json_response.result){
+                $('#new_project').hide();
+                var $sel = $('#project_name');
+                $sel.show();
+                if($sel){
+                  $sel.find('option').not('[value=""]').remove();
+                  json_response.projects_list.forEach(function(item){
+                    $sel.append('<option value="'+item.id+'">'+item.name+'</option>');
+                  });
+                }
+                if(json_response.explanation){
+                   var _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                   _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+                   $('#new_project').after(_alert_html);
+                   $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove()});
+                }
+              } else if(json_response.explanation){
+                   var _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                   _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+                $('#new_project').after(_alert_html);
+                $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove()});
               }
-              if(json_response.explanation){
-                 var _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
-                 _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-                 $('#new_project').after(_alert_html);
-                 $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove()});
-              }
-            } else if(json_response.explanation){
-                 var _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
-                 _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-              $('#new_project').after(_alert_html);
-              $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove()});
-            }
             },
          });
 }

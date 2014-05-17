@@ -7,5 +7,9 @@ body {
 }
 
 #new_project {
-  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+#edit_project {
+  margin-bottom: 10px;
 }
