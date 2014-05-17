@@ -12,31 +12,31 @@
       <div class="form-group">
         <label for="project_name" class="col-sm-2 control-label">Name</label>
         <div class="col-sm-10">
-          <input id="project_name" class="form-control" name="name" type="text" placeholder="name">
+          <input id="project_name" class="form-control" name="name" type="text" placeholder="name" value="${project.name}">
         </div>
       </div>
       <div class="form-group">
         <label for="project_host" class="col-sm-2 control-label">Host</label>
         <div class="col-sm-10">
-          <input id="project_host" class="form-control" name="host" type="text" placeholder="hostname">
+          <input id="project_host" class="form-control" name="host" type="text" placeholder="hostname" value="${project.host}">
         </div>
       </div>
       <div class="form-group">
         <label for="project_path" class="col-sm-2 control-label">Folder</label>
         <div class="col-sm-10">
-          <input id="project_path" class="form-control" name="path" type="text" placeholder="/home/sites ...">
+          <input id="project_path" class="form-control" name="path" type="text" placeholder="/home/sites ..." value="${project.path}">
         </div>
       </div>
       <div class="form-group">
         <label for="project_user" class="col-sm-2 control-label">User</label>
         <div class="col-sm-10">
-          <input id="project_user" class="form-control" name="user" type="text" placeholder="user">
+          <input id="project_user" class="form-control" name="user" type="text" placeholder="user" value="${project.user}">
         </div>
       </div>
       <div class="form-group">
         <label for="project_password" class="col-sm-2 control-label">Passwd</label>
         <div class="col-sm-10">
-          <input id="project_password" class="form-control" name="password" type="password" placeholder="password">
+          <input id="project_password" class="form-control" name="password" type="password" placeholder="password" value="${project.password}">
         </div>
       </div>
       <button type="button" class="btn btn-primary" onclick="update_project('${url('project_update', id=project.id)}');">Update this project</button>

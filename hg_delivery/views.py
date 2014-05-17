@@ -70,14 +70,10 @@ def add_project(request):
     """
     """
     result = False
+    explanation = None
 
-    name = request.params['name']
     host = request.params['host']
     path = request.params['path']
-    user = request.params['user']
-    password = request.params['password']
-
-    explanation = None
 
     if not host :
       explanation = u'Your project should contain a valid hostname'
@@ -86,7 +82,7 @@ def add_project(request):
     else:
       try :
         # folder should be unique
-        project = Project(name=name, host=host, path=path, user=user, password=password)
+        project = Project(**request.params)
         DBSession.add(project)
         DBSession.flush()
         result = True
@@ -106,29 +102,28 @@ def update_project(request):
     """
     """
     result = False
-
-    name = request.params['name']
-    host = request.params['host']
-    path = request.params['path']
-
-    user = request.params['user']
-    password = request.params['password']
-
     id_project = request.matchdict['id']
 
-    try :
-      project =  DBSession.query(Project).get(id_project)
-      project.name = name
-      project.host = host
-      project.path = path
-      project.user = user
-      project.password = password
-      DBSession.flush()
-    except :
-      DBSession.rollback()
-      result = False
+    host = request.params['host']
+    path = request.params['path']
+    project = None
+    explanation = None
 
-    return {'result':result, 'project':project}
+    if not host :
+      explanation = u'Your project should contain a valid hostname'
+    elif not path :
+      explanation = u'Your project should contain a valid path'
+    else:
+      try :
+        project =  DBSession.query(Project).get(id_project)
+        for key in request.params :
+          setattr(project, key, request.params[key])
+        DBSession.flush()
+      except :
+        DBSession.rollback()
+        result = False
+
+    return {'result':result, 'project':project, 'explanation':explanation}
 
 @view_config(route_name='project_delete', renderer='json', permission='edit')
 def delete_project(request):

@@ -6,6 +6,41 @@ function go_to(url) {
 }
 
 /**
+ * update this project
+ */
+function update_project(target_url){
+  $.ajax({url: target_url,
+          method:'POST',
+          data:$('#project').serialize(),
+          dataType:'json',
+          success:function(json_response){
+            $('.alert').remove();
+            if(json_response.result){
+              $('#new_project').hide();
+              var $sel = $('#project_name');
+              $sel.show();
+              if($sel){
+                $sel.find('option').not('[value=""]').remove();
+                json_response.projects_list.forEach(function(item){
+                  $sel.append('<option value="'+item.id+'">'+item.name+'</option>');
+                });
+              }
+              if(json_response.explanation){
+                 var _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                 _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+                 $('#new_project').after(_alert_html);
+                 $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove()});
+              }
+            } else if(json_response.explanation){
+                 var _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                 _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+              $('#new_project').after(_alert_html);
+              $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove()});
+            }
+            },
+         });
+}
+/**
  * Add a new project
  */
 function add_project(target_url){
