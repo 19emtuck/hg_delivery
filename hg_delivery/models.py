@@ -21,8 +21,12 @@ from sqlalchemy.orm import (
 
 from zope.sqlalchemy import ZopeTransactionExtension
 
+from hg_delivery.nodes import PoolSsh 
+
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
+
+#------------------------------------------------------------------------------
 
 class Project(Base):
   """
@@ -47,6 +51,19 @@ class Project(Base):
              'user':self.user,
              'password':self.password}
 
+  def get_uri(self):
+    """
+    uri as hg way ...
+    """
+    return "%s:%s@%s:%s"%(self.user, self.password, self.host, self.path)
+
+  def get_ssh_node(self):
+    """
+    """
+    return PoolSsh.get_node(self.get_uri())
+
+#------------------------------------------------------------------------------
+
 Index('project_unique', Project.host, Project.path, unique=True)
 
 class RootFactory(object):
@@ -57,4 +74,8 @@ class RootFactory(object):
               (Allow, 'group:editors', 'edit') ]
 
   def __init__(self, request):
+    """
+    """
     pass
+
+#------------------------------------------------------------------------------

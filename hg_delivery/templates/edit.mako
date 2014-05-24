@@ -4,7 +4,7 @@
   Le projet : ${project.name}
 
   <button type="button" id="view_delete_project" class="btn btn-primary" onclick="delete_this_project()" data-url="${url(route_name='project_delete',id=project.id)}">Delete this project</button>
-  <button type="button" id="view_edit_project" class="btn btn-primary" onclick="$('#edit_project').toggle();">Edit this project</button>
+  <button type="button" id="view_edit_project" class="btn btn-primary" onclick="$('#edit_project').toggle();">Edit properties of this project</button>
 </div>
 
 <div id="edit_project" style="width:300px;display:None">
