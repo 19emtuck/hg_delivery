@@ -55,7 +55,7 @@
  %for node in last_hundred_change_sets :
    <tr>
     %if node['node'].count(state):
-    <td><b>&gt;</b></td>
+    <td><b>&gt;&gt;</b></td>
     %else :
     <td></td>
     %endif

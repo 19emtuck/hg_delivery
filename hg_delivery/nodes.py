@@ -39,12 +39,12 @@ class HgNode(NodeSsh):
   def get_state(self):
     """
     """
-    stdin, stdout, stderr = self.ssh.exec_command("hg id %s"%self.path)
+    stdin, stdout, stderr = self.ssh.exec_command("hg id -i %s"%self.path)
     if stderr == 0 :
        result = []
     result = [l.strip('\n') for l in stdout.readlines()]
     if result : 
-      result = result[0].split(' ')[0]
+      result = result[0]
     else :
       result = None
     return result
