@@ -54,7 +54,7 @@
 
  %for node in last_hundred_change_sets :
    <tr>
-    %if node['node'].count(state):
+    %if node['node'] == current_rev:
     <td><b>&gt;&gt;</b></td>
     %else :
     <td></td>

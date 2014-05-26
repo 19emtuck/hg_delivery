@@ -33,13 +33,10 @@ class HgNode(NodeSsh):
   """
   """
 
-  # def __init__(self, uri):
-  #   NodeSsh.__init__(self, uri)
-
-  def get_state(self):
+  def get_current_rev_hash(self):
     """
     """
-    stdin, stdout, stderr = self.ssh.exec_command("hg id -i %s"%self.path)
+    stdin, stdout, stderr = self.ssh.exec_command("hg --debug id -i %s"%self.path)
     if stderr == 0 :
        result = []
     result = [l.strip('\n') for l in stdout.readlines()]
@@ -64,11 +61,12 @@ class HgNode(NodeSsh):
       data = stdout.read()
     return list_nodes
 
-  def update_to(self, id_release):
+  def update_to(self, rev):
     """
     update project to a certain release
+    :param rev: string, the revision hash
     """
-    stdin, stdout, stderr = self.ssh.exec_command('cd %s ; hg update -C -r %s'%(self.path, id_release))
+    stdin, stdout, stderr = self.ssh.exec_command('cd %s ; hg update -C -r %s'%(self.path, rev))
     result = True
     if stderr == 0 :
        result = False

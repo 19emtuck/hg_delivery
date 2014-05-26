@@ -20,6 +20,7 @@ from .models import (
     )
 
 import paramiko
+import time
 
 @view_config(route_name='home', renderer='templates/index.mako')
 def default_view(request):
@@ -122,11 +123,11 @@ def edit_project(request):
     project =  DBSession.query(Project).get(id_project)
 
     ssh_node = project.get_ssh_node()
-    state = ssh_node.get_state()
+    current_rev = ssh_node.get_current_rev_hash()
 
     last_hundred_change_sets = ssh_node.get_last_logs(100)
     return { 'project':project,
-             'state':state,
+             'current_rev':current_rev,
              'last_hundred_change_sets':last_hundred_change_sets }
 
 @view_config(route_name='project_change_to', permission='edit')
@@ -139,5 +140,9 @@ def update_project_to(request):
   project =  DBSession.query(Project).get(id_project)
   ssh_node = project.get_ssh_node()
   ssh_node.update_to(revision)
+  current_rev = ssh_node.get_current_rev_hash()
+  while current_rev!=revision :
+    time.sleep(0.200)
+    current_rev = ssh_node.get_current_rev_hash()
 
   return HTTPFound(location=request.route_url(route_name='project_edit', id=project.id))
