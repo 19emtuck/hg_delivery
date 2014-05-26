@@ -39,17 +39,18 @@ class HgNode(NodeSsh):
   def get_state(self):
     """
     """
-    t0=time.time()
     stdin, stdout, stderr = self.ssh.exec_command("hg id %s"%self.path)
     if stderr == 0 :
        result = []
     result = [l.strip('\n') for l in stdout.readlines()]
+    if result : 
+      result = result[0].split(' ')[0]
+    else :
+      result = None
+    return result
   
   def get_last_logs(self, nb_lines):
-    t0=time.time()
-    print('cd %s'%path)
     stdin, stdout, stderr = self.ssh.exec_command('cd %s ; hg log -l %d --template "{node};{branches};{rev};{parents};{desc};{tags}\n"'%(self.path, nb_lines))
-    print(stderr.readlines())
     data = stdout.read()
     list_nodes = []
     while data :
@@ -63,7 +64,15 @@ class HgNode(NodeSsh):
       data = stdout.read()
     return list_nodes
 
-
+  def update_to(self, id_release):
+    """
+    update project to a certain release
+    """
+    stdin, stdout, stderr = self.ssh.exec_command('cd %s ; hg update -C -r %s'%(self.path, id_release))
+    result = True
+    if stderr == 0 :
+       result = False
+    return result
 
 #------------------------------------------------------------------------------
 

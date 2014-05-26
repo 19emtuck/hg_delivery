@@ -43,6 +43,7 @@ def main(global_config, **settings):
     config.add_route('project_delete', '/project/delete/{id:\d+}', custom_predicates=(to_int('id'),))
     config.add_route('project_edit',   '/project/edit/{id:\d+}', custom_predicates=(to_int('id'),))
     config.add_route('project_update', '/project/update/{id:\d+}', custom_predicates=(to_int('id'),))
+    config.add_route('project_change_to', '/project/change/{id:\d+}/to/{rev}', custom_predicates=(to_int('id'),))
 
     config.scan()
     return config.make_wsgi_app()

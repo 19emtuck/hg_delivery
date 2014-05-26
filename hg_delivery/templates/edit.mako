@@ -42,3 +42,27 @@
       <button type="button" class="btn btn-primary" onclick="update_project('${url('project_update', id=project.id)}');">Update this project</button>
    <form>
 </div>
+
+<!-- node tables -->
+<table widht="100%" border="1">
+   <thead>
+     <th></th>
+     <th>Revision Number</th>
+     <th>Branch</th>
+     <th>Description</th>
+   </thead>
+
+ %for node in last_hundred_change_sets :
+   <tr>
+    %if node['node'].count(state):
+    <td><b>&gt;</b></td>
+    %else :
+    <td></td>
+    %endif
+    <td><span title="${node['node']}">${node['rev']}</span></td>
+    <td>${node['branche']}</td>
+    <td><a href="${url('project_change_to',id=project.id, rev=node['node'])}" title="revert to the node ${node['rev']}" >${node['desc']}</a></td>
+   </tr>
+ %endfor
+
+</table>

@@ -9,6 +9,7 @@
 #
 
 from pyramid.response import Response
+from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
 
 from sqlalchemy.exc import DBAPIError, IntegrityError
@@ -19,17 +20,6 @@ from .models import (
     )
 
 import paramiko
-
-def exec_command():
-  """
-  """
-  
-
-def read_branches(directory):
-  """
-  """
-  return run("hg log -l 1 -b %s --template {node}"%branch_name)
-
 
 @view_config(route_name='home', renderer='templates/index.mako')
 def default_view(request):
@@ -133,5 +123,21 @@ def edit_project(request):
 
     ssh_node = project.get_ssh_node()
     state = ssh_node.get_state()
-    return { 'project':project }
 
+    last_hundred_change_sets = ssh_node.get_last_logs(100)
+    return { 'project':project,
+             'state':state,
+             'last_hundred_change_sets':last_hundred_change_sets }
+
+@view_config(route_name='project_change_to', permission='edit')
+def update_project_to(request):
+  """
+  """
+  id_project = request.matchdict['id']
+  revision = request.matchdict['rev']
+
+  project =  DBSession.query(Project).get(id_project)
+  ssh_node = project.get_ssh_node()
+  ssh_node.update_to(revision)
+
+  return HTTPFound(location=request.route_url(route_name='project_edit', id=project.id))
