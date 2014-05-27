@@ -1,15 +1,15 @@
 <%inherit file="base.mako"/>
 
 <div class="starter-template">
-  Le projet : ${project.name}
-  <button type="button" id="view_delete_project" class="btn btn-primary" onclick="delete_this_project()" data-url="${url(route_name='project_delete',id=project.id)}">Delete this project</button>
-  <button type="button" id="view_edit_project" class="btn btn-primary" onclick="$('#edit_project').toggle();">Edit properties of this project</button>
+  <b>${project.name}</b> revision : ${current_rev}<br>
+  ${current_node['branch']}
+  ${current_node['desc']}
 </div>
 
 <div>
   <form id="refresh" name="refresh" action="" method="POST" role="form">
     <select id="branch" name="branch" onchange="$('#refresh').submit();">
-      <option value=""> ---------------- </option>
+      <option value=""> All </option>
       %for _branch in list_branches :
         %if filter_branch and filter_branch == _branch :
           <option selected>${_branch}</option>
@@ -19,7 +19,7 @@
       %endfor
     </select>
     &nbsp;
-    <input type="text" name="limit" value="200" size="3" maxlength="4">
+    <input type="text" name="limit" value="${limit}" size="3" maxlength="4">
     &nbsp;
     <button id="view_refresh_project" class="btn btn-primary">Update this view</button>
   </form>
@@ -73,12 +73,16 @@
     %for node in last_hundred_change_sets :
       <tr>
        %if node['node'] == current_rev:
-       <td><b>&gt;&gt;</b></td>
+       <td><span class="label label-warning">&gt;&gt;</span></td>
        %else :
        <td></td>
        %endif
        <td><span title="${node['node']}">${node['rev']}</span></td>
-       <td><span class="label label-success">${node['branche']}</span></td>
+       %if node['node'] == current_rev:
+         <td><span class="label label-warning">${node['branch']}</span></td>
+       %else :
+         <td><span class="label label-success">${node['branch']}</span></td>
+       %endif
        <td><a href="${url('project_change_to',id=project.id, rev=node['node'])}" title="revert to the node ${node['rev']}" >${node['desc']}</a></td>
       </tr>
     %endfor

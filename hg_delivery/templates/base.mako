@@ -51,6 +51,21 @@
                    % endif
                  % endfor
                </select>
+
+               % if project is not UNDEFINED :
+               <!-- Single button for project management-->
+               <div class="btn-group" style="margin-left:20px">
+                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                   Manage project <span class="caret"></span>
+                 </button>
+                 <ul class="dropdown-menu" role="menu">
+                   <li><a href="#" onclick="$('#edit_project').toggle();">Edit properties</a></li>
+                   <li class="divider"></li>
+                   <li><a href="#" onclick="delete_this_project()" data-url="${url(route_name='project_delete',id=project.id)}">Delete</a></li>
+                 </ul>
+               </div>
+               % endif
+
             </form>
           % endif
           % if logged_in is None :

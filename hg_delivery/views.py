@@ -134,13 +134,15 @@ def edit_project(request):
       #  and request.params['limit'].isigit()
       limit = int(request.params['limit'])
 
-    last_hundred_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch)
+    last_hundred_change_sets, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch)
     list_branches = ssh_node.get_branches()
-
+    current_node = map_change_sets.get(current_rev) 
     return { 'project':project,
              'list_branches':list_branches,
+             'limit':limit,
              'filter_branch':branch,
              'current_rev':current_rev,
+             'current_node':current_node,
              'last_hundred_change_sets':last_hundred_change_sets }
 
 @view_config(route_name='project_change_to', permission='edit')

@@ -105,16 +105,19 @@ class HgNode(NodeSsh):
       data = ""
 
     list_nodes = []
+    map_nodes = {}
 
     data = (line for line in data.splitlines())
     node = {}
+
     for line in data :
-      node, branche, rev, parents, desc, tags = line.split('|#|')
+      node, branch, rev, parents, desc, tags = line.split('|#|')
       desc = desc.replace('\\n','\n')
-      if not branche : branche = 'default'
-      list_nodes.append({'node':node, 'branche':branche, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags})
-      node = {}
-    return list_nodes
+      if not branch : branch = 'default'
+      list_nodes.append({'node':node, 'branch':branch, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags})
+      map_nodes[node]=list_nodes[-1]
+
+    return list_nodes, map_nodes
 
   def get_branches(self):
     """
