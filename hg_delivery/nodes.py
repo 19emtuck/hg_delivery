@@ -2,7 +2,6 @@ import paramiko
 import time
 import logging
 
-
 #------------------------------------------------------------------------------
 
 class NodeException(Exception):
@@ -54,21 +53,21 @@ class NodeSsh(object):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(self.host, username=self.user, password=self.password)
-
     return ssh
 
   @check_connections
   def run_command(self, command):
     ''' Executes command via SSH. '''
+
     stdin, stdout, stderr = self.ssh.exec_command(command)
     stdin.flush()
     stdin.channel.shutdown_write()
     ret = stdout.read()
     err = stderr.read()
+
     if ret:
       if(type(ret)==bytes):
-        # ret = ret.decode('utf-8')
-        ret = str(ret,'ascii')
+        ret = str(ret,'utf-8')
       return ret
     elif err:
       raise NodeException(err)
@@ -87,21 +86,21 @@ class HgNode(NodeSsh):
     try :
       data = self.run_command("hg --debug id -i %s"%self.path)
     except NodeException as e :
-      result = []
-    result = [l.strip('\n') for l in data]
-    if result : 
-      result = result[0]
-    else :
       result = None
+    else :
+      result = data.strip('\n')
     return result
   
-  def get_last_logs(self, nb_lines):
+  def get_last_logs(self, nb_lines, branch_filter=None):
     """
       return last logs ...
       :param nb_lines: integer, limit the number of lines
     """
     try :
-      data = self.run_command('cd %s ; hg log -l %d --template "{node};{branches};{rev};{parents};{desc};{tags}\n"'%(self.path, nb_lines))
+      if branch_filter :
+        data = self.run_command('cd %s ; hg log -l %d --template "{node}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" -b %s'%(self.path, nb_lines, branch_filter))
+      else :
+        data = self.run_command('cd %s ; hg log -l %d --template "{node}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n"'%(self.path, nb_lines))
     except NodeException as e :
       data = ""
 
@@ -110,7 +109,8 @@ class HgNode(NodeSsh):
     data = (line for line in data.splitlines())
     node = {}
     for line in data :
-      node, branche, rev, parents, desc, tags = line.split(';')
+      node, branche, rev, parents, desc, tags = line.split('|#|')
+      desc = desc.replace('\\n','\n')
       if not branche : branche = 'default'
       list_nodes.append({'node':node, 'branche':branche, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags})
       node = {}

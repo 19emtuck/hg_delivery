@@ -125,11 +125,21 @@ def edit_project(request):
     ssh_node = project.get_ssh_node()
     current_rev = ssh_node.get_current_rev_hash()
 
-    last_hundred_change_sets = ssh_node.get_last_logs(100)
+    branch = None
+    if 'branch' in request.params :
+      branch = request.params['branch']
+
+    limit = 200
+    if 'limit' in request.params:
+      #  and request.params['limit'].isigit()
+      limit = int(request.params['limit'])
+
+    last_hundred_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch)
     list_branches = ssh_node.get_branches()
 
     return { 'project':project,
              'list_branches':list_branches,
+             'filter_branch':branch,
              'current_rev':current_rev,
              'last_hundred_change_sets':last_hundred_change_sets }
 
