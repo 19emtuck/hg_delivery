@@ -52,6 +52,14 @@
      <th>Description</th>
    </thead>
 
+<select name="branch">
+  <option value="">------</option>
+  %for _branch in list_branches :
+    <option>${_branch}</option>
+  %endfor
+</select>
+
+
  %for node in last_hundred_change_sets :
    <tr>
     %if node['node'] == current_rev:

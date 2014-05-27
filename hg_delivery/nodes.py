@@ -1,5 +1,30 @@
 import paramiko
 import time
+import logging
+
+
+#------------------------------------------------------------------------------
+
+class NodeException(Exception):
+  """
+  """
+
+#------------------------------------------------------------------------------
+
+def check_connections(function):
+  """
+    A decorator to check SSH connections.
+  """
+
+  def deco(self, *args, **kwargs):
+      if self.ssh is None:
+          self.ssh = self.get_ssh()
+      else:
+          ret = getattr(self.ssh.get_transport(), 'is_active', None)
+          if ret is None or (ret is not None and not ret()):
+              self.ssh = self.get_ssh()
+      return function(self, *args, **kwargs)
+  return deco
 
 #------------------------------------------------------------------------------
 
@@ -20,14 +45,37 @@ class NodeSsh(object):
     self.path = path 
     self.password, self.host = password_host.split('@')
 
-    self.ssh = paramiko.SSHClient()
-    self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    self.ssh.connect(self.host, username=self.user, password=self.password)
+    self.ssh = self.get_ssh()
 
-  def check_connection(self):
+  def get_ssh(self):
     """
+      set ssh ...
     """
-    pass
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(self.host, username=self.user, password=self.password)
+
+    return ssh
+
+  @check_connections
+  def run_command(self, command):
+    ''' Executes command via SSH. '''
+    stdin, stdout, stderr = self.ssh.exec_command(command)
+    stdin.flush()
+    stdin.channel.shutdown_write()
+    ret = stdout.read()
+    err = stderr.read()
+    if ret:
+      if(type(ret)==bytes):
+        # ret = ret.decode('utf-8')
+        ret = str(ret,'ascii')
+      return ret
+    elif err:
+      raise NodeException(err)
+    else:
+      return None
+
+#------------------------------------------------------------------------------
 
 class HgNode(NodeSsh):
   """
@@ -36,10 +84,11 @@ class HgNode(NodeSsh):
   def get_current_rev_hash(self):
     """
     """
-    stdin, stdout, stderr = self.ssh.exec_command("hg --debug id -i %s"%self.path)
-    if stderr == 0 :
-       result = []
-    result = [l.strip('\n') for l in stdout.readlines()]
+    try :
+      data = self.run_command("hg --debug id -i %s"%self.path)
+    except NodeException as e :
+      result = []
+    result = [l.strip('\n') for l in data]
     if result : 
       result = result[0]
     else :
@@ -47,29 +96,49 @@ class HgNode(NodeSsh):
     return result
   
   def get_last_logs(self, nb_lines):
-    stdin, stdout, stderr = self.ssh.exec_command('cd %s ; hg log -l %d --template "{node};{branches};{rev};{parents};{desc};{tags}\n"'%(self.path, nb_lines))
-    data = stdout.read()
+    """
+      return last logs ...
+      :param nb_lines: integer, limit the number of lines
+    """
+    try :
+      data = self.run_command('cd %s ; hg log -l %d --template "{node};{branches};{rev};{parents};{desc};{tags}\n"'%(self.path, nb_lines))
+    except NodeException as e :
+      data = ""
+
     list_nodes = []
-    while data :
-      data = (line.decode('utf-8') for line in data.splitlines())
+
+    data = (line for line in data.splitlines())
+    node = {}
+    for line in data :
+      node, branche, rev, parents, desc, tags = line.split(';')
+      if not branche : branche = 'default'
+      list_nodes.append({'node':node, 'branche':branche, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags})
       node = {}
-      for line in data :
-        node, branche, rev, parents, desc, tags = line.split(';')
-        if not branche : branche = 'default'
-        list_nodes.append({'node':node, 'branche':branche, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags})
-        node = {}
-      data = stdout.read()
     return list_nodes
+
+  def get_branches(self):
+    """
+    """
+    branches = []
+    try :
+      data = self.run_command('cd %s ; hg branches\n"'%(self.path))
+    except NodeException as e :
+      pass
+    else :
+      branches = sorted((e.split(' ')[0] for e in data.strip().split('\n') if e.split(' ')[0]))
+
+    return branches
 
   def update_to(self, rev):
     """
     update project to a certain release
     :param rev: string, the revision hash
     """
-    stdin, stdout, stderr = self.ssh.exec_command('cd %s ; hg update -C -r %s'%(self.path, rev))
     result = True
-    if stderr == 0 :
-       result = False
+    try :
+      data = self.run_command('cd %s ; hg update -C -r %s'%(self.path, rev))
+    except NodeException as e :
+      result = False
     return result
 
 #------------------------------------------------------------------------------
@@ -89,6 +158,6 @@ class PoolSsh(object):
     if uri not in cls.nodes :
       cls.nodes[uri] = HgNode(uri)
 
-    return cls.nodes[uri]
-
+    node = cls.nodes[uri]
+    return node
 

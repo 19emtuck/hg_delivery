@@ -126,7 +126,10 @@ def edit_project(request):
     current_rev = ssh_node.get_current_rev_hash()
 
     last_hundred_change_sets = ssh_node.get_last_logs(100)
+    list_branches = ssh_node.get_branches()
+
     return { 'project':project,
+             'list_branches':list_branches,
              'current_rev':current_rev,
              'last_hundred_change_sets':last_hundred_change_sets }
 
@@ -141,8 +144,9 @@ def update_project_to(request):
   ssh_node = project.get_ssh_node()
   ssh_node.update_to(revision)
   current_rev = ssh_node.get_current_rev_hash()
-  while current_rev!=revision :
-    time.sleep(0.200)
-    current_rev = ssh_node.get_current_rev_hash()
 
+  while current_rev!=revision :
+    # sleep 100 ms
+    time.sleep(0.100)
+    current_rev = ssh_node.get_current_rev_hash()
   return HTTPFound(location=request.route_url(route_name='project_edit', id=project.id))
