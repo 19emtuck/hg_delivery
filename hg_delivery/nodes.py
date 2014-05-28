@@ -91,13 +91,15 @@ class HgNode(NodeSsh):
       result = data.strip('\n')
     return result
   
-  def get_last_logs(self, nb_lines, branch_filter=None):
+  def get_last_logs(self, nb_lines, branch_filter=None, revision_filter=None):
     """
       return last logs ...
       :param nb_lines: integer, limit the number of lines
     """
     try :
-      if branch_filter :
+      if revision_filter :
+        data = self.run_command('cd %s ; hg log --template "{node}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" -r %s'%(self.path, revision_filter))
+      elif branch_filter :
         data = self.run_command('cd %s ; hg log -l %d --template "{node}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" -b %s'%(self.path, nb_lines, branch_filter))
       else :
         data = self.run_command('cd %s ; hg log -l %d --template "{node}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n"'%(self.path, nb_lines))
@@ -131,6 +133,12 @@ class HgNode(NodeSsh):
       branches = sorted((e.split(' ')[0] for e in data.strip().split('\n') if e.split(' ')[0]))
 
     return branches
+
+  def get_revision_description(self, rev):
+    """
+    """
+    list_nodes, map_nodes = self.get_last_logs(1, revision_filter=rev)
+    return list_nodes[0]
 
   def update_to(self, rev):
     """

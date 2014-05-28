@@ -1,9 +1,24 @@
 <%inherit file="base.mako"/>
 
 <div class="starter-template">
-  <b>${project.name}</b> revision : ${current_rev}<br>
-  ${current_node['branch']}
-  ${current_node['desc']}
+
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title"><b>${project.name}</b>  revision : ${current_rev}</h3>
+    </div>
+    <div class="panel-body">
+      % if current_node is not UNDEFINED and current_node:
+        <span class="label label-warning"> ${current_node['branch']}</span
+        <br>
+        <br>
+        ${current_node['desc']}
+      % endif
+    </div>
+  </div>
+
+
+
 </div>
 
 <div>
@@ -55,6 +70,18 @@
         <label for="project_password" class="col-sm-2 control-label">Passwd</label>
         <div class="col-sm-10">
           <input id="project_password" class="form-control" name="password" type="password" placeholder="password" value="${project.password}">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="project_dashboard" class="col-sm-2 control-label">Dashboard</label>
+        <div class="col-sm-10">
+
+          % if project.dashboard :
+            <input id="project_dashboard" class="form-control" name="dashboard" type="checkbox" placeholder="dashboard" value="1" checked>
+          % else :
+            <input id="project_dashboard" class="form-control" name="dashboard" type="checkbox" placeholder="dashboard" value="1">
+          % endif
+
         </div>
       </div>
       <button type="button" class="btn btn-primary" onclick="update_project('${url('project_update', id=project.id)}');">Update this project</button>

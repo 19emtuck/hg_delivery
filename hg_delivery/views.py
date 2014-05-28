@@ -22,6 +22,21 @@ from .models import (
 import paramiko
 import time
 
+@view_config(route_name='dashboard', renderer='templates/dashboard.mako')
+def dashboard_view(request):
+    """
+    """
+    nodes_description = {}
+    lst_projects = DBSession.query(Project).filter(Project.dashboard==1).all()
+    for project in lst_projects :
+       ssh_node = project.get_ssh_node()
+       current_rev = ssh_node.get_current_rev_hash()
+       description = ssh_node.get_revision_description(current_rev)
+       nodes_description[project.id] = description
+    
+    return { 'nodes_description':nodes_description,
+             'lst_projects':lst_projects }
+
 @view_config(route_name='home', renderer='templates/index.mako')
 def default_view(request):
     """
@@ -85,6 +100,10 @@ def update_project(request):
         project =  DBSession.query(Project).get(id_project)
         for key in request.params :
           setattr(project, key, request.params[key])
+
+        if 'dashboard' not in request.params :
+          project.dashboard = 0
+
         DBSession.flush()
         projects_list =  DBSession.query(Project).all()
         explanation = u'This project : %s@%s/%s has been updated ...'%(user, host, path)
@@ -136,7 +155,8 @@ def edit_project(request):
 
     last_hundred_change_sets, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch)
     list_branches = ssh_node.get_branches()
-    current_node = map_change_sets.get(current_rev) 
+    current_node = ssh_node.get_revision_description(current_rev)
+
     return { 'project':project,
              'list_branches':list_branches,
              'limit':limit,

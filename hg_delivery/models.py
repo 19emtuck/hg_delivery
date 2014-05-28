@@ -10,6 +10,7 @@ from sqlalchemy import (
     Integer,
     Text,
     String,
+    Boolean
     )
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -39,7 +40,7 @@ class Project(Base):
   password = Column(String(100))
   host = Column(String(100))
   path = Column(Text)
-
+  dashboard = Column(Boolean)
 
   def __json__(self, request):
     """
@@ -49,7 +50,8 @@ class Project(Base):
              'host':self.host,
              'path':self.path,
              'user':self.user,
-             'password':self.password}
+             'password':self.password,
+             'dashboard':self.dashboard}
 
   def get_uri(self):
     """
