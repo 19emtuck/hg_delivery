@@ -45,7 +45,7 @@
   </form>
 </div>
 
-<div id="edit_project" style="width:300px;display:None">
+<div id="edit_project" style="width:300px;margin-top:20px;display:None">
    <form id="project" name="project" action="${url(route_name='project_update',id=project.id)}" method="post" class="form-horizontal" role="form">
       <div class="form-group">
         <label for="project_name" class="col-sm-2 control-label">Name</label>
