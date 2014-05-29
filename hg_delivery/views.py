@@ -18,7 +18,7 @@ from .models import (
     DBSession,
     Project,
     )
-
+from hg_delivery.nodes import NodeException
 import paramiko
 import time
 import logging

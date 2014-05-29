@@ -40,30 +40,33 @@
           % if logged_in is not None :
             <form name="view_project" class="navbar-form pull-right">
                % if projects_list :
-               <select id="project_name" class="form-control" name="project_name" data-url="${url(route_name='project_edit', id='')}">
-               % else :
-               <select id="project_name" class="form-control" name="project_name" data-url="${url(route_name='project_edit', id='')}" style="display:none">
-               % endif
-                 <option value="">-- projects --</option>
-                 % for __project in projects_list :
-                   % if project is not UNDEFINED and project.id == __project.id:
-                     <option value="${__project.id}" selected>${__project.name}</option>
+               <!-- Single button for project management-->
+               <div class="btn-group">
+                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                   % if project is not UNDEFINED:
+                     <span id="project_name">${project.name}</span> <span class="caret"></span>
                    % else :
-                     <option value="${__project.id}">${__project.name}</option>
+                     Projects <span class="caret"></span>
                    % endif
+                 </button>
+                 <ul id="projects_list" class="dropdown-menu" role="menu" data-url="${url(route_name='project_edit',id='')}">
+                 % for __project in projects_list :
+                   <li><a href="${url(route_name='project_edit',id=__project.id)}">${__project.name}</a></li>
                  % endfor
-               </select>
+                 </ul>
+               </div>
+               % endif
 
                % if project is not UNDEFINED :
                <!-- Single button for project management-->
                <div class="btn-group" style="margin-left:20px">
-                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="min-width:80px">
                    Manage project <span class="caret"></span>
                  </button>
                  <ul class="dropdown-menu" role="menu">
                    <li><a href="#" onclick="$('#edit_project').toggle();">Edit properties</a></li>
                    <li class="divider"></li>
-                   <li><a href="#" onclick="delete_this_project()" data-url="${url(route_name='project_delete',id=project.id)}">Delete</a></li>
+                   <li><a id="view_delete_project" href="#" onclick="delete_this_project()" data-url="${url(route_name='project_delete',id=project.id)}">Delete</a></li>
                  </ul>
                </div>
                % endif

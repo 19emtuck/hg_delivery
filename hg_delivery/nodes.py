@@ -11,6 +11,7 @@
 import paramiko
 import time
 import logging
+import socket
 
 #------------------------------------------------------------------------------
 
@@ -60,29 +61,34 @@ class NodeSsh(object):
     """
       set ssh ...
     """
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(self.host, username=self.user, password=self.password)
+    try :
+      ssh = paramiko.SSHClient()
+      ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+      ssh.connect(self.host, username=self.user, password=self.password)
+    except socket.gaierror :
+      raise NodeException("host unavailable")
     return ssh
 
   @check_connections
   def run_command(self, command):
     ''' Executes command via SSH. '''
+    try :
+      stdin, stdout, stderr = self.ssh.exec_command(command)
+      stdin.flush()
+      stdin.channel.shutdown_write()
+      ret = stdout.read()
+      err = stderr.read()
 
-    stdin, stdout, stderr = self.ssh.exec_command(command)
-    stdin.flush()
-    stdin.channel.shutdown_write()
-    ret = stdout.read()
-    err = stderr.read()
-
-    if ret:
-      if(type(ret)==bytes):
-        ret = str(ret,'utf-8')
-      return ret
-    elif err:
-      raise NodeException(err)
-    else:
-      return None
+      if ret:
+        if(type(ret)==bytes):
+          ret = str(ret,'utf-8')
+        return ret
+      elif err:
+        raise NodeException(err)
+      else:
+        return None
+    except socket.gaierror :
+      raise NodeException("host unavailable")
 
 #------------------------------------------------------------------------------
 

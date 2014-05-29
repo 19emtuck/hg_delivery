@@ -17,16 +17,13 @@ function update_project(target_url){
               $('.alert').remove();
               if(json_response.result){
                 $('#new_project').hide();
-                var $sel = $('#project_name');
-                $sel.show();
+                var $sel = $('#projects_list');
+                $('#project_name').text(json_response.project.name);
                 if($sel){
-                  $sel.find('option').not('[value=""]').remove();
+                  $sel.find('li').remove();
+                  var default_url = $sel.data('url');
                   json_response.projects_list.forEach(function(item){
-                    if (item.id === json_response.project.id){
-                      $sel.append('<option value="'+item.id+'" selected>'+item.name+'</option>');
-                    } else {
-                      $sel.append('<option value="'+item.id+'">'+item.name+'</option>');
-                    }
+                    $sel.append('<li><a href="'+default_url+item.id+'">'+item.name+'</a></li>');
                   });
                 }
                 if(json_response.explanation){
@@ -60,12 +57,13 @@ function add_project(target_url){
               $('.alert').remove();
               if(json_response.result){
                 $('#new_project').hide();
-                var $sel = $('#project_name');
+                var $sel = $('#projects_list');
                 $sel.show();
                 if($sel){
-                  $sel.find('option').not('[value=""]').remove();
+                  $sel.find('li').remove();
+                  var default_url = $sel.data('url');
                   json_response.projects_list.forEach(function(item){
-                    $sel.append('<option value="'+item.id+'">'+item.name+'</option>');
+                    $sel.append('<li><a href="'+default_url+item.id+'">'+item.name+'</a></li>');
                   });
                 }
                 if(json_response.explanation){
@@ -88,8 +86,7 @@ function add_project(target_url){
  * Delete a project regarding to its id
  */
 function delete_this_project(){
-  var $button = $('#view_delete_project');
-  var target_url = $button.data('url');
+  var target_url = $('#view_delete_project').data('url');
   $.ajax({url:target_url,
           success:function(json_response){
             if(json_response.result){
@@ -105,14 +102,4 @@ function delete_this_project(){
  * Init js component for project overview page
  */
 function init_page_overview(){
-  var $sel = $('#project_name');
-  if($sel){
-    $sel.bind('change', function(){
-      var $sel = $('#project_name');
-      var _value = $sel.val();
-      if(_value){
-        go_to($sel.data('url')+_value);
-      }
-    });
-  }
 }
