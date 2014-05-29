@@ -3,20 +3,19 @@
 <div class="starter-template">
 
 
+% if current_node is not UNDEFINED and current_node is not None :
   <div class="panel panel-default">
     <div class="panel-heading">
-      <h3 class="panel-title"><b>${project.name}</b>  revision : ${current_rev}</h3>
+      <h3 class="panel-title"><b>${project.name}</b> position @revision : <i>${current_node['rev']} (${current_node['node']})</i></h3>
     </div>
     <div class="panel-body">
-      % if current_node is not UNDEFINED and current_node:
         <span class="label label-warning"> ${current_node['branch']}</span
         <br>
         <br>
         ${current_node['desc']}
-      % endif
     </div>
   </div>
-
+% endif
 
 
 </div>
@@ -99,18 +98,22 @@
    <tbody>
     %for node in last_hundred_change_sets :
       <tr>
-       %if node['node'] == current_rev:
-       <td><span class="label label-warning">&gt;&gt;</span></td>
+       %if node['node'] == current_node['node']:
+       <td><span class="glyphicon glyphicon-ok" style="color:#f0ad4e"></span></td>
        %else :
        <td></td>
        %endif
        <td><span title="${node['node']}">${node['rev']}</span></td>
-       %if node['node'] == current_rev:
+       %if node['node'] == current_node['node']:
          <td><span class="label label-warning">${node['branch']}</span></td>
        %else :
          <td><span class="label label-success">${node['branch']}</span></td>
        %endif
+       %if node['node'] == current_node['node']:
+       <td><a href="${url('project_change_to',id=project.id, rev=node['node'])}" title="revert to the node ${node['rev']}" ><span class="label label-warning">${node['desc']}</span></a></td>
+       %else :
        <td><a href="${url('project_change_to',id=project.id, rev=node['node'])}" title="revert to the node ${node['rev']}" >${node['desc']}</a></td>
+       %endif
       </tr>
     %endfor
    </tbody>

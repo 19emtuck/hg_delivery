@@ -15,6 +15,25 @@
 </div>
 
 % if logged_in is not None :
+
+  <h2><span class="label label-default">Dashboard</span></h2>
+
+  %for project in dashboard_list :
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><a href="${url(route_name='project_edit',id=project.id)}"><b>${project.name}</b></a>  <i>(revision : ${nodes_description[project.id]['rev']})</i></h3>
+      </div>
+      <div class="panel-body">
+        current branch : <span class="label label-warning"> ${nodes_description[project.id]['branch']}</span
+        <br>
+        <br>
+        current hash : <i>${nodes_description[project.id]['node']}</i>
+        <br>
+        current comment : <i>${nodes_description[project.id]['desc']}</i>
+      </div>
+    </div>
+  %endfor
+
   <div id="new_project" style="width:300px;display:None">
      <form id="project" name="project" action="/project/add" method="post" class="form-horizontal" role="form">
         <div class="form-group">

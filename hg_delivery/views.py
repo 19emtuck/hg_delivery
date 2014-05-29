@@ -22,26 +22,30 @@ from .models import (
 import paramiko
 import time
 
-@view_config(route_name='dashboard', renderer='templates/dashboard.mako')
-def dashboard_view(request):
-    """
-    """
-    nodes_description = {}
-    lst_projects = DBSession.query(Project).filter(Project.dashboard==1).all()
-    for project in lst_projects :
-       ssh_node = project.get_ssh_node()
-       current_rev = ssh_node.get_current_rev_hash()
-       description = ssh_node.get_revision_description(current_rev)
-       nodes_description[project.id] = description
-    
-    return { 'nodes_description':nodes_description,
-             'lst_projects':lst_projects }
-
 @view_config(route_name='home', renderer='templates/index.mako')
 def default_view(request):
     """
     """
-    return {}
+    projects_list =  []
+    dashboard_list = []
+    nodes_description = {}
+
+    if request.authenticated_userid :
+      projects_list =  DBSession.query(Project).all()
+
+      for project in projects_list :
+        if project.dashboard!=1 :
+          continue
+        dashboard_list.append(project)
+        ssh_node = project.get_ssh_node()
+        current_rev = ssh_node.get_current_rev_hash()
+        description = ssh_node.get_revision_description(current_rev)
+        nodes_description[project.id] = description
+
+    return { 'projects_list':projects_list,
+             'nodes_description':nodes_description,
+             'dashboard_list':dashboard_list,
+           }
 
 @view_config(route_name='project_add', renderer='json', permission='edit')
 def add_project(request):
@@ -149,19 +153,23 @@ def edit_project(request):
       branch = request.params['branch']
 
     limit = 200
-    if 'limit' in request.params:
-      #  and request.params['limit'].isigit()
+    if 'limit' in request.params and request.params['limit'].isdigit():
       limit = int(request.params['limit'])
 
     last_hundred_change_sets, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch)
     list_branches = ssh_node.get_branches()
-    current_node = ssh_node.get_revision_description(current_rev)
+
+    current_node = map_change_sets.get(current_rev)
+    if current_node is None :
+      current_node = ssh_node.get_revision_description(current_rev)
+
+    projects_list =  DBSession.query(Project).all()
 
     return { 'project':project,
              'list_branches':list_branches,
              'limit':limit,
+             'projects_list':projects_list,
              'filter_branch':branch,
-             'current_rev':current_rev,
              'current_node':current_node,
              'last_hundred_change_sets':last_hundred_change_sets }
 

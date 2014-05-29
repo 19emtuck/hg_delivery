@@ -32,8 +32,10 @@
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li><a href="${url(route_name='dashboard')}">Dash board</a></li>
             <li><a href="#contact">Contact</a></li>
+             % if logged_in is not None :
+            <li><a href="${url('logout')}">Sign out</a></li>
+             % endif
           </ul>
           % if logged_in is not None :
             <form name="view_project" class="navbar-form pull-right">
@@ -73,10 +75,6 @@
               <input class="span2" name="login" type="text" placeholder="Email">
               <input class="span2" name="password" type="password" placeholder="Password">
               <button type="submit" class="btn btn-primary" onclick="$('#login_form').submit()">Sign in</button>
-            </form>
-          % else :
-            <form id="logout_form" class="navbar-form pull-right" action="${url('logout')}" method='POST'>
-              <button type="submit" class="btn btn-primary" onclick="$('#logout_form').submit()">Sign out</button>
             </form>
           %endif
         </div><!--/.nav-collapse -->
