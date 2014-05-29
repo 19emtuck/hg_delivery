@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+#
+# Copyright (C) 2003-2007  Stéphane Bard <stephane.bard@gmail.com>
+#
+# This file is part of hg_delivery
+#
+# hg_delivery is free software; you can redistribute it and/or modify it under the
+# terms of the M.I.T License.
+#
+
 import paramiko
 import time
 import logging

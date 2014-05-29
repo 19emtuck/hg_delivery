@@ -21,6 +21,9 @@ from .models import (
 
 import paramiko
 import time
+import logging
+
+log = logging.getLogger(__name__)
 
 @view_config(route_name='home', renderer='templates/index.mako')
 def default_view(request):
@@ -50,6 +53,7 @@ def default_view(request):
 @view_config(route_name='project_add', renderer='json', permission='edit')
 def add_project(request):
     """
+    create a new project
     """
     result = False
     explanation = None
@@ -84,6 +88,7 @@ def add_project(request):
 @view_config(route_name='project_update', permission='edit', renderer='json')
 def update_project(request):
     """
+    update a project
     """
     result = False
     id_project = request.matchdict['id']
@@ -124,6 +129,7 @@ def update_project(request):
 @view_config(route_name='project_delete', renderer='json', permission='edit')
 def delete_project(request):
     """
+    delete a project
     """
     result = False
     try :
@@ -145,8 +151,6 @@ def edit_project(request):
     id_project = request.matchdict['id']
     project =  DBSession.query(Project).get(id_project)
 
-    ssh_node = project.get_ssh_node()
-    current_rev = ssh_node.get_current_rev_hash()
 
     branch = None
     if 'branch' in request.params :
@@ -156,12 +160,21 @@ def edit_project(request):
     if 'limit' in request.params and request.params['limit'].isdigit():
       limit = int(request.params['limit'])
 
-    last_hundred_change_sets, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch)
-    list_branches = ssh_node.get_branches()
+    try :
+      ssh_node = project.get_ssh_node()
+      current_rev = ssh_node.get_current_rev_hash()
 
-    current_node = map_change_sets.get(current_rev)
-    if current_node is None :
-      current_node = ssh_node.get_revision_description(current_rev)
+      last_hundred_change_sets, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch)
+      list_branches = ssh_node.get_branches()
+
+      current_node = map_change_sets.get(current_rev)
+      if current_node is None :
+        current_node = ssh_node.get_revision_description(current_rev)
+    except NodeException as e:
+      log.error(e)
+      current_node = None
+      list_branches = []
+      last_hundred_change_sets, map_change_sets = [], {}
 
     projects_list =  DBSession.query(Project).all()
 
@@ -171,7 +184,7 @@ def edit_project(request):
              'projects_list':projects_list,
              'filter_branch':branch,
              'current_node':current_node,
-             'last_hundred_change_sets':last_hundred_change_sets }
+             'last_hundred_change_sets':last_hundred_change_sets}
 
 @view_config(route_name='project_change_to', permission='edit')
 def update_project_to(request):
@@ -179,14 +192,17 @@ def update_project_to(request):
   """
   id_project = request.matchdict['id']
   revision = request.matchdict['rev']
-
   project =  DBSession.query(Project).get(id_project)
-  ssh_node = project.get_ssh_node()
-  ssh_node.update_to(revision)
-  current_rev = ssh_node.get_current_rev_hash()
 
-  while current_rev!=revision :
-    # sleep 100 ms
-    time.sleep(0.100)
+  try :
+    ssh_node = project.get_ssh_node()
+    ssh_node.update_to(revision)
     current_rev = ssh_node.get_current_rev_hash()
+  except NodeException as e:
+    log.error(e)
+  else :
+    while current_rev!=revision :
+      # sleep 100 ms
+      time.sleep(0.100)
+      current_rev = ssh_node.get_current_rev_hash()
   return HTTPFound(location=request.route_url(route_name='project_edit', id=project.id))
