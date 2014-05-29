@@ -32,6 +32,7 @@ def projects_include(config):
   config.add_route('project_update',    '/update/{id:\d+}', custom_predicates=(to_int('id'),))
   config.add_route('project_change_to', '/change/{id:\d+}/to/{rev}', custom_predicates=(to_int('id'),))
 
+
 def main(global_config, **settings):
   """ This function returns a Pyramid WSGI application.
   """

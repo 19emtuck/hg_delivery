@@ -25,6 +25,8 @@ import logging
 
 log = logging.getLogger(__name__)
 
+#------------------------------------------------------------------------------
+
 @view_config(route_name='home', renderer='templates/index.mako')
 def default_view(request):
     """
@@ -49,6 +51,8 @@ def default_view(request):
              'nodes_description':nodes_description,
              'dashboard_list':dashboard_list,
            }
+
+#------------------------------------------------------------------------------
 
 @view_config(route_name='project_add', renderer='json', permission='edit')
 def add_project(request):
@@ -84,6 +88,8 @@ def add_project(request):
     return { 'result':result,
              'projects_list':projects_list,
              'explanation':explanation }
+
+#------------------------------------------------------------------------------
 
 @view_config(route_name='project_update', permission='edit', renderer='json')
 def update_project(request):
@@ -126,6 +132,8 @@ def update_project(request):
              'explanation':explanation,
              'projects_list':projects_list }
 
+#------------------------------------------------------------------------------
+
 @view_config(route_name='project_delete', renderer='json', permission='edit')
 def delete_project(request):
     """
@@ -142,6 +150,8 @@ def delete_project(request):
       DBSession.rollback()
       result = False
     return { 'result':result }
+
+#------------------------------------------------------------------------------
 
 @view_config(route_name='project_edit', renderer='edit.mako', permission='edit')
 def edit_project(request):
@@ -186,6 +196,8 @@ def edit_project(request):
              'current_node':current_node,
              'last_hundred_change_sets':last_hundred_change_sets}
 
+#------------------------------------------------------------------------------
+
 @view_config(route_name='project_change_to', permission='edit')
 def update_project_to(request):
   """
@@ -206,3 +218,6 @@ def update_project_to(request):
       time.sleep(0.100)
       current_rev = ssh_node.get_current_rev_hash()
   return HTTPFound(location=request.route_url(route_name='project_edit', id=project.id))
+
+#------------------------------------------------------------------------------
+

@@ -26,7 +26,7 @@
     <div class="btn-group" style="margin-left:20px">
       <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="min-width:80px">
         %if filter_branch :
-          ${filter_branch} <span class="caret"></span>
+          <span id="branch_name">${filter_branch}</span> <span class="caret"></span>
         %else :
           All <span class="caret"></span>
         %endif
