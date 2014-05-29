@@ -22,17 +22,23 @@
 
 <div>
   <form id="refresh" name="refresh" action="" method="POST" role="form">
-    <select id="branch" name="branch" onchange="$('#refresh').submit();">
-      <option value=""> All </option>
+    <!-- Single button for project management-->
+    <div class="btn-group" style="margin-left:20px">
+      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="min-width:80px">
+        %if filter_branch :
+          ${filter_branch} <span class="caret"></span>
+        %else :
+          All <span class="caret"></span>
+        %endif
+      </button>
+      <ul class="dropdown-menu" role="menu">
       %for _branch in list_branches :
-        %if filter_branch and filter_branch == _branch :
-          <option selected>${_branch}</option>
-        % else :
-          <option>${_branch}</option>
-        % endif
+        <li><a href="#" onclick="$('#branch').val('${_branch}');$('#refresh').submit()">${_branch}</a></li>
       %endfor
-    </select>
+      </ul>
+    </div>
     &nbsp;
+    <input type="hidden" id="branch" name="branch" value="">
     <input type="text" name="limit" value="${limit}" size="3" maxlength="4">
     &nbsp;
     <button id="view_refresh_project" class="btn btn-primary">Update this view</button>
