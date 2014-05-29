@@ -5,14 +5,15 @@
 %for project in lst_projects :
   <div class="panel panel-default">
     <div class="panel-heading">
-      <h3 class="panel-title"><b>${project.name}</b>  revision : ${nodes_description[project.id]['node']}</h3>
+      <h3 class="panel-title"><b>${project.name}</b>  <i>(revision : ${nodes_description[project.id]['rev']})</i></h3>
     </div>
     <div class="panel-body">
-      <span class="label label-warning"> ${nodes_description[project.id]['branch']}</span
+      current branch : <span class="label label-warning"> ${nodes_description[project.id]['branch']}</span
       <br>
       <br>
+      current hash : <i>${nodes_description[project.id]['node']}</i>
       <br>
-      ${nodes_description[project.id]['desc']}
+      current comment : <i>${nodes_description[project.id]['desc']}</i>
     </div>
   </div>
 %endfor
