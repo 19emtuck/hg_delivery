@@ -159,8 +159,10 @@ def edit_project(request):
     """
     result = False
     id_project = request.matchdict['id']
-    project =  DBSession.query(Project).get(id_project)
 
+    projects_list =  DBSession.query(Project).all()
+    projects_map =  {p.id:p for p in projects_list}
+    project = projects_map.get(id_project)
 
     branch = None
     if 'branch' in request.params :
@@ -188,8 +190,6 @@ def edit_project(request):
       current_node = None
       list_branches = []
       last_hundred_change_sets, map_change_sets = [], {}
-
-    projects_list =  DBSession.query(Project).all()
 
     return { 'project':project,
              'list_branches':list_branches,
