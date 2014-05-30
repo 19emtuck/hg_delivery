@@ -112,7 +112,7 @@
 </div><!-- /.modal -->
 
 
-<div class="panel" style="width:900px">
+<div class="panel">
 
  <!-- node tables -->
  <table class="table">
@@ -149,12 +149,13 @@
         %else :
           <td><span class="label label-success">${node['branch']}</span></td>
         %endif
- 
-        %if node['node'] == current_node['node']:
-           <td><a href="${url('project_change_to',id=project.id, rev=node['node'])}" title="revert to the node ${node['rev']}" ><span class="label label-warning">${node['desc']}</span></a></td>
-        %else :
-           <td><a href="${url('project_change_to',id=project.id, rev=node['node'])}" title="revert to the node ${node['rev']}" >${node['desc']}</a></td>
-        %endif
+
+        <td>
+          <div class="col-md-12">
+            <a href="${url('project_change_to',id=project.id, rev=node['node'])}" title="revert to the node ${node['rev']}" >${node['desc']}</a>
+          </div>
+        </td>
+
        </tr>
      %endfor
     </tbody>
