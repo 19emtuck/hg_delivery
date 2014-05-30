@@ -29,7 +29,7 @@
       </button>
       <ul class="dropdown-menu" role="menu">
       %if filter_branch :
-        <li><a href="#" onclick="$('#branch').val('');$('#refresh').submit()">All branches</a></li>
+        <li><a href="#" onclick="$('#branch').val('');$('#refresh').submit()"><b>All branches</b></a></li>
       %endif
       %for _branch in list_branches :
         <li><a href="#" onclick="$('#branch').val('${_branch}');$('#refresh').submit()">${_branch}</a></li>
@@ -40,7 +40,7 @@
     <input type="hidden" id="branch" name="branch" value="">
     <input type="text" name="limit" value="${limit}" size="3" maxlength="4">
     &nbsp;
-    <button id="view_refresh_project" class="btn btn-primary">Update this view</button>
+    <button id="view_refresh_project" class="btn btn-primary">Filter this view</button>
   </form>
 </div>
 
