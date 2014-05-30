@@ -129,7 +129,7 @@
      %for node in last_hundred_change_sets :
        <tr>
         %if node['node'] == current_node['node']:
-          <td><span class="glyphicon glyphicon-ok" style="color:#f0ad4e"></span></td>
+          <td><span class="glyphicon glyphicon-ok" style="color:#f0ad4e;font-size:27px"></span></td>
         %else :
           <td></td>
         %endif
@@ -137,7 +137,7 @@
         <td><span title="${node['node']}">${node['rev']}</span></td>
  
         %if node['tags']:
-          <td><span title="${node['tags']}"><span class="glyphicon glyphicon-star"></span></td>
+          <td><span title="${node['tags']}"><span class="glyphicon glyphicon-star" style="font-size:27px"></span></td>
         %else :
           <td></td>
         %endif :
