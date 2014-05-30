@@ -28,10 +28,13 @@
         %if filter_branch :
           <span id="branch_name">${filter_branch}</span> <span class="caret"></span>
         %else :
-          All <span class="caret"></span>
+          All branches<span class="caret"></span>
         %endif
       </button>
       <ul class="dropdown-menu" role="menu">
+      %if filter_branch :
+        <li><a href="#" onclick="$('#branch').val('');$('#refresh').submit()">All branches</a></li>
+      %endif
       %for _branch in list_branches :
         <li><a href="#" onclick="$('#branch').val('${_branch}');$('#refresh').submit()">${_branch}</a></li>
       %endfor
@@ -98,6 +101,7 @@
    <thead>
      <th></th>
      <th>Revision</th>
+     <th>Author</th>
      <th>Branch</th>
      <th>Description</th>
    </thead>
@@ -110,6 +114,7 @@
        <td></td>
        %endif
        <td><span title="${node['node']}">${node['rev']}</span></td>
+       <td>${node['author']}</td>
        %if node['node'] == current_node['node']:
          <td><span class="label label-warning">${node['branch']}</span></td>
        %else :

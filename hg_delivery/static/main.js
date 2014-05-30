@@ -58,7 +58,6 @@ function add_project(target_url){
               if(json_response.result){
                 $('#new_project').hide();
                 var $sel = $('#projects_list');
-                $sel.show();
                 if($sel){
                   $sel.find('li').remove();
                   var default_url = $sel.data('url');
