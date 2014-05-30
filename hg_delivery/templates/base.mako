@@ -28,13 +28,18 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/">HgDelivery</a>
+          % if logged_in is not None :
+            <a class="navbar-brand" href="/">Dashboard</a>
+          % else :
+            <a class="navbar-brand" href="/">HgDelivery</a>
+          % endif :
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li><a href="#contact">Contact</a></li>
              % if logged_in is not None :
-            <li><a href="${url('logout')}">Sign out</a></li>
+              <li><a href="#" onclick="$('#new_project_dialog').modal('show');">Add a new project</a></li>
+              <li><a href="${url('logout')}">Sign out</a></li>
              % endif
           </ul>
           % if logged_in is not None :
@@ -53,6 +58,8 @@
                  % for __project in projects_list :
                    <li><a href="${url(route_name='project_edit',id=__project.id)}">${__project.name}</a></li>
                  % endfor
+                 <li class="divider"></li>
+                 <li><a href="#" onclick="$('#new_project_dialog').modal('show');">Add a new project</a></li>
                  </ul>
                </div>
                % endif

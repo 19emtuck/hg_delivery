@@ -170,7 +170,7 @@ def edit_project(request):
     if 'limit' in request.params and request.params['limit'].isdigit():
       limit = int(request.params['limit'])
 
-    error = False
+    repository_error = None
 
     try :
       ssh_node = project.get_ssh_node()
@@ -183,7 +183,7 @@ def edit_project(request):
       if current_node is None :
         current_node = ssh_node.get_revision_description(current_rev)
     except NodeException as e:
-      error = True
+      repository_error = e 
       log.error(e)
       current_node = None
       list_branches = []
@@ -196,7 +196,7 @@ def edit_project(request):
              'limit':limit,
              'projects_list':projects_list,
              'filter_branch':branch,
-             'error':error,
+             'repository_error':repository_error,
              'current_node':current_node,
              'last_hundred_change_sets':last_hundred_change_sets}
 

@@ -56,7 +56,7 @@ function add_project(target_url){
           success:function(json_response){
               $('.alert').remove();
               if(json_response.result){
-                $('#new_project').hide();
+                $('#new_project_dialog').modal('hide')
                 var $sel = $('#projects_list');
                 if($sel){
                   $sel.find('li').remove();
