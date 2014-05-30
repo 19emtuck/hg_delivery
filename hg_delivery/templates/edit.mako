@@ -151,9 +151,7 @@
         %endif
 
         <td>
-          <div class="col-md-12">
             <a href="${url('project_change_to',id=project.id, rev=node['node'])}" title="revert to the node ${node['rev']}" >${node['desc']}</a>
-          </div>
         </td>
 
        </tr>
