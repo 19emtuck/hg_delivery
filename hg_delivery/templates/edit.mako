@@ -1,8 +1,6 @@
 <%inherit file="base.mako"/>
 
-<div class="starter-template">
-
-
+<div id="overview" class="starter-template">
 % if current_node is not UNDEFINED and current_node is not None :
   <div class="panel panel-default">
     <div class="panel-heading">
@@ -16,11 +14,9 @@
     </div>
   </div>
 % endif
-
-
 </div>
 
-<div>
+<div "filter">
   <form id="refresh" name="refresh" action="" method="POST" role="form">
     <!-- Single button for project management-->
     <div class="btn-group" style="margin-left:20px">
@@ -48,53 +44,74 @@
   </form>
 </div>
 
-<div id="edit_project" style="width:300px;margin-top:20px;display:None">
-   <form id="project" name="project" action="${url(route_name='project_update',id=project.id)}" method="post" class="form-horizontal" role="form">
-      <div class="form-group">
-        <label for="project_name" class="col-sm-2 control-label">Name</label>
-        <div class="col-sm-10">
-          <input id="project_name" class="form-control" name="name" type="text" placeholder="name" value="${project.name}">
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="project_host" class="col-sm-2 control-label">Host</label>
-        <div class="col-sm-10">
-          <input id="project_host" class="form-control" name="host" type="text" placeholder="hostname" value="${project.host}">
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="project_path" class="col-sm-2 control-label">Folder</label>
-        <div class="col-sm-10">
-          <input id="project_path" class="form-control" name="path" type="text" placeholder="/home/sites ..." value="${project.path}">
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="project_user" class="col-sm-2 control-label">User</label>
-        <div class="col-sm-10">
-          <input id="project_user" class="form-control" name="user" type="text" placeholder="user" value="${project.user}">
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="project_password" class="col-sm-2 control-label">Passwd</label>
-        <div class="col-sm-10">
-          <input id="project_password" class="form-control" name="password" type="password" placeholder="password" value="${project.password}">
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="project_dashboard" class="col-sm-2 control-label">Dashboard</label>
-        <div class="col-sm-10">
+<div id="edit_project_dialog" class="modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
 
-          % if project.dashboard :
-            <input id="project_dashboard" class="form-control" name="dashboard" type="checkbox" placeholder="dashboard" value="1" checked>
-          % else :
-            <input id="project_dashboard" class="form-control" name="dashboard" type="checkbox" placeholder="dashboard" value="1">
-          % endif
 
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Add a new project</h4>
+      </div>
+
+
+      <div class="modal-body">
+        <div id="edit_project">
+           <form id="project" name="project" action="${url(route_name='project_update',id=project.id)}" method="post" class="form-horizontal" role="form">
+              <div class="form-group">
+                <label for="project_name" class="col-sm-4 control-label">Name</label>
+                <div class="col-sm-7">
+                  <input id="project_name" class="form-control" name="name" type="text" placeholder="name" value="${project.name}">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="project_host" class="col-sm-4 control-label">Host</label>
+                <div class="col-sm-7">
+                  <input id="project_host" class="form-control" name="host" type="text" placeholder="hostname" value="${project.host}">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="project_path" class="col-sm-4 control-label">Folder</label>
+                <div class="col-sm-7">
+                  <input id="project_path" class="form-control" name="path" type="text" placeholder="/home/sites ..." value="${project.path}">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="project_user" class="col-sm-4 control-label">User</label>
+                <div class="col-sm-7">
+                  <input id="project_user" class="form-control" name="user" type="text" placeholder="user" value="${project.user}">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="project_password" class="col-sm-4 control-label">Passwd</label>
+                <div class="col-sm-7">
+                  <input id="project_password" class="form-control" name="password" type="password" placeholder="password" value="${project.password}">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="project_dashboard" class="col-sm-4 control-label">Clip to dashboard</label>
+                <div class="col-sm-7">
+                  % if project.dashboard :
+                    <input id="project_dashboard" class="form-control" name="dashboard" type="checkbox" placeholder="dashboard" value="1" checked>
+                  % else :
+                    <input id="project_dashboard" class="form-control" name="dashboard" type="checkbox" placeholder="dashboard" value="1">
+                  % endif
+                </div>
+              </div>
+           <form>
         </div>
       </div>
-      <button type="button" class="btn btn-primary" onclick="update_project('${url('project_update', id=project.id)}');">Update this project</button>
-   <form>
-</div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="update_project('${url('project_update', id=project.id)}');">Save changes</button>
+      </div>
+
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
 
 <!-- node tables -->
 <table class="table">

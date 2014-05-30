@@ -38,7 +38,9 @@
           <ul class="nav navbar-nav">
             <li><a href="#contact">Contact</a></li>
              % if logged_in is not None :
-              <li><a href="#" onclick="$('#new_project_dialog').modal('show');">Add a new project</a></li>
+              % if project is UNDEFINED :
+                <li><a href="#" onclick="$('#new_project_dialog').modal('show');">Add a new project</a></li>
+              % endif
               <li><a href="${url('logout')}">Sign out</a></li>
              % endif
           </ul>
@@ -58,8 +60,10 @@
                  % for __project in projects_list :
                    <li><a href="${url(route_name='project_edit',id=__project.id)}">${__project.name}</a></li>
                  % endfor
-                 <li class="divider"></li>
-                 <li><a href="#" onclick="$('#new_project_dialog').modal('show');">Add a new project</a></li>
+                  % if project is UNDEFINED :
+                   <li class="divider"></li>
+                   <li><a href="#" onclick="$('#new_project_dialog').modal('show');">Add a new project</a></li>
+                  % endif
                  </ul>
                </div>
                % endif
@@ -71,7 +75,7 @@
                    Manage project <span class="caret"></span>
                  </button>
                  <ul class="dropdown-menu" role="menu">
-                   <li><a href="#" onclick="$('#edit_project').toggle();">Edit properties</a></li>
+                   <li><a href="#" onclick="$('#edit_project_dialog').modal('show');">Edit properties</a></li>
                    <li class="divider"></li>
                    <li><a id="view_delete_project" href="#" onclick="delete_this_project()" data-url="${url(route_name='project_delete',id=project.id)}">Delete</a></li>
                  </ul>
