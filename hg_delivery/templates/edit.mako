@@ -112,40 +112,55 @@
 </div><!-- /.modal -->
 
 
+<div class="panel" style="width:900px">
 
-<!-- node tables -->
-<table class="table">
-   <thead>
-     <th></th>
-     <th>Revision</th>
-     <th>Author</th>
-     <th>Branch</th>
-     <th>Description</th>
-   </thead>
-   <tbody>
-    %for node in last_hundred_change_sets :
-      <tr>
-       %if node['node'] == current_node['node']:
-       <td><span class="glyphicon glyphicon-ok" style="color:#f0ad4e"></span></td>
-       %else :
-       <td></td>
-       %endif
-       <td><span title="${node['node']}">${node['rev']}</span></td>
-       <td>${node['author']}</td>
-       %if node['node'] == current_node['node']:
-         <td><span class="label label-warning">${node['branch']}</span></td>
-       %else :
-         <td><span class="label label-success">${node['branch']}</span></td>
-       %endif
-       %if node['node'] == current_node['node']:
-       <td><a href="${url('project_change_to',id=project.id, rev=node['node'])}" title="revert to the node ${node['rev']}" ><span class="label label-warning">${node['desc']}</span></a></td>
-       %else :
-       <td><a href="${url('project_change_to',id=project.id, rev=node['node'])}" title="revert to the node ${node['rev']}" >${node['desc']}</a></td>
-       %endif
-      </tr>
-    %endfor
-   </tbody>
-</table>
+ <!-- node tables -->
+ <table class="table">
+    <thead>
+      <th></th>
+      <th>Revision</th>
+      <th>Tag</th>
+      <th>Author</th>
+      <th>Branch</th>
+      <th>Description</th>
+    </thead>
+ 
+    <tbody>
+     %for node in last_hundred_change_sets :
+       <tr>
+        %if node['node'] == current_node['node']:
+          <td><span class="glyphicon glyphicon-ok" style="color:#f0ad4e"></span></td>
+        %else :
+          <td></td>
+        %endif
+ 
+        <td><span title="${node['node']}">${node['rev']}</span></td>
+ 
+        %if node['tags']:
+          <td><span title="${node['tags']}"><span class="glyphicon glyphicon-star"></span></td>
+        %else :
+          <td></td>
+        %endif :
+ 
+        <td>${node['author']}</td>
+ 
+        %if node['node'] == current_node['node']:
+          <td><span class="label label-warning">${node['branch']}</span></td>
+        %else :
+          <td><span class="label label-success">${node['branch']}</span></td>
+        %endif
+ 
+        %if node['node'] == current_node['node']:
+           <td><a href="${url('project_change_to',id=project.id, rev=node['node'])}" title="revert to the node ${node['rev']}" ><span class="label label-warning">${node['desc']}</span></a></td>
+        %else :
+           <td><a href="${url('project_change_to',id=project.id, rev=node['node'])}" title="revert to the node ${node['rev']}" >${node['desc']}</a></td>
+        %endif
+       </tr>
+     %endfor
+    </tbody>
+ 
+ </table>
+</div>
 
 %if repository_error is not None:
   <div class="alert alert-danger">Sorry this repository is not available. Thanks to check configuration to solve this issue.

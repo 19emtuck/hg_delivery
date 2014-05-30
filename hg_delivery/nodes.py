@@ -114,11 +114,11 @@ class HgNode(NodeSsh):
     """
     try :
       if revision_filter :
-        data = self.run_command('cd %s ; hg log --template "{node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" -r %s'%(self.path, revision_filter))
+        data = self.run_command('cd %s ; hg log --template "{node}|#|{tag}||#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" -r %s'%(self.path, revision_filter))
       elif branch_filter :
-        data = self.run_command('cd %s ; hg log -l %d --template "{node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" -b %s'%(self.path, nb_lines, branch_filter))
+        data = self.run_command('cd %s ; hg log -l %d --template "{node}|#|{tag}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" -b %s'%(self.path, nb_lines, branch_filter))
       else :
-        data = self.run_command('cd %s ; hg log -l %d --template "{node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n"'%(self.path, nb_lines))
+        data = self.run_command('cd %s ; hg log -l %d --template "{node}|#|{tag}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n"'%(self.path, nb_lines))
     except NodeException as e :
       data = ""
 
@@ -129,10 +129,10 @@ class HgNode(NodeSsh):
     node = {}
 
     for line in data :
-      node, author, branch, rev, parents, desc, tags = line.split('|#|')
+      node, tag, author, branch, rev, parents, desc, tags = line.split('|#|')
       desc = desc.replace('\\n','\n')
       if not branch : branch = 'default'
-      list_nodes.append({'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags})
+      list_nodes.append({'node':node, 'tags':tags, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags})
       map_nodes[node]=list_nodes[-1]
 
     return list_nodes, map_nodes
