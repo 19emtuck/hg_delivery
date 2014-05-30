@@ -129,3 +129,12 @@
     %endfor
    </tbody>
 </table>
+
+%if repository_error is not None:
+  <div class="alert alert-danger">Sorry this repository is not available. Thanks to check configuration to solve this issue.
+    You'll find bellow more technical details :
+    <br>
+    <br>
+    <b>${repository_error}</b>
+  </div>
+%endif
