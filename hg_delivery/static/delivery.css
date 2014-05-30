@@ -2,6 +2,10 @@ body {
   padding-top: 50px;
 }
 
+.btn-default {
+  float:left;
+}
+
 .starter-template {
   padding: 40px 15px;
 }
@@ -12,4 +16,8 @@ body {
 
 #edit_project {
   margin-bottom: 10px;
+}
+
+*:focus {
+  outline-color: transparent;
 }
