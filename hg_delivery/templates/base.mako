@@ -102,7 +102,7 @@
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="${request.static_url('hg_delivery:static/jquery-1.11.1.min.js')}"></script>
-    <script src="${request.static_url('hg_delivery:static/main.js')}"></script>
+    <script src="${request.static_url('hg_delivery:static/delivery.js')}"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="${request.static_url('hg_delivery:static/bootstrap-3.1.1/js/bootstrap.min.js')}"></script>
     
