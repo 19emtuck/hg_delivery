@@ -4,13 +4,13 @@
 % if current_node is not UNDEFINED and current_node is not None :
   <div class="panel panel-default">
     <div class="panel-heading">
-      <h3 class="panel-title"><b>${project.name}</b> position @revision : <i>${current_node['rev']} (${current_node['node']})</i></h3>
+      <h3 class="panel-title"><b>${project.name}</b> position @revision : <i>${current_node.get('rev','INCONNU')} (${current_node.get('node','INCONNU')})</i></h3>
     </div>
     <div class="panel-body">
-        <span class="label label-warning"> ${current_node['branch']}</span
+        <span class="label label-warning"> ${current_node.get('branch','INCONNU')}</span
         <br>
         <br>
-        ${current_node['desc']}
+        ${current_node.get('desc','INCONNU')}
     </div>
   </div>
 % endif
@@ -128,7 +128,7 @@
     <tbody>
      %for node in last_hundred_change_sets :
        <tr>
-        %if node['node'] == current_node['node']:
+        %if node['node'] == current_node.get('node'):
           <td><span class="glyphicon glyphicon-ok" style="color:#f0ad4e;font-size:27px"></span></td>
         %else :
           <td></td>
@@ -144,7 +144,7 @@
  
         <td>${node['author']}</td>
  
-        %if node['node'] == current_node['node']:
+        %if node['node'] == current_node.get('node'):
           <td><span class="label label-warning">${node['branch']}</span></td>
         %else :
           <td><span class="label label-success">${node['branch']}</span></td>

@@ -6,15 +6,16 @@
   %for project in dashboard_list :
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h3 class="panel-title"><a href="${url(route_name='project_edit',id=project.id)}"><b>${project.name}</b></a>  <i>(revision : ${nodes_description[project.id]['rev']})</i></h3>
+        <h3 class="panel-title"><a
+href="${url(route_name='project_edit',id=project.id)}"><b>${project.name}</b></a><i>(revision : ${nodes_description[project.id].get('rev','INCONNU')})</i></h3>
       </div>
       <div class="panel-body">
-        current branch : <span class="label label-warning"> ${nodes_description[project.id]['branch']}</span
+        current branch : <span class="label label-warning"> ${nodes_description[project.id].get('branch','INCONNU')}</span
         <br>
         <br>
-        current hash : <i>${nodes_description[project.id]['node']}</i>
+        current hash : <i>${nodes_description[project.id].get('node','INCONNU')}</i>
         <br>
-        current comment : <i>${nodes_description[project.id]['desc']}</i>
+        current comment : <i>${nodes_description[project.id].get('desc','INCONNU')}</i>
       </div>
     </div>
   %endfor

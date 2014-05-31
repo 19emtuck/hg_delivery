@@ -154,7 +154,10 @@ class HgNode(NodeSsh):
     """
     """
     list_nodes, map_nodes = self.get_last_logs(1, revision_filter=rev)
-    return list_nodes[0]
+    first_node = {}
+    if list_nodes :
+      first_node = list_nodes[0]
+    return first_node
 
   def update_to(self, rev):
     """
