@@ -3,8 +3,8 @@ Name: hg-delivery
 Version: 0.0
 Summary: hg_delivery
 Home-page: UNKNOWN
-Author: UNKNOWN
-Author-email: UNKNOWN
+Author: Stéphane Bard
+Author-email: stephane.bard@gmail.com
 License: UNKNOWN
 Description: hg_delivery README
         ==================
@@ -12,7 +12,7 @@ Description: hg_delivery README
         Getting Started
         ---------------
         
-        - cd <directory containing this file>
+        - cd hg_delivery
         
         - $VENV/bin/python setup.py develop
         
