@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2003-2007  Stéphane Bard <stephane.bard@gmail.com>
 #
@@ -47,6 +48,12 @@ def main(argv=sys.argv):
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
 
-    # with transaction.manager:
-    #     model = MyModel(name='one', value=1)
-    #     DBSession.add(model)
+    with transaction.manager:
+        project = Project(name='t1', user='sbard', password='evangelion', host='127.0.0.1', path='/home/sbard/dev/t1/', dashboard=1)
+        DBSession.add(project)
+        project = Project(name='t2', user='sbard', password='evangelion', host='127.0.0.1', path='/home/sbard/dev/t2/', dashboard=1)
+        DBSession.add(project)
+        project = Project(name='t3', user='sbard', password='evangelion', host='127.0.0.1', path='/home/sbard/dev/t3/', dashboard=1)
+        DBSession.add(project)
+        project = Project(name='hg_delivery', user='sbard', password='evangelion', host='127.0.0.1', path='/home/sbard/dev/hg_delivery/', dashboard=1)
+        DBSession.add(project)
