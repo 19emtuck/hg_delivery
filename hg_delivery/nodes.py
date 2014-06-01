@@ -116,7 +116,7 @@ class HgNode(NodeSsh):
       :param nb_lines: integer, limit the number of lines
     """
 
-    __template = "{node}||#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" 
+    __template = "{node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" 
 
     try :
       if revision_filter :
