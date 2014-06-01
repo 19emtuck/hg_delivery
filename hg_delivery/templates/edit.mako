@@ -4,13 +4,13 @@
 % if current_node is not UNDEFINED and current_node is not None :
   <div class="panel panel-default">
     <div class="panel-heading">
-      <h3 class="panel-title"><b>${project.name}</b> position @revision : <i>${current_node.get('rev','INCONNU')} (${current_node.get('node','INCONNU')})</i></h3>
+      <h3 class="panel-title"><b>${project.name}</b> position @revision : <i>${current_node.get('rev','UNKNOWN')} (${current_node.get('node','UNKNOWN')})</i></h3>
     </div>
     <div class="panel-body">
-        <span class="label label-warning"> ${current_node.get('branch','INCONNU')}</span
+        <span class="label label-warning"> ${current_node.get('branch','UNKNOWN')}</span
         <br>
         <br>
-        ${current_node.get('desc','INCONNU')}
+        ${current_node.get('desc','UNKNOWN')}
     </div>
   </div>
 % endif
