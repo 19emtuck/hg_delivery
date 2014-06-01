@@ -133,8 +133,9 @@
         %else :
           <td></td>
         %endif
- 
-        <td><span title="${node['node']}">${node['rev']}</span></td>
+        <td>
+          <a href="${url('project_change_to',id=project.id, rev=node['node'])}" title="revert to the node ${node['node']}">${node['rev']}</a>
+        </td>
  
         %if node['tags']:
           <td><span title="${node['tags']}"><span class="glyphicon glyphicon-star" style="font-size:27px"></span></td>
@@ -149,10 +150,7 @@
         %else :
           <td><span class="label label-success">${node['branch']}</span></td>
         %endif
-
-        <td>
-            <a href="${url('project_change_to',id=project.id, rev=node['node'])}" title="revert to the node ${node['rev']}" >${node['desc']}</a>
-        </td>
+        <td> ${node['desc']} </td>
 
        </tr>
      %endfor
