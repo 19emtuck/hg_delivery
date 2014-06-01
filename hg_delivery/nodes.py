@@ -101,7 +101,7 @@ class HgNode(NodeSsh):
     """
     """
     try :
-      data = self.run_command("hg --debug id -i %s"%self.path)
+      data = self.run_command("cd %s ; hg --debug id -i"%self.path)
     except NodeException as e :
       result = None
     else :
@@ -142,6 +142,22 @@ class HgNode(NodeSsh):
       map_nodes[node]=list_nodes[-1]
 
     return list_nodes, map_nodes
+
+  def get_initial_hash(self):
+    """
+      return the initial hash (revision 0)
+      :return: string hash
+    """
+    try :
+      data = self.run_command("cd %s ; hg --debug id -i -r 0"%self.path)
+    except NodeException as e :
+      result = None
+    else :
+      # hg may add '+' to indicate tip release
+      # '+' is not part of changeset hash
+      result = data.strip('\n').split(' ')[0].strip('+')
+    return result
+     
 
   def get_branches(self):
     """

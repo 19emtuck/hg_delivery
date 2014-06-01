@@ -41,6 +41,9 @@ def default_view(request):
       projects_list =  DBSession.query(Project).all()
 
       for project in projects_list :
+        if project.rev_init is None :
+          project.init_initial_revision()
+
         if project.dashboard!=1 :
           continue
         dashboard_list.append(project)
@@ -165,6 +168,7 @@ def edit_project(request):
     projects_list =  DBSession.query(Project).all()
     projects_map =  {p.id:p for p in projects_list}
     project = projects_map.get(id_project)
+    linked_projects = [p for p in projects_list if p.rev_init is not None and p.rev_init == project.rev_init and p.id != project.id]
 
     branch = None
     if 'branch' in request.params :
@@ -200,6 +204,7 @@ def edit_project(request):
              'filter_branch':branch,
              'repository_error':repository_error,
              'current_node':current_node,
+             'linked_projects':linked_projects,
              'last_hundred_change_sets':last_hundred_change_sets}
 
 #------------------------------------------------------------------------------

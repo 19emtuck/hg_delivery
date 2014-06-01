@@ -14,7 +14,21 @@
     </div>
   </div>
 % endif
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Related projects</h3>
+    </div>
+    <div class="panel-body">
+       %for link in linked_projects :
+         ${link.name}<br>
+       %endfor
+    </div>
+  </div>
+
+
 </div>
+
 
 <div "filter">
   <form id="refresh" name="refresh" action="" method="POST" role="form">
@@ -118,7 +132,7 @@
  <table class="table">
     <thead>
       <th></th>
-      <th>Revision</th>
+      <th>Rev.</th>
       <th>Tag</th>
       <th>Author</th>
       <th>Branch</th>

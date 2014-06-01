@@ -50,7 +50,19 @@ class Project(Base):
   password = Column(String(100))
   host = Column(String(100))
   path = Column(Text)
+  rev_init = Column(String(100))
   dashboard = Column(Boolean)
+
+  def __init__(self, name, user, password, host, path, rev_init, dashboard):
+    """
+    """
+    self.name = name
+    self.user = user
+    self.password = password
+    self.host = host 
+    self.path = path 
+    self.rev_init = rev_init
+    self.dashboard = dashboard 
 
   def __json__(self, request):
     """
@@ -74,9 +86,17 @@ class Project(Base):
     """
     return PoolSsh.get_node(self.get_uri())
 
+  def init_initial_revision(self):
+    """
+    """
+    if self.rev_init is None :
+      ssh_node = self.get_ssh_node()
+      self.rev_init = ssh_node.get_initial_hash()
+
 #------------------------------------------------------------------------------
 
 Index('project_unique', Project.host, Project.path, unique=True)
+Index('project_root', Project.rev_init)
 
 class RootFactory(object):
   """
