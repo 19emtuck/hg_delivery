@@ -116,7 +116,7 @@ class HgNode(NodeSsh):
       :param nb_lines: integer, limit the number of lines
     """
 
-    __template = "{node}|#|{tag}||#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" 
+    __template = "{node}||#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" 
 
     try :
       if revision_filter :
@@ -135,10 +135,10 @@ class HgNode(NodeSsh):
     node = {}
 
     for line in data :
-      node, tag, author, branch, rev, parents, desc, tags = line.split('|#|')
+      node, author, branch, rev, parents, desc, tags = line.split('|#|')
       desc = desc.replace('\\n','\n')
       if not branch : branch = 'default'
-      list_nodes.append({'node':node, 'tags':tags, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags})
+      list_nodes.append({'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags})
       map_nodes[node]=list_nodes[-1]
 
     return list_nodes, map_nodes
