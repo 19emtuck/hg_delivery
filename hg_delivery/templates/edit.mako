@@ -7,7 +7,7 @@
       <h3 class="panel-title"><b>${project.name}</b> position @revision : <i>${current_node.get('rev','UNKNOWN')} (${current_node.get('node','UNKNOWN')})</i></h3>
     </div>
     <div class="panel-body">
-        <span class="label label-warning"> ${current_node.get('branch','UNKNOWN')}</span
+        <span class="label label-warning"> ${current_node.get('branch','UNKNOWN')}</span>
         <br>
         <br>
         ${current_node.get('desc','UNKNOWN')}
