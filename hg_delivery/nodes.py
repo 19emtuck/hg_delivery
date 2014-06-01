@@ -120,7 +120,6 @@ class HgNode(NodeSsh):
 
     try :
       if revision_filter :
-        print('cd %s ; hg log --template %s -r %s'%(self.path, __template, revision_filter))
         data = self.run_command('cd %s ; hg log --template "%s" -r %s'%(self.path, __template, revision_filter))
       elif branch_filter :
         data = self.run_command('cd %s ; hg log -l %d --template "%s" -b %s'%(self.path, nb_lines, __template, branch_filter))
