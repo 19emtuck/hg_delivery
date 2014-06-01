@@ -8,6 +8,7 @@
 # hg_delivery is free software; you can redistribute it and/or modify it under the
 # terms of the M.I.T License.
 #
+#
 
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPFound
@@ -218,10 +219,13 @@ def update_project_to(request):
   except NodeException as e:
     log.error(e)
   else :
-    while current_rev!=revision :
+    stop_at = 0
+
+    while current_rev!=revision and stop_at<10 :
       # sleep 100 ms
       time.sleep(0.100)
       current_rev = ssh_node.get_current_rev_hash()
+      stop_at += 1
   return HTTPFound(location=request.route_url(route_name='project_edit', id=project.id))
 
 #------------------------------------------------------------------------------
