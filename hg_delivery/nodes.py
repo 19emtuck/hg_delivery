@@ -105,7 +105,9 @@ class HgNode(NodeSsh):
     except NodeException as e :
       result = None
     else :
-      result = data.strip('\n')
+      # hg may add '+' to indicate tip release
+      # '+' is not part of changeset hash
+      result = data.strip('\n').split(' ')[0].strip('+')
     return result
   
   def get_last_logs(self, nb_lines, branch_filter=None, revision_filter=None):
@@ -113,13 +115,17 @@ class HgNode(NodeSsh):
       return last logs ...
       :param nb_lines: integer, limit the number of lines
     """
+
+    __template = "{node}|#|{tag}||#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" 
+
     try :
       if revision_filter :
-        data = self.run_command('cd %s ; hg log --template "{node}|#|{tag}||#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" -r %s'%(self.path, revision_filter))
+        print('cd %s ; hg log --template %s -r %s'%(self.path, __template, revision_filter))
+        data = self.run_command('cd %s ; hg log --template "%s" -r %s'%(self.path, __template, revision_filter))
       elif branch_filter :
-        data = self.run_command('cd %s ; hg log -l %d --template "{node}|#|{tag}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" -b %s'%(self.path, nb_lines, branch_filter))
+        data = self.run_command('cd %s ; hg log -l %d --template "%s" -b %s'%(self.path, nb_lines, __template, branch_filter))
       else :
-        data = self.run_command('cd %s ; hg log -l %d --template "{node}|#|{tag}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n"'%(self.path, nb_lines))
+        data = self.run_command('cd %s ; hg log -l %d --template "%s"'%(self.path, nb_lines, __template))
     except NodeException as e :
       data = ""
 
