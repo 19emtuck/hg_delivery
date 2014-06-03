@@ -1,0 +1,8 @@
+-- allow people to view the content of a changeset
+
+-- reduce content while screen size is reduced
+   use media queries
+
+-- add screen to view changeset
+
+-- add console log with every remove command lines (like hg tortoise) ...
