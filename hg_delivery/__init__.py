@@ -30,6 +30,7 @@ def projects_include(config):
   config.add_route('project_add',       '/add')
   config.add_route('project_delete',    '/delete/{id:\d+}', custom_predicates=(to_int('id'),))
   config.add_route('project_edit',      '/edit/{id:\d+}', custom_predicates=(to_int('id'),))
+  config.add_route('project_fetch',     '/fetch/{id:\d+}', custom_predicates=(to_int('id'),))
   config.add_route('project_update',    '/update/{id:\d+}', custom_predicates=(to_int('id'),))
   config.add_route('project_change_to', '/change/{id:\d+}/to/{rev}', custom_predicates=(to_int('id'),))
 

@@ -5,6 +5,77 @@ function go_to(url) {
   window.location.href = url;
 }
 
+function fetch_this_other_project(active_a){
+  $('#other_projects a').removeClass('active');
+  $active_a = $(active_a);
+  var target_url = $active_a.data('url');
+  $.ajax({url:target_url,
+          async:false,
+          dataType:'json',
+          success:function(json_response){
+                  var remote_project_last_change_list = json_response.last_hundred_change_list;
+                  $active_a.addClass('active');
+                  show_difference_between_changeset_stacks(local_project_last_change_list, remote_project_last_change_list, current_node);
+               },
+          });
+}
+
+function show_difference_between_changeset_stacks(local_last_change_list, remote_last_change_list, current_node){
+  var top_remote_rev = parseInt(remote_last_change_list[0].rev);
+  var top_local_rev = parseInt(local_last_change_list[0].rev);
+  var more_recent_change_list, less_recent_change_list;
+
+  if (top_local_rev > top_remote_rev){
+     more_recent_change_list = local_last_change_list;
+     less_recent_change_list = remote_last_change_list;
+  } else {
+     less_recent_change_list = local_last_change_list;
+     more_recent_change_list = remote_last_change_list;
+  }
+
+  var j = 0;
+  var sync=false;
+  var row = [];
+
+  $tbody_comparison = $('#project_comparison tbody');
+  $tbody_comparison.find('tr').remove();
+
+  for(var i=0 ; i < more_recent_change_list.length ; i++){
+
+      if(sync){
+        j++;
+      }
+      __recent_list_node = more_recent_change_list[i];
+
+      if(j<less_recent_change_list.length){
+        __less_list_node = less_recent_change_list[j];
+      } else {
+        __less_list_node = null;
+      }
+
+      row = ['',__recent_list_node.rev]
+
+      if (__less_list_node !== null && __less_list_node.node === __recent_list_node.node) {
+        sync = true;
+        row.push(__less_list_node.rev);
+      } else if(__less_list_node !== null && sync) {
+        row.push(__less_list_node.rev);
+      } else {
+        row.push('');
+      }
+
+      row.push(__recent_list_node.author)
+      row.push(__recent_list_node.branch)
+      row.push(__recent_list_node.desc)
+
+      $tbody_comparison.append('<tr><td>'+row.join('</td><td>')+'</td></tr>');
+  }
+
+  $('#project_tab').hide();
+  $('#project_comparison').show();
+
+}
+
 /**
  * update this project
  */

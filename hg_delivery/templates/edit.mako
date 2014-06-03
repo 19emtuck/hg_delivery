@@ -1,8 +1,12 @@
+<%!
+  import json
+%>
 <%inherit file="base.mako"/>
 
-<div id="overview" class="starter-template">
+<div id="overview" class="starter-template row">
+
 % if current_node is not UNDEFINED and current_node is not None :
-  <div class="panel panel-default">
+  <div class="panel panel-default col-md-6">
     <div class="panel-heading">
       <h3 class="panel-title"><b>${project.name}</b> position @revision : <i>${current_node.get('rev','UNKNOWN')} (${current_node.get('node','UNKNOWN')})</i></h3>
     </div>
@@ -15,14 +19,16 @@
   </div>
 % endif
 
-  <div class="panel panel-default">
+  <div class="panel panel-default col-md-4" style="margin-left:20px">
     <div class="panel-heading">
       <h3 class="panel-title">Related projects</h3>
     </div>
     <div class="panel-body">
-       %for link in linked_projects :
-         ${link.name}<br>
-       %endfor
+       <div id="other_projects" class="list-group">
+         %for link in linked_projects :
+           <a href="#" class="list-group-item" data-url="${url(route_name='project_fetch',id=link.id)}" onclick="fetch_this_other_project(this)">${link.name}</a>
+         %endfor
+       </div>
     </div>
   </div>
 
@@ -129,7 +135,7 @@
 <div class="panel">
 
  <!-- node tables -->
- <table class="table">
+ <table id="project_tab"class="table">
     <thead>
       <th></th>
       <th>Rev.</th>
@@ -140,7 +146,7 @@
     </thead>
  
     <tbody>
-     %for node in last_hundred_change_sets :
+     %for node in last_hundred_change_list :
        <tr>
         %if node['node'] == current_node.get('node'):
           <td><span class="glyphicon glyphicon-ok" style="color:#f0ad4e;font-size:27px"></span></td>
@@ -169,8 +175,23 @@
        </tr>
      %endfor
     </tbody>
- 
  </table>
+
+ <!-- project compare table -->
+ <table id="project_comparison" class="table" style="display:none">
+    <thead>
+      <th></th>
+      <th>Rev <span id="p_name_local"></span></th>
+      <th>Rev <span id="p_name_remote"></span></th>
+      <th>Tag</th>
+      <th>Author</th>
+      <th>Branch</th>
+      <th>Description</th>
+    </thead>
+    <tbody>
+    </tbody>
+ </table>
+
 </div>
 
 %if repository_error is not None:
@@ -181,3 +202,12 @@
     <b>${repository_error}</b>
   </div>
 %endif
+
+<%block name="local_js">
+  <script>
+  var local_project_last_change_list = ${json.dumps(last_hundred_change_list)|n}
+  var current_node = ${json.dumps(current_node)|n}
+  </script>
+</%block>
+
+

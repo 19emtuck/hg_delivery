@@ -184,7 +184,7 @@ def edit_project(request):
       ssh_node = project.get_ssh_node()
       current_rev = ssh_node.get_current_rev_hash()
 
-      last_hundred_change_sets, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch)
+      last_hundred_change_list, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch)
       list_branches = ssh_node.get_branches()
 
       current_node = map_change_sets.get(current_rev)
@@ -195,7 +195,7 @@ def edit_project(request):
       log.error(e)
       current_node = None
       list_branches = []
-      last_hundred_change_sets, map_change_sets = [], {}
+      last_hundred_change_list, map_change_sets = [], {}
 
     return { 'project':project,
              'list_branches':list_branches,
@@ -205,7 +205,39 @@ def edit_project(request):
              'repository_error':repository_error,
              'current_node':current_node,
              'linked_projects':linked_projects,
-             'last_hundred_change_sets':last_hundred_change_sets}
+             'last_hundred_change_list':last_hundred_change_list}
+
+#------------------------------------------------------------------------------
+
+@view_config(route_name='project_fetch', renderer='json', permission='edit')
+def fetch_project(request):
+    """
+    """
+    result = False
+    id_project = request.matchdict['id']
+    project =  DBSession.query(Project).get(id_project)
+
+    branch = None
+    if 'branch' in request.params :
+      branch = request.params['branch']
+
+    limit = 200
+    if 'limit' in request.params and request.params['limit'].isdigit():
+      limit = int(request.params['limit'])
+
+    repository_error = None
+
+    try :
+      ssh_node = project.get_ssh_node()
+      current_rev = ssh_node.get_current_rev_hash()
+      last_hundred_change_list, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch)
+    except NodeException as e:
+      repository_error = e 
+      log.error(e)
+      last_hundred_change_list, map_change_sets = [], {}
+
+    return { 'repository_error':repository_error,
+             'last_hundred_change_list':last_hundred_change_list}
 
 #------------------------------------------------------------------------------
 
