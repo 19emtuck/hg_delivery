@@ -9,26 +9,30 @@ function fetch_this_other_project(active_a){
   $('#other_projects a').removeClass('active');
   $active_a = $(active_a);
   var target_url = $active_a.data('url');
+  var remote_project_name = $active_a.data('name');
   $.ajax({url:target_url,
           async:false,
           dataType:'json',
           success:function(json_response){
                   var remote_project_last_change_list = json_response.last_hundred_change_list;
                   $active_a.addClass('active');
-                  show_difference_between_changeset_stacks(local_project_last_change_list, remote_project_last_change_list, current_node);
+                  show_difference_between_changeset_stacks(remote_project_name, local_project_last_change_list, remote_project_last_change_list, current_node);
                },
           });
 }
 
-function show_difference_between_changeset_stacks(local_last_change_list, remote_last_change_list, current_node){
+function show_difference_between_changeset_stacks(remote_project_name, local_last_change_list, remote_last_change_list, current_node){
   var top_remote_rev = parseInt(remote_last_change_list[0].rev);
   var top_local_rev = parseInt(local_last_change_list[0].rev);
   var more_recent_change_list, less_recent_change_list;
 
+  var local_is_recent;
   if (top_local_rev > top_remote_rev){
+     local_is_recent = true;
      more_recent_change_list = local_last_change_list;
      less_recent_change_list = remote_last_change_list;
   } else {
+     local_is_recent = false;
      less_recent_change_list = local_last_change_list;
      more_recent_change_list = remote_last_change_list;
   }
@@ -36,6 +40,7 @@ function show_difference_between_changeset_stacks(local_last_change_list, remote
   var j = 0;
   var sync=false;
   var row = [];
+  var __recent_rev_, __less_rev_;
 
   $tbody_comparison = $('#project_comparison tbody');
   $tbody_comparison.find('tr').remove();
@@ -53,15 +58,37 @@ function show_difference_between_changeset_stacks(local_last_change_list, remote
         __less_list_node = null;
       }
 
-      row = ['',__recent_list_node.rev]
+      row = ['']
+      __recent_rev_ = __recent_list_node.rev;
 
       if (__less_list_node !== null && __less_list_node.node === __recent_list_node.node) {
         sync = true;
-        row.push(__less_list_node.rev);
+        __less_rev_ = __less_list_node.rev;
       } else if(__less_list_node !== null && sync) {
-        row.push(__less_list_node.rev);
+        __less_rev_ = __less_list_node.rev;
       } else {
-        row.push('');
+        __less_rev_ = '';
+      }
+
+
+      if(local_is_recent){
+        row.push(__less_rev_);
+        row.push(__recent_rev_);
+        if(__recent_list_node.node === current_node.node){
+           row.push('<span class="glyphicon glyphicon-ok" style="color:#f0ad4e;font-size:27px"></span>');
+        } else {
+           row.push("");
+        }
+      } else {
+        row.push(__recent_rev_);
+        row.push(__less_rev_);
+
+        if(__less_rev_!=="" && __less_list_node!== null && __less_list_node.node === current_node.node){
+           row.push('<span class="glyphicon glyphicon-ok" style="color:#f0ad4e;font-size:27px"></span>');
+        } else {
+           row.push("");
+        }
+
       }
 
       row.push(__recent_list_node.author)
@@ -70,6 +97,9 @@ function show_difference_between_changeset_stacks(local_last_change_list, remote
 
       $tbody_comparison.append('<tr><td>'+row.join('</td><td>')+'</td></tr>');
   }
+
+  $('#p_name_remote').text(remote_project_name)
+  $('#p_name_local').text(local_project_name)
 
   $('#project_tab').hide();
   $('#project_comparison').show();

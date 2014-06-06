@@ -6,7 +6,7 @@
 <div id="overview" class="starter-template row">
 
 % if current_node is not UNDEFINED and current_node is not None :
-  <div class="panel panel-default col-md-6">
+  <div class="panel panel-default col-md-5">
     <div class="panel-heading">
       <h3 class="panel-title"><b>${project.name}</b> position @revision : <i>${current_node.get('rev','UNKNOWN')} (${current_node.get('node','UNKNOWN')})</i></h3>
     </div>
@@ -19,50 +19,49 @@
   </div>
 % endif
 
-  <div class="panel panel-default col-md-4" style="margin-left:20px">
+  <div class="panel panel-default col-md-3" style="margin-left:20px">
     <div class="panel-heading">
       <h3 class="panel-title">Related projects</h3>
     </div>
     <div class="panel-body">
        <div id="other_projects" class="list-group">
          %for link in linked_projects :
-           <a href="#" class="list-group-item" data-url="${url(route_name='project_fetch',id=link.id)}" onclick="fetch_this_other_project(this)">${link.name}</a>
+           <a href="#" class="list-group-item" data-url="${url(route_name='project_fetch',id=link.id)}" data-name="${link.name}" onclick="fetch_this_other_project(this)">${link.name}</a>
          %endfor
        </div>
     </div>
   </div>
-
-
-</div>
-
-
-<div "filter">
-  <form id="refresh" name="refresh" action="" method="POST" role="form">
-    <!-- Single button for project management-->
-    <div class="btn-group" style="margin-left:20px">
-      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="min-width:80px">
+  <div id="filter" class="col-md-3">
+    <form id="refresh" name="refresh" action="" method="POST" role="form">
+      <!-- Single button for project management-->
+      <div class="btn-group" style="margin-left:20px">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="min-width:80px">
+          %if filter_branch :
+            <span id="branch_name">${filter_branch}</span> <span class="caret"></span>
+          %else :
+            All branches<span class="caret"></span>
+          %endif
+        </button>
+        <ul class="dropdown-menu" role="menu">
         %if filter_branch :
-          <span id="branch_name">${filter_branch}</span> <span class="caret"></span>
-        %else :
-          All branches<span class="caret"></span>
+          <li><a href="#" onclick="$('#branch').val('');$('#refresh').submit()"><b>All branches</b></a></li>
         %endif
-      </button>
-      <ul class="dropdown-menu" role="menu">
-      %if filter_branch :
-        <li><a href="#" onclick="$('#branch').val('');$('#refresh').submit()"><b>All branches</b></a></li>
-      %endif
-      %for _branch in list_branches :
-        <li><a href="#" onclick="$('#branch').val('${_branch}');$('#refresh').submit()">${_branch}</a></li>
-      %endfor
-      </ul>
-    </div>
-    &nbsp;
-    <input type="hidden" id="branch" name="branch" value="">
-    <input type="text" name="limit" value="${limit}" size="3" maxlength="4">
-    &nbsp;
-    <button id="view_refresh_project" class="btn btn-primary">Filter this view</button>
-  </form>
+        %for _branch in list_branches :
+          <li><a href="#" onclick="$('#branch').val('${_branch}');$('#refresh').submit()">${_branch}</a></li>
+        %endfor
+        </ul>
+      </div>
+      &nbsp;
+      <input type="hidden" id="branch" name="branch" value="">
+      <input type="text" name="limit" value="${limit}" size="3" maxlength="4">
+      &nbsp;
+      <button id="view_refresh_project" class="btn btn-primary">Filter this view</button>
+    </form>
+  </div>
+
 </div>
+
+
 
 <div id="edit_project_dialog" class="modal">
   <div class="modal-dialog">
@@ -135,7 +134,7 @@
 <div class="panel">
 
  <!-- node tables -->
- <table id="project_tab"class="table">
+ <table id="project_tab"class="table table-condensed">
     <thead>
       <th></th>
       <th>Rev.</th>
@@ -178,12 +177,12 @@
  </table>
 
  <!-- project compare table -->
- <table id="project_comparison" class="table" style="display:none">
+ <table id="project_comparison" class="table table-condensed" style="display:none">
     <thead>
       <th></th>
-      <th>Rev <span id="p_name_local"></span></th>
       <th>Rev <span id="p_name_remote"></span></th>
-      <th>Tag</th>
+      <th>Rev <span id="p_name_local"></span></th>
+      <th></th>
       <th>Author</th>
       <th>Branch</th>
       <th>Description</th>
@@ -205,6 +204,7 @@
 
 <%block name="local_js">
   <script>
+  var local_project_name = "${project.name}";
   var local_project_last_change_list = ${json.dumps(last_hundred_change_list)|n}
   var current_node = ${json.dumps(current_node)|n}
   </script>
