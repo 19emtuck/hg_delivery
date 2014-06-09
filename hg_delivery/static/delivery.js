@@ -11,21 +11,26 @@ function change_project_to_this_release(target_url){
   $('#move_to').off().on('click',function(){ go_to(target_url); });
 }
 
-
 function fetch_this_other_project(active_a){
-  $('#other_projects a').removeClass('active');
-  $active_a = $(active_a);
-  var target_url = $active_a.data('url');
-  var remote_project_name = $active_a.data('name');
-  $.ajax({url:target_url,
-          async:false,
-          dataType:'json',
-          success:function(json_response){
-                  var remote_project_last_change_list = json_response.last_hundred_change_list;
-                  $active_a.addClass('active');
-                  show_difference_between_changeset_stacks(remote_project_name, local_project_last_change_list, remote_project_last_change_list, current_node);
-               },
-          });
+  if($(active_a).hasClass('active')){
+    $(active_a).removeClass('active')
+    $('#project_tab').show();
+    $('#project_comparison').hide();
+  } else {
+    $('#other_projects a').removeClass('active');
+    $active_a = $(active_a);
+    var target_url = $active_a.data('url');
+    var remote_project_name = $active_a.data('name');
+    $.ajax({url:target_url,
+            async:false,
+            dataType:'json',
+            success:function(json_response){
+                    var remote_project_last_change_list = json_response.last_hundred_change_list;
+                    $active_a.addClass('active');
+                    show_difference_between_changeset_stacks(remote_project_name, local_project_last_change_list, remote_project_last_change_list, current_node);
+                 },
+            });
+  }
 }
 
 function show_difference_between_changeset_stacks(remote_project_name, local_last_change_list, remote_last_change_list, current_node){
