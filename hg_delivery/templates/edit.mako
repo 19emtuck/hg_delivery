@@ -3,10 +3,10 @@
 %>
 <%inherit file="base.mako"/>
 
-<div id="overview" class="starter-template row">
+<div id="overview" class="starter-template row" style="padding:10px 10px">
 
 % if current_node is not UNDEFINED and current_node is not None :
-  <div class="panel panel-default col-md-5">
+  <div class="panel panel-default col-md-5" style="padding-left:0px;padding-right:0px;">
     <div class="panel-heading">
       <h3 class="panel-title"><b>${project.name}</b> position @revision : <i>${current_node.get('rev','UNKNOWN')} (${current_node.get('node','UNKNOWN')})</i></h3>
     </div>
@@ -19,7 +19,7 @@
   </div>
 % endif
 
-  <div class="panel panel-default col-md-3" style="margin-left:20px">
+  <div class="panel panel-default col-md-3" style="margin-left:20px;padding-left:0px;padding-right:0px;">
     <div class="panel-heading">
       <h3 class="panel-title">Related projects</h3>
     </div>
@@ -31,10 +31,13 @@
        </div>
     </div>
   </div>
-  <div id="filter" class="col-md-3">
+  <div id="filter" class="panel panel-default col-md-2" style="margin-left:20px;padding-left:0px;padding-right:0px;">
+    <div class="panel-heading">
+      <h3 class="panel-title">Filter</h3>
+    </div>
+
     <form id="refresh" name="refresh" action="" method="POST" role="form">
-      <!-- Single button for project management-->
-      <div class="btn-group" style="margin-left:20px">
+      <div class="btn-group" style="margin-left:20px;margin-top:10px">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="min-width:80px">
           %if filter_branch :
             <span id="branch_name">${filter_branch}</span> <span class="caret"></span>
@@ -51,11 +54,13 @@
         %endfor
         </ul>
       </div>
-      &nbsp;
-      <input type="hidden" id="branch" name="branch" value="">
-      <input type="text" name="limit" value="${limit}" size="3" maxlength="4">
-      &nbsp;
-      <button id="view_refresh_project" class="btn btn-primary">Filter this view</button>
+      <div style="margin-left:20px;margin-top:10px">
+       <input type="hidden" id="branch" name="branch" value="">
+       <input type="text" name="limit" value="${limit}" size="3" maxlength="4">
+      </div>
+      <div style="margin-left:20px;margin-top:10px;margin-bottom:10px">
+        <button id="view_refresh_project" class="btn btn-primary">Filter this view</button>
+      </div>
     </form>
   </div>
 
