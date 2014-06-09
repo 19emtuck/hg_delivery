@@ -5,6 +5,13 @@ function go_to(url) {
   window.location.href = url;
 }
 
+
+function change_project_to_this_release(target_url){
+  $('#confirm_move_dialog').modal('show');
+  $('#move_to').off().on('click',function(){ go_to(target_url); });
+}
+
+
 function fetch_this_other_project(active_a){
   $('#other_projects a').removeClass('active');
   $active_a = $(active_a);
@@ -92,6 +99,12 @@ function show_difference_between_changeset_stacks(remote_project_name, local_las
       }
 
       row.push(__recent_list_node.author)
+
+     if (__recent_list_node.node == current_node.node){
+      row.push('<span class="label label-warning">'+__recent_list_node.branch+'</span>');
+     } else {
+      row.push('<span class="label label-success">'+__recent_list_node.branch+'</span>');
+     }
       row.push(__recent_list_node.branch)
       row.push(__recent_list_node.desc)
 

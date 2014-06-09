@@ -8,11 +8,12 @@
 % if current_node is not UNDEFINED and current_node is not None :
   <div class="panel panel-default col-md-5" style="padding-left:0px;padding-right:0px;">
     <div class="panel-heading">
-      <h3 class="panel-title"><b>${project.name}</b> position @revision : <i>${current_node.get('rev','UNKNOWN')} (${current_node.get('node','UNKNOWN')})</i></h3>
+      <h3 class="panel-title">project <b>${project.name}</b> position @revision : <i>${current_node.get('rev','UNKNOWN')}</i></h3>
     </div>
     <div class="panel-body">
-        <span class="label label-warning"> ${current_node.get('branch','UNKNOWN')}</span>
+        ${current_node.get('node','UNKNOWN')}
         <br>
+        <span class="label label-warning"> ${current_node.get('branch','UNKNOWN')}</span>
         <br>
         ${current_node.get('desc','UNKNOWN')}
     </div>
@@ -135,6 +136,23 @@
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<div id="confirm_move_dialog" class="modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Are you sure to update this project ?</h4>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button id="move_to" type="button" class="btn btn-primary">Move to this revision</button>
+      </div>
+
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
 <div class="panel">
 
@@ -158,7 +176,7 @@
           <td></td>
         %endif
         <td>
-          <a href="${url('project_change_to',id=project.id, rev=node['node'])}" title="revert to the node ${node['node']}">${node['rev']}</a>
+          <a href="#" onclick="change_project_to_this_release('${url('project_change_to',id=project.id, rev=node['node'])}')" title="revert to the node ${node['node']}">${node['rev']}</a>
         </td>
  
         %if node['tags']:

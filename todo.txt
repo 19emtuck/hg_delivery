@@ -1,5 +1,7 @@
 -- allow people to view the content of a changeset
 
+-- check when changing repository if people are really agree
+
 -- reduce content while screen size is reduced
    use media queries
 
