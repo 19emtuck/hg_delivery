@@ -43,7 +43,7 @@
           %if filter_branch :
             <span id="branch_name">${filter_branch}</span> <span class="caret"></span>
           %else :
-            All branches<span class="caret"></span>
+            All branches <span class="caret"></span>
           %endif
         </button>
         <ul class="dropdown-menu" role="menu">
