@@ -144,6 +144,7 @@
         <h4 class="modal-title">Are you sure to update this project ?</h4>
       </div>
       <div class="modal-body">
+        from <span id="src_revision"></span> to <span id="target_revision"></span> revision
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -171,12 +172,12 @@
      %for node in last_hundred_change_list :
        <tr>
         %if node['node'] == current_node.get('node'):
-          <td><span class="glyphicon glyphicon-ok" style="color:#f0ad4e;font-size:27px"></span></td>
+           <td><span class="glyphicon glyphicon-ok" data-current_rev="${current_node['rev']}" style="color:#f0ad4e;font-size:27px"></span></td>
         %else :
           <td></td>
         %endif
         <td>
-          <a href="#" onclick="change_project_to_this_release('${url('project_change_to',id=project.id, rev=node['node'])}')" title="revert to the node ${node['node']}">${node['rev']}</a>
+          <a href="#" onclick="change_project_to_this_release(this, '${url('project_change_to',id=project.id, rev=node['node'])}')" title="revert to the node ${node['node']}">${node['rev']}</a>
         </td>
  
         %if node['tags']:

@@ -5,10 +5,11 @@ function go_to(url) {
   window.location.href = url;
 }
 
-
-function change_project_to_this_release(target_url){
+function change_project_to_this_release(active_a, target_url){
+  $('#src_revision').text($('.glyphicon-ok').data('current_rev'));
+  $('#target_revision').text($(active_a).text());
   $('#confirm_move_dialog').modal('show');
-  $('#move_to').off().on('click',function(){ go_to(target_url); });
+  $('#move_to').off().on('click',function(){ go_to(target_url);});
 }
 
 function fetch_this_other_project(active_a){
