@@ -32,7 +32,7 @@ from sqlalchemy.orm import (
 
 from zope.sqlalchemy import ZopeTransactionExtension
 
-from hg_delivery.nodes import PoolSsh 
+from .nodes import PoolSsh 
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
@@ -92,6 +92,16 @@ class Project(Base):
     if self.rev_init is None :
       ssh_node = self.get_ssh_node()
       self.rev_init = ssh_node.get_initial_hash()
+
+#------------------------------------------------------------------------------
+
+class RemoteLog(Base):
+  """
+  """
+  __tablename__ = 'logs'
+
+  id = Column(Integer, primary_key=True)
+  command = Column(Text)
 
 #------------------------------------------------------------------------------
 

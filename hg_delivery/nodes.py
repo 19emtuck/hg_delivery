@@ -42,6 +42,8 @@ def check_connections(function):
 class NodeSsh(object):
   """
   """
+
+  logs = []
   
   def __init__(self, uri):
     """
@@ -71,9 +73,12 @@ class NodeSsh(object):
     return ssh
 
   @check_connections
-  def run_command(self, command):
+  def run_command(self, command, log=False):
     ''' Executes command via SSH. '''
     try :
+      if log :
+        self.__class__.logs.append(command)
+
       stdin, stdout, stderr = self.ssh.exec_command(command)
       stdin.flush()
       stdin.channel.shutdown_write()
@@ -188,7 +193,7 @@ class HgNode(NodeSsh):
     """
     result = True
     try :
-      data = self.run_command('cd %s ; hg update -C -r %s'%(self.path, rev))
+      data = self.run_command('cd %s ; hg update -C -r %s'%(self.path, rev), True)
     except NodeException as e :
       result = False
     return result

@@ -1,10 +1,12 @@
 -- allow people to view the content of a changeset
 
+-- add a web console with all executed remote command line
+-- add console log with every remove command lines (like hg tortoise) ...
+
 -- check when changing repository if people are really agree
 
 -- reduce content while screen size is reduced
    use media queries
 
--- add screen to view changeset
+-- add screen for viewing changeset
 
--- add console log with every remove command lines (like hg tortoise) ...
