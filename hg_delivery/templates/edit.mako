@@ -141,7 +141,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title">Are you sure to update this project ?</h4>
+        <h4 class="modal-title">Are you sure to move project <b>${project.name}</b> ?</h4>
       </div>
       <div class="modal-body">
         from <span id="src_revision"></span> to <span id="target_revision"></span> revision

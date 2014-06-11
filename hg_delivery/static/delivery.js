@@ -194,7 +194,7 @@ function add_project(target_url){
               } else if(json_response.explanation){
                    var _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
                    _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-                $('.navbar').after(_alert_html);
+                $('#new_project').after(_alert_html);
                 $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove()});
               }
             },

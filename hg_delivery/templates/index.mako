@@ -73,6 +73,8 @@ href="${url(route_name='project_edit',id=project.id)}"><b>${project.name}</b></a
                   <label for="new_project_password" class="col-sm-2 control-label">Passwd</label>
                   <div class="col-sm-8">
                     <input id="new_project_password" class="form-control" name="password" type="password" placeholder="password">
+                    <input name="dashboard" type="hidden" value="0">
+                    <input name="rev_init" type="hidden" value="0">
                   </div>
                 </div>
             </div>
