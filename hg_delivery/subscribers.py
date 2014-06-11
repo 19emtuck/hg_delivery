@@ -9,6 +9,7 @@
 #
 from pyramid.events import (
      NewRequest,
+     NewResponse,
      BeforeRender,
      subscriber
      )
@@ -16,7 +17,10 @@ from pyramid.events import (
 from .models import (
     DBSession,
     Project,
+    RemoteLog
     )
+
+from .nodes import NodeSsh
 
 @subscriber(BeforeRender)
 def mysubscriber(event):
@@ -26,3 +30,10 @@ def mysubscriber(event):
   event['static_url'] = request.static_url
   event['logged_in'] = request.authenticated_userid
 
+@subscriber(NewResponse)
+def log_ssh_commands(event):
+  """
+  """
+  for __command in NodeSsh.logs :
+    DBSession.add(RemoteLog(command = __command))
+  del NodeSsh.logs[0:]
