@@ -19,6 +19,7 @@ from sqlalchemy import (
     Index,
     Integer,
     Text,
+    DateTime,
     String,
     Boolean
     )
@@ -33,6 +34,8 @@ from sqlalchemy.orm import (
 from zope.sqlalchemy import ZopeTransactionExtension
 
 from .nodes import PoolSsh 
+
+from datetime import datetime
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
@@ -101,7 +104,14 @@ class RemoteLog(Base):
   __tablename__ = 'logs'
 
   id = Column(Integer, primary_key=True)
+
   command = Column(Text)
+  creation_date = Column(DateTime)
+
+  def __init__(self, command):
+    """
+    """
+    self.creation_date = datetime.now()
 
 #------------------------------------------------------------------------------
 
