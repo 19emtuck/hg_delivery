@@ -48,9 +48,9 @@ def default_view(request):
           continue
         dashboard_list.append(project)
         ssh_node = project.get_ssh_node()
-        current_rev = ssh_node.get_current_rev_hash()
-        description = ssh_node.get_revision_description(current_rev)
-        nodes_description[project.id] = description
+        repository_node = ssh_node.get_current_revision_description()
+        current_rev = repository_node['node']
+        nodes_description[project.id] = repository_node 
 
     return { 'projects_list':projects_list,
              'nodes_description':nodes_description,

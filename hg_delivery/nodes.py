@@ -181,7 +181,23 @@ class HgNode(NodeSsh):
 
     return branches
 
-  def get_revision_description(self, rev):
+  def get_current_revision_description(self):
+    """
+    """
+    node = {}
+    try :
+      __template = "{node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" 
+      data = self.run_command('''cd %s ; hg --debug id | cut -d' ' -f 1 | tr -d ' +' | xargs -I {} hg log -r {} --template "%s"'''%(self.path, __template))
+    except NodeException as e :
+      node = {}
+    else :
+      node, author, branch, rev, parents, desc, tags = data.split('|#|')
+      desc = desc.replace('\\n','\n')
+      if not branch : branch = 'default'
+      node = {'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags}
+    return node 
+
+  def get_revision_description(self):
     """
     """
     list_nodes, map_nodes = self.get_last_logs(1, revision_filter=rev)
