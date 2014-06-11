@@ -76,21 +76,20 @@ class NodeSsh(object):
   def run_command(self, command, log=False):
     ''' Executes command via SSH. '''
     try :
-      if log :
-        self.__class__.logs.append(command)
-
       stdin, stdout, stderr = self.ssh.exec_command(command)
       stdin.flush()
       stdin.channel.shutdown_write()
       ret = stdout.read()
       err = stderr.read()
 
-      if ret:
+      if err:
+        raise NodeException(err)
+      elif ret:
+        if log :
+          self.__class__.logs.append(command)
         if(type(ret)==bytes):
           ret = str(ret,'utf-8')
         return ret
-      elif err:
-        raise NodeException(err)
       else:
         return None
     except socket.gaierror :
