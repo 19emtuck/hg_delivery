@@ -13,6 +13,7 @@ import paramiko
 import time
 import logging
 import socket
+import threading
 
 #------------------------------------------------------------------------------
 
@@ -59,6 +60,7 @@ class NodeSsh(object):
     self.password, self.host = password_host.split('@')
 
     self.ssh = self.get_ssh()
+    self.lock = threading.Lock()
 
   def get_ssh(self):
     """
@@ -75,25 +77,28 @@ class NodeSsh(object):
   @check_connections
   def run_command(self, command, log=False):
     ''' Executes command via SSH. '''
-    try :
-      stdin, stdout, stderr = self.ssh.exec_command(command)
-      stdin.flush()
-      stdin.channel.shutdown_write()
-      ret = stdout.read()
-      err = stderr.read()
 
-      if err:
-        raise NodeException(err)
-      elif ret:
-        if log :
-          self.__class__.logs.append(command)
-        if(type(ret)==bytes):
-          ret = str(ret,'utf-8')
-        return ret
-      else:
-        return None
-    except socket.gaierror :
-      raise NodeException("host unavailable")
+    # we lock threads per resource
+    with self.lock :
+      try :
+        stdin, stdout, stderr = self.ssh.exec_command(command)
+        stdin.flush()
+        stdin.channel.shutdown_write()
+        ret = stdout.read()
+        err = stderr.read()
+
+        if err:
+          raise NodeException(err)
+        elif ret:
+          if log :
+            self.__class__.logs.append(command)
+          if(type(ret)==bytes):
+            ret = str(ret,'utf-8')
+          return ret
+        else:
+          return None
+      except socket.gaierror :
+        raise NodeException("host unavailable")
 
 #------------------------------------------------------------------------------
 
