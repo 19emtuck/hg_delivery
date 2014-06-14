@@ -212,6 +212,8 @@ def edit_project(request):
 @view_config(route_name='project_fetch', renderer='json', permission='edit')
 def fetch_project(request):
     """
+    retrieve information about a project and send result in json
+    this view is usable to compare projects
     """
     result = False
     id_project = request.matchdict['id']
@@ -238,6 +240,25 @@ def fetch_project(request):
 
     return { 'repository_error':repository_error,
              'last_hundred_change_list':last_hundred_change_list}
+
+
+@view_config(route_name='revision_details', renderer='templates/revision.mako', permission='edit')
+def fetch_revision(request):
+  """
+  """
+  id_project = request.matchdict['id']
+  revision = request.matchdict['rev']
+
+  project =  DBSession.query(Project).get(id_project)
+
+  try :
+    ssh_node = project.get_ssh_node()
+    diff_content = ssh_node.get_revision_diff(revision)
+  except NodeException as e:
+    log.error(e)
+  
+  print(diff_content)
+  return {'diff_content':diff_content}
 
 #------------------------------------------------------------------------------
 
