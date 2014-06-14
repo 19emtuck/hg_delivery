@@ -193,7 +193,7 @@
         %else :
           <td><span class="label label-success">${node['branch']}</span></td>
         %endif
-        <td> ${node['desc']} </td>
+        <td><a href="${url(route_name='revision_details',id=project.id, rev=node['node'])}">${node['desc']}</a></td>
 
        </tr>
      %endfor
