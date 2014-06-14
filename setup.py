@@ -20,13 +20,13 @@ with open(os.path.join(here, 'CHANGES.txt')) as f:
 
 requires = [
     'pyramid',
-    'pyramid_chameleon',
-    'pyramid_debugtoolbar',
+    'pyramid_mako',
     'pyramid_tm',
     'SQLAlchemy',
     'transaction',
     'zope.sqlalchemy',
     'waitress',
+    'pygments'
     ]
 
 setup(name='hg_delivery',
