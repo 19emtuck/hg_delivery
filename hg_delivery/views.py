@@ -256,8 +256,6 @@ def fetch_revision(request):
     diff_content = ssh_node.get_revision_diff(revision)
   except NodeException as e:
     log.error(e)
-  
-  print(diff_content)
   return {'diff_content':diff_content}
 
 #------------------------------------------------------------------------------
