@@ -48,9 +48,9 @@ class NodeSsh(object):
   
   def __init__(self, uri):
     """
-    uri should like this 
+      uri should like this 
 
-    "{user}:{password}@{host}:{path}"
+      "{user}:{password}@{host}:{path}"
     """
     self.uri = uri
     user,password_host,path = uri.split(':')
@@ -104,7 +104,10 @@ class NodeSsh(object):
 
 class HgNode(NodeSsh):
   """
+    Some node to manipulate remote hg repository 
   """
+
+  _template = "{node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" 
 
   def get_current_rev_hash(self):
     """
@@ -124,16 +127,13 @@ class HgNode(NodeSsh):
       return last logs ...
       :param nb_lines: integer, limit the number of lines
     """
-
-    __template = "{node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" 
-
     try :
       if revision_filter :
-        data = self.run_command('cd %s ; hg log --template "%s" -r %s'%(self.path, __template, revision_filter))
+        data = self.run_command('cd %s ; hg log --template "%s" -r %s'%(self.path, self._template, revision_filter))
       elif branch_filter :
-        data = self.run_command('cd %s ; hg log -l %d --template "%s" -b %s'%(self.path, nb_lines, __template, branch_filter))
+        data = self.run_command('cd %s ; hg log -l %d --template "%s" -b %s'%(self.path, nb_lines, self._template, branch_filter))
       else :
-        data = self.run_command('cd %s ; hg log -l %d --template "%s"'%(self.path, nb_lines, __template))
+        data = self.run_command('cd %s ; hg log -l %d --template "%s"'%(self.path, nb_lines, self._template))
     except NodeException as e :
       data = ""
 
@@ -170,6 +170,7 @@ class HgNode(NodeSsh):
 
   def get_branches(self):
     """
+      return a list of branches labels
     """
     branches = []
     try :
@@ -186,8 +187,7 @@ class HgNode(NodeSsh):
     """
     node = {}
     try :
-      __template = "{node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" 
-      data = self.run_command('''cd %s ; hg --debug id | cut -d' ' -f 1 | tr -d ' +' | xargs -I {} hg log -r {} --template "%s"'''%(self.path, __template))
+      data = self.run_command('''cd %s ; hg --debug id | cut -d' ' -f 1 | tr -d ' +' | xargs -I {} hg log -r {} --template "%s"'''%(self.path, self._template))
     except NodeException as e :
       node = {}
     else :
@@ -196,6 +196,17 @@ class HgNode(NodeSsh):
       if not branch : branch = 'default'
       node = {'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags}
     return node 
+
+  def get_revision_diff(self, revision):
+    """
+    :param revision: the revision hash
+    """
+    diff_content = ""
+    try :
+      diff_content = self.run_command('''cd %s ; hg diff -r %s'''%(self.path, revision))
+    except NodeException as e :
+      diff_content = "" 
+    return diff_content
 
   def get_revision_description(self):
     """
