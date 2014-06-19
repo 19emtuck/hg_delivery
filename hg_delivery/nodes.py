@@ -14,6 +14,7 @@ import time
 import logging
 import socket
 import threading
+import re
 
 #------------------------------------------------------------------------------
 
@@ -37,6 +38,32 @@ def check_connections(function):
               self.ssh = self.get_ssh()
       return function(self, *args, **kwargs)
   return deco
+
+#------------------------------------------------------------------------------
+
+class DiffWrapper(object):
+  """
+  """
+
+  def __init__(self, raw_diff):
+    """
+    """
+    self.raw_diff = raw_diff
+    self.lst_files = self.__get_lst_files()
+    self.dict_files = self.__get_files_to_diff()
+
+  def __get_lst_files(self):
+    """
+    """
+    groups = re.findall("diff -r [a-z0-9]+ (?P<file_name>.+)$",self.raw_diff, re.MULTILINE) 
+    return groups
+
+  def __get_files_to_diff(self):
+    """
+    """
+    groups = self.__get_lst_files()
+    diffs_content = [bloc for bloc in re.split("\n*diff -r [a-z0-9]{8,20} [^\n]+\n",self.raw_diff) if bloc.strip()]
+    return dict(zip(groups, diffs_content))
 
 #------------------------------------------------------------------------------
 
@@ -206,7 +233,7 @@ class HgNode(NodeSsh):
       diff_content = self.run_command('''cd %s ; hg diff -r %s'''%(self.path, revision))
     except NodeException as e :
       diff_content = "" 
-    return diff_content
+    return DiffWrapper(diff_content)
 
   def get_revision_description(self):
     """

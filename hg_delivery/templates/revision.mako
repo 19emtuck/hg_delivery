@@ -5,13 +5,35 @@
   from pygments.formatters import HtmlFormatter
   from pygments.styles import get_all_styles 
   styles = list(get_all_styles())
+
 %>
 <%inherit file="base.mako"/>
+<a href="${url(route_name='project_edit',id=project.id)}">back to project</a>
 
 <div id="overview" class="panel panel-default" style="margin:10px 10px">
+
+  <div class="panel panel-default col-md-3" style="margin:10px;padding-left:0px;padding-right:0px;">
+    <div class="panel-heading">
+      <h3 class="panel-title">Files</h3>
+    </div>
+    <div class="panel-body">
+       <div id="files" class="list-group">
+         %for i, file in enumerate(diff.lst_files) :
+           <a href="#" class="list-group-item" onclick="$('div[id^=file_]').hide();$('#file_${i}').show()">${file}</a>
+         %endfor
+       </div>
+    </div>
+  </div>
+
   <div class="panel-body">
-  % if diff_content :
-    ${ highlight(diff_content, DiffLexer(), HtmlFormatter(cssclass='source', style='colorful')) |n}
+  % if diff.raw_diff :
+    % for i, file in enumerate(diff.lst_files) :
+      % if file in diff.dict_files :
+       <div id="file_${i}" style="display:none">
+          ${highlight(diff.dict_files[file], DiffLexer(), HtmlFormatter(cssclass='source', style='colorful')) |n}
+       </div>
+      % endif
+    % endfor
   % else :
     <p class="bg-info">
       <br>
