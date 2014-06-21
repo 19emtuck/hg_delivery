@@ -41,16 +41,21 @@ def default_view(request):
       projects_list =  DBSession.query(Project).all()
 
       for project in projects_list :
-        if project.rev_init is None :
-          project.init_initial_revision()
+        try :
+          if project.rev_init is None :
+            project.init_initial_revision()
 
-        if project.dashboard!=1 :
-          continue
-        dashboard_list.append(project)
-        ssh_node = project.get_ssh_node()
-        repository_node = ssh_node.get_current_revision_description()
-        current_rev = repository_node['node']
-        nodes_description[project.id] = repository_node 
+          if project.dashboard!=1 :
+            continue
+
+          dashboard_list.append(project)
+          ssh_node = project.get_ssh_node()
+          repository_node = ssh_node.get_current_revision_description()
+          current_rev = repository_node['node']
+          nodes_description[project.id] = repository_node
+
+        except NodeException as e:
+          nodes_description[project.id] = {}
 
     return { 'projects_list':projects_list,
              'nodes_description':nodes_description,
@@ -241,8 +246,31 @@ def fetch_project(request):
     return { 'repository_error':repository_error,
              'last_hundred_change_list':last_hundred_change_list}
 
+#------------------------------------------------------------------------------
 
-@view_config(route_name='revision_details', renderer='templates/revision.mako', permission='edit')
+@view_config(route_name='full_diff', renderer='templates/diff.mako', permission='edit')
+def fetch_revision(request):
+  """
+  """
+  id_project = request.matchdict['id']
+
+  revision_from = request.params['rev_from']
+  revision_to = request.params['rev_to']
+  file_name = request.params['file_name']
+
+  project =  DBSession.query(Project).get(id_project)
+
+  try :
+    ssh_node = project.get_ssh_node()
+    content = ssh_node.get_file_content(file_name, revision)
+  except NodeException as e:
+    log.error(e)
+  return {'diff':diff,'project':project}
+
+#------------------------------------------------------------------------------
+
+@view_config(route_name='project_revision_details', renderer='templates/revision.mako', permission='edit')
+@view_config(route_name='project_revision_details_json', renderer='json', permission='edit')
 def fetch_revision(request):
   """
   """
