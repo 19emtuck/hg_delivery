@@ -49,8 +49,12 @@ class DiffWrapper(object):
     """
     """
     self.raw_diff = raw_diff
-    self.lst_files = self.__get_lst_files()
-    self.dict_files = self.__get_files_to_diff()
+    if self.raw_diff :
+      self.lst_files = self.__get_lst_files()
+      self.dict_files = self.__get_files_to_diff()
+    else :
+      self.lst_files = []
+      self.dict_files = []
 
   def __get_lst_files(self):
     """
@@ -104,7 +108,6 @@ class NodeSsh(object):
   @check_connections
   def run_command(self, command, log=False):
     ''' Executes command via SSH. '''
-
     # we lock threads per resource
     with self.lock :
       try :
@@ -124,6 +127,7 @@ class NodeSsh(object):
           return ret
         else:
           return None
+
       except socket.gaierror :
         raise NodeException("host unavailable")
 
@@ -179,6 +183,15 @@ class HgNode(NodeSsh):
 
     return list_nodes, map_nodes
 
+  def get_file_content(self, file_name, revision):
+    """
+    """
+    try :
+      result = self.run_command("cd %s ; hg cat %s -r %s"%(self.path, file_name, revision))
+    except NodeException as e :
+      result = None
+    return result
+    
   def get_initial_hash(self):
     """
       return the initial hash (revision 0)
@@ -201,7 +214,7 @@ class HgNode(NodeSsh):
     """
     branches = []
     try :
-      data = self.run_command('cd %s ; hg branches\n"'%(self.path))
+      data = self.run_command('cd %s ; hg branches'%(self.path))
     except NodeException as e :
       pass
     else :
