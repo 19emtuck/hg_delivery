@@ -6,7 +6,7 @@
 <div id="overview" class="starter-template row" style="padding:10px 10px">
 
 % if current_node is not UNDEFINED and current_node is not None :
-  <div class="panel panel-default col-md-5" style="padding-left:0px;padding-right:0px;">
+  <div class="panel panel-default col-md-4" style="padding-left:0px;padding-right:0px;">
     <div class="panel-heading">
       <h3 class="panel-title">project <b>${project.name}</b> position @revision : <i>${current_node.get('rev','UNKNOWN')}</i></h3>
     </div>
@@ -32,11 +32,12 @@
        </div>
     </div>
   </div>
-  <div id="filter" class="panel panel-default col-md-2" style="margin-left:20px;padding-left:0px;padding-right:0px;">
+
+
+  <div id="filter" class="panel panel-default col-md-4" style="margin-left:20px;padding-left:0px;padding-right:0px;">
     <div class="panel-heading">
       <h3 class="panel-title">Filter</h3>
     </div>
-
     <form id="refresh" name="refresh" action="" method="POST" role="form">
       <div class="btn-group" style="margin-left:20px;margin-top:10px">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="min-width:80px">
@@ -65,9 +66,17 @@
     </form>
   </div>
 
+  <div id="files_panel" class="panel panel-default col-md-3" style="margin-left:10px;padding-left:0px;padding-right:0px;display:none">
+    <div class="panel-heading">
+      <h3 class="panel-title">Files</h3>
+    </div>
+    <div class="panel-body">
+       <div id="files" class="list-group">
+       </div>
+    </div>
+  </div>
+
 </div>
-
-
 
 <div id="edit_project_dialog" class="modal">
   <div class="modal-dialog">
@@ -155,7 +164,7 @@
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
-<div class="panel">
+<div id="tabs_revisions" class="panel">
 
  <!-- node tables -->
  <table id="project_tab"class="table table-condensed">
@@ -193,7 +202,7 @@
         %else :
           <td><span class="label label-success">${node['branch']}</span></td>
         %endif
-        <td><a href="${url(route_name='revision_details',id=project.id, rev=node['node'])}">${node['desc']}</a></td>
+        <td><a href="#" onclick="view_diff_revision('${url(route_name='project_revision_details_json',id=project.id, rev=node['node'])}')">${node['desc']}</a></td>
 
        </tr>
      %endfor
@@ -225,6 +234,12 @@
     <b>${repository_error}</b>
   </div>
 %endif
+
+<div class="panel" id="diffs_container" style="display:none"></div>
+
+<div class="panel" id="no_diff" style="display:none">
+  <p class="bg-info"> <br> &nbsp;  No diff is available for this revision <br> <br></p>
+</div>
 
 <%block name="local_js">
   <script>

@@ -217,6 +217,30 @@ function delete_this_project(){
          });
 }
 
+
+function view_diff_revision(target_url){
+  $.ajax({url:target_url,
+          success:function(json_response){
+            $('#filter').hide();
+            $('#files a').remove();
+
+            var lst_links = [];
+            var diffs_content = [];
+
+            json_response.diff.lst_basename_files.forEach(function(item){
+              var file_name = json_response.diff.lst_files[lst_links.length];
+              lst_links.push('<a href="#" class="list-group-item" onclick="$(\'div[id^=file_]\').hide();$(\'#file_'+lst_links.length+'\').show()">'+item+'</a>');
+              diffs_content.push('<div id="file_' + diffs_content.length + '" style="display:none">'+json_response.diff.dict_files[file_name]+'</div>');
+            });
+
+            $('#files').html(lst_links.join('\n'));
+            $('#tabs_revisions').hide();
+            $('#diffs_container').show().html(diffs_content.join('\n'));
+            $('#files_panel').show();
+          } 
+         });
+}
+
 /**
  * Init js component for project overview page
  */

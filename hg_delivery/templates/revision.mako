@@ -31,7 +31,7 @@
     % for i, file in enumerate(diff.lst_files) :
       % if file in diff.dict_files :
        <div id="file_${i}" style="display:none">
-          ${highlight(diff.dict_files[file], DiffLexer(), HtmlFormatter(cssclass='source', style='colorful')) |n}
+          ${diff.dict_files[file] |n}
        </div>
       % endif
     % endfor

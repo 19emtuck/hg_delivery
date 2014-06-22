@@ -15,6 +15,13 @@ import logging
 import socket
 import threading
 import re
+import os.path
+
+from pygments import highlight
+from pygments.lexers import DiffLexer
+from pygments.formatters import HtmlFormatter
+from pygments.styles import get_all_styles 
+styles = list(get_all_styles())
 
 #------------------------------------------------------------------------------
 
@@ -51,6 +58,7 @@ class DiffWrapper(object):
     self.raw_diff = raw_diff
     if self.raw_diff :
       self.lst_files = self.__get_lst_files()
+      self.lst_basename_files = [os.path.basename(f_name) for f_name in self.lst_files]
       self.dict_files = self.__get_files_to_diff()
     else :
       self.lst_files = []
@@ -66,8 +74,18 @@ class DiffWrapper(object):
     """
     """
     groups = self.__get_lst_files()
-    diffs_content = [bloc for bloc in re.split("\n*diff -r [a-z0-9]{8,20} [^\n]+\n",self.raw_diff) if bloc.strip()]
+    diffs_content = [highlight(bloc, DiffLexer(), HtmlFormatter(cssclass='source', style='colorful')) for bloc in re.split("\n*diff -r [a-z0-9]{8,20} [^\n]+\n",self.raw_diff) if bloc.strip()]
     return dict(zip(groups, diffs_content))
+
+  def __json__(self, request):
+    """
+    """
+    return { 'id':self.raw_diff,
+             'lst_files':self.lst_files,
+             'lst_basename_files':self.lst_basename_files,
+             'dict_files':self.dict_files
+           }
+
 
 #------------------------------------------------------------------------------
 
