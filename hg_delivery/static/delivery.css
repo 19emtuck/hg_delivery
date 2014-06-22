@@ -22,6 +22,20 @@ body {
   outline-color: transparent;
 }
 
+#container_logs {
+  position:fixed;
+  width:100%;
+  height:160px;
+  bottom:0px;
+  background-color:white;
+  border-top:solid 2px;
+  overflow:auto;
+}
+
+/**
+ * All the pygment style
+ *
+ */
 .hll { background-color: #ffffcc }
 .c { color: #408080; font-style: italic } /* Comment */
 .err { border: 1px solid #FF0000 } /* Error */

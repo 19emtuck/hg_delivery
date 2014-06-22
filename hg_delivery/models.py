@@ -104,7 +104,6 @@ class RemoteLog(Base):
   __tablename__ = 'logs'
 
   id = Column(Integer, primary_key=True)
-
   command = Column(Text)
   creation_date = Column(DateTime)
 
@@ -112,7 +111,14 @@ class RemoteLog(Base):
     """
     """
     self.creation_date = datetime.now()
+    self.command = command
 
+  def __json__(self, request):
+    """
+    """
+    return { 'id':self.id,
+             'command':self.command,
+             'creation_date':self.creation_date.strftime('%d/%m/%Y %H:%M')}
 #------------------------------------------------------------------------------
 
 Index('project_unique', Project.host, Project.path, unique=True)

@@ -31,13 +31,11 @@ def mysubscriber(event):
   event['static_url'] = request.static_url
   event['logged_in'] = request.authenticated_userid
 
-@subscriber(NewResponse)
-def log_ssh_commands(event):
-  """
-    at the end of each response we check
-    if we need to log something
-  """
+  # log data and flush them into database
   if NodeSsh.logs :
     for __command in NodeSsh.logs :
       DBSession.add(RemoteLog(command = __command))
     del NodeSsh.logs[0:]
+
+
+

@@ -138,8 +138,10 @@ class NodeSsh(object):
         if err:
           raise NodeException(err)
         elif ret:
+
           if log :
             self.__class__.logs.append(command)
+
           if(type(ret)==bytes):
             ret = str(ret,'utf-8')
           return ret

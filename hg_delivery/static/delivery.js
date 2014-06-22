@@ -241,6 +241,28 @@ function view_diff_revision(target_url){
          });
 }
 
+function display_logs(active_button) {
+  $button = $(active_button);
+
+  if(!$button.hasClass('btn-success')){
+    $.ajax({ url:$button.data('url'),
+             success:function(json_response){
+               var log_resume = [];
+               json_response.logs.forEach(function(item){
+                 log_resume.push("<i>"+item.creation_date +"</i>   :"+ item.command);
+               });
+               $('#logs').html(log_resume.join('<br>'));
+               $('#container_logs').add($button.addClass('btn-success'));
+               $('#container_logs').show();
+             }
+           })
+  } else {
+    $button.removeClass('btn-success');
+    $('#container_logs').hide();
+  }
+
+}
+
 /**
  * Init js component for project overview page
  */

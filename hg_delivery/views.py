@@ -19,6 +19,7 @@ from sqlalchemy.exc import DBAPIError, IntegrityError
 from .models import (
     DBSession,
     Project,
+    RemoteLog,
     )
 from hg_delivery.nodes import NodeException
 import paramiko
@@ -26,6 +27,15 @@ import time
 import logging
 
 log = logging.getLogger(__name__)
+
+#------------------------------------------------------------------------------
+
+@view_config(route_name='logs', renderer='json', permission='edit')
+def logs(request):
+    """
+    create a new project
+    """
+    return { 'logs':DBSession.query(RemoteLog).order_by(RemoteLog.creation_date.desc()).limit(50).all() }
 
 #------------------------------------------------------------------------------
 

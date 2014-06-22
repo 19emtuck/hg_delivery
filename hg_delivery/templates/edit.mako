@@ -3,6 +3,18 @@
 %>
 <%inherit file="base.mako"/>
 
+<ul id="project_tab" class="nav nav-tabs" style="margin-top:4px">
+  <li class="active"> <a href="#project_home">${project.name} home</a> </li>
+  <li> <a href="#related">Related projects</a> </li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+  <div class="tab-pane active" id="project_home"> project home</div>
+  <div class="tab-pane" id="related">related</div>
+  <div class="tab-pane" id="settings">...</div>
+</div>
+
 <div id="overview" class="starter-template row" style="padding:10px 10px">
 
 % if current_node is not UNDEFINED and current_node is not None :
@@ -32,7 +44,6 @@
        </div>
     </div>
   </div>
-
 
   <div id="filter" class="panel panel-default col-md-4" style="margin-left:20px;padding-left:0px;padding-right:0px;">
     <div class="panel-heading">
@@ -246,6 +257,12 @@
   var local_project_name = "${project.name}";
   var local_project_last_change_list = ${json.dumps(last_hundred_change_list)|n}
   var current_node = ${json.dumps(current_node)|n}
+
+  $('#project_tab a').click(function (e) {
+    e.preventDefault()
+    $(this).tab('show')
+  })
+
   </script>
 </%block>
 

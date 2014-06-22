@@ -7,7 +7,7 @@
     <title>Hg Delivery 1.0</title>
 
     <!-- Bootstrap -->
-    <link href="${request.static_url('hg_delivery:static/bootstrap-3.1.1/css/bootstrap.min.css')}" rel="stylesheet">
+    <link href="${request.static_url('hg_delivery:static/bootstrap-3.1.1/css/bootstrap.css')}" rel="stylesheet">
     <link href="${request.static_url('hg_delivery:static/delivery.css')}" rel="stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -79,6 +79,9 @@
                    <li class="divider"></li>
                    <li><a id="view_delete_project" href="#" onclick="delete_this_project()" data-url="${url(route_name='project_delete',id=project.id)}">Delete</a></li>
                  </ul>
+                 <button type="button" class="btn btn-default" id="button_log" style="margin-left:10px" id="logs" onclick="display_logs(this);" data-url="${url(route_name='logs',id=project.id)}">
+                   Logs
+                 </button>
                </div>
                % endif
 
@@ -101,6 +104,14 @@
     </div>
     <!-- ENDING/ .container -->
 
+    % if project is not UNDEFINED :
+    <div id="container_logs" style="display:none">
+      <button type="button" class="close" onclick="display_logs($('#button_log').get(0));" aria-hidden="true">&times;</button>
+      <div id='logs'>
+      </div>
+    </div>
+    % endif
+ 
     <!-- STARTING/ GLOBAL SCRIPT -->
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="${request.static_url('hg_delivery:static/jquery-1.11.1.min.js')}"></script>
