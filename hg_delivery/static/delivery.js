@@ -249,7 +249,7 @@ function display_logs(active_button) {
              success:function(json_response){
                var log_resume = [];
                json_response.logs.forEach(function(item){
-                 log_resume.push("<i>"+item.creation_date +"</i>   :"+ item.command);
+                 log_resume.push("<i>"+item.creation_date +"</i>   : " + item.command);
                });
                $('#logs').html(log_resume.join('<br>'));
                $('#container_logs').add($button.addClass('btn-success'));
