@@ -1,12 +1,6 @@
 <%!
   import json
   import os.path
-  from pygments import highlight
-  from pygments.lexers import DiffLexer
-  from pygments.formatters import HtmlFormatter
-  from pygments.styles import get_all_styles 
-  styles = list(get_all_styles())
-
 %>
 <%inherit file="base.mako"/>
 <a href="${url(route_name='project_edit',id=project.id)}">back to project</a>

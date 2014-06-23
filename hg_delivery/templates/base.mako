@@ -106,7 +106,7 @@
 
     % if project is not UNDEFINED :
     <div id="container_logs" style="display:none">
-      <button type="button" class="close" onclick="display_logs($('#button_log').get(0));" aria-hidden="true">&times;</button>
+      <button type="button" class="close" onclick="display_logs($('#button_log').get(0));" aria-hidden="true" style="font-size:33px">&times;</button>
       <div id='logs'>
       </div>
     </div>

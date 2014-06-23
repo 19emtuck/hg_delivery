@@ -3,102 +3,163 @@
 %>
 <%inherit file="base.mako"/>
 
-<ul id="project_tab" class="nav nav-tabs" style="margin-top:4px">
-  <li class="active"> <a href="#project_home">${project.name} home</a> </li>
+<ul id="project_tab" class="nav nav-tabs" style="margin-top:4px;margin-bottom:6px">
+  <li class="active"> <a href="#project_home">project ${project.name}</a> </li>
   <li> <a href="#related">Related projects</a> </li>
 </ul>
 
 <!-- Tab panes -->
 <div class="tab-content">
-  <div class="tab-pane active" id="project_home"> project home</div>
-  <div class="tab-pane" id="related">related</div>
-  <div class="tab-pane" id="settings">...</div>
-</div>
-
-<div id="overview" class="starter-template row" style="padding:10px 10px">
-
-% if current_node is not UNDEFINED and current_node is not None :
-  <div class="panel panel-default col-md-4" style="padding-left:0px;padding-right:0px;">
-    <div class="panel-heading">
-      <h3 class="panel-title">project <b>${project.name}</b> position @revision : <i>${current_node.get('rev','UNKNOWN')}</i></h3>
-    </div>
-    <div class="panel-body">
-        ${current_node.get('node','UNKNOWN')}
-        <br>
-        <span class="label label-warning"> ${current_node.get('branch','UNKNOWN')}</span>
-        <br>
-        ${current_node.get('desc','UNKNOWN')}
-    </div>
-  </div>
-% endif
-
-  <div class="panel panel-default col-md-3" style="margin-left:20px;padding-left:0px;padding-right:0px;">
-    <div class="panel-heading">
-      <h3 class="panel-title">Related projects</h3>
-    </div>
-    <div class="panel-body">
-       <div id="other_projects" class="list-group">
-         %for link in linked_projects :
-           <a href="#" class="list-group-item" data-url="${url(route_name='project_fetch',id=link.id)}" data-name="${link.name}" onclick="fetch_this_other_project(this)">${link.name}</a>
-         %endfor
+  <div class="tab-pane active" id="project_home">
+    % if current_node is not UNDEFINED and current_node is not None :
+      <div class="panel panel-default col-md-6" style="padding-left:0px;padding-right:0px;">
+        <div class="panel-heading">
+          <h3 class="panel-title">project <b>${project.name}</b> position @revision : <i>${current_node.get('rev','UNKNOWN')}</i></h3>
+        </div>
+        <div class="panel-body">
+            <span class="label label-warning"> ${current_node.get('branch','UNKNOWN')}</span>
+            ${current_node.get('node','UNKNOWN')}
+            <i>(${current_node.get('desc','UNKNOWN')})</i>
+        </div>
+      </div>
+    % endif
+    
+     <div id="filter" class="panel panel-default col-md-4" style="margin-left:20px;padding-left:0px;padding-right:0px;">
+       <div class="panel-heading">
+         <h3 class="panel-title">Filter</h3>
        </div>
-    </div>
-  </div>
+       <div style="padding:7px 9px">
+         <form id="refresh" name="refresh" action="" method="POST" role="form" class="form-inline">
+           <div class="btn-group">
+             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="min-width:80px">
+               %if filter_branch :
+                 <span id="branch_name">${filter_branch}</span> <span class="caret"></span>
+               %else :
+                 All branches <span class="caret"></span>
+               %endif
+             </button>
+             <ul class="dropdown-menu" role="menu">
+             %if filter_branch :
+               <li><a href="#" onclick="$('#branch').val('');$('#refresh').submit()"><b>All branches</b></a></li>
+             %endif
+             %for _branch in list_branches :
+               <li><a href="#" onclick="$('#branch').val('${_branch}');$('#refresh').submit()">${_branch}</a></li>
+             %endfor
+             </ul>
+           </div>
+           <input type="hidden" id="branch" name="branch" value="">
+           <input type="text" name="limit" value="${limit}" size="3" maxlength="4" style="margin-left:20px;">
+           <button id="view_refresh_project" class="btn btn-primary" style="float:right">Filter this view</button>
+         </form>
+       </div>
+     </div>
 
-  <div id="filter" class="panel panel-default col-md-4" style="margin-left:20px;padding-left:0px;padding-right:0px;">
-    <div class="panel-heading">
-      <h3 class="panel-title">Filter</h3>
-    </div>
-    <form id="refresh" name="refresh" action="" method="POST" role="form">
-      <div class="btn-group" style="margin-left:20px;margin-top:10px">
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="min-width:80px">
-          %if filter_branch :
-            <span id="branch_name">${filter_branch}</span> <span class="caret"></span>
-          %else :
-            All branches <span class="caret"></span>
-          %endif
-        </button>
-        <ul class="dropdown-menu" role="menu">
-        %if filter_branch :
-          <li><a href="#" onclick="$('#branch').val('');$('#refresh').submit()"><b>All branches</b></a></li>
-        %endif
-        %for _branch in list_branches :
-          <li><a href="#" onclick="$('#branch').val('${_branch}');$('#refresh').submit()">${_branch}</a></li>
+    <!-- node tables -->
+    <table id="project_tab"class="table table-condensed">
+       <thead>
+         <th></th>
+         <th>Rev.</th>
+         <th>Tag</th>
+         <th>Author</th>
+         <th>Branch</th>
+         <th>Description</th>
+       </thead>
+    
+       <tbody>
+        %for node in last_hundred_change_list :
+          <tr>
+           %if node['node'] == current_node.get('node'):
+              <td><span class="glyphicon glyphicon-ok" data-current_rev="${current_node['rev']}" style="color:#f0ad4e;font-size:27px"></span></td>
+           %else :
+             <td></td>
+           %endif
+           <td>
+             <a href="#" onclick="change_project_to_this_release(this, '${url('project_change_to',id=project.id, rev=node['node'])}')" title="revert to the node ${node['node']}">${node['rev']}</a>
+           </td>
+    
+           %if node['tags']:
+             <td><span title="${node['tags']}"><span class="glyphicon glyphicon-star" style="font-size:27px"></span></td>
+           %else :
+             <td></td>
+           %endif :
+    
+           <td>${node['author']}</td>
+    
+           %if node['node'] == current_node.get('node'):
+             <td><span class="label label-warning">${node['branch']}</span></td>
+           %else :
+             <td><span class="label label-success">${node['branch']}</span></td>
+           %endif
+           <td><a href="#" onclick="view_diff_revision('${url(route_name='project_revision_details_json',id=project.id, rev=node['node'])}')">${node['desc']}</a></td>
+
+          </tr>
         %endfor
-        </ul>
-      </div>
-      <div style="margin-left:20px;margin-top:10px">
-       <input type="hidden" id="branch" name="branch" value="">
-       <input type="text" name="limit" value="${limit}" size="3" maxlength="4">
-      </div>
-      <div style="margin-left:20px;margin-top:10px;margin-bottom:10px">
-        <button id="view_refresh_project" class="btn btn-primary">Filter this view</button>
-      </div>
-    </form>
+       </tbody>
+    </table>
+
   </div>
 
-  <div id="files_panel" class="panel panel-default col-md-3" style="margin-left:10px;padding-left:0px;padding-right:0px;display:none">
-    <div class="panel-heading">
-      <h3 class="panel-title">Files</h3>
-    </div>
-    <div class="panel-body">
-       <div id="files" class="list-group">
-       </div>
-    </div>
+  <div class="tab-pane" id="related">
+
+      <div class="panel panel-default col-md-3" style="padding-left:0px;padding-right:0px;">
+        <div class="panel-heading">
+          <h3 class="panel-title">Related projects</h3>
+        </div>
+        <div class="panel-body">
+           <div id="other_projects" class="list-group">
+             %for link in linked_projects :
+               <a href="#" class="list-group-item" data-url="${url(route_name='project_fetch',id=link.id)}" data-name="${link.name}" onclick="fetch_this_other_project(this)">${link.name}</a>
+             %endfor
+           </div>
+        </div>
+      </div>
+
+     <!-- project compare table -->
+     <table id="project_comparison" class="table table-condensed" style="display:none">
+        <thead>
+          <th></th>
+          <th>Rev <span id="p_name_remote"></span></th>
+          <th>Rev <span id="p_name_local"></span></th>
+          <th></th>
+          <th>Author</th>
+          <th>Branch</th>
+          <th>Description</th>
+        </thead>
+        <tbody>
+        </tbody>
+     </table>
+
   </div>
+
+  <div class="tab-pane" id="revision">
+      <div id="files_panel" class="panel panel-default col-md-3" style="margin-left:10px;padding-left:0px;padding-right:0px;display:none">
+        <div class="panel-heading">
+          <h3 class="panel-title">Files</h3>
+        </div>
+        <div class="panel-body">
+           <div id="files" class="list-group">
+           </div>
+        </div>
+      </div>
+  </div>
+
 
 </div>
 
+
+
+
+
+
+<!-- project edition -->
 <div id="edit_project_dialog" class="modal">
   <div class="modal-dialog">
     <div class="modal-content">
-
 
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h4 class="modal-title">Add a new project</h4>
       </div>
-
 
       <div class="modal-body">
         <div id="edit_project">
@@ -155,7 +216,9 @@
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+<!-- end of project edition -->
 
+<!-- start update to dialog -->
 <div id="confirm_move_dialog" class="modal">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -170,73 +233,13 @@
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button id="move_to" type="button" class="btn btn-primary">Move to this revision</button>
       </div>
-
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+<!-- end update to dialog -->
 
-<div id="tabs_revisions" class="panel">
 
- <!-- node tables -->
- <table id="project_tab"class="table table-condensed">
-    <thead>
-      <th></th>
-      <th>Rev.</th>
-      <th>Tag</th>
-      <th>Author</th>
-      <th>Branch</th>
-      <th>Description</th>
-    </thead>
- 
-    <tbody>
-     %for node in last_hundred_change_list :
-       <tr>
-        %if node['node'] == current_node.get('node'):
-           <td><span class="glyphicon glyphicon-ok" data-current_rev="${current_node['rev']}" style="color:#f0ad4e;font-size:27px"></span></td>
-        %else :
-          <td></td>
-        %endif
-        <td>
-          <a href="#" onclick="change_project_to_this_release(this, '${url('project_change_to',id=project.id, rev=node['node'])}')" title="revert to the node ${node['node']}">${node['rev']}</a>
-        </td>
- 
-        %if node['tags']:
-          <td><span title="${node['tags']}"><span class="glyphicon glyphicon-star" style="font-size:27px"></span></td>
-        %else :
-          <td></td>
-        %endif :
- 
-        <td>${node['author']}</td>
- 
-        %if node['node'] == current_node.get('node'):
-          <td><span class="label label-warning">${node['branch']}</span></td>
-        %else :
-          <td><span class="label label-success">${node['branch']}</span></td>
-        %endif
-        <td><a href="#" onclick="view_diff_revision('${url(route_name='project_revision_details_json',id=project.id, rev=node['node'])}')">${node['desc']}</a></td>
-
-       </tr>
-     %endfor
-    </tbody>
- </table>
-
- <!-- project compare table -->
- <table id="project_comparison" class="table table-condensed" style="display:none">
-    <thead>
-      <th></th>
-      <th>Rev <span id="p_name_remote"></span></th>
-      <th>Rev <span id="p_name_local"></span></th>
-      <th></th>
-      <th>Author</th>
-      <th>Branch</th>
-      <th>Description</th>
-    </thead>
-    <tbody>
-    </tbody>
- </table>
-
-</div>
-
+<!-- nothing work -->
 %if repository_error is not None:
   <div class="alert alert-danger">Sorry this repository is not available. Thanks to check configuration to solve this issue.
     You'll find bellow more technical details :
@@ -245,12 +248,17 @@
     <b>${repository_error}</b>
   </div>
 %endif
+<!-- nothing work -->
 
+<!-- panel who will contains diffs -->
 <div class="panel" id="diffs_container" style="display:none"></div>
+<!-- panel who will contains diffs -->
 
+<!-- if not diff are available -->
 <div class="panel" id="no_diff" style="display:none">
   <p class="bg-info"> <br> &nbsp;  No diff is available for this revision <br> <br></p>
 </div>
+<!-- if not diff are available -->
 
 <%block name="local_js">
   <script>

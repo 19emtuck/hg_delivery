@@ -32,6 +32,20 @@ body {
   overflow:auto;
 }
 
+.log {
+  list-style:none;
+  padding-right: 50px;
+  padding-left: 20px;
+  padding-top: 4px;
+}
+
+.log li:nth-child(even){
+  background-color:white; 
+}
+
+.log li:nth-child(odd){
+  background-color:#ececec; 
+}
 /**
  * All the pygment style
  *
