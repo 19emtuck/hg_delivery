@@ -39,13 +39,25 @@ body {
   padding-top: 4px;
 }
 
-.log li:nth-child(even){
+.log>li:nth-child(even){
   background-color:white; 
 }
-
-.log li:nth-child(odd){
+.log>li:nth-child(odd){
   background-color:#ececec; 
 }
+.row_log {
+  list-style:none;
+}
+.row_log li {
+  display: table-cell;
+  padding-right:10px;
+  padding-left:5px;
+  border-right:solid 1px rgb(190, 190, 190);
+}
+.row_log li:last-child {
+  border-right:none;
+}
+
 /**
  * All the pygment style
  *
