@@ -28,7 +28,7 @@
        <div class="panel-heading">
          <h3 class="panel-title">Filter</h3>
        </div>
-       <div style="padding:7px 9px">
+       <div style="padding:8px 9px">
          <form id="refresh" name="refresh" action="" method="POST" role="form" class="form-inline">
            <div class="btn-group">
              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="min-width:80px">
