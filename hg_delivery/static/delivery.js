@@ -252,6 +252,7 @@ function display_logs(active_button) {
                $('#logs').html(__loc_html);
                $button.addClass('btn-success');
                $('#container_logs').show();
+               $('#global_container').css('padding-bottom','160px')
                localStorage['logs_enabled']=1;
                localStorage['last_logs']=__loc_html;
              }
@@ -260,6 +261,7 @@ function display_logs(active_button) {
     $button.removeClass('btn-success');
     $('#container_logs').hide();
     localStorage['logs_enabled']=0;
+    $('#global_container').css('padding-bottom','0px')
   }
 
 }

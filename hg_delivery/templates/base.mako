@@ -99,7 +99,7 @@
     </div>
 
     <!-- STARTING/ .container -->
-    <div class="container">
+    <div id="global_container" class="container">
       ${self.body()}
     </div>
     <!-- ENDING/ .container -->
