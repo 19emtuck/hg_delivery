@@ -140,7 +140,7 @@ class NodeSsh(object):
         elif ret:
 
           if log :
-            self.__class__.logs.append(command)
+            self.__class__.logs.append((self.host, self.path, re.sub("^cd[^;]*;",'',command)))
 
           if(type(ret)==bytes):
             ret = str(ret,'utf-8')

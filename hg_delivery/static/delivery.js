@@ -236,20 +236,30 @@ function display_logs(active_button) {
   $button = $(active_button);
 
   if(!$button.hasClass('btn-success')){
+
+    if('last_logs' in localStorage && localStorage['last_logs']!==''){
+      $button.addClass('btn-success');
+      $('#logs').html(localStorage['last_logs']).show();
+    }
+
     $.ajax({ url:$button.data('url'),
              success:function(json_response){
                var log_resume = [];
                json_response.logs.forEach(function(item){
-                 log_resume.push("<i>"+item.creation_date +"</i>   : " + item.command);
+                 log_resume.push("<i>"+item.creation_date +"</i> " + item.host + " " + item.path + "  : " + item.command);
                });
-               $('#logs').html('<ul class="log"><li>'+log_resume.join('</li><li>')+'</li></ul>');
-               $('#container_logs').add($button.addClass('btn-success'));
+               var __loc_html = '<ul class="log"><li>'+log_resume.join('</li><li>')+'</li></ul>';
+               $('#logs').html(__loc_html);
+               $button.addClass('btn-success');
                $('#container_logs').show();
+               localStorage['logs_enabled']=1;
+               localStorage['last_logs']=__loc_html;
              }
            })
   } else {
     $button.removeClass('btn-success');
     $('#container_logs').hide();
+    localStorage['logs_enabled']=0;
   }
 
 }

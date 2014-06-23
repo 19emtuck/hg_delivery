@@ -33,8 +33,8 @@ def mysubscriber(event):
 
   # log data and flush them into database
   if NodeSsh.logs :
-    for __command in NodeSsh.logs :
-      DBSession.add(RemoteLog(command = __command))
+    for (__host, __path, __command) in NodeSsh.logs :
+      DBSession.add(RemoteLog(host = __host, path = __path, command = __command))
     del NodeSsh.logs[0:]
 
 

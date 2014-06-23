@@ -4,7 +4,7 @@
 <%inherit file="base.mako"/>
 
 <ul id="project_tab" class="nav nav-tabs" style="margin-top:4px;margin-bottom:6px">
-  <li class="active"> <a href="#project_home">project ${project.name}</a> </li>
+  <li class="active"> <a href="#project_home">project <b>${project.name}</b></a> </li>
   <li> <a href="#related">Related projects</a> </li>
 </ul>
 
@@ -262,6 +262,11 @@
 
 <%block name="local_js">
   <script>
+  if(localStorage['logs_enabled']==='1'){
+    $button = $('#button_log');
+    display_logs($button.get(0));
+  }
+
   var local_project_name = "${project.name}";
   var local_project_last_change_list = ${json.dumps(last_hundred_change_list)|n}
   var current_node = ${json.dumps(current_node)|n}

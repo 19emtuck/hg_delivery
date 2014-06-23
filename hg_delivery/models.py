@@ -104,19 +104,25 @@ class RemoteLog(Base):
   __tablename__ = 'logs'
 
   id = Column(Integer, primary_key=True)
+  host = Column(String(100))
+  path = Column(Text)
   command = Column(Text)
   creation_date = Column(DateTime)
 
-  def __init__(self, command):
+  def __init__(self, host, path, command):
     """
     """
     self.creation_date = datetime.now()
+    self.host = host
+    self.path =path 
     self.command = command
 
   def __json__(self, request):
     """
     """
     return { 'id':self.id,
+             'host':self.host,
+             'path':self.path,
              'command':self.command,
              'creation_date':self.creation_date.strftime('%d/%m/%Y %H:%M')}
 #------------------------------------------------------------------------------
