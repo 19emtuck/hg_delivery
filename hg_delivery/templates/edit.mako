@@ -6,6 +6,7 @@
 <ul id="project_tab" class="nav nav-tabs" style="margin-top:4px;margin-bottom:6px">
   <li class="active"> <a href="#project_home">project <b>${project.name}</b></a> </li>
   <li> <a href="#related">Related projects</a> </li>
+  <li> <a href="#revision">Revision</a> </li>
 </ul>
 
 <!-- Tab panes -->
@@ -131,7 +132,9 @@
 
   </div>
 
+  <!-- project revision tab pane -->
   <div class="tab-pane" id="revision">
+
       <div id="files_panel" class="panel panel-default col-md-3" style="margin-left:10px;padding-left:0px;padding-right:0px;display:none">
         <div class="panel-heading">
           <h3 class="panel-title">Files</h3>
@@ -141,6 +144,17 @@
            </div>
         </div>
       </div>
+
+      <!-- panel who will contains diffs -->
+      <div class="panel" id="diffs_container" style="display:none"></div>
+      <!-- panel who will contains diffs -->
+      
+      <!-- if not diff are available -->
+      <div class="panel" id="no_diff" style="display:none">
+        <p class="bg-info"> <br> &nbsp;  No diff is available for this revision <br> <br></p>
+      </div>
+      <!-- if not diff are available -->
+
   </div>
 
 
@@ -249,16 +263,6 @@
   </div>
 %endif
 <!-- nothing work -->
-
-<!-- panel who will contains diffs -->
-<div class="panel" id="diffs_container" style="display:none"></div>
-<!-- panel who will contains diffs -->
-
-<!-- if not diff are available -->
-<div class="panel" id="no_diff" style="display:none">
-  <p class="bg-info"> <br> &nbsp;  No diff is available for this revision <br> <br></p>
-</div>
-<!-- if not diff are available -->
 
 <%block name="local_js">
   <script>
