@@ -14,7 +14,7 @@ function change_project_to_this_release(active_a, target_url){
 
 function fetch_this_other_project(active_a){
   $('#project_comparison').show();
-
+  $('#other_projects a').removeClass('active');
   $active_a = $(active_a);
   var target_url = $active_a.data('url');
   var remote_project_name = $active_a.data('name');
@@ -22,6 +22,7 @@ function fetch_this_other_project(active_a){
           async:false,
           dataType:'json',
           success:function(json_response){
+                  $active_a.addClass('active');
                   var remote_project_last_change_list = json_response.last_hundred_change_list;
                   show_difference_between_changeset_stacks(remote_project_name, local_project_last_change_list, remote_project_last_change_list, current_node);
                },
