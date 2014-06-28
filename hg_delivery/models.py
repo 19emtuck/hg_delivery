@@ -75,7 +75,7 @@ class Project(Base):
              'host':self.host,
              'path':self.path,
              'user':self.user,
-             'password':self.password,
+             'password':'*'*len(self.password),
              'dashboard':self.dashboard}
 
   def get_uri(self):
