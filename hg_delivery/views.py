@@ -74,6 +74,29 @@ def default_view(request):
 
 #------------------------------------------------------------------------------
 
+@view_config(route_name='project_update_from', renderer='json')
+def pull(request):
+  """
+  """
+  id_project = request.matchdict['id']
+  id_source_project = request.matchdict['source']
+
+
+  project =  DBSession.query(Project).get(id_project)
+  source_project =  DBSession.query(Project).get(id_source_project)
+
+  try :
+    ssh_node = project.get_ssh_node()
+    ssh_node.pull_from(source_project)
+
+  except NodeException as e:
+    log.error(e)
+  else :
+    pass
+  return {}
+
+
+
 @view_config(route_name='project_add', renderer='json', permission='edit')
 def add_project(request):
     """

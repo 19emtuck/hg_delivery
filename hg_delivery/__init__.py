@@ -35,6 +35,9 @@ def projects_include(config):
   config.add_route('project_revision_details',      '/detail/{id:\d+}/revision/{rev}', custom_predicates=(to_int('id'),))
   config.add_route('project_update',        '/update/{id:\d+}', custom_predicates=(to_int('id'),))
 
+  # update from another project 
+  config.add_route('project_update_from',   '/pull/{id:\d+}/from/{source:\d+}', custom_predicates=(to_int('id'),to_int('source'),))
+
   # move project to another revision
   config.add_route('project_change_to',     '/change/{id:\d+}/to/{rev}', custom_predicates=(to_int('id'),))
 

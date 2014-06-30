@@ -16,12 +16,15 @@ import socket
 import threading
 import re
 import os.path
+import logging
 
 from pygments import highlight
 from pygments.lexers import DiffLexer
 from pygments.formatters import HtmlFormatter
 from pygments.styles import get_all_styles 
 styles = list(get_all_styles())
+
+log = logging.getLogger(__name__)
 
 #------------------------------------------------------------------------------
 
@@ -124,6 +127,51 @@ class NodeSsh(object):
     return ssh
 
   @check_connections
+  def run_command_and_feed_password_prompt(self, command, password, reg_password ='password: ', reg_shell = ':~$ '):
+    '''
+      Execute command through SSH and also feed prompt !
+    '''
+    with self.lock :
+
+      channel = self.ssh.invoke_shell()
+      buff = ''
+      while not buff.endswith(reg_shell):
+          resp = channel.recv(9999)
+          buff += str(resp,'utf-8')
+      log.info("*"*80)
+      log.info(buff)
+
+      # Ssh and wait for the password prompt.
+      channel.send(command + '\n')
+ 
+      buff = ''
+      while not buff.endswith(reg_password):
+          resp = channel.recv(9999)
+          buff += str(resp,'utf-8')
+      log.info("*"*80)
+      log.info(buff)
+
+      # Send the password and wait for a prompt.
+      channel.send(self.password + '\n')
+ 
+      buff = ''
+      while buff.find('%s@'%self.user) < 0 :
+          resp = channel.recv(9999)
+          buff += str(resp,'utf-8')
+      log.info("*"*80)
+      log.info(buff)
+         
+      # ret=re.search( '(\d) done.', buff).group(1)
+      ret=buff
+
+      log.info("*"*80)
+    log.info('command was successful:' + str(ret=='0'))
+
+    return {'out':    [], 
+            'err':    [],
+            'retval': []}
+
+  @check_connections
   def run_command(self, command, log=False):
     ''' Executes command via SSH. '''
     # we lock threads per resource
@@ -172,7 +220,15 @@ class HgNode(NodeSsh):
       # '+' is not part of changeset hash
       result = data.strip('\n').split(' ')[0].strip('+')
     return result
-  
+
+  def pull_from(self, source_project):
+    """
+    """
+    # OSError: Socket is closed
+    print('hg pull from ssh://%s@%s/%s'%(source_project.user, source_project.host, source_project.path))
+    data = self.run_command_and_feed_password_prompt('cd %s ; hg pull --insecure ssh://%s@%s/%s'%(self.path, source_project.user, source_project.host, source_project.path), source_project.password)
+    print(data)
+
   def get_last_logs(self, nb_lines, branch_filter=None, revision_filter=None):
     """
       return last logs ...

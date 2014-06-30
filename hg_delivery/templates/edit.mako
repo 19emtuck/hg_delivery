@@ -109,8 +109,19 @@
         <div class="panel-body">
            <div id="other_projects" class="list-group">
              %for link in linked_projects :
-               <a href="#" class="list-group-item" data-url="${url(route_name='project_fetch',id=link.id)}" data-name="${link.name}" onclick="fetch_this_other_project(this)">${link.name}</a>
+             <a href="#" class="list-group-item" data-id="${link.id}" data-url="${url(route_name='project_fetch',id=link.id)}" data-name="${link.name}" onclick="fetch_this_other_project(this)">${link.name}</a>
              %endfor
+           </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default col-md-4" style="margin-left:20px;padding-left:0px;padding-right:0px;">
+        <div class="panel-heading">
+          <h3 class="panel-title">Should we update from this related project ?</h3>
+        </div>
+        <div class="panel-body">
+           <div id="other_projects" class="list-group">
+             <button onclick="pull_from(${project.id}, '${url(route_name='project_update_from', id=project.id, source='')}');">pull from</button>
            </div>
         </div>
       </div>

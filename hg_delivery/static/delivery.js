@@ -5,6 +5,25 @@ function go_to(url) {
   window.location.href = url;
 }
 
+
+/**
+ * update from this project
+ */
+function pull_from(target_project_id, target_url){
+  if($('#other_projects a.active').length>0){
+     var src_project_id = $('#other_projects a.active').data('id');
+     console.log("from : "+src_project_id + " to "+target_project_id);
+     $.ajax({url:target_url+src_project_id,
+             async:false,
+             dataType:'json',
+             success:function(){
+               console.log('cool');
+             },
+             });
+  }
+}
+
+
 function change_project_to_this_release(active_a, target_url){
   $('#src_revision').text($('.glyphicon-ok').data('current_rev'));
   $('#target_revision').text($(active_a).text());
