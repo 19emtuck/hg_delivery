@@ -66,6 +66,7 @@ class DiffWrapper(object):
     else :
       self.lst_files = []
       self.dict_files = []
+      self.lst_basename_files = []
 
   def __get_lst_files(self):
     """
