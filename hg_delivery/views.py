@@ -74,7 +74,28 @@ def default_view(request):
 
 #------------------------------------------------------------------------------
 
-@view_config(route_name='project_update_from', renderer='json')
+@view_config(route_name='project_push_to', renderer='json')
+def push(request):
+  """
+  """
+  id_project = request.matchdict['id']
+  id_target_project = request.matchdict['target']
+
+
+  project =  DBSession.query(Project).get(id_project)
+  target_project =  DBSession.query(Project).get(id_target_project)
+
+  try :
+    ssh_node = project.get_ssh_node()
+    ssh_node.push_to(target_project)
+  except NodeException as e:
+    log.error(e)
+  else :
+    pass
+  return {}
+#------------------------------------------------------------------------------
+
+@view_config(route_name='project_pull_from', renderer='json')
 def pull(request):
   """
   """
@@ -88,14 +109,13 @@ def pull(request):
   try :
     ssh_node = project.get_ssh_node()
     ssh_node.pull_from(source_project)
-
   except NodeException as e:
     log.error(e)
   else :
     pass
   return {}
 
-
+#------------------------------------------------------------------------------
 
 @view_config(route_name='project_add', renderer='json', permission='edit')
 def add_project(request):

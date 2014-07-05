@@ -5,6 +5,22 @@ function go_to(url) {
   window.location.href = url;
 }
 
+/**
+ * update from this project
+ */
+function push_to(target_project_id, target_url){
+  if($('#other_projects a.active').length>0){
+     var src_project_id = $('#other_projects a.active').data('id');
+     $.ajax({url:target_url+src_project_id,
+             async:false,
+             dataType:'json',
+             success:function(){
+               // sure ...
+               // reload this fucking page ...
+             },
+             });
+  }
+}
 
 /**
  * update from this project
@@ -12,12 +28,11 @@ function go_to(url) {
 function pull_from(target_project_id, target_url){
   if($('#other_projects a.active').length>0){
      var src_project_id = $('#other_projects a.active').data('id');
-     console.log("from : "+src_project_id + " to "+target_project_id);
      $.ajax({url:target_url+src_project_id,
              async:false,
              dataType:'json',
              success:function(){
-               console.log('cool');
+               // reload this fucking page ...
              },
              });
   }
@@ -52,16 +67,29 @@ function show_difference_between_changeset_stacks(remote_project_name, local_las
   var top_remote_rev = parseInt(remote_last_change_list[0].rev);
   var top_local_rev = parseInt(local_last_change_list[0].rev);
   var more_recent_change_list, less_recent_change_list;
+  var local_is_recent, pull, push;
 
-  var local_is_recent;
   if (top_local_rev > top_remote_rev){
+     // we are ahead 
+     // means we can push to it
      local_is_recent = true;
+     pull = false;
+     push = true;
      more_recent_change_list = local_last_change_list;
      less_recent_change_list = remote_last_change_list;
-  } else {
+  } else if (top_local_rev < top_remote_rev){
+     // we are late
+     // means we can from it
+     pull = true;
+     push = false;
      local_is_recent = false;
      less_recent_change_list = local_last_change_list;
      more_recent_change_list = remote_last_change_list;
+  } else {
+     pull = false;
+     push = false;
+     less_recent_change_list = [];
+     more_recent_change_list = [];
   }
 
   var j = 0;
@@ -131,8 +159,20 @@ function show_difference_between_changeset_stacks(remote_project_name, local_las
       $tbody_comparison.append('<tr><td>'+row.join('</td><td>')+'</td></tr>');
   }
 
-  $('#p_name_remote').text(remote_project_name)
-  $('#p_name_local').text(local_project_name)
+  if(push || pull){
+    $('#p_name_remote').text(remote_project_name)
+    $('#p_name_local').text(local_project_name)
+  }
+
+  if(push){
+    $('#pushpull').show();
+    $('#button_push').show();
+    $('#button_pull').hide();
+  } else if (pull){
+    $('#pushpull').show();
+    $('#button_push').hide();
+    $('#button_pull').show();
+  }
 
 }
 

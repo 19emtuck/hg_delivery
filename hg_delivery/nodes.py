@@ -59,14 +59,16 @@ class DiffWrapper(object):
     """
     """
     self.raw_diff = raw_diff
+
+    self.lst_files = []
+    self.dict_files = []
+    self.lst_basename_files = []
+
     if self.raw_diff :
+      # we init content ...
       self.lst_files = self.__get_lst_files()
       self.lst_basename_files = [os.path.basename(f_name) for f_name in self.lst_files]
       self.dict_files = self.__get_files_to_diff()
-    else :
-      self.lst_files = []
-      self.dict_files = []
-      self.lst_basename_files = []
 
   def __get_lst_files(self):
     """
@@ -222,13 +224,23 @@ class HgNode(NodeSsh):
       result = data.strip('\n').split(' ')[0].strip('+')
     return result
 
+  def push_to(self, target_project):
+    """
+    """
+    data = self.run_command_and_feed_password_prompt('cd %s ; hg push --insecure ssh://%s@%s/%s'%(self.path,
+                                                            target_project.user,
+                                                            target_project.host,
+                                                            target_project.path),
+                                                            target_project.password)
+
   def pull_from(self, source_project):
     """
     """
-    # OSError: Socket is closed
-    print('hg pull from ssh://%s@%s/%s'%(source_project.user, source_project.host, source_project.path))
-    data = self.run_command_and_feed_password_prompt('cd %s ; hg pull --insecure ssh://%s@%s/%s'%(self.path, source_project.user, source_project.host, source_project.path), source_project.password)
-    print(data)
+    data = self.run_command_and_feed_password_prompt('cd %s ; hg pull --insecure ssh://%s@%s/%s'%(self.path,
+                                                            source_project.user,
+                                                            source_project.host,
+                                                            source_project.path),
+                                                            source_project.password)
 
   def get_last_logs(self, nb_lines, branch_filter=None, revision_filter=None):
     """

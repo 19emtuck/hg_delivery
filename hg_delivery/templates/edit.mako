@@ -115,13 +115,14 @@
         </div>
       </div>
 
-      <div class="panel panel-default col-md-4" style="margin-left:20px;padding-left:0px;padding-right:0px;">
+      <div id="pushpull" class="panel panel-default col-md-4" style="margin-left:20px;padding-left:0px;padding-right:0px;display:none">
         <div class="panel-heading">
           <h3 class="panel-title">Should we update from this related project ?</h3>
         </div>
         <div class="panel-body">
            <div id="other_projects" class="list-group">
-             <button onclick="pull_from(${project.id}, '${url(route_name='project_update_from', id=project.id, source='')}');">pull from</button>
+             <button id="button_pull" onclick="pull_from(${project.id}, '${url(route_name='project_pull_from', id=project.id, source='')}');">pull from</button>
+             <button id="button_push" onclick="push_to(${project.id}, '${url(route_name='project_push_to', id=project.id, target='')}');">push to</button>
            </div>
         </div>
       </div>

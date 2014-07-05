@@ -27,22 +27,23 @@ def projects_include(config):
     Add all routes about project management
     (crud way ...)
   """
-  config.add_route('project_add',           '/add')
-  config.add_route('project_delete',        '/delete/{id:\d+}', custom_predicates=(to_int('id'),))
-  config.add_route('project_edit',          '/edit/{id:\d+}', custom_predicates=(to_int('id'),))
-  config.add_route('project_fetch',         '/fetch/{id:\d+}', custom_predicates=(to_int('id'),))
-  config.add_route('project_revision_details_json', '/detail/json/{id:\d+}/revision/{rev}', custom_predicates=(to_int('id'),))
-  config.add_route('project_revision_details',      '/detail/{id:\d+}/revision/{rev}', custom_predicates=(to_int('id'),))
-  config.add_route('project_update',        '/update/{id:\d+}', custom_predicates=(to_int('id'),))
+  config.add_route('project_add',                     '/add')
+  config.add_route('project_delete',                  '/delete/{id:\d+}', custom_predicates=(to_int('id'),))
+  config.add_route('project_edit',                    '/edit/{id:\d+}', custom_predicates=(to_int('id'),))
+  config.add_route('project_fetch',                   '/fetch/{id:\d+}', custom_predicates=(to_int('id'),))
+  config.add_route('project_revision_details_json',   '/detail/json/{id:\d+}/revision/{rev}', custom_predicates=(to_int('id'),))
+  config.add_route('project_revision_details',        '/detail/{id:\d+}/revision/{rev}', custom_predicates=(to_int('id'),))
+  config.add_route('project_update',                  '/update/{id:\d+}', custom_predicates=(to_int('id'),))
 
-  # update from another project 
-  config.add_route('project_update_from',   '/pull/{id:\d+}/from/{source:\d+}', custom_predicates=(to_int('id'),to_int('source'),))
+  # push/pull from another project 
+  config.add_route('project_pull_from',               '/pull/{id:\d+}/from/{source:\d+}', custom_predicates=(to_int('id'),to_int('source'),))
+  config.add_route('project_push_to',                 '/push/{id:\d+}/to/{target:\d+}', custom_predicates=(to_int('id'),to_int('target'),))
 
   # move project to another revision
-  config.add_route('project_change_to',     '/change/{id:\d+}/to/{rev}', custom_predicates=(to_int('id'),))
+  config.add_route('project_change_to',               '/change/{id:\d+}/to/{rev}', custom_predicates=(to_int('id'),))
 
   # provide difference between two revision
-  config.add_route('project_revisions_diff', '/{id:\d+}/diff', custom_predicates=(to_int('id'),))
+  config.add_route('project_revisions_diff',          '/{id:\d+}/diff', custom_predicates=(to_int('id'),))
 
 def main(global_config, **settings):
   """ This function returns a Pyramid WSGI application.

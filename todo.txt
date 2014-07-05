@@ -10,3 +10,4 @@
 
 -- add screen for viewing changeset
 
+-- fix : known bug : for tip revision, we can't have details ...
