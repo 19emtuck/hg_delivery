@@ -335,9 +335,10 @@ def fetch_revision(request):
   try :
     ssh_node = project.get_ssh_node()
     diff = ssh_node.get_revision_diff(revision)
+    revision_description = ssh_node.get_revision_description(revision)
   except NodeException as e:
     log.error(e)
-  return {'diff':diff,'project':project}
+  return {'diff':diff, 'project':project,'revision':revision_description}
 
 #------------------------------------------------------------------------------
 

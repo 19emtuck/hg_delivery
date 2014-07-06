@@ -149,9 +149,11 @@
 
       <div id="files_panel" class="panel panel-default col-md-3" style="margin-left:10px;padding-left:0px;padding-right:0px;display:none">
         <div class="panel-heading">
-          <h3 class="panel-title">Files</h3>
+          <h3 class="panel-title">Description and files</h3>
         </div>
         <div class="panel-body">
+           <div id="revision_description" class="list-group">
+           </div>
            <div id="files" class="list-group">
            </div>
         </div>

@@ -337,7 +337,7 @@ class HgNode(NodeSsh):
       diff_content = "" 
     return DiffWrapper(diff_content)
 
-  def get_revision_description(self):
+  def get_revision_description(self, rev):
     """
     """
     list_nodes, map_nodes = self.get_last_logs(1, revision_filter=rev)

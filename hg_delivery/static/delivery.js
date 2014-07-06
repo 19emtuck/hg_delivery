@@ -15,7 +15,6 @@ function push_to(target_project_id, target_url){
              async:false,
              dataType:'json',
              success:function(){
-               // sure ...
                // reload this fucking page ...
              },
              });
@@ -88,8 +87,8 @@ function show_difference_between_changeset_stacks(remote_project_name, local_las
   } else {
      pull = false;
      push = false;
-     less_recent_change_list = [];
-     more_recent_change_list = [];
+     more_recent_change_list = local_last_change_list;
+     less_recent_change_list = remote_last_change_list;
   }
 
   var j = 0;
@@ -143,11 +142,8 @@ function show_difference_between_changeset_stacks(remote_project_name, local_las
         } else {
            row.push("");
         }
-
       }
-
       row.push(__recent_list_node.author)
-
      if (__recent_list_node.node == current_node.node){
       row.push('<span class="label label-warning">'+__recent_list_node.branch+'</span>');
      } else {
@@ -160,18 +156,20 @@ function show_difference_between_changeset_stacks(remote_project_name, local_las
   }
 
   if(push || pull){
+    $('#pushpull').show();
     $('#p_name_remote').text(remote_project_name)
     $('#p_name_local').text(local_project_name)
-  }
-
-  if(push){
-    $('#pushpull').show();
-    $('#button_push').show();
-    $('#button_pull').hide();
-  } else if (pull){
-    $('#pushpull').show();
+    if(push){
+      $('#button_push').show();
+      $('#button_pull').hide();
+    } else if (pull){
+      $('#button_push').hide();
+      $('#button_pull').show();
+    }
+  } else {
+    $('#pushpull').hide();
     $('#button_push').hide();
-    $('#button_pull').show();
+    $('#button_pull').hide();
   }
 
 }
@@ -281,6 +279,8 @@ function view_diff_revision(target_url){
               lst_links.push('<a href="#" class="list-group-item" onclick="$(\'div[id^=file_]\').hide();$(\'#file_'+lst_links.length+'\').show()">'+item+'</a>');
               diffs_content.push('<div id="file_' + diffs_content.length + '" style="display:none">'+json_response.diff.dict_files[file_name]+'</div>');
             });
+
+            $('#revision_description').html('id :'+json_response.revision['rev']+'<br>'+json_response.revision['author']+'<br><br>'+json_response.revision['desc']);
 
             $('#files').html(lst_links.join('\n'));
             $('#diffs_container').show().html(diffs_content.join('\n'));
