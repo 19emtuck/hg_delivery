@@ -16,8 +16,9 @@ function push_to(target_project_id, target_url){
              dataType:'json',
              success:function(){
                // reload this fucking page ...
+	       window.location.reload();
              },
-             });
+     });
   }
 }
 
@@ -32,8 +33,9 @@ function pull_from(target_project_id, target_url){
              dataType:'json',
              success:function(){
                // reload this fucking page ...
+	       window.location.reload();
              },
-             });
+     });
   }
 }
 
