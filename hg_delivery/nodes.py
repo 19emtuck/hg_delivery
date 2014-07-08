@@ -130,46 +130,59 @@ class NodeSsh(object):
     return ssh
 
   @check_connections
-  def run_command_and_feed_password_prompt(self, command, password, reg_password ='password: ', reg_shell = ':~$ '):
+  def run_command_and_feed_password_prompt(self, command, password, reg_password ='password: ', reg_shell = '[^\n\r]+@[^\n\r]+\$'):
     '''
       Execute command through SSH and also feed prompt !
     '''
     with self.lock :
 
       channel = self.ssh.invoke_shell()
-      buff = ''
-      while not buff.endswith(reg_shell):
-          resp = channel.recv(9999)
-          buff += str(resp,'utf-8')
-      log.info("*"*80)
-      log.info(buff)
 
-      # Ssh and wait for the password prompt.
-      channel.send(command + '\n')
- 
+      # We received a potential prompt.
+      # something like toto@hostname:~$
       buff = ''
-      while not buff.endswith(reg_password):
-          resp = channel.recv(9999)
-          buff += str(resp,'utf-8')
-      log.info("*"*80)
-      log.info(buff)
+      t0 = time.time()
+      time_out = False
 
-      # Send the password and wait for a prompt.
-      channel.send(self.password + '\n')
- 
-      buff = ''
-      while buff.find('%s@'%self.user) < 0 :
+      while len(re.findall(reg_shell, buff, re.MULTILINE))==0:
           resp = channel.recv(9999)
           buff += str(resp,'utf-8')
-      log.info("*"*80)
-      log.info(buff)
+
+          if time.time()-t0 > 60 :
+            time_out = True
+            break
+      
+      if not time_out :
+        # ssh and wait for the password prompt.
+        channel.send(command + '\n')
+
+        buff = ''
+        t0 = time.time()
+        while not buff.endswith(reg_password):
+            resp = channel.recv(9999)
+            buff += str(resp,'utf-8')
+
+            if time.time()-t0 > 60 :
+              time_out = True
+              break
+
+      if not time_out :
+        # Send the password and wait for a prompt.
+        channel.send(self.password + '\n')
+ 
+        buff = ''
+        t0 = time.time()
+        # wait : 'added 99 changesets with 243 changes to 27 files'
+        # wait : "(run 'hg update' to get a working copy)"
+        while buff.find('to get a working copy') < 0 || buff.find('changesets with') < 0:
+            resp = channel.recv(9999)
+            buff += str(resp,'utf-8')
+
+            if time.time()-t0 > 60 :
+              time_out = True
+              break
          
-      # ret=re.search( '(\d) done.', buff).group(1)
-      ret=buff
-
-      log.info("*"*80)
-    log.info('command was successful:' + str(ret=='0'))
-
+        ret=buff
     return {'out':    [], 
             'err':    [],
             'retval': []}
