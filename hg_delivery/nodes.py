@@ -159,9 +159,13 @@ class NodeSsh(object):
       t0 = time.time()
       time_out = False
 
+      wait_time = 0.05
       while len(re.findall(reg_shell, buff, re.MULTILINE))==0:
           resp = channel.recv(9999)
           buff += self.decode_raw_bytes(resp)
+
+          time.sleep(wait_time)
+          wait_time += 0.05
 
           if time.time()-t0 > 60 :
             time_out = True
@@ -173,9 +177,13 @@ class NodeSsh(object):
 
         buff = ''
         t0 = time.time()
+        wait_time = 0.05
         while not buff.endswith(reg_password):
             resp = channel.recv(9999)
             buff += self.decode_raw_bytes(resp)
+
+            time.sleep(wait_time)
+            wait_time += 0.05
 
             if time.time()-t0 > 60 :
               time_out = True
@@ -197,9 +205,12 @@ class NodeSsh(object):
         # remote: adding manifests
         # remote: adding file changes
         # remote: added 90 changesets with 102 changes to 68 files
+        wait_time = 0.05
         while buff.find('to get a working copy') < 0 and buff.find('changesets with') < 0:
             resp = channel.recv(9999)
             buff += self.decode_raw_bytes(resp)
+            time.sleep(wait_time)
+            wait_time += 0.05
 
             if time.time()-t0 > 60 :
               time_out = True
