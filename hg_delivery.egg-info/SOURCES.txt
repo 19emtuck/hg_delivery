@@ -4,6 +4,7 @@ README.txt
 development.ini
 production.ini
 setup.py
+todo.txt
 hg_delivery/__init__.py
 hg_delivery/models.py
 hg_delivery/nodes.py
@@ -37,3 +38,4 @@ hg_delivery/static/bootstrap-3.1.1/js/bootstrap.min.js
 hg_delivery/templates/base.mako
 hg_delivery/templates/edit.mako
 hg_delivery/templates/index.mako
+hg_delivery/templates/revision.mako
