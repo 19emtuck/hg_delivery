@@ -7,4 +7,3 @@ zope.sqlalchemy
 waitress
 pygments
 paramiko
-chardet
