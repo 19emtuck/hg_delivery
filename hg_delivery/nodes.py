@@ -17,7 +17,6 @@ import threading
 import re
 import os.path
 import logging
-import chardet
 
 from pygments import highlight
 from pygments.lexers import DiffLexer
