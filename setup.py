@@ -26,7 +26,8 @@ requires = [
     'transaction',
     'zope.sqlalchemy',
     'waitress',
-    'pygments'
+    'pygments',
+    'paramiko'
     ]
 
 setup(name='hg_delivery',
