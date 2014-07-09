@@ -17,6 +17,7 @@ import threading
 import re
 import os.path
 import logging
+import chardet
 
 from pygments import highlight
 from pygments.lexers import DiffLexer
@@ -117,6 +118,21 @@ class NodeSsh(object):
     self.ssh = self.get_ssh()
     self.lock = threading.Lock()
 
+  def decode_raw_bytes(self, bytes_content):
+    """
+    """
+    content = ""
+
+    for codec in ('latin-1','utf-8') :
+      try :
+        content = str(bytes_content, codec)
+      except :
+        content = ""
+      else :
+        break
+
+    return content
+
   def get_ssh(self):
     """
       set ssh ...
@@ -146,7 +162,7 @@ class NodeSsh(object):
 
       while len(re.findall(reg_shell, buff, re.MULTILINE))==0:
           resp = channel.recv(9999)
-          buff += str(resp,'utf-8')
+          buff += self.decode_raw_bytes(resp)
 
           if time.time()-t0 > 60 :
             time_out = True
@@ -160,7 +176,7 @@ class NodeSsh(object):
         t0 = time.time()
         while not buff.endswith(reg_password):
             resp = channel.recv(9999)
-            buff += str(resp,'utf-8')
+            buff += self.decode_raw_bytes(resp)
 
             if time.time()-t0 > 60 :
               time_out = True
@@ -174,15 +190,26 @@ class NodeSsh(object):
         t0 = time.time()
         # wait : 'added 99 changesets with 243 changes to 27 files'
         # wait : "(run 'hg update' to get a working copy)"
-        while buff.find('to get a working copy') < 0 || buff.find('changesets with') < 0:
+        # 
+        # sample pushing ...
+        # 
+        # searching for changes
+        # remote: adding changesets
+        # remote: adding manifests
+        # remote: adding file changes
+        # remote: added 90 changesets with 102 changes to 68 files
+        while buff.find('to get a working copy') < 0 and buff.find('changesets with') < 0:
             resp = channel.recv(9999)
-            buff += str(resp,'utf-8')
+            buff += self.decode_raw_bytes(resp)
 
             if time.time()-t0 > 60 :
               time_out = True
               break
          
         ret=buff
+
+    self.__class__.logs.append((self.host, self.path, re.sub("^cd[^;]*;",'',command)))
+
     return {'out':    [], 
             'err':    [],
             'retval': []}
@@ -207,7 +234,7 @@ class NodeSsh(object):
             self.__class__.logs.append((self.host, self.path, re.sub("^cd[^;]*;",'',command)))
 
           if(type(ret)==bytes):
-            ret = str(ret,'utf-8')
+            ret = self.decode_raw_bytes(ret)
           return ret
         else:
           return None
@@ -345,7 +372,7 @@ class HgNode(NodeSsh):
     """
     diff_content = ""
     try :
-      diff_content = self.run_command('''cd %s ; hg diff -r %s'''%(self.path, revision))
+      diff_content = self.run_command('''cd %s ; hg diff -c %s'''%(self.path, revision))
     except NodeException as e :
       diff_content = "" 
     return DiffWrapper(diff_content)
