@@ -54,9 +54,10 @@ class Project(Base):
   host = Column(String(100))
   path = Column(Text)
   rev_init = Column(String(100))
+  local_hg_release = Column(String(20))
   dashboard = Column(Boolean)
 
-  def __init__(self, name, user, password, host, path, rev_init, dashboard):
+  def __init__(self, name, user, password, host, path, rev_init, dashboard, local_hg_release):
     """
     """
     self.name = name
@@ -66,6 +67,7 @@ class Project(Base):
     self.path = path 
     self.rev_init = rev_init
     self.dashboard = dashboard 
+    self.local_hg_release = local_hg_release 
 
   def __json__(self, request):
     """
@@ -76,7 +78,8 @@ class Project(Base):
              'path':self.path,
              'user':self.user,
              'password':'*'*len(self.password),
-             'dashboard':self.dashboard}
+             'dashboard':self.dashboard,
+             'local_hg_release':self.local_hg_release}
 
   def get_uri(self):
     """
@@ -125,6 +128,7 @@ class RemoteLog(Base):
              'path':self.path,
              'command':self.command,
              'creation_date':self.creation_date.strftime('%d/%m/%Y %H:%M')}
+
 #------------------------------------------------------------------------------
 
 Index('project_unique', Project.host, Project.path, unique=True)
