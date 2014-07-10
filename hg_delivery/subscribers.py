@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2003-2007  Stéphane Bard <stephane.bard@gmail.com>
+# Copyright (C) 2014  Stéphane Bard <stephane.bard@gmail.com>
 #
 # This file is part of hg_delivery
 #
