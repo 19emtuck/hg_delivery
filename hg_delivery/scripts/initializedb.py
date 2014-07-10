@@ -49,11 +49,11 @@ def main(argv=sys.argv):
     Base.metadata.create_all(engine)
 
     with transaction.manager:
-        project = Project(name='t1', user='sbard', password='evangelion', host='127.0.0.1', path='/home/sbard/dev/t1/', rev_init=None, dashboard=1)
+        project = Project(name='t1', user='sbard', password='evangelion', host='127.0.0.1', path='/home/sbard/dev/t1/', rev_init=None, dashboard=1, local_hg_release=None)
         DBSession.add(project)
-        project = Project(name='t2', user='sbard', password='evangelion', host='127.0.0.1', path='/home/sbard/dev/t2/', rev_init=None, dashboard=1)
+        project = Project(name='t2', user='sbard', password='evangelion', host='127.0.0.1', path='/home/sbard/dev/t2/', rev_init=None, dashboard=1, local_hg_release=None)
         DBSession.add(project)
-        project = Project(name='t3', user='sbard', password='evangelion', host='127.0.0.1', path='/home/sbard/dev/t3/', rev_init=None, dashboard=1)
+        project = Project(name='t3', user='sbard', password='evangelion', host='127.0.0.1', path='/home/sbard/dev/t3/', rev_init=None, dashboard=1, local_hg_release=None)
         DBSession.add(project)
-        project = Project(name='hg_delivery', user='sbard', password='evangelion', host='127.0.0.1', path='/home/sbard/dev/hg_delivery/', rev_init=None, dashboard=1)
+        project = Project(name='hg_delivery', user='sbard', password='evangelion', host='127.0.0.1', path='/home/sbard/dev/hg_delivery/', rev_init=None, dashboard=1, local_hg_release=None)
         DBSession.add(project)
