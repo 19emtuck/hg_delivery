@@ -89,7 +89,7 @@
           % endif
           % if logged_in is None :
             <form id="login_form" class="navbar-form pull-right" action="${url('login')}" method='POST'>
-              <input class="span2" name="login" type="text" placeholder="Email">
+              <input class="span2" name="login" type="text" placeholder="Login">
               <input class="span2" name="password" type="password" placeholder="Password">
               <button type="submit" class="btn btn-primary" onclick="$('#login_form').submit()">Sign in</button>
             </form>
