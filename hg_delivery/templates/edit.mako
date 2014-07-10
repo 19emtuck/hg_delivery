@@ -105,7 +105,6 @@
            </tbody>
         </table>
      </div>
-
   </div>
 
   <!-- a tab -->
@@ -136,7 +135,7 @@
         </div>
       </div>
 
-     <div>
+     <div id="table_project_container">
        <br>
        <!-- project compare table -->
        <table id="project_comparison" class="table table-condensed" style="display:none">
@@ -152,7 +151,7 @@
           <tbody>
           </tbody>
        </table>
-     <div>
+     </div>
 
   </div>
 
@@ -180,7 +179,6 @@
         <p class="bg-info"> <br> &nbsp;  No diff is available for this revision <br> <br></p>
       </div>
       <!-- if not diff are available -->
-
   </div>
 
 

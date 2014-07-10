@@ -15,8 +15,9 @@ function push_to(target_project_id, target_url){
              async:false,
              dataType:'json',
              success:function(){
-               // reload this fucking page ...
-	       window.location.reload();
+               // we just reload the current comparison
+               // get the active link and fetch him twice
+               fetch_this_other_project($('#other_projects a.active')[0]);
              },
      });
   }
@@ -33,7 +34,7 @@ function pull_from(target_project_id, target_url){
              dataType:'json',
              success:function(){
                // reload this fucking page ...
-	       window.location.reload();
+               window.location.reload();
              },
      });
   }
