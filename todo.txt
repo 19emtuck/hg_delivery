@@ -11,3 +11,14 @@
 -- add screen for viewing changeset
 
 -- fix : known bug : for tip revision, we can't have details ...
+
+-- be able to record mercurial version to know if parameters
+   like --insecure option is available ...
+   hum ... an interface above mercurial command line must check
+   mercurial release ...
+
+-- be able to get a pool of ssh connection if one is occupied when thread
+   request it, instead of blocking everything ...
+
+-- also add the hability to add debug mode for fully debug mode
+   espacially for remote pull/push
