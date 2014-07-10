@@ -87,7 +87,7 @@ def push(request):
 
   try :
     ssh_node = project.get_ssh_node()
-    ssh_node.push_to(target_project)
+    ssh_node.push_to(project, target_project)
   except NodeException as e:
     log.error(e)
   else :
@@ -108,7 +108,7 @@ def pull(request):
 
   try :
     ssh_node = project.get_ssh_node()
-    ssh_node.pull_from(source_project)
+    ssh_node.pull_from(project, source_project)
   except NodeException as e:
     log.error(e)
   else :
@@ -240,6 +240,10 @@ def edit_project(request):
 
     try :
       ssh_node = project.get_ssh_node()
+
+      if project.local_hg_release is None :
+        project.local_hg_release = ssh_node.get_hg_release()
+
       current_rev = ssh_node.get_current_rev_hash()
 
       last_hundred_change_list, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch)

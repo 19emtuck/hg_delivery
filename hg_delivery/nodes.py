@@ -116,6 +116,7 @@ class NodeSsh(object):
 
     self.ssh = self.get_ssh()
     self.lock = threading.Lock()
+    self.state_locked = False
 
   def decode_raw_bytes(self, bytes_content):
     """
@@ -149,8 +150,10 @@ class NodeSsh(object):
     '''
       Execute command through SSH and also feed prompt !
     '''
+    full_log = []
     with self.lock :
 
+      self.state_locked = True
       channel = self.ssh.invoke_shell()
 
       # We received a potential prompt.
@@ -158,6 +161,7 @@ class NodeSsh(object):
       buff = ''
       t0 = time.time()
       time_out = False
+      full_log.append('org_command %s'%command)
 
       wait_time = 0.05
       while len(re.findall(reg_shell, buff, re.MULTILINE))==0:
@@ -167,10 +171,11 @@ class NodeSsh(object):
           time.sleep(wait_time)
           wait_time += 0.05
 
-          if time.time()-t0 > 60 :
+          if time.time() - t0 > 60 :
             time_out = True
             break
-      
+      full_log.append('buff1 %s'%buff)
+
       if not time_out :
         # ssh and wait for the password prompt.
         channel.send(command + '\n')
@@ -188,6 +193,7 @@ class NodeSsh(object):
             if time.time()-t0 > 60 :
               time_out = True
               break
+        full_log.append('buff2 %s'%buff)
 
       if not time_out :
         # Send the password and wait for a prompt.
@@ -206,17 +212,19 @@ class NodeSsh(object):
         # remote: adding file changes
         # remote: added 90 changesets with 102 changes to 68 files
         wait_time = 0.05
-        while buff.find('to get a working copy') < 0 and buff.find('changesets with') < 0:
+        while buff.find('to get a working copy') < 0 and buff.find('changesets with') < 0 and buff.find("abort: push creates new remote branches") < 0 and len(re.findall(reg_shell, buff, re.MULTILINE))==0:
             resp = channel.recv(9999)
             buff += self.decode_raw_bytes(resp)
             time.sleep(wait_time)
             wait_time += 0.05
-
-            if time.time()-t0 > 60 :
+            if time.time() - t0 > 60 :
               time_out = True
               break
-         
+
+        full_log.append('buff2 %s'%buff)
         ret=buff
+
+    self.state_locked = False
 
     self.__class__.logs.append((self.host, self.path, re.sub("^cd[^;]*;",'',command)))
 
@@ -261,6 +269,46 @@ class HgNode(NodeSsh):
 
   _template = "{node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" 
 
+
+  def compare_release_a_sup_equal_b(self, release_a, release_b):
+    """
+    """
+    tab_a = [int(e) for e in release_a.split('.')]
+    tab_b = [int(e) for e in release_b.split('.')]
+
+    result = False
+
+    for i in range(len(tab_a)) :
+      ele_a = tab_a[i]
+
+      if len(tab_b) >= i+1 :
+        ele_b = tab_b[i]
+      else :
+        ele_b = 0
+
+      if (ele_a > ele_b) :
+        result = True
+        break
+      elif (ele_a < ele_b) :
+        result = False
+        break
+
+    return result
+
+  def get_hg_release(self):
+    """
+    """
+    try :
+      data = self.run_command("cd %s ; hg --version"%self.path)
+      data = re.findall('\((?:version) (?P<version>[0-9\.]+)\)',data)
+      if data : 
+        data = data[0]
+      else :
+        data = None
+    except Exception as e:
+      data = None
+    return data
+
   def get_current_rev_hash(self):
     """
     """
@@ -274,19 +322,37 @@ class HgNode(NodeSsh):
       result = data.strip('\n').split(' ')[0].strip('+')
     return result
 
-  def push_to(self, target_project):
+  def push_to(self, local_project, target_project):
     """
     """
-    data = self.run_command_and_feed_password_prompt('cd %s ; hg push --insecure ssh://%s@%s/%s'%(self.path,
-                                                            target_project.user,
-                                                            target_project.host,
-                                                            target_project.path),
-                                                            target_project.password)
+    if local_project.local_hg_release is None :
+      local_project.local_hg_release = self.get_hg_release()
 
-  def pull_from(self, source_project):
+    if (local_project.local_hg_release is not None and self.compare_release_a_sup_equal_b(local_project.local_hg_release, '1.7.4')) :
+      insecure = " --insecure "
+    else:
+      insecure = " "
+
+    data = self.run_command_and_feed_password_prompt('cd %s ; hg push%sssh://%s@%s/%s'%(
+                                                        self.path,
+                                                        insecure,
+                                                        target_project.user,
+                                                        target_project.host,
+                                                        target_project.path),
+                                                        target_project.password)
+
+  def pull_from(self, local_project, source_project):
     """
     """
-    data = self.run_command_and_feed_password_prompt('cd %s ; hg pull --insecure ssh://%s@%s/%s'%(self.path,
+    if local_project.local_hg_release is None :
+      local_project.local_hg_release = self.get_hg_release()
+
+    if (local_project.local_hg_release is not None and self.compare_release_a_sup_equal_b(local_project.local_hg_release, '1.7.4')) :
+      insecure = " --insecure "
+    else:
+      insecure = " "
+    data = self.run_command_and_feed_password_prompt('cd %s ; hg pull%sssh://%s@%s/%s'%(self.path,
+                                                            insecure,
                                                             source_project.user,
                                                             source_project.host,
                                                             source_project.path),
@@ -417,14 +483,34 @@ class PoolSsh(object):
   """
 
   nodes = {}
+  max_nodes_in_pool = 10
 
   @classmethod
   def get_node(cls, uri):
     """
+    try to acquire a free ssh channel or open a new one ...
     """
-    if uri not in cls.nodes :
-      cls.nodes[uri] = HgNode(uri)
+    node = None
 
-    node = cls.nodes[uri]
+    if uri not in cls.nodes :
+      cls.nodes[uri] = [HgNode(uri)]
+      node = cls.nodes[uri][0]
+    else :
+      for __node in cls.nodes[uri] :
+        if not __node.state_locked :
+          node = __node
+          break
+
+      if node is None and len(cls.nodes[uri]) < cls.max_nodes_in_pool :
+        log.warning("creating additional node in pool (%s)"%(len(cls.nodes[uri])))
+        node = HgNode(uri)
+        cls.nodes[uri].append(node)
+      elif node is None :
+        log.warning("creating extra node (%s)"%(len(cls.nodes[uri])))
+        # we create a new node to avoid flooding which will be
+        # garbage collected at the end of request
+        # this is slower but max nodes should represent a correct usage
+        node = HgNode(uri)
+
     return node
 

@@ -11,7 +11,11 @@
 
 <!-- Tab panes -->
 <div class="tab-content">
+
+
+  <!-- a tab -->
   <div class="tab-pane active" id="project_home">
+
     % if current_node is not UNDEFINED and current_node is not None :
       <div class="panel panel-default col-md-6" style="padding-left:0px;padding-right:0px;">
         <div class="panel-heading">
@@ -19,8 +23,8 @@
         </div>
         <div class="panel-body">
             <span class="label label-warning"> ${current_node.get('branch','UNKNOWN')}</span>
-            ${current_node.get('node','UNKNOWN')}
-            <i>(${current_node.get('desc','UNKNOWN')})</i>
+            ${current_node.get('node','UNKNOWN')} (using mercurial : ${project.local_hg_release})
+            <br><i>(${current_node.get('desc','UNKNOWN')})</i>
         </div>
       </div>
     % endif
@@ -55,51 +59,56 @@
        </div>
      </div>
 
-    <!-- node tables -->
-    <table id="project_tab"class="table table-condensed">
-       <thead>
-         <th></th>
-         <th>Rev.</th>
-         <th>Tag</th>
-         <th>Author</th>
-         <th>Branch</th>
-         <th>Description</th>
-       </thead>
-    
-       <tbody>
-        %for node in last_hundred_change_list :
-          <tr>
-           %if node['node'] == current_node.get('node'):
-              <td><span class="glyphicon glyphicon-ok" data-current_rev="${current_node['rev']}" style="color:#f0ad4e;font-size:27px"></span></td>
-           %else :
-             <td></td>
-           %endif
-           <td>
-             <a href="#" onclick="change_project_to_this_release(this, '${url('project_change_to',id=project.id, rev=node['node'])}')" title="revert to the node ${node['node']}">${node['rev']}</a>
-           </td>
-    
-           %if node['tags']:
-             <td><span title="${node['tags']}"><span class="glyphicon glyphicon-star" style="font-size:27px"></span></td>
-           %else :
-             <td></td>
-           %endif :
-    
-           <td>${node['author']}</td>
-    
-           %if node['node'] == current_node.get('node'):
-             <td><span class="label label-warning">${node['branch']}</span></td>
-           %else :
-             <td><span class="label label-success">${node['branch']}</span></td>
-           %endif
-           <td><a href="#" onclick="view_diff_revision('${url(route_name='project_revision_details_json',id=project.id, rev=node['node'])}')">${node['desc']}</a></td>
+     <div id="table_project_revision_container">
+        <!-- weird css ?? can some one explain me why below table is shifted to the right on firefox ??? -->
+        <br>
+        <!-- node tables -->
+        <table id="project_tab"class="table table-condensed">
+           <thead>
+             <th></th>
+             <th>Rev.</th>
+             <th>Tag</th>
+             <th>Author</th>
+             <th>Branch</th>
+             <th>Description</th>
+           </thead>
+        
+           <tbody>
+            %for node in last_hundred_change_list :
+              <tr>
+               %if node['node'] == current_node.get('node'):
+                  <td><span class="glyphicon glyphicon-ok" data-current_rev="${current_node['rev']}" style="color:#f0ad4e;font-size:27px"></span></td>
+               %else :
+                 <td></td>
+               %endif
+               <td>
+                 <a href="#" onclick="change_project_to_this_release(this, '${url('project_change_to',id=project.id, rev=node['node'])}')" title="revert to the node ${node['node']}">${node['rev']}</a>
+               </td>
+        
+               %if node['tags']:
+                 <td><span title="${node['tags']}"><span class="glyphicon glyphicon-star" style="font-size:27px"></span></td>
+               %else :
+                 <td></td>
+               %endif :
+        
+               <td>${node['author']}</td>
+        
+               %if node['node'] == current_node.get('node'):
+                 <td><span class="label label-warning">${node['branch']}</span></td>
+               %else :
+                 <td><span class="label label-success">${node['branch']}</span></td>
+               %endif
+               <td><a href="#" onclick="view_diff_revision('${url(route_name='project_revision_details_json',id=project.id, rev=node['node'])}')">${node['desc']}</a></td>
 
-          </tr>
-        %endfor
-       </tbody>
-    </table>
+              </tr>
+            %endfor
+           </tbody>
+        </table>
+     </div>
 
   </div>
 
+  <!-- a tab -->
   <div class="tab-pane" id="related">
 
       <div class="panel panel-default col-md-3" style="padding-left:0px;padding-right:0px;">
@@ -127,20 +136,23 @@
         </div>
       </div>
 
-     <!-- project compare table -->
-     <table id="project_comparison" class="table table-condensed" style="display:none">
-        <thead>
-          <th></th>
-          <th>Rev <span id="p_name_remote"></span></th>
-          <th>Rev <span id="p_name_local"></span></th>
-          <th></th>
-          <th>Author</th>
-          <th>Branch</th>
-          <th>Description</th>
-        </thead>
-        <tbody>
-        </tbody>
-     </table>
+     <div>
+       <br>
+       <!-- project compare table -->
+       <table id="project_comparison" class="table table-condensed" style="display:none">
+          <thead>
+            <th></th>
+            <th>Rev <span id="p_name_remote"></span></th>
+            <th>Rev <span id="p_name_local"></span></th>
+            <th></th>
+            <th>Author</th>
+            <th>Branch</th>
+            <th>Description</th>
+          </thead>
+          <tbody>
+          </tbody>
+       </table>
+     <div>
 
   </div>
 

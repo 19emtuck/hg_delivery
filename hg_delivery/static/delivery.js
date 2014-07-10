@@ -48,6 +48,9 @@ function change_project_to_this_release(active_a, target_url){
 }
 
 function fetch_this_other_project(active_a){
+  $tbody_comparison = $('#project_comparison tbody');
+  $tbody_comparison.find('tr').remove();
+
   $('#project_comparison').show();
   $('#other_projects a').removeClass('active');
   $active_a = $(active_a);
