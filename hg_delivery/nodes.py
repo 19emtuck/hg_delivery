@@ -17,11 +17,13 @@ import threading
 import re
 import os.path
 import logging
+import uuid
 
 from pygments import highlight
 from pygments.lexers import DiffLexer
 from pygments.formatters import HtmlFormatter
 from pygments.styles import get_all_styles 
+
 styles = list(get_all_styles())
 
 log = logging.getLogger(__name__)
@@ -100,6 +102,7 @@ class NodeSsh(object):
   """
 
   logs = []
+  max_timeout = 60*5
   
   def __init__(self, uri):
     """
@@ -150,11 +153,18 @@ class NodeSsh(object):
     '''
       Execute command through SSH and also feed prompt !
     '''
+    guid = uuid.uuid1().hex
+
+    # add a foot print as a guid
+    # so we are sure 
+    command += ";echo '%s'"%guid
+
     full_log = []
     with self.lock :
 
       self.state_locked = True
       channel = self.ssh.invoke_shell()
+      channel.settimeout(self.__class__.max_timeout)
 
       # We received a potential prompt.
       # something like toto@hostname:~$
@@ -212,7 +222,7 @@ class NodeSsh(object):
         # remote: adding file changes
         # remote: added 90 changesets with 102 changes to 68 files
         wait_time = 0.05
-        while buff.find('to get a working copy') < 0 and buff.find('changesets with') < 0 and buff.find("abort: push creates new remote branches") < 0 and len(re.findall(reg_shell, buff, re.MULTILINE))==0:
+        while buff.find('to get a working copy') < 0 and buff.find('changesets with') < 0 and buff.find("abort: push creates new remote branches") < 0 and len(re.findall(reg_shell, buff, re.MULTILINE))==0 and buff.find(guid)<0:
             resp = channel.recv(9999)
             buff += self.decode_raw_bytes(resp)
             time.sleep(wait_time)
