@@ -1,9 +1,0 @@
-pyramid
-pyramid_mako
-pyramid_tm
-SQLAlchemy
-transaction
-zope.sqlalchemy
-waitress
-pygments
-paramiko
