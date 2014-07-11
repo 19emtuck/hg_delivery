@@ -243,6 +243,7 @@ function add_project(target_url){
                 $('#new_project_dialog').modal('hide')
                 var $sel = $('#projects_list');
                 if($sel){
+                  $sel.parent().show();
                   $sel.find('li').remove();
                   var default_url = $sel.data('url');
                   json_response.projects_list.forEach(function(item){

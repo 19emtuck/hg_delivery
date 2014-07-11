@@ -47,25 +47,34 @@
           % if logged_in is not None :
             <form name="view_project" class="navbar-form pull-right">
                % if projects_list :
-               <!-- Single button for project management-->
-               <div class="btn-group">
-                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                   % if project is not UNDEFINED:
-                     <span id="project_name">${project.name}</span> <span class="caret"></span>
-                   % else :
-                     Projects <span class="caret"></span>
-                   % endif
-                 </button>
-                 <ul id="projects_list" class="dropdown-menu" role="menu" data-url="${url(route_name='project_edit',id='')}">
-                 % for __project in projects_list :
-                   <li><a href="${url(route_name='project_edit',id=__project.id)}">${__project.name}</a></li>
-                 % endfor
-                  % if project is UNDEFINED :
-                   <li class="divider"></li>
-                   <li><a href="#" onclick="$('#new_project_dialog').modal('show');">Add a new project</a></li>
-                  % endif
-                 </ul>
-               </div>
+                 <!-- Single button for project management-->
+                 <div class="btn-group">
+                   <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                     % if project is not UNDEFINED:
+                       <span id="project_name">${project.name}</span> <span class="caret"></span>
+                     % else :
+                       Projects <span class="caret"></span>
+                     % endif
+                   </button>
+                   <ul id="projects_list" class="dropdown-menu" role="menu" data-url="${url(route_name='project_edit',id='')}">
+                   % for __project in projects_list :
+                     <li><a href="${url(route_name='project_edit',id=__project.id)}">${__project.name}</a></li>
+                   % endfor
+                    % if project is UNDEFINED :
+                     <li class="divider"></li>
+                     <li><a href="#" onclick="$('#new_project_dialog').modal('show');">Add a new project</a></li>
+                    % endif
+                   </ul>
+                 </div>
+               % else :
+                 <!-- Single button for project management-->
+                 <div class="btn-group" style="display:none">
+                   <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                       Projects <span class="caret"></span>
+                   </button>
+                   <ul id="projects_list" class="dropdown-menu" role="menu" data-url="${url(route_name='project_edit',id='')}">
+                   </ul>
+                 </div>
                % endif
 
                % if project is not UNDEFINED :

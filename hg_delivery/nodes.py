@@ -335,7 +335,7 @@ class HgNode(NodeSsh):
   def push_to(self, local_project, target_project):
     """
     """
-    if local_project.local_hg_release is None :
+    if not local_project.local_hg_release :
       local_project.local_hg_release = self.get_hg_release()
 
     if (local_project.local_hg_release is not None and self.compare_release_a_sup_equal_b(local_project.local_hg_release, '1.7.4')) :
@@ -354,7 +354,7 @@ class HgNode(NodeSsh):
   def pull_from(self, local_project, source_project):
     """
     """
-    if local_project.local_hg_release is None :
+    if not local_project.local_hg_release :
       local_project.local_hg_release = self.get_hg_release()
 
     if (local_project.local_hg_release is not None and self.compare_release_a_sup_equal_b(local_project.local_hg_release, '1.7.4')) :

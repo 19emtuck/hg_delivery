@@ -19,6 +19,9 @@ href="${url(route_name='project_edit',id=project.id)}"><b>${project.name}</b></a
       </div>
     </div>
   %endfor
+  %if not dashboard_list :
+      > <i>The dashboard is empty</i>
+  %endif
 
 % else :
 
@@ -75,6 +78,7 @@ href="${url(route_name='project_edit',id=project.id)}"><b>${project.name}</b></a
                     <input id="new_project_password" class="form-control" name="password" type="password" placeholder="password">
                     <input name="dashboard" type="hidden" value="0">
                     <input name="rev_init" type="hidden" value="0">
+                    <input name="local_hg_release" type="hidden" value="">
                   </div>
                 </div>
             </div>
