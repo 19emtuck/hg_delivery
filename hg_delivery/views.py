@@ -139,6 +139,7 @@ def add_project(request):
         project = Project(**request.params)
         DBSession.add(project)
         DBSession.flush()
+        project.init_initial_revision()
         projects_list =  DBSession.query(Project).all()
         result = True
         explanation = u'This project : %s@%s/%s has been added ...'%(user, host, path)
