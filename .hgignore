@@ -2,3 +2,4 @@
 .sqlite
 build\/
 dist\/
+hg_delivery.egg-info
