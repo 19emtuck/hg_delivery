@@ -12,6 +12,14 @@
 
 -- fix : known bug : for tip revision, we can't have details ...
 
+-- add the hability to check if a command is running or not ...
+   progress bar and some json service with the list of pending tasks
+   ...
+
+-- follow all the steps during command. While some one is doing a job
+   be able to send information about ssh buffer retrieved to owner.
+   so people will know what exactly happen
+
 -- be able to record mercurial version to know if parameters
    like --insecure option is available ...
    hum ... an interface above mercurial command line must check
