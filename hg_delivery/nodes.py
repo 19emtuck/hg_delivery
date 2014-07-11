@@ -18,6 +18,7 @@ import re
 import os.path
 import logging
 import uuid
+import sys
 
 from pygments import highlight
 from pygments.lexers import DiffLexer
@@ -27,6 +28,15 @@ from pygments.styles import get_all_styles
 styles = list(get_all_styles())
 
 log = logging.getLogger(__name__)
+
+#------------------------------------------------------------------------------
+
+if sys.version < '3':
+    def u(x, codec):
+        return x.decode(codec)
+else:
+    def u(x, codec):
+        return str(x, codec)
 
 #------------------------------------------------------------------------------
 
@@ -75,23 +85,23 @@ class DiffWrapper(object):
   def __get_lst_files(self):
     """
     """
-    groups = re.findall("diff -r [a-z0-9]+ (?P<file_name>.+)$",self.raw_diff, re.MULTILINE) 
+    groups = re.findall(u"diff -r [a-z0-9]+ (?P<file_name>.+)$",self.raw_diff, re.MULTILINE) 
     return groups
 
   def __get_files_to_diff(self):
     """
     """
     groups = self.__get_lst_files()
-    diffs_content = [highlight(bloc, DiffLexer(), HtmlFormatter(cssclass='source', style='colorful')) for bloc in re.split("\n*diff -r [a-z0-9]{8,20} [^\n]+\n",self.raw_diff) if bloc.strip()]
+    diffs_content = [highlight(bloc, DiffLexer(), HtmlFormatter(cssclass=u'source', style=u'colorful')) for bloc in re.split(u"\n*diff -r [a-z0-9]{8,20} [^\n]+\n",self.raw_diff) if bloc.strip()]
     return dict(zip(groups, diffs_content))
 
   def __json__(self, request):
     """
     """
-    return { 'id':self.raw_diff,
-             'lst_files':self.lst_files,
-             'lst_basename_files':self.lst_basename_files,
-             'dict_files':self.dict_files
+    return { u'id':self.raw_diff,
+             u'lst_files':self.lst_files,
+             u'lst_basename_files':self.lst_basename_files,
+             u'dict_files':self.dict_files
            }
 
 
@@ -111,11 +121,11 @@ class NodeSsh(object):
       "{user}:{password}@{host}:{path}"
     """
     self.uri = uri
-    user,password_host,path = uri.split(':')
+    user,password_host,path = uri.split(u':')
 
     self.user = user
     self.path = path 
-    self.password, self.host = password_host.split('@')
+    self.password, self.host = password_host.split(u'@')
 
     self.ssh = self.get_ssh()
     self.lock = threading.Lock()
@@ -125,15 +135,13 @@ class NodeSsh(object):
     """
     """
     content = ""
-
-    for codec in ('latin-1','utf-8') :
+    for codec in (u'latin-1', u'utf-8') :
       try :
-        content = str(bytes_content, codec)
-      except :
+        content = u(bytes_content, codec)
+      except Exception as e:
         content = ""
       else :
         break
-
     return content
 
   def get_ssh(self):
@@ -145,7 +153,7 @@ class NodeSsh(object):
       ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
       ssh.connect(self.host, username=self.user, password=self.password)
     except socket.gaierror :
-      raise NodeException("host unavailable")
+      raise NodeException(u"host unavailable")
     return ssh
 
   @check_connections
@@ -157,7 +165,7 @@ class NodeSsh(object):
 
     # add a foot print as a guid
     # so we are sure 
-    command += ";echo '%s'"%guid
+    command += u";echo '%s'"%guid
 
     full_log = []
     with self.lock :
@@ -171,7 +179,7 @@ class NodeSsh(object):
       buff = ''
       t0 = time.time()
       time_out = False
-      full_log.append('org_command %s'%command)
+      full_log.append(u'org_command %s'%command)
 
       wait_time = 0.05
       while len(re.findall(reg_shell, buff, re.MULTILINE))==0:
@@ -184,7 +192,7 @@ class NodeSsh(object):
           if time.time() - t0 > 60 :
             time_out = True
             break
-      full_log.append('buff1 %s'%buff)
+      full_log.append(u'buff1 %s'%buff)
 
       if not time_out :
         # ssh and wait for the password prompt.
@@ -203,13 +211,13 @@ class NodeSsh(object):
             if time.time()-t0 > 60 :
               time_out = True
               break
-        full_log.append('buff2 %s'%buff)
+        full_log.append(u'buff2 %s'%buff)
 
       if not time_out :
         # Send the password and wait for a prompt.
         channel.send(self.password + '\n')
  
-        buff = ''
+        buff = u''
         t0 = time.time()
         # wait : 'added 99 changesets with 243 changes to 27 files'
         # wait : "(run 'hg update' to get a working copy)"
@@ -222,7 +230,7 @@ class NodeSsh(object):
         # remote: adding file changes
         # remote: added 90 changesets with 102 changes to 68 files
         wait_time = 0.05
-        while buff.find('to get a working copy') < 0 and buff.find('changesets with') < 0 and buff.find("abort: push creates new remote branches") < 0 and len(re.findall(reg_shell, buff, re.MULTILINE))==0 and buff.find(guid)<0:
+        while buff.find(u'to get a working copy') < 0 and buff.find(u'changesets with') < 0 and buff.find(u"abort: push creates new remote branches") < 0 and len(re.findall(reg_shell, buff, re.MULTILINE))==0 and buff.find(guid)<0:
             resp = channel.recv(9999)
             buff += self.decode_raw_bytes(resp)
             time.sleep(wait_time)
@@ -231,16 +239,16 @@ class NodeSsh(object):
               time_out = True
               break
 
-        full_log.append('buff2 %s'%buff)
+        full_log.append(u'buff2 %s'%buff)
         ret=buff
 
     self.state_locked = False
 
-    self.__class__.logs.append((self.host, self.path, re.sub("^cd[^;]*;",'',command)))
+    self.__class__.logs.append((self.host, self.path, re.sub(u"^cd[^;]*;",'',command)))
 
-    return {'out':    [], 
-            'err':    [],
-            'retval': []}
+    return {u'out':    [], 
+            u'err':    [],
+            u'retval': []}
 
   @check_connections
   def run_command(self, command, log=False):
@@ -259,16 +267,14 @@ class NodeSsh(object):
         elif ret:
 
           if log :
-            self.__class__.logs.append((self.host, self.path, re.sub("^cd[^;]*;",'',command)))
-
+            self.__class__.logs.append((self.host, self.path, re.sub(u"^cd[^;]*;",'',command)))
           if(type(ret)==bytes):
             ret = self.decode_raw_bytes(ret)
           return ret
         else:
           return None
-
       except socket.gaierror :
-        raise NodeException("host unavailable")
+        raise NodeException(u"host unavailable")
 
 #------------------------------------------------------------------------------
 
@@ -277,14 +283,14 @@ class HgNode(NodeSsh):
     Some node to manipulate remote hg repository 
   """
 
-  _template = "{node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" 
+  _template = u"{node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" 
 
 
   def compare_release_a_sup_equal_b(self, release_a, release_b):
     """
     """
-    tab_a = [int(e) for e in release_a.split('.')]
-    tab_b = [int(e) for e in release_b.split('.')]
+    tab_a = [int(e) for e in release_a.split(u'.')]
+    tab_b = [int(e) for e in release_b.split(u'.')]
 
     result = False
 
@@ -309,8 +315,8 @@ class HgNode(NodeSsh):
     """
     """
     try :
-      data = self.run_command("cd %s ; hg --version"%self.path)
-      data = re.findall('\((?:version) (?P<version>[0-9\.]+)\)',data)
+      data = self.run_command(u"cd %s ; hg --version"%self.path)
+      data = re.findall(u'\((?:version) (?P<version>[0-9\.]+)\)',data)
       if data : 
         data = data[0]
       else :
@@ -323,13 +329,13 @@ class HgNode(NodeSsh):
     """
     """
     try :
-      data = self.run_command("cd %s ; hg --debug id -i"%self.path)
+      data = self.run_command(u"cd %s ; hg --debug id -i"%self.path)
     except NodeException as e :
       result = None
     else :
       # hg may add '+' to indicate tip release
       # '+' is not part of changeset hash
-      result = data.strip('\n').split(' ')[0].strip('+')
+      result = data.strip(u'\n').split(u' ')[0].strip(u'+')
     return result
 
   def push_to(self, local_project, target_project):
@@ -339,11 +345,11 @@ class HgNode(NodeSsh):
       local_project.local_hg_release = self.get_hg_release()
 
     if (local_project.local_hg_release is not None and self.compare_release_a_sup_equal_b(local_project.local_hg_release, '1.7.4')) :
-      insecure = " --insecure "
+      insecure = u" --insecure "
     else:
-      insecure = " "
+      insecure = u" "
 
-    data = self.run_command_and_feed_password_prompt('cd %s ; hg push%sssh://%s@%s/%s'%(
+    data = self.run_command_and_feed_password_prompt(u'cd %s ; hg push%sssh://%s@%s/%s'%(
                                                         self.path,
                                                         insecure,
                                                         target_project.user,
@@ -361,7 +367,7 @@ class HgNode(NodeSsh):
       insecure = " --insecure "
     else:
       insecure = " "
-    data = self.run_command_and_feed_password_prompt('cd %s ; hg pull%sssh://%s@%s/%s'%(self.path,
+    data = self.run_command_and_feed_password_prompt(u'cd %s ; hg pull%sssh://%s@%s/%s'%(self.path,
                                                             insecure,
                                                             source_project.user,
                                                             source_project.host,
@@ -375,11 +381,11 @@ class HgNode(NodeSsh):
     """
     try :
       if revision_filter :
-        data = self.run_command('cd %s ; hg log --template "%s" -r %s'%(self.path, self._template, revision_filter))
+        data = self.run_command(u'cd %s ; hg log --template "%s" -r %s'%(self.path, self._template, revision_filter))
       elif branch_filter :
-        data = self.run_command('cd %s ; hg log -l %d --template "%s" -b %s'%(self.path, nb_lines, self._template, branch_filter))
+        data = self.run_command(u'cd %s ; hg log -l %d --template "%s" -b %s'%(self.path, nb_lines, self._template, branch_filter))
       else :
-        data = self.run_command('cd %s ; hg log -l %d --template "%s"'%(self.path, nb_lines, self._template))
+        data = self.run_command(u'cd %s ; hg log -l %d --template "%s"'%(self.path, nb_lines, self._template))
     except NodeException as e :
       data = ""
 
@@ -390,8 +396,8 @@ class HgNode(NodeSsh):
     node = {}
 
     for line in data :
-      node, author, branch, rev, parents, desc, tags = line.split('|#|')
-      desc = desc.replace('\\n','\n')
+      node, author, branch, rev, parents, desc, tags = line.split(u'|#|')
+      desc = desc.replace(u'\\n','\n')
       if not branch : branch = 'default'
       list_nodes.append({'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags})
       map_nodes[node]=list_nodes[-1]
@@ -402,7 +408,7 @@ class HgNode(NodeSsh):
     """
     """
     try :
-      result = self.run_command("cd %s ; hg cat %s -r %s"%(self.path, file_name, revision))
+      result = self.run_command(u"cd %s ; hg cat %s -r %s"%(self.path, file_name, revision))
     except NodeException as e :
       result = None
     return result
@@ -413,13 +419,13 @@ class HgNode(NodeSsh):
       :return: string hash
     """
     try :
-      data = self.run_command("cd %s ; hg --debug id -i -r 0"%self.path)
+      data = self.run_command(u"cd %s ; hg --debug id -i -r 0"%self.path)
     except NodeException as e :
       result = None
     else :
       # hg may add '+' to indicate tip release
       # '+' is not part of changeset hash
-      result = data.strip('\n').split(' ')[0].strip('+')
+      result = data.strip(u'\n').split(u' ')[0].strip(u'+')
     return result
      
 
@@ -429,11 +435,11 @@ class HgNode(NodeSsh):
     """
     branches = []
     try :
-      data = self.run_command('cd %s ; hg branches'%(self.path))
+      data = self.run_command(u'cd %s ; hg branches'%(self.path))
     except NodeException as e :
       pass
     else :
-      branches = sorted((e.split(' ')[0] for e in data.strip().split('\n') if e.split(' ')[0]))
+      branches = sorted((e.split(u' ')[0] for e in data.strip().split(u'\n') if e.split(u' ')[0]))
 
     return branches
 
@@ -442,12 +448,12 @@ class HgNode(NodeSsh):
     """
     node = {}
     try :
-      data = self.run_command('''cd %s ; hg --debug id | cut -d' ' -f 1 | tr -d ' +' | xargs -I {} hg log -r {} --template "%s"'''%(self.path, self._template))
+      data = self.run_command(u'''cd %s ; hg --debug id | cut -d' ' -f 1 | tr -d ' +' | xargs -I {} hg log -r {} --template "%s"'''%(self.path, self._template))
     except NodeException as e :
       node = {}
     else :
-      node, author, branch, rev, parents, desc, tags = data.split('|#|')
-      desc = desc.replace('\\n','\n')
+      node, author, branch, rev, parents, desc, tags = data.split(u'|#|')
+      desc = desc.replace(u'\\n','\n')
       if not branch : branch = 'default'
       node = {'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags}
     return node 
@@ -458,7 +464,7 @@ class HgNode(NodeSsh):
     """
     diff_content = ""
     try :
-      diff_content = self.run_command('''cd %s ; hg diff -c %s'''%(self.path, revision))
+      diff_content = self.run_command(u'''cd %s ; hg diff -c %s'''%(self.path, revision))
     except NodeException as e :
       diff_content = "" 
     return DiffWrapper(diff_content)
@@ -479,7 +485,7 @@ class HgNode(NodeSsh):
     """
     result = True
     try :
-      data = self.run_command('cd %s ; hg update -C -r %s'%(self.path, rev), True)
+      data = self.run_command(u'cd %s ; hg update -C -r %s'%(self.path, rev), True)
     except NodeException as e :
       result = False
     return result
@@ -512,11 +518,11 @@ class PoolSsh(object):
           break
 
       if node is None and len(cls.nodes[uri]) < cls.max_nodes_in_pool :
-        log.warning("creating additional node in pool (%s)"%(len(cls.nodes[uri])))
+        log.warning(u"creating additional node in pool (%s)"%(len(cls.nodes[uri])))
         node = HgNode(uri)
         cls.nodes[uri].append(node)
       elif node is None :
-        log.warning("creating extra node (%s)"%(len(cls.nodes[uri])))
+        log.warning(u"creating extra node (%s)"%(len(cls.nodes[uri])))
         # we create a new node to avoid flooding which will be
         # garbage collected at the end of request
         # this is slower but max nodes should represent a correct usage
