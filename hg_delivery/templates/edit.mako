@@ -29,7 +29,7 @@
       </div>
     % endif
     
-     <div id="filter" class="panel panel-default col-md-4" style="margin-left:20px;padding-left:0px;padding-right:0px;">
+     <div id="filter" class="panel panel-default col-md-5" style="margin-left:20px;padding-left:0px;padding-right:0px;">
        <div class="panel-heading">
          <h3 class="panel-title">Filter</h3>
        </div>
