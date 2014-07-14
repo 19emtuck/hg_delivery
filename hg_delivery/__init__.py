@@ -8,8 +8,6 @@
 # hg_delivery is free software; you can redistribute it and/or modify it under the
 # terms of the M.I.T License.
 #
-# Copyright (C) 2014  Stéphane Bard <stephane.bard@gmail.com>
-#
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
 
