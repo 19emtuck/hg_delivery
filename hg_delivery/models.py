@@ -44,6 +44,7 @@ Base = declarative_base()
 
 class Project(Base):
   """
+  The project item
   """
   __tablename__ = 'projects'
 
@@ -54,10 +55,10 @@ class Project(Base):
   host = Column(String(100))
   path = Column(Text)
   rev_init = Column(String(100))
-  local_hg_release = Column(String(20))
+  dvcs_release = Column(String(20))
   dashboard = Column(Boolean)
 
-  def __init__(self, name, user, password, host, path, rev_init, dashboard, local_hg_release):
+  def __init__(self, name, user, password, host, path, rev_init, dashboard, dvcs_release):
     """
     """
     self.name = name
@@ -67,7 +68,7 @@ class Project(Base):
     self.path = path 
     self.rev_init = rev_init
     self.dashboard = dashboard 
-    self.local_hg_release = local_hg_release 
+    self.dvcs_release = dvcs_release 
 
   def __json__(self, request):
     """
@@ -79,7 +80,7 @@ class Project(Base):
              'user':self.user,
              'password':'*'*len(self.password),
              'dashboard':self.dashboard,
-             'local_hg_release':self.local_hg_release}
+             'dvcs_release':self.dvcs_release}
 
   def get_uri(self):
     """
@@ -103,6 +104,8 @@ class Project(Base):
 
 class RemoteLog(Base):
   """
+  This table contains all logs entries
+  which command user execute on which host and at what time
   """
   __tablename__ = 'logs'
 

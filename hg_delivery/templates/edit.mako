@@ -23,7 +23,7 @@
         </div>
         <div class="panel-body">
             <span class="label label-warning"> ${current_node.get('branch','UNKNOWN')}</span>
-            ${current_node.get('node','UNKNOWN')} (using mercurial : ${project.local_hg_release})
+            ${current_node.get('node','UNKNOWN')} (using mercurial : ${project.dvcs_release})
             <br><i>(${current_node.get('desc','UNKNOWN')})</i>
         </div>
       </div>
