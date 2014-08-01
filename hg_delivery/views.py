@@ -241,9 +241,8 @@ def edit_project(request):
     try :
       ssh_node = project.get_ssh_node()
 
-      if not project.local_hg_release :
-        project.local_hg_release = ssh_node.get_hg_release()
-        print(project.local_hg_release)
+      if not project.dvcs_release :
+        project.dvcs_release = ssh_node.get_hg_release()
 
       current_rev = ssh_node.get_current_rev_hash()
 

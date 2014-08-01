@@ -21,7 +21,10 @@ function push_to(target_project_id, target_url){
   if($('#other_projects a.active').length>0){
      var src_project_id = $('#other_projects a.active').data('id');
      $.ajax({url:target_url+src_project_id,
-             async:false,
+             beforeSend:function(){
+             },
+             complete:function(){
+             },
              dataType:'json',
              success:function(){
                // we just reload the current comparison
@@ -39,7 +42,10 @@ function pull_from(target_project_id, target_url){
   if($('#other_projects a.active').length>0){
      var src_project_id = $('#other_projects a.active').data('id');
      $.ajax({url:target_url+src_project_id,
-             async:false,
+             beforeSend:function(){
+             },
+             complete:function(){
+             },
              dataType:'json',
              success:function(){
                // reload this fucking page ...

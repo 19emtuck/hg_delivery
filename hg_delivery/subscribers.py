@@ -32,10 +32,12 @@ def mysubscriber(event):
   event['static_url'] = request.static_url
   event['logged_in'] = request.authenticated_userid
 
+  # before any render we look if we need to
   # log data and flush them into database
   if NodeSsh.logs :
     for (__host, __path, __command) in NodeSsh.logs :
       DBSession.add(RemoteLog(host = __host, path = __path, command = __command))
+    # also empty the list container
     del NodeSsh.logs[0:]
 
 
