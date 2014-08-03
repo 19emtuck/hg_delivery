@@ -73,6 +73,16 @@ def default_view(request):
 
 #------------------------------------------------------------------------------
 
+@view_config(route_name='project_logs', renderer='json', permission='edit')
+def project_logs(request):
+  """
+  create a new project
+  """
+  id_project = request.matchdict['id']
+  return { 'logs':DBSession.query(RemoteLog).filter(RemoteLog.id_project==id_project).order_by(RemoteLog.creation_date.desc()).limit(50).all() }
+
+#------------------------------------------------------------------------------
+
 @view_config(route_name='project_push_to', renderer='json')
 def push(request):
   """

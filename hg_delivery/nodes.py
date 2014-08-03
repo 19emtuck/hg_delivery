@@ -114,13 +114,14 @@ class NodeSsh(object):
   logs = []
   max_timeout = 60*5
   
-  def __init__(self, uri):
+  def __init__(self, uri, project):
     """
       uri should like this 
 
       "{user}:{password}@{host}:{path}"
     """
     self.uri = uri
+    self.project = project
     user,password_host,path = uri.split(u':')
 
     self.user = user
@@ -244,7 +245,7 @@ class NodeSsh(object):
 
     self.state_locked = False
 
-    self.__class__.logs.append((self.host, self.path, re.sub(u"^cd[^;]*;",'',command)))
+    self.__class__.logs.append((self.project.id, self.host, self.path, re.sub(u"^cd[^;]*;",'',command)))
 
     return {u'out':    [], 
             u'err':    [],
@@ -267,7 +268,7 @@ class NodeSsh(object):
         elif ret:
 
           if log :
-            self.__class__.logs.append((self.host, self.path, re.sub(u"^cd[^;]*;",'',command)))
+            self.__class__.logs.append((self.project.id, self.host, self.path, re.sub(u"^cd[^;]*;",'',command)))
           if(type(ret)==bytes):
             ret = self.decode_raw_bytes(ret)
           return ret
@@ -502,14 +503,15 @@ class PoolSsh(object):
   max_nodes_in_pool = 10
 
   @classmethod
-  def get_node(cls, uri):
+  def get_node(cls, project):
     """
     try to acquire a free ssh channel or open a new one ...
     """
+    uri = project.get_uri()
     node = None
 
     if uri not in cls.nodes :
-      cls.nodes[uri] = [HgNode(uri)]
+      cls.nodes[uri] = [HgNode(uri, project)]
       node = cls.nodes[uri][0]
     else :
       for __node in cls.nodes[uri] :
@@ -519,14 +521,14 @@ class PoolSsh(object):
 
       if node is None and len(cls.nodes[uri]) < cls.max_nodes_in_pool :
         log.warning(u"creating additional node in pool (%s)"%(len(cls.nodes[uri])))
-        node = HgNode(uri)
+        node = HgNode(uri, project)
         cls.nodes[uri].append(node)
       elif node is None :
         log.warning(u"creating extra node (%s)"%(len(cls.nodes[uri])))
         # we create a new node to avoid flooding which will be
         # garbage collected at the end of request
         # this is slower but max nodes should represent a correct usage
-        node = HgNode(uri)
+        node = HgNode(uri, project)
 
     return node
 

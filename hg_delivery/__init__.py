@@ -42,6 +42,8 @@ def projects_include(config):
   # move project to another revision
   config.add_route('project_change_to',               '/change/{id:\d+}/to/{rev}', custom_predicates=(to_int('id'),))
 
+  config.add_route('project_logs',                    '/logs/{id:\d+}', custom_predicates=(to_int('id'),))
+
   # provide difference between two revision
   config.add_route('project_revisions_diff',          '/{id:\d+}/diff', custom_predicates=(to_int('id'),))
 

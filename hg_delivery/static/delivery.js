@@ -56,6 +56,9 @@ function pull_from(target_project_id, target_url){
 }
 
 
+/**
+ * update local source to a specific release
+ */
 function change_project_to_this_release(active_a, target_url){
   $('#src_revision').text($('.glyphicon-ok').data('current_rev'));
   $('#target_revision').text($(active_a).text());
@@ -63,6 +66,9 @@ function change_project_to_this_release(active_a, target_url){
   $('#move_to').off().on('click',function(){ go_to(target_url);});
 }
 
+/**
+ * retrieve json data for a specific repository (set active component)
+ */
 function fetch_this_other_project(active_a){
   $tbody_comparison = $('#project_comparison tbody');
   $tbody_comparison.find('tr').remove();
@@ -83,6 +89,9 @@ function fetch_this_other_project(active_a){
           });
 }
 
+/**
+ * display difference between two repository from te same project
+ */
 function show_difference_between_changeset_stacks(remote_project_name, local_last_change_list, remote_last_change_list, current_node){
   var top_remote_rev = parseInt(remote_last_change_list[0].rev);
   var top_local_rev = parseInt(local_last_change_list[0].rev);

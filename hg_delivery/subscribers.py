@@ -35,8 +35,8 @@ def mysubscriber(event):
   # before any render we look if we need to
   # log data and flush them into database
   if NodeSsh.logs :
-    for (__host, __path, __command) in NodeSsh.logs :
-      DBSession.add(RemoteLog(host = __host, path = __path, command = __command))
+    for (__id, __host, __path, __command) in NodeSsh.logs :
+      DBSession.add(RemoteLog(id_project = __id, host = __host, path = __path, command = __command))
     # also empty the list container
     del NodeSsh.logs[0:]
 

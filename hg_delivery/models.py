@@ -21,8 +21,10 @@ from sqlalchemy import (
     Text,
     DateTime,
     String,
-    Boolean
+    Boolean,
+    ForeignKey,
     )
+from sqlalchemy.orm import relationship, backref
 
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -91,7 +93,7 @@ class Project(Base):
   def get_ssh_node(self):
     """
     """
-    return PoolSsh.get_node(self.get_uri())
+    return PoolSsh.get_node(self)
 
   def init_initial_revision(self):
     """
@@ -99,6 +101,9 @@ class Project(Base):
     if self.rev_init is None :
       ssh_node = self.get_ssh_node()
       self.rev_init = ssh_node.get_initial_hash()
+
+Index('project_unique', Project.host, Project.path, unique=True)
+Index('project_root', Project.rev_init)
 
 #------------------------------------------------------------------------------
 
@@ -110,14 +115,18 @@ class RemoteLog(Base):
   __tablename__ = 'logs'
 
   id = Column(Integer, primary_key=True)
+  id_project = Column(Integer, ForeignKey(Project.id))
+  project = relationship(Project)
+
   host = Column(String(100))
   path = Column(Text)
   command = Column(Text)
   creation_date = Column(DateTime)
 
-  def __init__(self, host, path, command):
+  def __init__(self, id_project, host, path, command):
     """
     """
+    self.id_project = id_project
     self.creation_date = datetime.now()
     self.host = host
     self.path =path 
@@ -133,9 +142,6 @@ class RemoteLog(Base):
              'creation_date':self.creation_date.strftime('%d/%m/%Y %H:%M')}
 
 #------------------------------------------------------------------------------
-
-Index('project_unique', Project.host, Project.path, unique=True)
-Index('project_root', Project.rev_init)
 
 class RootFactory(object):
   """
