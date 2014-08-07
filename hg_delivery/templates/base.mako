@@ -36,7 +36,7 @@
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li><a href="#contact">Contact</a></li>
+            <li><a href="${url('contact')}">Contact</a></li>
              % if logged_in is not None :
               % if project is UNDEFINED :
                 <li><a href="#" onclick="$('#new_project_dialog').modal('show');">Add a new project</a></li>

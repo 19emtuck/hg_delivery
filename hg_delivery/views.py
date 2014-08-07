@@ -29,6 +29,15 @@ log = logging.getLogger(__name__)
 
 #------------------------------------------------------------------------------
 
+@view_config(route_name='contact', renderer='templates/contact.mako')
+def contact(request):
+    """
+    create a new project
+    """
+    return {}
+
+#------------------------------------------------------------------------------
+
 @view_config(route_name='logs', renderer='json', permission='edit')
 def logs(request):
     """

@@ -74,6 +74,7 @@ def main(global_config, **settings):
   config.add_route('login',        '/login')
   config.add_route('logout',       '/logout')
   config.add_route('logs',         '/logs')
+  config.add_route('contact',      '/contact')
 
   config.include(projects_include, '/project')
 
