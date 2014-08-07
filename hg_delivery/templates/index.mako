@@ -1,8 +1,12 @@
 <%inherit file="base.mako"/>
 
 % if logged_in is not None :
-  <h2><span class="label label-default">Dashboard</span></h2>
-
+  <h2>
+        <span class="label label-default">Dashboard</span>
+        <button style="background-color:transparent;border:none" onclick="$('#new_project_dialog').modal('show');" alt="add new project">
+          <span class='glyphicon glyphicon-plus' style="font-size:26px;vertical-align:bottom"></span>
+        </button>
+  </h2>
   %for project in dashboard_list :
     <div class="panel panel-default">
       <div class="panel-heading">
