@@ -11,7 +11,7 @@
     <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title"><a
-href="${url(route_name='project_edit',id=project.id)}"><b>${project.name}</b></a><i>(revision : ${nodes_description[project.id].get('rev','UNKNOWN')})</i></h3>
+href="${url(route_name='project_edit',id=project.id)}"><b>${project.name}</b></a><i> (revision : ${nodes_description[project.id].get('rev','UNKNOWN')})</i></h3>
       </div>
       <div class="panel-body">
         current branch : <span class="label label-warning"> ${nodes_description[project.id].get('branch','UNKNOWN')}</span
