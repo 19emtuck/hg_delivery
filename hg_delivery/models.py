@@ -93,7 +93,8 @@ class Project(Base):
   def get_ssh_node(self):
     """
     """
-    return PoolSsh.get_node(self)
+    uri = self.get_uri()
+    return PoolSsh.get_node(uri, self.id)
 
   def init_initial_revision(self):
     """
