@@ -1,14 +1,39 @@
 hg_delivery README
 ==================
 
+Global overview
+---------------
+
+hg_delivery is a web application who wants to simplify the delivery of small projects and helping people to quickly
+revert to a previous stable release if something's wrong. This project targets people bothered by command line, looking
+for a nice and simple web interface, able to manage multiple remote repositories. 
+
+features list :
+
+  - add/delete/edit project items
+
+  - projects dashboard
+
+  - display project remote summarize (last commit, current revision ...)
+
+  - display the state of repository
+
+  - update to a specific revision for remote repository
+
+  - repositories compare
+
+  - pushing or pulling on a remote repository
+
+ - 
+
+
 Licensing
 ---------
 
 Copyright (C) 2014  Stéphane Bard <stephane.bard@gmail.com>
 
-hg_delivery is free software; you can redistribute it and/or modify it under the
-terms of the M.I.T License. The original author name should always be reminded as
-the original author.
+hg_delivery is free software; you can redistribute it and/or modify it under the terms of the M.I.T License. The
+original author name should always be reminded as the original author.
 
 Getting Started
 ---------------
