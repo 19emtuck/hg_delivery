@@ -38,8 +38,8 @@ casper.then(function(response){ this.click('span[class="glyphicon glyphicon-plus
 casper.then(function(response){ this.test.assertExists('#add_my_project'); });
 casper.then(function(response){
   this.fill('form[name="project"]', {'name':'t8',
-	                 'host':'127.0.0.1',
-	                 'path':'/home/sbard/dev/t8',
+                   'host':'127.0.0.1',
+                   'path':'/home/sbard/dev/t8',
                          'user':'sbard',
                          'password':'evangelion',
                         });
@@ -53,8 +53,8 @@ casper.then(function(response){ this.click('span[class="glyphicon glyphicon-plus
 casper.then(function(response){ this.test.assertExists('#add_my_project'); });
 casper.then(function(response){
   this.fill('form[name="project"]', {'name':'t8',
-	                 'host':'127.0.0.1',
-	                 'path':'/home/sbard/dev/t8',
+                   'host':'127.0.0.1',
+                   'path':'/home/sbard/dev/t8',
                          'user':'sbard',
                          'password':'evangelion',
                         });
@@ -64,12 +64,20 @@ casper.waitUntilVisible('.alert-danger');
 casper.thenClick("#cancel_add_project");
 casper.waitWhileVisible('#new_project_dialog');
 
-casper.thenClick('#projects_list');
-
-casper.then(function(response){
-  this.test.assertTextExists('t8');
-});
-
 // then we delete the project
+casper.thenClick('form[name="view_project"] button.dropdown-toggle');
+casper.then(function(response){this.test.assertTextExists('t8');});
+casper.then(function(){
+  var next_link = this.evaluate(function(){
+     return $('#projects_list a:contains("t8")').attr('href');
+  });
+  this.thenOpen(next_link);
+})
+casper.waitUntilVisible('#project_home');
+casper.thenClick('#manage_project');
+casper.thenClick('#view_delete_project');
+
+// back to welcome page ...
+casper.waitWhileVisible('span[class="glyphicon glyphicon-plus"]');
 
 casper.run();
