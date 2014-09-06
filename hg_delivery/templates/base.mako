@@ -41,7 +41,7 @@
               % if project is UNDEFINED :
                 <li><a href="#" onclick="$('#new_project_dialog').modal('show');">Add a new project</a></li>
               % endif
-              <li><a href="${url('logout')}">Sign out</a></li>
+              <li><a id="sign_out" href="${url('logout')}">Sign out</a></li>
              % endif
           </ul>
           % if logged_in is not None :
