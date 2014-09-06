@@ -7,7 +7,7 @@
           <h4 class="modal-title">Add a new project</h4>
         </div>
         <div class="modal-body">
-          <form id="project" name="project" action="/project/add" method="post" class="form-horizontal" role="form">
+          <form id="project" name="project" action="${url('project_add')}" method="post" class="form-horizontal" role="form">
             <div id="new_project">
                 <div class="form-group">
                   <label for="new_project_name" class="col-sm-2 control-label">Name</label>
@@ -46,8 +46,8 @@
           <form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" onclick="add_project('${url('project_add')}');">Save changes</button>
+          <button id="cancel_add_project" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button id="add_my_project" type="button" class="btn btn-primary" onclick="add_project('${url('project_add')}');">Save changes</button>
         </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
