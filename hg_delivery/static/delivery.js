@@ -333,7 +333,7 @@ function display_logs(active_button) {
 
     if('last_logs' in localStorage && localStorage.last_logs!==''){
       $button.addClass('btn-success');
-      $('#logs').html(localStoragelast_logs).show();
+      $('#logs').html(localStorage.last_logs).show();
     }
 
     $.ajax({ url:$button.data('url'),
