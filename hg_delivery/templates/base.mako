@@ -53,7 +53,7 @@
                      % if project is not UNDEFINED:
                        <span id="project_name">${project.name}</span> <span class="caret"></span>
                      % else :
-                       Projects <span class="caret"></span>
+                       Projects (${len(projects_list)}) <span class="caret"></span>
                      % endif
                    </button>
                    <ul id="projects_list" class="dropdown-menu" role="menu" data-url="${url(route_name='project_edit',id='')}">
@@ -80,7 +80,7 @@
                % if project is not UNDEFINED :
                <!-- Single button for project management-->
                <div class="btn-group" style="margin-left:20px">
-                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="min-width:80px">
+                 <button id="manage_project" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="min-width:80px">
                    Manage project <span class="caret"></span>
                  </button>
                  <ul class="dropdown-menu" role="menu">
