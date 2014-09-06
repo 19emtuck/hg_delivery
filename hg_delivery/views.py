@@ -245,6 +245,9 @@ def edit_project(request):
     projects_list =  DBSession.query(Project).all()
     projects_map =  {p.id:p for p in projects_list}
     project = projects_map.get(id_project)
+
+    if project is None :
+      return HTTPFound(location=request.route_url(route_name='home'))
     linked_projects = [p for p in projects_list if p.rev_init is not None and p.rev_init == project.rev_init and p.id != project.id]
 
     branch = None
