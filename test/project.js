@@ -37,12 +37,11 @@ casper.then(function(response){
 casper.then(function(response){ this.click('span[class="glyphicon glyphicon-plus"]') });
 casper.then(function(response){ this.test.assertExists('#add_my_project'); });
 casper.then(function(response){
-  this.fill('form[name="project"]', {'name':'t8',
-                   'host':'127.0.0.1',
-                   'path':'/home/sbard/dev/t8',
-                         'user':'sbard',
-                         'password':'evangelion',
-                        });
+  this.fill('form[name="project"]', { 'name':'t8',
+                                      'host':'127.0.0.1',
+                                      'path':'/home/sbard/dev/t8',
+                                      'user':'sbard',
+                                      'password':'evangelion' });
 });
 casper.thenClick('#add_my_project');
 casper.waitWhileVisible('#new_project_dialog');
@@ -79,5 +78,10 @@ casper.thenClick('#view_delete_project');
 
 // back to welcome page ...
 casper.waitWhileVisible('span[class="glyphicon glyphicon-plus"]');
+casper.then(function(response){
+  this.test.assertTitle('Hg Delivery 1.0');
+  this.test.assertTextExists('Dashboard');
+  this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
+});
 
 casper.run();
