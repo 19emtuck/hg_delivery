@@ -1,12 +1,19 @@
 hg_delivery README
 ==================
 
+A one-click deployment tool written in python with `pyramid <http://www.pylonsproject.org>`_
+
 Global overview
 ---------------
 
 hg_delivery is a web application who wants to simplify the delivery of small projects and helping people to quickly
 revert to a previous stable release if something's wrong. This project targets people bothered by command line, looking
 for a nice and simple web interface, able to manage multiple remote repositories. 
+
+inspired from :
+
+  - `like banana project <https://github.com/sniku/Likebanana>`_
+
 
 features list :
 
@@ -24,8 +31,6 @@ features list :
 
   - pushing or pulling on a remote repository
 
- - 
-
 
 Licensing
 ---------
@@ -38,11 +43,13 @@ original author name should always be reminded as the original author.
 Getting Started
 ---------------
 
-- cd hg_delivery
+.. code-bloc::bash
 
-- $VENV/bin/python setup.py develop
+    hg clone https://bitbucket.org/tuck/hg_delivery
+    cd hg_delivery
+    $VENV/bin/python setup.py develop
+    $VENV/bin/initialize_hg_delivery_db development.ini
+    $VENV/bin/pserve development.ini
 
-- $VENV/bin/initialize_hg_delivery_db development.ini
 
-- $VENV/bin/pserve development.ini
 
