@@ -23,7 +23,7 @@ import sys
 from pygments import highlight
 from pygments.lexers import DiffLexer
 from pygments.formatters import HtmlFormatter
-from pygments.styles import get_all_styles 
+from pygments.styles import get_all_styles
 
 styles = list(get_all_styles())
 
@@ -85,7 +85,7 @@ class DiffWrapper(object):
   def __get_lst_files(self):
     """
     """
-    groups = re.findall(u"diff -r [a-z0-9]+ (?P<file_name>.+)$",self.raw_diff, re.MULTILINE) 
+    groups = re.findall(u"diff -r [a-z0-9]+ (?P<file_name>.+)$",self.raw_diff, re.MULTILINE)
     return groups
 
   def __get_files_to_diff(self):
@@ -116,7 +116,7 @@ class NodeSsh(object):
   
   def __init__(self, uri, project_id):
     """
-      uri should like this 
+      uri should like this
 
       "{user}:{password}@{host}:{path}"
     """
@@ -125,7 +125,7 @@ class NodeSsh(object):
     user,password_host,path = uri.split(u':')
 
     self.user = user
-    self.path = path 
+    self.path = path
     self.password, self.host = password_host.split(u'@')
 
     self.ssh = self.get_ssh()
@@ -165,7 +165,7 @@ class NodeSsh(object):
     guid = uuid.uuid1().hex
 
     # add a foot print as a guid
-    # so we are sure 
+    # so we are sure
     command += u";echo '%s'"%guid
 
     full_log = []
@@ -222,9 +222,9 @@ class NodeSsh(object):
         t0 = time.time()
         # wait : 'added 99 changesets with 243 changes to 27 files'
         # wait : "(run 'hg update' to get a working copy)"
-        # 
+        #
         # sample pushing ...
-        # 
+        #
         # searching for changes
         # remote: adding changesets
         # remote: adding manifests
@@ -247,7 +247,7 @@ class NodeSsh(object):
 
     self.__class__.logs.append((self.project_id, self.host, self.path, re.sub(u"^cd[^;]*;",'',command)))
 
-    return {u'out':    [], 
+    return {u'out':    [],
             u'err':    [],
             u'retval': []}
 
@@ -277,16 +277,6 @@ class NodeSsh(object):
       except socket.gaierror :
         raise NodeException(u"host unavailable")
 
-#------------------------------------------------------------------------------
-
-class HgNode(NodeSsh):
-  """
-    Some node to manipulate remote hg repository 
-  """
-
-  _template = u"{node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" 
-
-
   def compare_release_a_sup_equal_b(self, release_a, release_b):
     """
     """
@@ -312,7 +302,16 @@ class HgNode(NodeSsh):
 
     return result
 
-  def get_hg_release(self):
+#------------------------------------------------------------------------------
+
+class HgNode(NodeSsh):
+  """
+    Some node to manipulate remote hg repository
+  """
+
+  _template = u"{node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" 
+
+  def get_release(self):
     """
     """
     try :
@@ -343,7 +342,7 @@ class HgNode(NodeSsh):
     """
     """
     if not local_project.dvcs_release :
-      local_project.dvcs_release = self.get_hg_release()
+      local_project.dvcs_release = self.get_release()
 
     if (local_project.dvcs_release is not None and self.compare_release_a_sup_equal_b(local_project.dvcs_release, '1.7.4')) :
       insecure = u" --insecure "
@@ -362,7 +361,7 @@ class HgNode(NodeSsh):
     """
     """
     if not local_project.dvcs_release :
-      local_project.dvcs_release = self.get_hg_release()
+      local_project.dvcs_release = self.get_release()
 
     if (local_project.dvcs_release is not None and self.compare_release_a_sup_equal_b(local_project.dvcs_release, '1.7.4')) :
       insecure = " --insecure "
@@ -429,7 +428,6 @@ class HgNode(NodeSsh):
       result = data.strip(u'\n').split(u' ')[0].strip(u'+')
     return result
      
-
   def get_branches(self):
     """
       return a list of branches labels
@@ -487,6 +485,182 @@ class HgNode(NodeSsh):
     result = True
     try :
       data = self.run_command(u'cd %s ; hg update -C -r %s'%(self.path, rev), True)
+    except NodeException as e :
+      result = False
+    return result
+
+#------------------------------------------------------------------------------
+
+class GitNode(NodeSsh):
+  """
+    A specific node to manipulate remote git repository 
+  """
+
+  _template = u"%H|#|%cn|#|{branches}|#|{rev}|#|%P|#|{desc|jsonescape}|#|{tags}\n"
+
+  def get_release(self):
+    """
+    """
+    try :
+      data = self.run_command(u"cd %s ; git --version --no-color"%self.path)
+      data = re.findall(u'(?:version) (?P<version>[0-9\.]+)', data)
+      if data : 
+        data = data[0]
+      else :
+        data = None
+    except Exception as e:    
+      data = None             
+    return data
+
+  def get_current_rev_hash(self):
+    """
+      commit 1ea7f6aa3feef3e257e3fe4fde6b6994983c6062
+      Author: sbard <toto.free.fr>
+      Date:   Wed Sep 10 10:10:27 2014 +0200
+      
+          fix test
+      
+      diff --git a/toto.txt b/toto.txt
+      new file mode 100644
+      index 0000000..e69de29
+    """
+    try :
+      data = self.run_command(u"cd %s ; git rev-parse HEAD --no-color"%self.path)
+    except NodeException as e :
+      result = None
+    else :
+      result = data.strip(' \n')
+    return result
+
+  def push_to(self, local_project, target_project):
+    """
+    """
+    data = self.run_command_and_feed_password_prompt(u'cd %s ; git push%sssh://%s@%s/%s'%(
+                                                        self.path,
+                                                        insecure,
+                                                        target_project.user,
+                                                        target_project.host,
+                                                        target_project.path),
+                                                        target_project.password)
+
+  def pull_from(self, local_project, source_project):
+    """
+    """
+    data = self.run_command_and_feed_password_prompt(u'cd %s ; git pull%sssh://%s@%s/%s'%(self.path,
+                                                            insecure,
+                                                            source_project.user,
+                                                            source_project.host,
+                                                            source_project.path),
+                                                            source_project.password)
+
+  def get_last_logs(self, nb_lines, branch_filter=None, revision_filter=None):
+    """
+      return last logs ...
+      :param nb_lines: integer, limit the number of lines
+    """
+    try :
+      if revision_filter :
+        data = self.run_command(u'cd %s ; git --no-pager log --pretty=format:%s -r %s'%(self.path, self._template, revision_filter))
+      elif branch_filter :
+        data = self.run_command(u'cd %s ; git --no-pager log -n %d --pretty=format:%s HEAD %s'%(self.path, nb_lines, self._template, branch_filter))
+      else :
+        data = self.run_command(u'cd %s ; git --no-pager log -n %d --pretty=format:%s'%(self.path, nb_lines, self._template))
+    except NodeException as e :
+      data = ""
+
+    list_nodes = []
+    map_nodes = {}
+
+    data = (line for line in data.splitlines())
+    node = {}
+
+    for line in data :
+      node, author, branch, rev, parents, desc, tags = line.split(u'|#|')
+      desc = desc.replace(u'\\n','\n')
+      if not branch : branch = 'default'
+      list_nodes.append({'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags})
+      map_nodes[node]=list_nodes[-1]
+
+    return list_nodes, map_nodes
+
+  def get_file_content(self, file_name, revision):
+    """
+    """
+    try :
+      result = self.run_command(u"cd %s ; git cat %s -r %s"%(self.path, file_name, revision))
+    except NodeException as e :
+      result = None
+    return result
+
+  def get_initial_hash(self):
+    """
+      return the initial hash (revision 0)
+      :return: string hash
+    """
+    try :
+      data = self.run_command(u"cd %s ; git rev-list --max-parents=0 HEAD --no-color"%self.path)
+    except NodeException as e :
+      result = None
+    else :
+      result = data.strip(u' \n')
+    return result
+
+  def get_branches(self):
+    """
+      return a list of branches labels
+    """
+    branches = []
+    try :
+      data = self.run_command(u"cd %s ; git for-each-ref --count=30 --sort=-committerdate refs/heads/ --format='%(refname:short)'"%(self.path))
+    except NodeException as e :
+      pass
+    else :
+      branches = sorted((e.strip() for e in data.strip().split(u'\n') if e.strip()))
+    return branches
+
+  def get_current_revision_description(self):
+    """
+    """
+    node = {}
+    try :
+      data = self.run_command(u'''cd %s ; git --debug id | cut -d' ' -f 1 | tr -d ' +' | xargs -I {} hg log -r {} --template "%s"'''%(self.path, self._template))
+    except NodeException as e :
+      node = {}
+    else :
+      node, author, branch, rev, parents, desc, tags = data.split(u'|#|')
+      desc = desc.replace(u'\\n','\n')
+      if not branch : branch = 'default'
+      node = {'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags}
+    return node 
+
+  def get_revision_diff(self, revision):
+    """
+    :param revision: the revision hash
+    """
+    diff_content = ""
+    try :
+      diff_content = self.run_command(u'''cd %s ; git diff -c %s'''%(self.path, revision))
+    except NodeException as e :
+      diff_content = "" 
+    return DiffWrapper(diff_content)
+
+  def get_revision_description(self, rev):
+    """
+    """
+    list_nodes, map_nodes = self.get_last_logs(1, revision_filter=rev)
+    first_node = {}
+    if list_nodes :
+      first_node = list_nodes[0]
+    return first_node
+
+  def update_to(self, rev):
+    """
+    update project to a certain release
+    :param rev: string, the revision hash
+    """
+    result = True
+    try :
+      data = self.run_command(u'git reset ; git reset %s'%(self.path, rev), True)
     except NodeException as e :
       result = False
     return result
