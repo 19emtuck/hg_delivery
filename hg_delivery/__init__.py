@@ -71,6 +71,10 @@ def main(global_config, **settings):
   config.add_static_view('static', 'static')
   
   config.add_route('home',         '/')
+  config.add_route('users',        '/users')
+  config.add_route('users_json',   '/users/json')
+  config.add_route('user_add',     '/users/add')
+  config.add_route('user_delete',  '/users/{id:\d+}/delete')
   config.add_route('login',        '/login')
   config.add_route('logout',       '/logout')
   config.add_route('logs',         '/logs')

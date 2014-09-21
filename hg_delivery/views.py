@@ -19,13 +19,92 @@ from .models import (
     DBSession,
     Project,
     RemoteLog,
+    User,
+    Group,
     )
 from hg_delivery.nodes import NodeException
 import paramiko
 import time
 import logging
+import re 
 
 log = logging.getLogger(__name__)
+
+#------------------------------------------------------------------------------
+
+@view_config(route_name='user_delete', renderer='json')
+def delete_user(request):
+    """
+    delete user ...
+    """
+    user_id = request.matchdict['id']
+    user = DBSession.query(User).filter(User.id==user_id).scalar()
+
+    result = False
+    if user :
+      DBSession.delete(user)
+      result = True
+
+    return {'result':result}
+
+#------------------------------------------------------------------------------
+
+@view_config(route_name='user_add', renderer='json')
+def add_user(request):
+    """
+    manage users ...
+    """
+    result = False
+    explanation = None
+
+    name = request.params['name']
+    email = request.params['email']
+    password = request.params['password']
+
+    # email is the key, and password cannot be empty
+    if not name :
+      explanation = u'Your user profile should contain a valid name'
+      result = False
+    elif not email or not re.match('[^@]+@[^@]+',email):
+      explanation = u'Your user profile should contain a valid email'
+      result = False
+    elif not password:
+      explanation = u"Your user profile musn't be empty"
+      result = False
+    else:
+      try :
+        # folder should be unique
+        user = User(**request.params)
+        DBSession.add(user)
+        DBSession.flush()
+        result = True
+        explanation = u'This user : %s (%s) has been added ...'%(name, email)
+      except IntegrityError as e:
+        DBSession.rollback()
+        result = False
+        explanation = u'This user and this email are already defined (%s %s) ...'%(name, email)
+
+    return { 'result':result,
+             'explanation':explanation }
+#------------------------------------------------------------------------------
+
+@view_config(route_name='users_json', renderer='json')
+def manage_users_json(request):
+    """
+    manage users ...
+    """
+    lst_users = DBSession.query(User).all()
+    return {'lst_users':lst_users}
+
+#------------------------------------------------------------------------------
+
+@view_config(route_name='users', renderer='templates/users_management.mako')
+def manage_users(request):
+    """
+    manage users ...
+    """
+    lst_users = DBSession.query(User).all()
+    return {'lst_users':lst_users}
 
 #------------------------------------------------------------------------------
 

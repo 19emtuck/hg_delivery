@@ -242,6 +242,70 @@ function update_project(target_url){
             },
          });
 }
+
+/**
+* add a a user from filled form
+*
+*/
+function add_user(target_url){
+  $.ajax({url: target_url,
+          method:'POST',
+          data:$('#user').serialize(),
+          dataType:'json',
+          complete:function(){
+          },
+          success:function(json_response){
+              var $sel, default_url, _alert_html;
+              $('.alert').remove();
+              if(json_response.result){
+                $('#new_user_dialog').modal('hide');
+                if(json_response.explanation){
+                   _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                   _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+                   $('.navbar').after(_alert_html);
+                   $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
+                }
+                update_user_list();
+              } else if(json_response.explanation){
+                   _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                   _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+                $('#new_user').after(_alert_html);
+                $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
+              }
+            },
+         });
+}
+
+/**
+ * remove a user ...
+ */
+function delete_user(button,target_delete_url){
+  $.ajax({url:target_delete_url,
+          method:'POST',
+          success:function(){
+            $(button).closest('tr').remove();
+          }});
+}
+
+function update_user_list(){
+  var target_url = $('#users_overview').data('update_url');
+  $.ajax({ url:target_url,
+           method:'GET',
+           success:function(json_response){
+             $('#users_overview').find('tr').not('tr:first').remove();
+             json_response.lst_users.forEach(function(user){
+               var login = '<td>'+user.login+'</td>';
+               var email = '<td>'+user.email+'</td>';
+               var creation_date = '<td>'+user.creation_date+'</td>';
+               console.log(user.delete_url);
+               var button_delete = "<td><button onclick=\"delete_user(this,'" + user.delete_url + "')\">delete</button></td>";
+
+               $('#users_overview').append('<tr>'+login+email+creation_date+button_delete+'</tr>');
+             });
+          }
+        });
+}
+
 /**
  * Add a new project
  */

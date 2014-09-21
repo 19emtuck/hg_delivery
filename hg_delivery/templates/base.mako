@@ -38,6 +38,7 @@
           <ul class="nav navbar-nav">
             <li><a href="${url('contact')}">Contact</a></li>
              % if logged_in is not None :
+              <li><a href="${url('users')}">Users</a></li>
               % if project is UNDEFINED :
                 <li><a href="#" onclick="$('#new_project_dialog').modal('show');">Add a new project</a></li>
               % endif

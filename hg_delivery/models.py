@@ -144,6 +144,73 @@ class RemoteLog(Base):
 
 #------------------------------------------------------------------------------
 
+class Group(Base):
+  """
+  This table contains all users
+  """
+  __tablename__ = 'group'
+
+  id = Column(Integer, primary_key=True)
+  label = Column(String(100))
+  creation_date = Column(DateTime)
+
+  def __init__(self, label, creation_date):
+    """
+    """
+    self.label = label
+    self.creation_date = creation_date
+
+  def __json__(self, request):
+    """
+    """
+    return { 'id':self.id,
+             'label':self.label,
+             'creation_date':self.creation_date.strftime('%d/%m/%Y %H:%M')}
+#------------------------------------------------------------------------------
+
+class User(Base):
+  """
+  This table contains all users
+  """
+  __tablename__ = 'user'
+
+  id = Column(Integer, primary_key=True)
+
+  id_group = Column(Integer, ForeignKey(Group.id))
+  group = relationship(Group, backref=backref('users'))
+
+  login = Column(String(100))
+  id_groupe = Column(Integer)
+  pwd = Column(String(100))
+  email = Column(String(100), unique=True)
+  creation_date = Column(DateTime)
+
+  def __init__(self, name, password, email, creation_date=None):
+    """
+    """
+    self.login = name 
+    self.pwd  = password 
+    self.email = email 
+
+    if creation_date is None :
+      self.creation_date = datetime.now()
+
+  def __json__(self, request):
+    """
+    """
+    creation_date = None
+    if self.creation_date :
+      creation_date = self.creation_date.strftime('%d/%m/%Y %H:%M')
+
+    return { 'id':self.id,
+             'login':self.login,
+             'email':self.email,
+             'delete_url' : request.route_url(route_name='user_delete',id=self.id),
+             'group':self.group,
+             'creation_date':creation_date }
+
+#------------------------------------------------------------------------------
+
 class RootFactory(object):
   """
   """

@@ -53,3 +53,46 @@
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
 </%def>
+
+
+<%def name="publish_user_dialog()">
+  <div id="new_user_dialog" class="modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Add a new user</h4>
+        </div>
+        <div class="modal-body">
+          <form id="user" name="user" action="${url('user_add')}" method="post" class="form-horizontal" role="form">
+            <div id="new_user">
+                <div class="form-group">
+                  <label for="new_user_name" class="col-sm-2 control-label">Full name</label>
+                  <div class="col-sm-8">
+                    <input id="new_user_name" class="form-control" name="name" type="text" placeholder="name">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="new_user_name" class="col-sm-2 control-label">Email</label>
+                  <div class="col-sm-8">
+                    <input id="new_user_email" class="form-control" name="email" type="text" placeholder="email">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="new_user_password" class="col-sm-2 control-label">Passwd</label>
+                  <div class="col-sm-8">
+                    <input id="new_user_password" class="form-control" name="password" type="password" placeholder="password">
+                  </div>
+                </div>
+            </div>
+          <form>
+        </div>
+        <div class="modal-footer">
+          <button id="cancel_add_user" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button id="add_my_user" type="button" class="btn btn-primary" onclick="add_user('${url('user_add')}');">Save changes</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+</%def>
+
