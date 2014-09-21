@@ -75,6 +75,7 @@ def main(global_config, **settings):
   config.add_route('users_json',   '/users/json')
   config.add_route('user_add',     '/users/add')
   config.add_route('user_delete',  '/users/{id:\d+}/delete')
+  config.add_route('user_update',  '/users/{id:\d+}/update')
   config.add_route('login',        '/login')
   config.add_route('logout',       '/logout')
   config.add_route('logs',         '/logs')

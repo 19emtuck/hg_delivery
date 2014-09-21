@@ -244,6 +244,15 @@ function update_project(target_url){
 }
 
 /**
+ *
+ *
+ */
+function edit_user(target_url){
+  $('#update_user_dialog').modal('show');
+  $('#update_user').attr('action',target_url);
+}
+
+/**
 * add a a user from filled form
 *
 */

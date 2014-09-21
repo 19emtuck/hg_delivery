@@ -31,7 +31,8 @@
                   <td>${user.login}</td>
                   <td>${user.email}</td>
                   <td>${user.creation_date.strftime('%d/%m/%Y %H:%M')}</td>
-                  <td><button onclick="delete_user(this,'${url(delete_user, id=user.id)}')">delete</button></td>
+                  <td><button onclick="edit_user('${url('user_update', id=user.id)}')">edit</button></td>
+                  <td><button onclick="delete_user(this,'${url('user_delete', id=user.id)}')">delete</button></td>
                </tr>
             % endfor
           </tbody>
@@ -40,3 +41,5 @@
   </div>
 
 ${lib.publish_user_dialog()}
+${lib.publish_add_user_dialog()}
+

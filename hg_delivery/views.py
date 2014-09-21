@@ -32,7 +32,24 @@ log = logging.getLogger(__name__)
 
 #------------------------------------------------------------------------------
 
-@view_config(route_name='user_delete', renderer='json')
+@view_config(route_name='user_update', renderer='json', permission='edit')
+def update_user(request):
+    """
+    update user ...
+    """
+    user_id = request.matchdict['id']
+    user = DBSession.query(User).filter(User.id==user_id).scalar()
+
+    result = False
+    if user :
+      for attribute in user :
+        setattr(user, attribute, request.params[attribute])
+      result = True
+
+    return {'result':result}
+#------------------------------------------------------------------------------
+
+@view_config(route_name='user_delete', renderer='json', permission='edit')
 def delete_user(request):
     """
     delete user ...
@@ -49,7 +66,7 @@ def delete_user(request):
 
 #------------------------------------------------------------------------------
 
-@view_config(route_name='user_add', renderer='json')
+@view_config(route_name='user_add', renderer='json', permission='edit')
 def add_user(request):
     """
     manage users ...
@@ -88,7 +105,7 @@ def add_user(request):
              'explanation':explanation }
 #------------------------------------------------------------------------------
 
-@view_config(route_name='users_json', renderer='json')
+@view_config(route_name='users_json', renderer='json', permission='edit')
 def manage_users_json(request):
     """
     manage users ...
@@ -98,7 +115,7 @@ def manage_users_json(request):
 
 #------------------------------------------------------------------------------
 
-@view_config(route_name='users', renderer='templates/users_management.mako')
+@view_config(route_name='users', renderer='templates/users_management.mako', permission='edit')
 def manage_users(request):
     """
     manage users ...
@@ -111,7 +128,7 @@ def manage_users(request):
 @view_config(route_name='contact', renderer='templates/contact.mako')
 def contact(request):
     """
-    create a new project
+    contact information
     """
     return {}
 
@@ -192,7 +209,7 @@ def push(request):
   return {}
 #------------------------------------------------------------------------------
 
-@view_config(route_name='project_pull_from', renderer='json')
+@view_config(route_name='project_pull_from', renderer='json', permission='edit')
 def pull(request):
   """
   """
@@ -252,7 +269,7 @@ def add_project(request):
 
 #------------------------------------------------------------------------------
 
-@view_config(route_name='project_update', permission='edit', renderer='json')
+@view_config(route_name='project_update', renderer='json', permission='edit')
 def update_project(request):
     """
     update a project
