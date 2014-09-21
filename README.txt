@@ -1,7 +1,7 @@
 hg_delivery README
 ==================
 
-A one-click deployment tool written in python with `pyramid <http://www.pylonsproject.org>`_
+A one-click deployment tool written in python with `pyramid <http://www.pylonsproject.org>`_ web framework
 
 Global overview
 ---------------
@@ -50,6 +50,5 @@ Getting Started
     $VENV/bin/python setup.py develop
     $VENV/bin/initialize_hg_delivery_db development.ini
     $VENV/bin/pserve development.ini
-
 
 
