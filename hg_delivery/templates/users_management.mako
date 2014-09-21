@@ -6,7 +6,7 @@
 <%namespace name="lib" file="lib.mako"/>
   <h2>
         <span class="label label-default">User management</span>
-        <button style="background-color:transparent;border:none" onclick="$('#new_user_dialog').modal('show');" alt="add new project">
+        <button style="background-color:transparent;border:none" onclick="$('#new_user_dialog').modal('show');" alt="add a user">
           <span class='glyphicon glyphicon-plus' style="font-size:26px;vertical-align:bottom"></span>
         </button>
   </h2>
@@ -31,7 +31,7 @@
                   <td>${user.login}</td>
                   <td>${user.email}</td>
                   <td>${user.creation_date.strftime('%d/%m/%Y %H:%M')}</td>
-                  <td><button onclick="edit_user('${url('user_update', id=user.id)}')">edit</button></td>
+                  <td><button onclick="edit_user('${url('user_update', id=user.id)}', '${user.login}', '${user.email}')">edit</button></td>
                   <td><button onclick="delete_user(this,'${url('user_delete', id=user.id)}')">delete</button></td>
                </tr>
             % endfor
@@ -41,5 +41,5 @@
   </div>
 
 ${lib.publish_user_dialog()}
-${lib.publish_add_user_dialog()}
+${lib.publish_update_user_dialog()}
 

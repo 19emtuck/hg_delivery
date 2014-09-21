@@ -244,12 +244,23 @@ function update_project(target_url){
 }
 
 /**
- *
+ * show edit user box
  *
  */
-function edit_user(target_url){
+function edit_user(target_url, login, email){
   $('#update_user_dialog').modal('show');
   $('#update_user').attr('action',target_url);
+  $('#update_user_name').val(login);
+  $('#update_user_email').val(email);
+  $('#update_user_password').val('');
+}
+
+/**
+ * send update
+ *
+ */
+function update_user(){
+  
 }
 
 /**
