@@ -247,19 +247,50 @@ function update_project(target_url){
  * show edit user box
  *
  */
-function edit_user(target_url, login, email){
+function edit_user(target_url, name, email){
   $('#update_user_dialog').modal('show');
   $('#update_user').attr('action',target_url);
-  $('#update_user_name').val(login);
+  $('#update_user_name').val(name);
   $('#update_user_email').val(email);
   $('#update_user_password').val('');
+
+  $('#update_my_user').bind('click',function(){
+     update_user(target_url);
+  });
 }
 
 /**
  * send update
  *
  */
-function update_user(){
+function update_user(target_url){
+  $.ajax({url: target_url,
+          method:'POST',
+          data:$('#update_user_form').serialize(),
+          dataType:'json',
+          complete:function(){
+          },
+          success:function(json_response){
+              var $sel, default_url, _alert_html;
+              $('.alert').remove();
+              if(json_response.result){
+                $('#update_user_dialog').modal('hide');
+                if(json_response.explanation){
+                   _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                   _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+                   $('.navbar').after(_alert_html);
+                   $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
+                }
+		console.log('ok gonna update!');
+                update_user_list();
+              } else if(json_response.explanation){
+                   _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                   _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+                $('#update_user_dialog').after(_alert_html);
+                $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
+              }
+            },
+         });
   
 }
 
@@ -314,12 +345,13 @@ function update_user_list(){
            success:function(json_response){
              $('#users_overview').find('tr').not('tr:first').remove();
              json_response.lst_users.forEach(function(user){
-               var login = '<td>'+user.login+'</td>';
+               var name = '<td>'+user.name+'</td>';
                var email = '<td>'+user.email+'</td>';
                var creation_date = '<td>'+user.creation_date+'</td>';
+               var button_update = "<td><button onclick=\"edit_user('" + user.update_url + "','"+user.name+"','"+user.email+"')\">edit</button></td>";
                var button_delete = "<td><button onclick=\"delete_user(this,'" + user.delete_url + "')\">delete</button></td>";
 
-               $('#users_overview').append('<tr>'+login+email+creation_date+button_delete+'</tr>');
+               $('#users_overview').append('<tr>'+name+email+creation_date+button_update+button_delete+'</tr>');
              });
           }
         });

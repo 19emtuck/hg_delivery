@@ -28,10 +28,10 @@
           <tbody>
             % for user in lst_users :
                <tr>
-                  <td>${user.login}</td>
+                  <td>${user.name}</td>
                   <td>${user.email}</td>
                   <td>${user.creation_date.strftime('%d/%m/%Y %H:%M')}</td>
-                  <td><button onclick="edit_user('${url('user_update', id=user.id)}', '${user.login}', '${user.email}')">edit</button></td>
+                  <td><button onclick="edit_user('${url('user_update', id=user.id)}', '${user.name}', '${user.email}')">edit</button></td>
                   <td><button onclick="delete_user(this,'${url('user_delete', id=user.id)}')">delete</button></td>
                </tr>
             % endfor

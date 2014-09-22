@@ -179,7 +179,7 @@ class User(Base):
   id_group = Column(Integer, ForeignKey(Group.id))
   group = relationship(Group, backref=backref('users'))
 
-  login = Column(String(100))
+  name = Column(String(100))
   id_groupe = Column(Integer)
   pwd = Column(String(100))
   email = Column(String(100), unique=True)
@@ -188,7 +188,7 @@ class User(Base):
   def __init__(self, name, password, email, creation_date=None):
     """
     """
-    self.login = name 
+    self.name = name 
     self.pwd  = password 
     self.email = email 
 
@@ -203,9 +203,10 @@ class User(Base):
       creation_date = self.creation_date.strftime('%d/%m/%Y %H:%M')
 
     return { 'id':self.id,
-             'login':self.login,
+             'name':self.name,
              'email':self.email,
              'delete_url' : request.route_url(route_name='user_delete',id=self.id),
+             'update_url' : request.route_url(route_name='user_update',id=self.id),
              'group':self.group,
              'creation_date':creation_date }
 

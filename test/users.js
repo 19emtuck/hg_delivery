@@ -69,9 +69,13 @@ casper.waitWhileVisible('.alert-danger');
 casper.then(function(response){ this.click('#cancel_add_user') });
 
 // then we delete the user !
-casper.then(function(response){ this.click('table tr:last button:last') });
 casper.then(function(response){
-  this.test.assertTitle('Hg Delivery 1.0');
-  this.test.assertTextExists('User management');
+  this.evaluate(function(){$('table tr:last-child button:last-child').click()});
 });
+casper.wait(1000);
+casper.then(function(response){
+  this.test.assertTextDoesntExist('toto@free.fr');
+});
+
+
 casper.run();

@@ -42,8 +42,12 @@ def update_user(request):
 
     result = False
     if user :
-      for attribute in user :
+      if 'name' in request.params :
+        user.login = request.params['name']
+      for attribute in request.params :
+        print(attribute +" : " +request.params[attribute] + " updated")
         setattr(user, attribute, request.params[attribute])
+      DBSession.flush()
       result = True
 
     return {'result':result}

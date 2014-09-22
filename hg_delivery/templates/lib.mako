@@ -134,7 +134,7 @@
       </div>
       <div class="modal-footer">
         <button id="cancel_update_user" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button id="update_my_user" type="button" class="btn btn-primary" onclick="update_user('${url('user_add')}');">Save changes</button>
+        <button id="update_my_user" type="button" class="btn btn-primary">Save changes</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
