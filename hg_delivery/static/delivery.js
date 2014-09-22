@@ -317,7 +317,6 @@ function update_user_list(){
                var login = '<td>'+user.login+'</td>';
                var email = '<td>'+user.email+'</td>';
                var creation_date = '<td>'+user.creation_date+'</td>';
-               console.log(user.delete_url);
                var button_delete = "<td><button onclick=\"delete_user(this,'" + user.delete_url + "')\">delete</button></td>";
 
                $('#users_overview').append('<tr>'+login+email+creation_date+button_delete+'</tr>');
