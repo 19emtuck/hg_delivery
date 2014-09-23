@@ -122,7 +122,7 @@ def manage_users_json(request):
 
 #------------------------------------------------------------------------------
 
-@view_config(route_name='users', renderer='templates/users_management.mako', permission='edit')
+@view_config(route_name='users', renderer='templates/users.mako', permission='edit')
 def manage_users(request):
     """
     manage users ...
