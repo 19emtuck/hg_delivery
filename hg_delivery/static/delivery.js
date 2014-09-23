@@ -281,17 +281,15 @@ function update_user(target_url){
                    $('.navbar').after(_alert_html);
                    $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
                 }
-		console.log('ok gonna update!');
                 update_user_list();
               } else if(json_response.explanation){
                    _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
                    _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-                $('#update_user_dialog').after(_alert_html);
+                $('#update_user_dialog .modal-body').after(_alert_html);
                 $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
               }
             },
          });
-  
 }
 
 /**
@@ -390,7 +388,7 @@ function add_project(target_url){
               } else if(json_response.explanation){
                    _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
                    _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-                $('#new_project').after(_alert_html);
+                $('#new_project_dialog .modal-body').after(_alert_html);
                 $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
               }
             },

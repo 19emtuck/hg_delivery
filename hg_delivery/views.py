@@ -42,15 +42,18 @@ def update_user(request):
 
     result = False
     if user :
-      if 'name' in request.params :
-        user.login = request.params['name']
-      for attribute in request.params :
-        print(attribute +" : " +request.params[attribute] + " updated")
-        setattr(user, attribute, request.params[attribute])
-      DBSession.flush()
-      result = True
+      try :
+        for attribute in request.params :
+          setattr(user, attribute, request.params[attribute])
+        DBSession.flush()
+        result = True
+        explanation = u'This user : %s (%s) has been updated ...'%(request.params['name'], request.params['email'])
+      except IntegrityError as e:
+        DBSession.rollback()
+        result = False
+        explanation = u"You can't update this user, this email is already used (%s %s) ..."%(request.params['name'], request.params['email'])
 
-    return {'result':result}
+    return {'result':result, 'explanation':explanation}
 #------------------------------------------------------------------------------
 
 @view_config(route_name='user_delete', renderer='json', permission='edit')
