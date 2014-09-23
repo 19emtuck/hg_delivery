@@ -21,8 +21,8 @@
        <!-- project compare table -->
        <table id="users_overview" class="table table-condensed" data-update_url="${url('users_json')}">
           <thead>
-            <th>Login</th>
-            <th>Email</th>
+            <th>Name</th>
+            <th>Email (aka login)</th>
             <th>Creation date</th>
           </thead>
           <tbody>
