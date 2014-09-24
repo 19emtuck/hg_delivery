@@ -45,7 +45,7 @@ casper.then(function(response){ this.test.assertExists('#new_user'); });
 casper.then(function(response){
   this.fill('form[name="user"]', {'name':'toto',
                                   'email':'toto@free.fr',
-                                  'password':'dudule',
+                                  'pwd':'dudule',
                                  });
 });
 casper.then(function(response){ this.click('#add_my_user') });
@@ -60,13 +60,53 @@ casper.then(function(response){ this.test.assertExists('#new_user'); });
 casper.then(function(response){
   this.fill('form[name="user"]', {'name':'toto',
                                   'email':'toto@free.fr',
-                                  'password':'dudule',
+                                  'pwd':'dudule',
                                  });
 });
 casper.then(function(response){ this.click('#add_my_user') });
 casper.waitUntilVisible('.alert-danger');
 casper.waitWhileVisible('.alert-danger');
 casper.then(function(response){ this.click('#cancel_add_user') });
+
+// then we save our current cookie
+// try to change from user, check user password
+// reset navigator session cookie
+casper.then(function(){
+   this.page.cookies=[];
+});
+
+casper.thenOpen('http://127.0.0.1:6543');
+casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
+casper.then(function(response){
+  this.fill('#login_form', {'login':'toto@free.fr','password':'dudule'});
+  this.click('#log_me')
+});
+casper.then(function(response){
+  this.test.assertTitle('Hg Delivery 1.0');
+  this.test.assertTextExists('Dashboard');
+  this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
+});
+casper.thenClick("#sign_out");
+casper.then(function(response){
+  this.test.assertTitle('Hg Delivery 1.0');
+  this.test.assertTextDoesntExist('Dashboard');
+  this.test.assertDoesntExist('span[class="glyphicon glyphicon-plus"]');
+});
+
+
+
+casper.thenOpen('http://127.0.0.1:6543');
+casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
+casper.then(function(response){
+  this.fill('#login_form', {'login':'editor','password':'editor'});
+  this.click('#log_me')
+});
+casper.then(function(response){
+  this.test.assertTitle('Hg Delivery 1.0');
+  this.test.assertTextExists('Dashboard');
+  this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
+});
+casper.thenClick('li a[href$="users"]');
 
 // then we delete the user !
 casper.then(function(response){
@@ -76,6 +116,11 @@ casper.wait(1000);
 casper.then(function(response){
   this.test.assertTextDoesntExist('toto@free.fr');
 });
+
+
+
+
+
 
 
 casper.run();
