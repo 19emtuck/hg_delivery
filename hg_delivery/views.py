@@ -94,7 +94,7 @@ def add_user(request):
 
     name = request.params['name']
     email = request.params['email']
-    password = request.params['password']
+    password = request.params['pwd']
 
     # email is the key, and password cannot be empty
     if not name :

@@ -185,11 +185,11 @@ class User(Base):
   email = Column(String(100), unique=True)
   creation_date = Column(DateTime)
 
-  def __init__(self, name, password, email, creation_date=None):
+  def __init__(self, name, pwd, email, creation_date=None):
     """
     """
     self.name = name 
-    self.pwd  = password 
+    self.pwd  = pwd 
     self.email = email 
 
     if creation_date is None :
