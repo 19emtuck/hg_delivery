@@ -13,8 +13,8 @@
 
   <div id="overview" class="panel panel-default">
     <div>
-       <p class="bg-info" style="padding-top:5px;padding-bottom:5px">
-         &nbsp; ADD &nbsp; DELETE &nbsp; MANAGE users ...
+       <p class="bg-info" style="padding:5px">
+         Your list of users
        </p>
     <div>
     <div>
@@ -22,8 +22,10 @@
        <table id="users_overview" class="table table-condensed" data-update_url="${url('users_json')}">
           <thead>
             <th>Name</th>
-            <th>Email (aka login)</th>
+            <th>Email (a.k.a. login)</th>
             <th>Creation date</th>
+            <th>-</th>
+            <th>-</th>
           </thead>
           <tbody>
             % for user in lst_users :
@@ -31,8 +33,8 @@
                   <td>${user.name}</td>
                   <td>${user.email}</td>
                   <td>${user.creation_date.strftime('%d/%m/%Y %H:%M')}</td>
-                  <td><button onclick="edit_user('${url('user_update', id=user.id)}', '${user.name}', '${user.email}')">edit</button></td>
-                  <td><button onclick="delete_user(this,'${url('user_delete', id=user.id)}')">delete</button></td>
+                  <td><button class="btn btn-default" onclick="edit_user('${url('user_update', id=user.id)}', '${user.name}', '${user.email}')">edit</button></td>
+                  <td><button class="btn btn-default" onclick="delete_user(this,'${url('user_delete', id=user.id)}')">delete</button></td>
                </tr>
             % endfor
           </tbody>

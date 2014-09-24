@@ -13,16 +13,28 @@ from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
 from pyramid.security import remember, forget
 
-USERS = {'editor': 'editor',
-         'viewer': 'viewer'}
+from .models import (
+    User,
+    Group,
+    DBSession,
+    )
 
 GROUPS = {'editor': ['group:editors']}
+
+def get_users():
+  """
+    return all known users from database
+  """
+  db_result = {email:password for (email,password) in DBSession.query(User.email,User.pwd)}
+  # add default user
+  db_result['editor'] = 'editor'
+  return db_result
 
 def groupfinder(userid, request):
   result = None
 
-  if userid in USERS:
-      result = GROUPS.get(userid, [])
+  if userid in get_users() :
+    result = GROUPS.get(userid, ['group:editors'])
 
   # whatever every body is an editor
   return ['group:editors']
@@ -43,8 +55,9 @@ def login(request):
   if 'login' in request.params and 'password' in request.params :
     login = request.params['login']
     password = request.params['password']
-
-    if login and password and USERS.get(login) == password:
+    all_known_users =  get_users()
+    print(all_known_users.get(login))
+    if login and password and all_known_users.get(login) == password:
         headers = remember(request, login)
         return HTTPFound( location= came_from,
                           headers = headers )

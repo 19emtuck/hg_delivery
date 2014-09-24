@@ -83,7 +83,7 @@
               <div class="form-group">
                 <label for="new_user_password" class="col-sm-2 control-label">Passwd</label>
                 <div class="col-sm-8">
-                  <input id="new_user_password" class="form-control" name="password" type="password" placeholder="password">
+                  <input id="new_user_password" class="form-control" name="pwd" type="password" placeholder="password">
                 </div>
               </div>
           </div>
@@ -126,7 +126,7 @@
               <div class="form-group">
                 <label for="update_user_password" class="col-sm-2 control-label">Passwd</label>
                 <div class="col-sm-8">
-                  <input id="update_user_password" class="form-control" name="password" type="password" placeholder="password">
+                  <input id="update_user_password" class="form-control" name="pwd" type="password" placeholder="password">
                 </div>
               </div>
           </div>

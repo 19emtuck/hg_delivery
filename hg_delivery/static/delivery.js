@@ -431,10 +431,6 @@ function view_diff_revision(target_url){
             $('#diffs_container').show().html(diffs_content.join('\n'));
             $('#files_panel').show();
             $('#project_tab a[href="#revision"]').tab('show');
-
-            // $('#project_tab').append('<li><a href="#revision3">bidule test</a></li>')
-            // $('#tab-content').append('<div class="tab-pane" id="revision3">');
-
           } 
          });
 }
