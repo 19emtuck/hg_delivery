@@ -247,15 +247,20 @@ function update_project(target_url){
  * show edit user box
  *
  */
-function edit_user(target_url, name, email){
-  $('#update_user_dialog').modal('show');
-  $('#update_user').attr('action',target_url);
-  $('#update_user_name').val(name);
-  $('#update_user_email').val(email);
-  $('#update_user_password').val('');
-
-  $('#update_my_user').bind('click',function(){
-     update_user(target_url);
+function edit_user(target_update_url, target_get_url, user_id){
+  $.ajax({url:target_get_url,
+          success:function(json_response){
+             if(json_response.result){
+                $('#update_user_dialog').modal('show');
+                $('#update_user').attr('action',target_update_url);
+                $('#update_user_name').val(json_response.user.name);
+                $('#update_user_email').val(json_response.user.email);
+                $('#update_user_password').val(json_response.user.pwd);
+                $('#update_my_user').bind('click',function(){
+                   update_user(target_update_url);
+                });
+	     }
+	 }
   });
 }
 
@@ -346,7 +351,7 @@ function update_user_list(){
                var name = '<td>'+user.name+'</td>';
                var email = '<td>'+user.email+'</td>';
                var creation_date = '<td>'+user.creation_date+'</td>';
-               var button_update = "<td><button onclick=\"edit_user('" + user.update_url + "','"+user.name+"','"+user.email+"')\">edit</button></td>";
+               var button_update = "<td><button onclick=\"edit_user('" + user.update_url + "','"+ user.get_url +"',"+user.id+")\">edit</button></td>";
                var button_delete = "<td><button onclick=\"delete_user(this,'" + user.delete_url + "')\">delete</button></td>";
 
                $('#users_overview').append('<tr>'+name+email+creation_date+button_update+button_delete+'</tr>');

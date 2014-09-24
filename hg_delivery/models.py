@@ -205,6 +205,8 @@ class User(Base):
     return { 'id':self.id,
              'name':self.name,
              'email':self.email,
+             'pwd':self.pwd,
+             'get_url' : request.route_url(route_name='user_get',id=self.id),
              'delete_url' : request.route_url(route_name='user_delete',id=self.id),
              'update_url' : request.route_url(route_name='user_update',id=self.id),
              'group':self.group,

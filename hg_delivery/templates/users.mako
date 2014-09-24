@@ -33,7 +33,7 @@
                   <td>${user.name}</td>
                   <td>${user.email}</td>
                   <td>${user.creation_date.strftime('%d/%m/%Y %H:%M')}</td>
-                  <td><button class="btn btn-default" onclick="edit_user('${url('user_update', id=user.id)}', '${user.name}', '${user.email}')">edit</button></td>
+                  <td><button class="btn btn-default" onclick="edit_user('${url('user_update', id=user.id)}', '${url('user_get', id=user.id)}', '${user.id}')">edit</button></td>
                   <td><button class="btn btn-default" onclick="delete_user(this,'${url('user_delete', id=user.id)}')">delete</button></td>
                </tr>
             % endfor
