@@ -75,6 +75,13 @@ casper.then(function(){
    this.page.cookies=[];
 });
 
+// check I've loos my rights
+// should take a 403 forbidden!
+casper.thenOpen('http://127.0.0.1:6543/users');
+casper.then(function(response){
+  this.test.assertTextExists('403 Forbidden');
+});
+
 casper.thenOpen('http://127.0.0.1:6543');
 casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
 casper.then(function(response){
@@ -117,10 +124,14 @@ casper.then(function(response){
   this.test.assertTextDoesntExist('toto@free.fr');
 });
 
+casper.thenClick("#sign_out");
 
-
-
-
-
+// check I've loos my rights
+// should take a 403 forbidden!
+casper.thenOpen('http://127.0.0.1:6543/users');
+casper.then(function(response){
+  this.test.assertEqual(response.status,200);
+  this.test.assertTextExists('403 Forbidden');
+});
 
 casper.run();
