@@ -24,8 +24,8 @@
             <th>Name</th>
             <th>Email (a.k.a. login)</th>
             <th>Creation date</th>
-            <th>-</th>
-            <th>-</th>
+            <th>Action</th>
+            <th>Action</th>
           </thead>
           <tbody>
             % for user in lst_users :
