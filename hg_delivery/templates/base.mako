@@ -4,7 +4,11 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    % if logged_in is not None :
+    <title>Hg Delivery 1.0 welcome :)</title>
+    % else :
     <title>Hg Delivery 1.0</title>
+    % endif :
 
     <!-- Bootstrap -->
     <link href="${request.static_url('hg_delivery:static/bootstrap-3.1.1/css/bootstrap.css')}" rel="stylesheet">
