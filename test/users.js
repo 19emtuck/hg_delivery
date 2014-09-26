@@ -28,7 +28,7 @@ casper.then(function(response){
   this.click('#log_me')
 });
 casper.then(function(response){
-  this.test.assertTitle('Hg Delivery 1.0');
+  this.test.assertTitle('Hg Delivery 1.0 welcome :)');
   this.test.assertTextExists('Dashboard');
   this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
 });
@@ -36,7 +36,7 @@ casper.then(function(response){
 casper.thenClick('li a[href$="users"]');
 casper.waitUntilVisible('span[class="glyphicon glyphicon-plus"]');
 casper.then(function(response){
-  this.test.assertTitle('Hg Delivery 1.0');
+  this.test.assertTitle('Hg Delivery 1.0 welcome :)');
   this.test.assertTextExists('User management');
 });
 casper.then(function(response){ this.click('span[class="glyphicon glyphicon-plus"]') });
@@ -89,7 +89,7 @@ casper.then(function(response){
   this.click('#log_me')
 });
 casper.then(function(response){
-  this.test.assertTitle('Hg Delivery 1.0');
+  this.test.assertTitle('Hg Delivery 1.0 welcome :)');
   this.test.assertTextExists('Dashboard');
   this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
 });
@@ -100,8 +100,6 @@ casper.then(function(response){
   this.test.assertDoesntExist('span[class="glyphicon glyphicon-plus"]');
 });
 
-
-
 casper.thenOpen('http://127.0.0.1:6543');
 casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
 casper.then(function(response){
@@ -109,7 +107,7 @@ casper.then(function(response){
   this.click('#log_me')
 });
 casper.then(function(response){
-  this.test.assertTitle('Hg Delivery 1.0');
+  this.test.assertTitle('Hg Delivery 1.0 welcome :)');
   this.test.assertTextExists('Dashboard');
   this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
 });

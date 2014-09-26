@@ -22,13 +22,15 @@ casper.on('step.error', function(error){
 casper.on('remote.message',function(message){this.echo(message)});
 
 casper.thenOpen('http://127.0.0.1:6543');
-casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
+casper.then(function(response){
+  this.test.assertTitle('Hg Delivery 1.0');
+});
 casper.then(function(response){
   this.fill('#login_form', {'login':'editor','password':'editor'});
   this.click('#log_me')
 });
 casper.then(function(response){
-  this.test.assertTitle('Hg Delivery 1.0');
+  this.test.assertTitle('Hg Delivery 1.0 welcome :)');
   this.test.assertTextExists('Dashboard');
   this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
 });

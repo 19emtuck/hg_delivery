@@ -28,7 +28,7 @@ casper.then(function(response){
   this.click('#log_me')
 });
 casper.then(function(response){
-  this.test.assertTitle('Hg Delivery 1.0');
+  this.test.assertTitle('Hg Delivery 1.0 welcome :)');
   this.test.assertTextExists('Dashboard');
   this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
 });
@@ -79,7 +79,7 @@ casper.thenClick('#view_delete_project');
 // back to welcome page ...
 casper.waitWhileVisible('span[class="glyphicon glyphicon-plus"]');
 casper.then(function(response){
-  this.test.assertTitle('Hg Delivery 1.0');
+  this.test.assertTitle('Hg Delivery 1.0 welcome :)');
   this.test.assertTextExists('Dashboard');
   this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
 });
