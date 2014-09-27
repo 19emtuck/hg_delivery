@@ -22,7 +22,10 @@ from .models import (
     User,
     Group,
     )
-from hg_delivery.nodes import NodeException
+from hg_delivery.nodes import (
+    NodeException,
+    HgNewBranchForbidden,
+    )
 import paramiko
 import time
 import logging
@@ -221,6 +224,11 @@ def push(request):
     ssh_node = project.get_ssh_node()
     ssh_node.push_to(project, target_project)
   except NodeException as e:
+    log.error(e)
+  except HgNewBranchForbidden as e:
+    # we may inform user that he cannot push ...
+    # maybe add a configuration parameter to fix this
+    # and send --new-branch directly on the first time
     log.error(e)
   else :
     pass

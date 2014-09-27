@@ -46,6 +46,12 @@ class NodeException(Exception):
 
 #------------------------------------------------------------------------------
 
+class HgNewBranchForbidden(Exception):
+  """
+  """
+
+#------------------------------------------------------------------------------
+
 def check_connections(function):
   """
     A decorator to check SSH connections.
@@ -161,8 +167,15 @@ class NodeSsh(object):
   def run_command_and_feed_password_prompt(self, command, password, reg_password ='password: ', reg_shell = '[^\n\r]+@[^\n\r]+\$'):
     '''
       Execute command through SSH and also feed prompt !
+
+      we may return the full dialog text content.
+      so upper layer could test some things like
+
+      --new-branch not allowed on push and so on ...
+
     '''
     guid = uuid.uuid1().hex
+    global_buff_content = ""
 
     # add a foot print as a guid
     # so we are sure
@@ -186,6 +199,7 @@ class NodeSsh(object):
       while len(re.findall(reg_shell, buff, re.MULTILINE))==0:
           resp = channel.recv(9999)
           buff += self.decode_raw_bytes(resp)
+          global_buff_content += "\n" + buff
 
           time.sleep(wait_time)
           wait_time += 0.05
@@ -205,6 +219,7 @@ class NodeSsh(object):
         while not buff.endswith(reg_password):
             resp = channel.recv(9999)
             buff += self.decode_raw_bytes(resp)
+            global_buff_content += "\n" + buff
 
             time.sleep(wait_time)
             wait_time += 0.05
@@ -234,6 +249,8 @@ class NodeSsh(object):
         while buff.find(u'to get a working copy') < 0 and buff.find(u'changesets with') < 0 and buff.find(u"abort: push creates new remote branches") < 0 and len(re.findall(reg_shell, buff, re.MULTILINE))==0 and buff.find(guid)<0:
             resp = channel.recv(9999)
             buff += self.decode_raw_bytes(resp)
+            global_buff_content += "\n" + buff
+
             time.sleep(wait_time)
             wait_time += 0.05
             if time.time() - t0 > 60 :
@@ -247,9 +264,10 @@ class NodeSsh(object):
 
     self.__class__.logs.append((self.project_id, self.host, self.path, re.sub(u"^cd[^;]*;",'',command)))
 
-    return {u'out':    [],
+    return {u'out':    full_log,
             u'err':    [],
-            u'retval': []}
+            u'retval': [],
+            u'buff':global_buff_content}
 
   @check_connections
   def run_command(self, command, log=False):
@@ -340,6 +358,7 @@ class HgNode(NodeSsh):
 
   def push_to(self, local_project, target_project):
     """
+    this may method may raise an exception
     """
     if not local_project.dvcs_release :
       local_project.dvcs_release = self.get_release()
@@ -356,6 +375,9 @@ class HgNode(NodeSsh):
                                                         target_project.host,
                                                         target_project.path),
                                                         target_project.password)
+    if data['global_buff_content'].count('--new-branch') :
+      raise HgNewBranchForbidden()
+
 
   def pull_from(self, local_project, source_project):
     """
