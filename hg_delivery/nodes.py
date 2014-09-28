@@ -356,10 +356,15 @@ class HgNode(NodeSsh):
       result = data.strip(u'\n').split(u' ')[0].strip(u'+')
     return result
 
-  def push_to(self, local_project, target_project):
+  def push_to(self, local_project, target_project, force_branch):
     """
     this may method may raise an exception
     """
+    if force_branch :
+      new_branch_arg = ' --new-branch'
+    else : 
+      new_branch_arg = ''
+
     if not local_project.dvcs_release :
       local_project.dvcs_release = self.get_release()
 
@@ -368,16 +373,16 @@ class HgNode(NodeSsh):
     else:
       insecure = u" "
 
-    data = self.run_command_and_feed_password_prompt(u'cd %s ; hg push%sssh://%s@%s/%s'%(
+    data = self.run_command_and_feed_password_prompt(u'cd %s ; hg push%sssh://%s@%s/%s%s'%(
                                                         self.path,
                                                         insecure,
                                                         target_project.user,
                                                         target_project.host,
-                                                        target_project.path),
+                                                        target_project.path,
+                                                        new_branch_arg),
                                                         target_project.password)
-    if data['global_buff_content'].count('--new-branch') :
+    if not force_branch and data['buff'].count('--new-branch') :
       raise HgNewBranchForbidden()
-
 
   def pull_from(self, local_project, source_project):
     """
@@ -554,7 +559,7 @@ class GitNode(NodeSsh):
       result = data.strip(' \n')
     return result
 
-  def push_to(self, local_project, target_project):
+  def push_to(self, local_project, target_project, force_branch):
     """
     """
     data = self.run_command_and_feed_password_prompt(u'cd %s ; git push%sssh://%s@%s/%s'%(

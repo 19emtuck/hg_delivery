@@ -130,7 +130,7 @@
         <div class="panel-body">
            <div id="other_projects" class="list-group">
              <button id="button_pull" onclick="pull_from(${project.id}, '${url(route_name='project_pull_from', id=project.id, source='')}');">pull from</button>
-             <button id="button_push" onclick="push_to(${project.id}, '${url(route_name='project_push_to', id=project.id, target='')}');">push to</button>
+             <button id="button_push" onclick="push_to(${project.id}, '${url(route_name='project_push_to', id=project.id, target='')}',false);">push to</button>
            </div>
         </div>
       </div>
@@ -275,6 +275,30 @@
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 <!-- end update to dialog -->
+
+
+<!-- start force push dialog -->
+<div id="confirm_force_push_dialog" class="modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">It seems you are trying to push a new branch.</h4>
+      </div>
+      <div class="modal-body">
+        Should we push it ?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button id="new_branch" type="button" class="btn btn-primary">Push this new branch</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- end update to dialog -->
+
+
+
 
 
 <!-- nothing work -->

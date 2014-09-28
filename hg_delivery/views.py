@@ -216,13 +216,19 @@ def push(request):
   id_project = request.matchdict['id']
   id_target_project = request.matchdict['target']
 
-
   project =  DBSession.query(Project).get(id_project)
   target_project =  DBSession.query(Project).get(id_target_project)
 
+  new_branch_stop = False
+  result = False
+
+  force_branch = False
+  if 'force_branch' in request.params and request.params['force_branch']=='true':
+    force_branch = True 
+
   try :
     ssh_node = project.get_ssh_node()
-    ssh_node.push_to(project, target_project)
+    ssh_node.push_to(project, target_project, force_branch)
   except NodeException as e:
     log.error(e)
   except HgNewBranchForbidden as e:
@@ -230,9 +236,12 @@ def push(request):
     # maybe add a configuration parameter to fix this
     # and send --new-branch directly on the first time
     log.error(e)
+    new_branch_stop = True
+    result = False
   else :
-    pass
-  return {}
+    result = True
+  return {'new_branch_stop' : new_branch_stop,
+          'result':result}
 #------------------------------------------------------------------------------
 
 @view_config(route_name='project_pull_from', renderer='json', permission='edit')

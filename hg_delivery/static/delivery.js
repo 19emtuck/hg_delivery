@@ -17,19 +17,26 @@ function go_to(url) {
 /**
  * update from this project
  */
-function push_to(target_project_id, target_url){
+function push_to(target_project_id, target_url, force_branch){
   if($('#other_projects a.active').length>0){
      var src_project_id = $('#other_projects a.active').data('id');
      $.ajax({url:target_url+src_project_id,
+             data:{'force_branch':force_branch},
              beforeSend:function(){
              },
              complete:function(){
              },
              dataType:'json',
-             success:function(){
-               // we just reload the current comparison
-               // get the active link and fetch him twice
-               fetch_this_other_project($('#other_projects a.active')[0]);
+             success:function(json_response){
+               if(json_response.result){
+                 // we just reload the current comparison
+                 // get the active link and fetch him twice
+                 fetch_this_other_project($('#other_projects a.active')[0]);
+               } else if(json_response.new_branch_stop){
+                 // dialog : should we force ?
+                 $('#confirm_force_push_dialog').modal('show');
+                 $('#new_branch').off().on('click',function(){ $('#confirm_force_push_dialog').modal('hide'); push_to(target_project_id, target_url, true);});
+               }
              },
      });
   }
