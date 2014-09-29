@@ -297,10 +297,6 @@
 </div><!-- /.modal -->
 <!-- end update to dialog -->
 
-
-
-
-
 <!-- nothing work -->
 %if repository_error is not None:
   <div class="alert alert-danger">Sorry this repository is not available. Thanks to check configuration to solve this issue.

@@ -482,6 +482,7 @@ def fetch_revision(request):
     content = ssh_node.get_file_content(file_name, revision)
   except NodeException as e:
     log.error(e)
+
   return {'diff':diff,'project':project}
 
 #------------------------------------------------------------------------------

@@ -22,6 +22,8 @@ from .models import (
   Base,
   )
 
+#------------------------------------------------------------------------------
+
 def projects_include(config):
   """
     Add all routes about project management
@@ -47,6 +49,21 @@ def projects_include(config):
   # provide difference between two revision
   config.add_route('project_revisions_diff',          '/{id:\d+}/diff', custom_predicates=(to_int('id'),))
 
+#------------------------------------------------------------------------------
+
+def users_include(config):
+  """
+    Users routes definitions
+  """
+  config.add_route('users',        '/')
+  config.add_route('users_json',   '/json')
+  config.add_route('user_add',     '/add')
+  config.add_route('user_delete',  '/{id:\d+}/delete')
+  config.add_route('user_update',  '/{id:\d+}/update')
+  config.add_route('user_get',     '/{id:\d+}/get')
+
+#------------------------------------------------------------------------------
+
 def main(global_config, **settings):
   """ This function returns a Pyramid WSGI application.
   """
@@ -71,18 +88,13 @@ def main(global_config, **settings):
   config.add_static_view('static', 'static')
   
   config.add_route('home',         '/')
-  config.add_route('users',        '/users')
-  config.add_route('users_json',   '/users/json')
-  config.add_route('user_add',     '/users/add')
-  config.add_route('user_delete',  '/users/{id:\d+}/delete')
-  config.add_route('user_update',  '/users/{id:\d+}/update')
-  config.add_route('user_get',  '/users/{id:\d+}/get')
   config.add_route('login',        '/login')
   config.add_route('logout',       '/logout')
   config.add_route('logs',         '/logs')
   config.add_route('contact',      '/contact')
 
   config.include(projects_include, '/project')
+  config.include(users_include, '/users')
 
   config.scan()
   return config.make_wsgi_app()
