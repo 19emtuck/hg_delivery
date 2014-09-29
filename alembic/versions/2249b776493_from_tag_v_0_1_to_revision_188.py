@@ -18,7 +18,7 @@ def upgrade():
   """
   """
   # projects.local_hg_release has been renamed in projects.dvcs_release
-  op.alter_column('logs', 'local_hg_release', new_column_name='dvcs_release'))
+  op.alter_column('projects', 'local_hg_release', new_column_name='dvcs_release')
 
   # logs has a new column id_project with foreignkey on projects.id
   op.add_column('logs', sa.Column('id_project', sa.Integer, sa.ForeignKey('projects.id')))
@@ -29,19 +29,19 @@ def upgrade():
   # create table group
   op.create_table(
      'group',
-     sa.Column('id',sa.Integer, primary_key=True)
-     sa.Column('label',sa.String(100))
+     sa.Column('id',sa.Integer, primary_key=True),
+     sa.Column('label',sa.String(100)),
      sa.Column('creation_date',sa.DateTime)
   )
 
   # create table user
   op.create_table(
      'user',
-     sa.Column('id',sa.Integer, primary_key=True)
-     sa.Column('name',sa.String(100))
-     sa.Column('id_group',sa.Integer, sa.ForeignKey('group.id'))
-     sa.Column('pwd',sa.String(100))
-     sa.Column('email',sa.String(100), unique=True)
+     sa.Column('id',sa.Integer, primary_key=True),
+     sa.Column('name',sa.String(100)),
+     sa.Column('id_group',sa.Integer, sa.ForeignKey('group.id')),
+     sa.Column('pwd',sa.String(100)),
+     sa.Column('email',sa.String(100), unique=True),
      sa.Column('creation_date',sa.DateTime)
   )
 
@@ -49,7 +49,7 @@ def downgrade():
   """
   """
   # un rename column
-  op.alter_column('logs', 'dvcs_release', new_column_name='local_hg_release'))
+  op.alter_column('logs', 'dvcs_release', new_column_name='local_hg_release')
 
   # remove unique constraint
   op.drop_constraint('project_unique','projects')
