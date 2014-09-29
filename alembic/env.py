@@ -1,36 +1,26 @@
-"""Pylons bootstrap environment.
-
-Place 'pylons_config_file' into alembic.ini, and the application will
-be loaded from there.
-
-"""
+from __future__ import with_statement
 from alembic import context
-from paste.deploy import loadapp
+from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
-from sqlalchemy.engine.base import Engine
 
+# this is the Alembic Config object, which provides
+# access to the values within the .ini file in use.
+config = context.config
 
-try:
-    # if pylons app already in, don't create a new app
-    from pylons import config as pylons_config
-    pylons_config['__file__']
-except:
-    config = context.config
-    # can use config['__file__'] here, i.e. the Pylons
-    # ini file, instead of alembic.ini
-    config_file = config.get_main_option('pylons_config_file')
-    fileConfig(config_file)
-    wsgi_app = loadapp('config:%s' % config_file, relative_to='.')
-
-
-# customize this section for non-standard engine configurations.
-meta = __import__("%s.model.meta" % wsgi_app.config['pylons.package']).model.meta
+# Interpret the config file for Python logging.
+# This line sets up loggers basically.
+fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 target_metadata = None
+
+# other values from the config, defined by the needs of env.py,
+# can be acquired:
+# my_important_option = config.get_main_option("my_important_option")
+# ... etc.
 
 
 def run_migrations_offline():
@@ -45,8 +35,9 @@ def run_migrations_offline():
     script output.
 
     """
-    context.configure(
-        url=meta.engine.url, target_metadata=target_metadata)
+    url = config.get_main_option("sqlalchemy.url")
+    context.configure(url=url, target_metadata=target_metadata)
+
     with context.begin_transaction():
         context.run_migrations()
 
@@ -58,17 +49,12 @@ def run_migrations_online():
     and associate a connection with the context.
 
     """
-    # specify here how the engine is acquired
-    # engine = meta.engine
-    raise NotImplementedError("Please specify engine connectivity here")
+    engine = engine_from_config(
+        config.get_section(config.config_ini_section),
+        prefix='sqlalchemy.',
+        poolclass=pool.NullPool)
 
-    if isinstance(engine, Engine):
-        connection = engine.connect()
-    else:
-        raise Exception(
-            'Expected engine instance got %s instead' % type(engine)
-        )
-
+    connection = engine.connect()
     context.configure(
         connection=connection,
         target_metadata=target_metadata
