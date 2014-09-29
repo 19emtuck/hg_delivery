@@ -48,7 +48,17 @@ def upgrade():
 def downgrade():
   """
   """
+  # un rename column
   op.alter_column('logs', 'dvcs_release', new_column_name='local_hg_release'))
+
+  # remove unique constraint
+  op.drop_constraint('project_unique','projects')
+
+  # remove column logs.id_project
   op.drop_column('logs', 'id_project')
+
+  # remove table group
   op.drop_table('group')
+
+  # remove table user 
   op.drop_table('user')
