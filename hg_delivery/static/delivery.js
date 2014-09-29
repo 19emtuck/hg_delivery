@@ -80,23 +80,28 @@ function change_project_to_this_release(active_a, target_url){
  * retrieve json data for a specific repository (set active component)
  */
 function fetch_this_other_project(active_a){
-  $tbody_comparison = $('#project_comparison tbody');
+  var $active_a = $(active_a);
+  var $tbody_comparison = $('#project_comparison tbody');
   $tbody_comparison.find('tr').remove();
 
-  $('#project_comparison').show();
-  $('#other_projects a').removeClass('active');
-  $active_a = $(active_a);
-  var target_url = $active_a.data('url');
-  var remote_project_name = $active_a.data('name');
-  $.ajax({url:target_url,
-          async:false,
-          dataType:'json',
-          success:function(json_response){
-                  $active_a.addClass('active');
-                  var remote_project_last_change_list = json_response.last_hundred_change_list;
-                  show_difference_between_changeset_stacks(remote_project_name, local_project_last_change_list, remote_project_last_change_list, current_node);
-               },
-          });
+  if($active_a.hasClass('active')){
+    $active_a.removeClass('active');
+  } else {
+    var target_url = $active_a.data('url');
+    var remote_project_name = $active_a.data('name');
+
+    $('#project_comparison').show();
+    $('#other_projects a').removeClass('active');
+    $.ajax({url:target_url,
+            async:false,
+            dataType:'json',
+            success:function(json_response){
+                    $active_a.addClass('active');
+                    var remote_project_last_change_list = json_response.last_hundred_change_list;
+                    show_difference_between_changeset_stacks(remote_project_name, local_project_last_change_list, remote_project_last_change_list, current_node);
+                 },
+            });
+  }
 }
 
 /**
