@@ -186,7 +186,11 @@ def default_view(request):
           dashboard_list.append(project)
           ssh_node = project.get_ssh_node()
           repository_node = ssh_node.get_current_revision_description()
-          current_rev = repository_node['node']
+
+          current_rev = None 
+          if repository_node and 'node' in repository_node :
+            current_rev = repository_node['node']
+
           nodes_description[project.id] = repository_node
 
         except NodeException as e:

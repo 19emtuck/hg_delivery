@@ -16,7 +16,7 @@
        <p class="bg-info" style="padding:5px">
          Your list of users
        </p>
-    <div>
+    </div>
     <div>
        <!-- project compare table -->
        <table id="users_overview" class="table table-condensed" data-update_url="${url('users_json')}">
@@ -39,7 +39,7 @@
             % endfor
           </tbody>
        </table>
-    <div>
+    </div>
   </div>
 
 ${lib.publish_user_dialog()}
