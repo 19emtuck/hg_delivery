@@ -20,6 +20,7 @@ from .models import (
     )
 
 GROUPS = {'editor': ['group:editors']}
+DEFAULT_USER = {}
 
 def get_users():
   """
@@ -27,7 +28,7 @@ def get_users():
   """
   db_result = {email:password for (email,password) in DBSession.query(User.email,User.pwd)}
   # add default user
-  db_result['editor'] = 'editor'
+  db_result.update(DEFAULT_USER)
   return db_result
 
 def groupfinder(userid, request):
@@ -56,7 +57,6 @@ def login(request):
     login = request.params['login']
     password = request.params['password']
     all_known_users =  get_users()
-    print(all_known_users.get(login))
     if login and password and all_known_users.get(login) == password:
         headers = remember(request, login)
         return HTTPFound( location= came_from,

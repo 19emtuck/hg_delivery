@@ -14,7 +14,7 @@ from sqlalchemy import engine_from_config
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 
-from hg_delivery.security import groupfinder
+from hg_delivery.security import groupfinder, GROUPS, DEFAULT_USER
 from hg_delivery.predicates import to_int 
 
 from .models import (
@@ -78,6 +78,14 @@ def main(global_config, **settings):
       hashalg='sha512')
   authz_policy = ACLAuthorizationPolicy()
 
+
+  if 'hg_delivery.default_login' in settings :
+    __login = settings['hg_delivery.default_login']
+    __pwd   = settings['hg_delivery.default_pwd']
+
+    GROUPS[__login] = 'group:editors'
+    DEFAULT_USER[__login] = __pwd
+
   config = Configurator(settings=settings,
                         root_factory='hg_delivery.models.RootFactory')
 
@@ -94,7 +102,7 @@ def main(global_config, **settings):
   config.add_route('contact',      '/contact')
 
   config.include(projects_include, '/project')
-  config.include(users_include, '/users')
+  config.include(users_include,    '/users')
 
   config.scan()
   return config.make_wsgi_app()
