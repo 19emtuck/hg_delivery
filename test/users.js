@@ -33,7 +33,7 @@ casper.then(function(response){
   this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
 });
 
-casper.thenClick('li a[href$="users"]');
+casper.thenClick('li a[href$="users/view"]');
 casper.waitUntilVisible('span[class="glyphicon glyphicon-plus"]');
 casper.then(function(response){
   this.test.assertTitle('Hg Delivery 1.0 welcome :)');
@@ -77,7 +77,7 @@ casper.then(function(){
 
 // check I've loos my rights
 // should take a 403 forbidden!
-casper.thenOpen('http://127.0.0.1:6543/users');
+casper.thenOpen('http://127.0.0.1:6543/users/view');
 casper.then(function(response){
   this.test.assertTextExists('403 Forbidden');
 });
@@ -111,7 +111,7 @@ casper.then(function(response){
   this.test.assertTextExists('Dashboard');
   this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
 });
-casper.thenClick('li a[href$="users"]');
+casper.thenClick('li a[href$="users/view"]');
 
 // then we delete the user !
 casper.then(function(response){
@@ -126,7 +126,7 @@ casper.thenClick("#sign_out");
 
 // check I've loos my rights
 // should take a 403 forbidden!
-casper.thenOpen('http://127.0.0.1:6543/users');
+casper.thenOpen('http://127.0.0.1:6543/users/view');
 casper.then(function(response){
   this.test.assertEqual(response.status,200);
   this.test.assertTextExists('403 Forbidden');

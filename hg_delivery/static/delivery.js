@@ -370,7 +370,7 @@ function add_user(target_url){
                    _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
                    _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
                    $('#container_alert').html(_alert_html);
-                   // $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
+                   $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
                 }
                 update_user_list();
               } else if(json_response.explanation){
