@@ -235,11 +235,15 @@
               <div class="form-group">
                 <label for="project_dashboard" class="col-sm-4 control-label">Clip to dashboard</label>
                 <div class="col-sm-7">
-                  % if project.dashboard :
-                    <input id="project_dashboard" class="form-control" name="dashboard" type="checkbox" placeholder="dashboard" value="1" checked>
-                  % else :
-                    <input id="project_dashboard" class="form-control" name="dashboard" type="checkbox" placeholder="dashboard" value="1">
-                  % endif
+                  <div class="checkbox">
+                    <label>
+                      % if project.dashboard :
+                        <input id="project_dashboard" name="dashboard" type="checkbox" value="1" checked>
+                      % else :
+                        <input id="project_dashboard" name="dashboard" type="checkbox" value="1">
+                      % endif
+                    </label>
+                  </div>
                 </div>
               </div>
            <form>
