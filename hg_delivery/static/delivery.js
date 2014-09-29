@@ -243,13 +243,13 @@ function update_project(target_url){
                 if(json_response.explanation){
                    _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
                    _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-                   $('.navbar').after(_alert_html);
+                   $('#container_alert').html(_alert_html);
                    $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
                 }
               } else if(json_response.explanation){
                  _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
                  _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-                 $('.navbar').after(_alert_html);
+                 $('#container_alert').html(_alert_html);
                  $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
               } else {
               
@@ -298,7 +298,7 @@ function update_user(target_url){
                 if(json_response.explanation){
                    _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
                    _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-                   $('.navbar').after(_alert_html);
+                   $('#container_alert').html(_alert_html);
                    $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
                 }
                 update_user_list();
@@ -331,14 +331,14 @@ function add_user(target_url){
                 if(json_response.explanation){
                    _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
                    _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-                   $('.navbar').after(_alert_html);
+                   $('#container_alert').html(_alert_html);
                    $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
                 }
                 update_user_list();
               } else if(json_response.explanation){
                    _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
                    _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-                $('#new_user').after(_alert_html);
+                $('#new_user .modal-body').after(_alert_html);
                 $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
               }
             },
@@ -402,7 +402,7 @@ function add_project(target_url){
                 if(json_response.explanation){
                    _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
                    _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-                   $('.navbar').after(_alert_html);
+                   $('#container_alert').html(_alert_html);
                    $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
                 }
               } else if(json_response.explanation){

@@ -125,7 +125,10 @@
       </div>
     </div>
     % endif
- 
+
+    <div id="container_alert">
+    </div>
+
     <!-- STARTING/ GLOBAL SCRIPT -->
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="${request.static_url('hg_delivery:static/jquery-1.11.1.min.js')}"></script>
