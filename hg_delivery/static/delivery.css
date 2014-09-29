@@ -34,11 +34,16 @@ body {
 }
 
 #container_alert {
+  padding:0px;
   position:fixed;
   width:100%;
   bottom:0px;
   border:none;
   z-index:100;
+}
+
+#container_alert .alert {
+  margin-bottom:0px;
 }
 
 .log {

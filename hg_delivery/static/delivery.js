@@ -7,6 +7,44 @@
  *
  */
 
+ 
+/**
+* global jquery init !
+*/
+$(function() {
+
+  String.prototype.repeat = function( num ) {
+    for( var i = 0, buf = ""; i < num; i++ ) {
+      buf += this;
+    }
+    return buf;
+  };
+
+  String.prototype.toTitleCase = function () {
+      return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+  };
+
+  String.prototype.ljust = function( width, padding ) {
+    var _padding = padding || " ";
+    _padding = _padding.substr( 0, 1 );
+    if( this.length < width )
+      return this + _padding.repeat( width - this.length );
+    else
+      return this;
+  };
+
+  String.prototype.rjust = function( width, padding ) {
+    var _padding = padding || " ";
+    _padding = _padding.substr( 0, 1 );
+    if( this.length < width )
+      return _padding.repeat( width - this.length ) + this;
+    else
+      return this;
+  };
+
+});
+
+
 /**
  * Go to ...
  */
@@ -469,7 +507,8 @@ function display_logs(active_button) {
              success:function(json_response){
                var log_resume = [];
                json_response.logs.forEach(function(item){
-                 log_resume.push("<ul class='row_log'><li>" + item.id + "</li><li><i>"+item.creation_date +"</i></li><li>" + item.host + "</li><li>" + item.path + "</li><li>" + item.command+"</li></ul>");
+                 var _id = item.id.toString().rjust(4,'0');
+                 log_resume.push("<ul class='row_log'><li>" + _id + "</li><li><i>"+item.creation_date +"</i></li><li>" + item.host + "</li><li>" + item.path + "</li><li>" + item.command+"</li></ul>");
                });
                var __loc_html = '<ul class="log"><li>'+log_resume.join('</li><li>')+'</li></ul>';
                $('#logs').html(__loc_html);
