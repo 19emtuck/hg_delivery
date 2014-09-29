@@ -226,6 +226,8 @@ def push(request):
   if 'force_branch' in request.params and request.params['force_branch']=='true':
     force_branch = True 
 
+  lst_new_branches = []
+
   try :
     ssh_node = project.get_ssh_node()
     ssh_node.push_to(project, target_project, force_branch)
@@ -238,9 +240,14 @@ def push(request):
     log.error(e)
     new_branch_stop = True
     result = False
+    set_local_branches = set(ssh_node.get_branches())
+    ssh_node_remote = target_project.get_ssh_node()
+    set_remote_branches = set(ssh_node_remote.get_branches())
+    lst_new_branches = list(set_local_branches - set_remote_branches)
   else :
     result = True
   return {'new_branch_stop' : new_branch_stop,
+          'lst_new_branches' : lst_new_branches,
           'result':result}
 #------------------------------------------------------------------------------
 
