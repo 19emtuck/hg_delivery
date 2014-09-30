@@ -404,8 +404,8 @@ function update_user_list(){
                var name = '<td>'+user.name+'</td>';
                var email = '<td>'+user.email+'</td>';
                var creation_date = '<td>'+user.creation_date+'</td>';
-               var button_update = "<td><button onclick=\"edit_user('" + user.update_url + "','"+ user.get_url +"',"+user.id+")\">edit</button></td>";
-               var button_delete = "<td><button onclick=\"delete_user(this,'" + user.delete_url + "')\">delete</button></td>";
+               var button_update = "<td><button class=\"btn btn-default\" onclick=\"edit_user('" + user.update_url + "','"+ user.get_url +"',"+user.id+")\">edit</button></td>";
+               var button_delete = "<td><button class=\"btn btn-default\" onclick=\"delete_user(this,'" + user.delete_url + "')\">delete</button></td>";
 
                $('#users_overview').append('<tr>'+name+email+creation_date+button_update+button_delete+'</tr>');
              });
