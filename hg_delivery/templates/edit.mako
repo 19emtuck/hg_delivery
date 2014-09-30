@@ -290,7 +290,7 @@
         <h4 class="modal-title">It seems you are trying to push a new branch.</h4>
       </div>
       <div class="modal-body">
-        Should we push it ?
+        Should we push also it ?
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
