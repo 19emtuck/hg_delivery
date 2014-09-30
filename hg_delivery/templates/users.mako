@@ -37,6 +37,11 @@
                   <td><button class="btn btn-default" onclick="delete_user(this,'${url('user_delete', id=user.id)}')">delete</button></td>
                </tr>
             % endfor
+            % if not lst_users :
+               <tr>
+                  <td colspan="5" style="text-align:center;padding-top:20px">No Users defined</td>
+               </tr>
+            % endif :
           </tbody>
        </table>
     </div>
