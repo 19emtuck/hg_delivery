@@ -72,13 +72,11 @@ function push_to(target_project_id, target_url, force_branch){
                  fetch_this_other_project($('#other_projects a.active')[0]);
                } else if(json_response.new_branch_stop){
                  // dialog : should we force ?
-                 if(json_response.lst_new_branches.length>0){
                    $('#confirm_force_push_dialog .modal-body').html("Should we push them ?<br><br>"+json_response.lst_new_branches.join(','));
-                 } else {
-                   $('#confirm_force_push_dialog .modal-body').html("Should we push them ?<br><br> <i>some additional head (you should consider carefully to push new head)</i>");
-		 }
-                 $('#confirm_force_push_dialog').modal('show');
-                 $('#new_branch').off().on('click',function(){ $('#confirm_force_push_dialog').modal('hide'); push_to(target_project_id, target_url, true);});
+                   $('#new_branch').off().on('click',function(){ $('#confirm_force_push_dialog').modal('hide'); push_to(target_project_id, target_url, true);});
+                   $('#confirm_force_push_dialog').modal('show');
+	       } else if(json_response.new_head_stop){
+                   $('#dismiss_force_push_dialog').modal('show');
                }
              },
      });

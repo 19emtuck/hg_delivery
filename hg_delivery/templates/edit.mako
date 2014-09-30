@@ -299,7 +299,28 @@
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-<!-- end update to dialog -->
+<!-- end new branch to dialog -->
+
+<!-- dismiss push dialog -->
+<div id="dismiss_force_push_dialog" class="modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">It seems you are trying to push a new head.</h4>
+      </div>
+      <div class="modal-body">
+        We can't push new heads !<br><br> <i>you should consider carefully to push new head and solve this problem manually</i>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- end dismiss to dialog -->
+
+
 
 <!-- nothing work -->
 %if repository_error is not None:

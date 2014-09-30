@@ -25,6 +25,7 @@ from .models import (
 from hg_delivery.nodes import (
     NodeException,
     HgNewBranchForbidden,
+    HgNewHeadsForbidden,
     )
 import paramiko
 import time
@@ -224,6 +225,7 @@ def push(request):
   target_project =  DBSession.query(Project).get(id_target_project)
 
   new_branch_stop = False
+  new_head_stop = False
   result = False
 
   force_branch = False
@@ -231,10 +233,10 @@ def push(request):
     force_branch = True 
 
   lst_new_branches = []
-
+  data = {'buff':''}
   try :
     ssh_node = project.get_ssh_node()
-    ssh_node.push_to(project, target_project, force_branch)
+    data = ssh_node.push_to(project, target_project, force_branch)
   except NodeException as e:
     log.error(e)
   except HgNewBranchForbidden as e:
@@ -248,10 +250,20 @@ def push(request):
     ssh_node_remote = target_project.get_ssh_node()
     set_remote_branches = set(ssh_node_remote.get_branches())
     lst_new_branches = list(set_local_branches - set_remote_branches)
+  except HgNewHeadsForbidden as e:
+    # we may inform user that he cannot push ...
+    # maybe add a configuration parameter to fix this
+    # and send --new-branch directly on the first time
+    log.error(e)
+    new_head_stop = True
+    result = False
+    lst_new_branches = [] 
   else :
     result = True
   return {'new_branch_stop' : new_branch_stop,
+          'new_head_stop' : new_head_stop,
           'lst_new_branches' : lst_new_branches,
+          'buffer': data['buff'],
           'result':result}
 #------------------------------------------------------------------------------
 

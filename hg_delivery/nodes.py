@@ -52,6 +52,12 @@ class HgNewBranchForbidden(Exception):
 
 #------------------------------------------------------------------------------
 
+class HgNewHeadsForbidden(Exception):
+  """
+  """
+
+#------------------------------------------------------------------------------
+
 def check_connections(function):
   """
     A decorator to check SSH connections.
@@ -383,6 +389,9 @@ class HgNode(NodeSsh):
                                                         target_project.password)
     if not force_branch and data['buff'].count('--new-branch') :
       raise HgNewBranchForbidden()
+    elif not force_branch and data['buff'].count('details about pushing new heads') :
+      raise HgNewHeadsForbidden()
+    return data
 
   def pull_from(self, local_project, source_project):
     """
