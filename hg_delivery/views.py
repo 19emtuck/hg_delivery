@@ -250,6 +250,7 @@ def push(request):
     ssh_node_remote = target_project.get_ssh_node()
     set_remote_branches = set(ssh_node_remote.get_branches())
     lst_new_branches = list(set_local_branches - set_remote_branches)
+    data = e.value
   except HgNewHeadsForbidden as e:
     # we may inform user that he cannot push ...
     # maybe add a configuration parameter to fix this
@@ -258,8 +259,10 @@ def push(request):
     new_head_stop = True
     result = False
     lst_new_branches = [] 
+    data = e.value
   else :
     result = True
+  
   return {'new_branch_stop' : new_branch_stop,
           'new_head_stop' : new_head_stop,
           'lst_new_branches' : lst_new_branches,

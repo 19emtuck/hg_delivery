@@ -50,11 +50,17 @@ class HgNewBranchForbidden(Exception):
   """
   """
 
+  def __init__(self, value):
+      self.value = value
+
 #------------------------------------------------------------------------------
 
 class HgNewHeadsForbidden(Exception):
   """
   """
+
+  def __init__(self, value):
+      self.value = value
 
 #------------------------------------------------------------------------------
 
@@ -388,9 +394,9 @@ class HgNode(NodeSsh):
                                                         new_branch_arg),
                                                         target_project.password)
     if not force_branch and data['buff'].count('--new-branch') :
-      raise HgNewBranchForbidden()
+      raise HgNewBranchForbidden(data)
     elif not force_branch and data['buff'].count('details about pushing new heads') :
-      raise HgNewHeadsForbidden()
+      raise HgNewHeadsForbidden(data)
     return data
 
   def pull_from(self, local_project, source_project):
