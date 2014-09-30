@@ -55,7 +55,7 @@ def users_include(config):
   """
     Users routes definitions
   """
-  config.add_route('users',        'view')
+  config.add_route('users',        '/view')
   config.add_route('users_json',   '/json')
   config.add_route('user_add',     '/add')
   config.add_route('user_delete',  '/{id:\d+}/delete')
