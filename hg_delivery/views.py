@@ -396,7 +396,12 @@ def edit_project(request):
     if 'branch' in request.params :
       branch = request.params['branch']
 
-    limit = 200
+    limit = 200 
+    settings = request.registry.settings
+    if 'hg_delivery.default_log_limit' in settings and settings['hg_delivery.default_log_limit'].isdigit():
+      limit = int(settings['hg_delivery.default_log_limit'])
+
+    request.registry.settings 
     if 'limit' in request.params and request.params['limit'].isdigit():
       limit = int(request.params['limit'])
 
