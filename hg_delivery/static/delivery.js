@@ -61,22 +61,31 @@ function push_to(target_project_id, target_url, force_branch){
      $.ajax({url:target_url+src_project_id,
              data:{'force_branch':force_branch},
              beforeSend:function(){
+               $('#container_alert').html('<div style="padding:3px 30px;background-color:white"><div class="progress"> <div class="progress-bar" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%;"><span class="sr-only">20% Complete</span> </div></div></div>');
+               $('#container_alert .progress-bar').css('width','20%').attr('aria-valuenow',20);
+               $('#container_alert span').text('20% Complete');
              },
              complete:function(){
+               $('#container_alert .progress-bar').css('width','100%').attr('aria-valuenow',100);
+               $('#container_alert span').text('100% Complete');
              },
              dataType:'json',
              success:function(json_response){
                if(json_response.result){
                  // we just reload the current comparison
                  // get the active link and fetch him twice
-                 fetch_this_other_project($('#other_projects a.active')[0]);
+                 setTimeout(function() {
+                    $('#container_alert').html('');
+                    fetch_this_other_project($('#other_projects a.active')[0]);}
+                   ,1250);
                } else if(json_response.new_branch_stop){
                  // dialog : should we force ?
                    $('#confirm_force_push_dialog .modal-body').html("Should we push them ?<br><br>"+json_response.lst_new_branches.join(','));
-                   $('#new_branch').off().on('click',function(){ $('#confirm_force_push_dialog').modal('hide'); push_to(target_project_id, target_url, true);});
+                   $('#new_branch').off().on('click',function(){ $('#confirm_force_push_dialog').modal('hide');$('#container_alert').html(''); push_to(target_project_id, target_url, true);});
                    $('#confirm_force_push_dialog').modal('show');
-	       } else if(json_response.new_head_stop){
+               } else if(json_response.new_head_stop){
                    $('#dismiss_force_push_dialog').modal('show');
+                   $('#container_alert').delay(1000).html('');
                }
              },
      });
@@ -91,13 +100,21 @@ function pull_from(target_project_id, target_url){
      var src_project_id = $('#other_projects a.active').data('id');
      $.ajax({url:target_url+src_project_id,
              beforeSend:function(){
+               $('#container_alert').html('<div style="padding:3px 30px;background-color:white"><div class="progress"> <div class="progress-bar" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%;"><span class="sr-only">20% Complete</span> </div></div></div>');
+               $('#container_alert .progress-bar').css('width','20%').attr('aria-valuenow',20);
+               $('#container_alert span').text('20% Complete');
              },
              complete:function(){
+               $('#container_alert .progress-bar').css('width','100%').attr('aria-valuenow',100);
+               $('#container_alert span').text('100% Complete');
              },
              dataType:'json',
              success:function(){
-               // reload this fucking page ...
-               window.location.reload();
+               setTimeout(function() {
+                  $('#container_alert').html('');
+                  // reload this fucking page ...
+                  window.location.reload(); }
+                 ,1250);
              },
      });
   }
@@ -314,8 +331,8 @@ function edit_user(target_update_url, target_get_url, user_id){
                 $('#update_my_user').bind('click',function(){
                    update_user(target_update_url);
                 });
-	     }
-	 }
+             }
+         }
   });
 }
 
