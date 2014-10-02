@@ -393,7 +393,7 @@ class HgNode(NodeSsh):
                                                         target_project.path,
                                                         new_branch_arg),
                                                         target_project.password)
-    if not force_branch and data['buff'].count('--new-branch') :
+    if not force_branch and ( data['buff'].count('--new-branch') or data['buff'].count('creates new remote branches')):
       raise HgNewBranchForbidden(data)
     elif not force_branch and data['buff'].count('details about pushing new heads') :
       raise HgNewHeadsForbidden(data)
