@@ -61,9 +61,7 @@ function push_to(target_project_id, target_url, force_branch){
      $.ajax({url:target_url+src_project_id,
              data:{'force_branch':force_branch},
              beforeSend:function(){
-               $('#container_alert').html('<div style="padding:3px 30px;background-color:white"><div class="progress"> <div class="progress-bar" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%;"><span class="sr-only">20% Complete</span> </div></div></div>');
-               $('#container_alert .progress-bar').css('width','20%').attr('aria-valuenow',20);
-               $('#container_alert span').text('20% Complete');
+               $('#container_alert').html('<div class="low_gauge_container"><div class="progress"> <div class="progress-bar" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%;"><span class="sr-only">20% Complete</span> </div></div></div>');
              },
              complete:function(){
                $('#container_alert .progress-bar').css('width','100%').attr('aria-valuenow',100);
@@ -100,9 +98,7 @@ function pull_from(target_project_id, target_url){
      var src_project_id = $('#other_projects a.active').data('id');
      $.ajax({url:target_url+src_project_id,
              beforeSend:function(){
-               $('#container_alert').html('<div style="padding:3px 30px;background-color:white"><div class="progress"> <div class="progress-bar" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%;"><span class="sr-only">20% Complete</span> </div></div></div>');
-               $('#container_alert .progress-bar').css('width','20%').attr('aria-valuenow',20);
-               $('#container_alert span').text('20% Complete');
+               $('#container_alert').html('<div class="low_gauge_container"><div class="progress"> <div class="progress-bar" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%;"><span class="sr-only">20% Complete</span> </div></div></div>');
              },
              complete:function(){
                $('#container_alert .progress-bar').css('width','100%').attr('aria-valuenow',100);

@@ -18,6 +18,11 @@ body {
   margin-bottom: 10px;
 }
 
+.low_gauge_container {
+  padding: 15px 3px 15px 3px;
+  background-color: rgb(252, 249, 249);
+}
+
 *:focus {
   outline-color: transparent;
 }
