@@ -143,7 +143,12 @@ def manage_users(request):
     manage users ...
     """
     lst_users = DBSession.query(User).all()
-    return {'lst_users':lst_users}
+
+    projects_list =  []
+    if request.authenticated_userid :
+      projects_list =  DBSession.query(Project).all()
+
+    return {'lst_users':lst_users, 'projects_list':projects_list}
 
 #------------------------------------------------------------------------------
 
