@@ -96,10 +96,19 @@ class Project(Base):
     uri = self.get_uri()
     return PoolSsh.get_node(uri, self.id)
 
+
+  def is_initial_revision_init(self):
+    """
+    """
+    result = True
+    if not self.rev_init or len(self.rev_init)<35:
+      result = False
+    return result
+
   def init_initial_revision(self):
     """
     """
-    if self.rev_init is None :
+    if not self.is_initial_revision_init():
       ssh_node = self.get_ssh_node()
       self.rev_init = ssh_node.get_initial_hash()
 

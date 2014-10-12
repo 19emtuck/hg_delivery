@@ -178,7 +178,7 @@ def default_view(request):
 
       for project in projects_list :
         try :
-          if project.rev_init is None :
+          if not project.is_initial_revision_init() :
             project.init_initial_revision()
 
           if project.dashboard!=1 :
