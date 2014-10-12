@@ -468,6 +468,8 @@ class HgNode(NodeSsh):
       # hg may add '+' to indicate tip release
       # '+' is not part of changeset hash
       result = data.strip(u'\n').split(u' ')[0].strip(u'+')
+      if not result or len(result)<35:
+        result = None
     return result
      
   def get_branches(self):
