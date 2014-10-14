@@ -32,6 +32,12 @@ def mysubscriber(event):
   event['static_url'] = request.static_url
   event['logged_in'] = request.authenticated_userid
 
+  if request.authenticated_userid and 'projects_list' not in event.rendering_val:
+    projects_list =  DBSession.query(Project).all()
+    event.rendering_val['projects_list'] = projects_list
+  elif 'projects_list' not in event.rendering_val :
+    event.rendering_val['projects_list'] = [] 
+
   # before any render we look if we need to
   # log data and flush them into database
   if NodeSsh.logs :

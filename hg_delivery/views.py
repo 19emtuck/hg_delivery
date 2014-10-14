@@ -141,14 +141,10 @@ def manage_users_json(request):
 def manage_users(request):
     """
     manage users ...
+    retrieve and publish user list and project list
     """
     lst_users = DBSession.query(User).all()
-
-    projects_list =  []
-    if request.authenticated_userid :
-      projects_list =  DBSession.query(Project).all()
-
-    return {'lst_users':lst_users, 'projects_list':projects_list}
+    return {'lst_users':lst_users}
 
 #------------------------------------------------------------------------------
 
@@ -174,9 +170,9 @@ def logs(request):
 def default_view(request):
     """
     """
-    projects_list =  []
     dashboard_list = []
     nodes_description = {}
+    projects_list = []
 
     if request.authenticated_userid :
       projects_list =  DBSession.query(Project).all()
@@ -310,7 +306,6 @@ def add_project(request):
     host = request.params['host']
     path = request.params['path']
     user = request.params['user']
-    projects_list =  []
 
     if not host :
       explanation = u'Your project should contain a valid hostname'
@@ -323,7 +318,6 @@ def add_project(request):
         DBSession.add(project)
         DBSession.flush()
         project.init_initial_revision()
-        projects_list =  DBSession.query(Project).all()
         result = True
         explanation = u'This project : %s@%s/%s has been added ...'%(user, host, path)
       except IntegrityError as e:
@@ -332,7 +326,6 @@ def add_project(request):
         explanation = u'This project and this path are already defined (%s %s) ...'%(host, path)
 
     return { 'result':result,
-             'projects_list':projects_list,
              'explanation':explanation }
 
 #------------------------------------------------------------------------------
@@ -350,7 +343,6 @@ def update_project(request):
     user = request.params['user']
     project = None
     explanation = None
-    projects_list = []
 
     if not host :
       explanation = u'Your project should contain a valid hostname'
@@ -366,7 +358,6 @@ def update_project(request):
           project.dashboard = 0
 
         DBSession.flush()
-        projects_list =  DBSession.query(Project).all()
         explanation = u'This project : %s@%s/%s has been updated ...'%(user, host, path)
         result = True
       except :
@@ -375,8 +366,7 @@ def update_project(request):
 
     return { 'result':result,
              'project':project,
-             'explanation':explanation,
-             'projects_list':projects_list }
+             'explanation':explanation  }
 
 #------------------------------------------------------------------------------
 
