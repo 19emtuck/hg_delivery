@@ -44,6 +44,9 @@ class NodeException(Exception):
   """
   """
 
+  def __init__(self, value):
+      self.value = value
+
 #------------------------------------------------------------------------------
 
 class HgNewBranchForbidden(Exception):
@@ -421,15 +424,13 @@ class HgNode(NodeSsh):
       return last logs ...
       :param nb_lines: integer, limit the number of lines
     """
-    try :
-      if revision_filter :
-        data = self.run_command(u'cd %s ; hg log --template "%s" -r %s'%(self.path, self._template, revision_filter))
-      elif branch_filter :
-        data = self.run_command(u'cd %s ; hg log -l %d --template "%s" -b %s'%(self.path, nb_lines, self._template, branch_filter))
-      else :
-        data = self.run_command(u'cd %s ; hg log -l %d --template "%s"'%(self.path, nb_lines, self._template))
-    except NodeException as e :
-      data = ""
+
+    if revision_filter :
+      data = self.run_command(u'cd %s ; hg log --template "%s" -r %s'%(self.path, self._template, revision_filter))
+    elif branch_filter :
+      data = self.run_command(u'cd %s ; hg log -l %d --template "%s" -b %s'%(self.path, nb_lines, self._template, branch_filter))
+    else :
+      data = self.run_command(u'cd %s ; hg log -l %d --template "%s"'%(self.path, nb_lines, self._template))
 
     list_nodes = []
     map_nodes = {}
