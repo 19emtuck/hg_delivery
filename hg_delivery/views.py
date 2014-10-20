@@ -434,8 +434,8 @@ def edit_project(request):
       if current_node is None :
         current_node = ssh_node.get_revision_description(current_rev)
     except NodeException as e:
-      repository_error = e 
-      log.error(e)
+      repository_error = e.value
+      log.error(e.value)
       current_node = None
       list_branches = []
       last_hundred_change_list, map_change_sets = [], {}
@@ -477,7 +477,7 @@ def fetch_project(request):
       current_rev = ssh_node.get_current_rev_hash()
       last_hundred_change_list, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch)
     except NodeException as e:
-      repository_error = e 
+      repository_error = e.value
       log.error(e)
       last_hundred_change_list, map_change_sets = [], {}
 
@@ -497,14 +497,18 @@ def fetch_revision(request):
   file_name = request.params['file_name']
 
   project =  DBSession.query(Project).get(id_project)
+  repository_error = None
 
   try :
     ssh_node = project.get_ssh_node()
     content = ssh_node.get_file_content(file_name, revision)
   except NodeException as e:
+    repository_error = e.value
     log.error(e)
 
-  return {'diff':diff,'project':project}
+  return {'diff':diff,
+          'repository_error':repository_error,
+          'project':project}
 
 #------------------------------------------------------------------------------
 
