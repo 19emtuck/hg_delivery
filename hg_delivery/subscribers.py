@@ -33,7 +33,7 @@ def mysubscriber(event):
   event['logged_in'] = request.authenticated_userid
 
   if request.authenticated_userid and 'projects_list' not in event.rendering_val:
-    projects_list =  DBSession.query(Project).all()
+    projects_list =  DBSession.query(Project).order_by(Project.name).all()
     event.rendering_val['projects_list'] = projects_list
   elif 'projects_list' not in event.rendering_val :
     event.rendering_val['projects_list'] = [] 
