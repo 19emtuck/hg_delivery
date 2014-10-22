@@ -52,3 +52,18 @@ Getting Started
     $VENV/bin/pserve development.ini
 
 
+
+Changelog
+---------
+
+  - v_0_1 :
+    - first True release
+    - known bug : cannot push/pull with another password than current node
+
+  - v_0_2 :
+    - casperjs use
+    - known bug : cannot push/pull with another password than current node
+
+  - v_0_3 :
+    - fix bug with node password when push or pull
+
