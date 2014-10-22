@@ -175,7 +175,7 @@ def default_view(request):
     projects_list = []
 
     if request.authenticated_userid :
-      projects_list =  DBSession.query(Project).all()
+      projects_list =  DBSession.query(Project).order_by(Project.name.desc()).all()
 
       for project in projects_list :
         try :
@@ -396,7 +396,7 @@ def edit_project(request):
     result = False
     id_project = request.matchdict['id']
 
-    projects_list =  DBSession.query(Project).order_by(Project.name).all()
+    projects_list =  DBSession.query(Project).order_by(Project.name.desc()).all()
     projects_map =  {p.id:p for p in projects_list}
     project = projects_map.get(id_project)
 
