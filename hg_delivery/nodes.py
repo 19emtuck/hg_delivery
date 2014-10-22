@@ -246,7 +246,7 @@ class NodeSsh(object):
 
       if not time_out :
         # Send the password and wait for a prompt.
-        channel.send(self.password + '\n')
+        channel.send(password + '\n')
  
         buff = u''
         t0 = time.time()
