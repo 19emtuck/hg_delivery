@@ -58,7 +58,7 @@
                      % if project is not UNDEFINED:
                        <span id="project_name">${project.name}</span> <span class="caret"></span>
                      % else :
-                       Projects (${len(projects_list)}) <span class="caret"></span>
+                       Projects (<span id="project_number">${len(projects_list)}</span>)<span class="caret"></span>
                      % endif
                    </button>
                    <ul id="projects_list" class="dropdown-menu" role="menu" data-url="${url(route_name='project_edit',id='')}">
