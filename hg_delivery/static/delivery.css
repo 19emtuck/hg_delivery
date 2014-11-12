@@ -73,9 +73,56 @@ body {
   padding-left:5px;
   border-right:solid 1px rgb(190, 190, 190);
 }
+
 .row_log li:last-child {
   border-right:none;
 }
+
+
+#filter {
+  margin-left:20px;
+  padding-left:0px;
+  padding-right:0px;
+}
+
+/**
+* some responsive design fix
+*
+*/
+
+@media screen and (max-width: 1000px) {
+  #project_tab tbody td:nth-child(3),
+  #project_tab th:nth-child(3),
+  #project_tab tbody td:nth-child(4),
+  #project_tab th:nth-child(4),
+  #project_tab tbody td:nth-child(6),
+  #project_tab th:nth-child(6) {
+    display:none;
+  }
+
+  #filter {
+    margin-left:10px; 
+  }
+}
+
+@media screen and (max-width: 680px) {
+  #project_tab tbody td:nth-child(5),
+  #project_tab th:nth-child(5) {
+    display:none;
+  }
+  #filter {
+    margin-left:0px; 
+  }
+}
+
+@media screen and (max-width: 380px) {
+  #filter {
+    padding-left:0px; 
+  }
+}
+
+
+
 
 /**
  * All the pygment style
