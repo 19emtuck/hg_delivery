@@ -247,6 +247,7 @@ function show_difference_between_changeset_stacks(remote_project_name, local_las
       row.push('<span class="label label-success">'+__recent_list_node.branch+'</span>');
      }
      row.push(__recent_list_node.branch);
+     row.push(__recent_list_node.date);
      row.push(__recent_list_node.desc);
      $tbody_comparison.append('<tr><td>'+row.join('</td><td>')+'</td></tr>');
   }

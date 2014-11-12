@@ -149,6 +149,8 @@
             <th></th>
             <th>Author</th>
             <th>Branch</th>
+            <th>Other branch</th>
+            <th>Date</th>
             <th>Description</th>
           </thead>
           <tbody>
