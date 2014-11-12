@@ -342,7 +342,7 @@ class HgNode(NodeSsh):
     Some node to manipulate remote hg repository
   """
 
-  _template = u"{node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{desc|jsonescape}|#|{tags}\n" 
+  _template = u"{node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{date(date,'%d/%m/%Y %H:%M')}|#|{desc|jsonescape}|#|{tags}\n" 
 
   def get_release(self):
     """
@@ -439,10 +439,10 @@ class HgNode(NodeSsh):
     node = {}
 
     for line in data :
-      node, author, branch, rev, parents, desc, tags = line.split(u'|#|')
+      node, author, branch, rev, parents, date, desc, tags = line.split(u'|#|')
       desc = desc.replace(u'\\n','\n')
       if not branch : branch = 'default'
-      list_nodes.append({'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags})
+      list_nodes.append({'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date})
       map_nodes[node]=list_nodes[-1]
 
     return list_nodes, map_nodes
@@ -496,10 +496,10 @@ class HgNode(NodeSsh):
     except NodeException as e :
       node = {}
     else :
-      node, author, branch, rev, parents, desc, tags = data.split(u'|#|')
+      node, author, branch, rev, parents, date, desc, tags = data.split(u'|#|')
       desc = desc.replace(u'\\n','\n')
       if not branch : branch = 'default'
-      node = {'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags}
+      node = {'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date}
     return node 
 
   def get_revision_diff(self, revision):
@@ -541,7 +541,7 @@ class GitNode(NodeSsh):
     A specific node to manipulate remote git repository 
   """
 
-  _template = u"%H|#|%cn|#|{branches}|#|{rev}|#|%P|#|{desc|jsonescape}|#|{tags}\n"
+  _template = u"%H|#|%cn|#|{branches}|#|{rev}|#|%P|#|{date}|#|{desc|jsonescape}|#|{tags}\n"
 
   def get_release(self):
     """
@@ -623,7 +623,7 @@ class GitNode(NodeSsh):
       node, author, branch, rev, parents, desc, tags = line.split(u'|#|')
       desc = desc.replace(u'\\n','\n')
       if not branch : branch = 'default'
-      list_nodes.append({'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags})
+      list_nodes.append({'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date})
       map_nodes[node]=list_nodes[-1]
 
     return list_nodes, map_nodes
@@ -672,10 +672,10 @@ class GitNode(NodeSsh):
     except NodeException as e :
       node = {}
     else :
-      node, author, branch, rev, parents, desc, tags = data.split(u'|#|')
+      node, author, branch, rev, parents, date, desc, tags = data.split(u'|#|')
       desc = desc.replace(u'\\n','\n')
       if not branch : branch = 'default'
-      node = {'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags}
+      node = {'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date}
     return node 
 
   def get_revision_diff(self, revision):

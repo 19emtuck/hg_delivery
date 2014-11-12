@@ -42,7 +42,10 @@ def update_user(request):
     update user ...
     """
     user_id = request.matchdict['id']
-    user = DBSession.query(User).filter(User.id==user_id).scalar()
+
+    user = DBSession.query(User)\
+                    .filter(User.id==user_id)\
+                    .scalar()
 
     result = False
     if user :
@@ -66,7 +69,9 @@ def delete_user(request):
     delete user ...
     """
     user_id = request.matchdict['id']
-    user = DBSession.query(User).filter(User.id==user_id).scalar()
+    user = DBSession.query(User)\
+                    .filter(User.id==user_id)\
+                    .scalar()
 
     result = False
     if user :
@@ -83,7 +88,9 @@ def get_user(request):
     delete user ...
     """
     user_id = request.matchdict['id']
-    user = DBSession.query(User).filter(User.id==user_id).scalar()
+    user = DBSession.query(User)\
+                    .filter(User.id==user_id)\
+                    .scalar()
     result = True
     return {'result':result, 'user':user}
 #------------------------------------------------------------------------------

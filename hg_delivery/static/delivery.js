@@ -506,7 +506,7 @@ function view_diff_revision(target_url){
               diffs_content.push('<div id="file_' + diffs_content.length + '" style="display:none">'+json_response.diff.dict_files[file_name]+'</div>');
             });
 
-            $('#revision_description').html('id :'+json_response.revision.rev+'<br>'+json_response.revision.author+'<br><br>'+json_response.revision.desc);
+            $('#revision_description').html('id : '+json_response.revision.rev+'<br> date : '+json_response.revision.date+'<br> author : '+json_response.revision.author+'<br><br>'+json_response.revision.desc);
 
             $('#files').html(lst_links.join('\n'));
             $('#diffs_container').show().html(diffs_content.join('\n'));

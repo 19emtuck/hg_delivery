@@ -70,6 +70,7 @@
              <th>Tag</th>
              <th>Author</th>
              <th>Branch</th>
+             <th>Date</th>
              <th>Description</th>
            </thead>
         
@@ -92,12 +93,14 @@
                %endif :
         
                <td>${node['author']}</td>
+               <td><button class="glyphicon-inbox"></button></td>
         
                %if node['node'] == current_node.get('node'):
                  <td><span class="label label-warning">${node['branch']}</span></td>
                %else :
                  <td><span class="label label-success">${node['branch']}</span></td>
                %endif
+               <td><span>${node['date']}</span></td>
                <td><a href="#" onclick="view_diff_revision('${url(route_name='project_revision_details_json',id=project.id, rev=node['node'])}')">${node['desc']}</a></td>
 
               </tr>
