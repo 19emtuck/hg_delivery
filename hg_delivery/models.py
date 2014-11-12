@@ -117,6 +117,65 @@ Index('project_root', Project.rev_init)
 
 #------------------------------------------------------------------------------
 
+class Mark(Base):
+  """
+  """
+  __tablename__ = 'mark'
+
+  id = Column(Integer, primary_key=True)
+  label = Column(String(100))
+  hex_color = Column(String(9))
+  creation_date = Column(DateTime)
+
+  def __init__(self, label, hex_color, css_class):
+    """
+    """
+    self.label = label
+    self.hex_color = hex_color 
+    self.css_class = css_class 
+    self.creation_date = datetime.now()
+
+  def __json__(self, request):
+    """
+    """
+    return { 'id':self.id,
+             'creation_date':self.creation_date.strftime('%d/%m/%Y %H:%M')}
+
+#------------------------------------------------------------------------------
+
+class ReleaseMark(Base):
+  """
+  """
+  __tablename__ = 'releases_mark'
+
+  id = Column(Integer, primary_key=True)
+  id_project = Column(Integer, ForeignKey(Project.id))
+  project = relationship(Project)
+
+  id_mark = Column(Integer, ForeignKey(Mark.id))
+
+  release_hash = Column(String(250), nullable=False)
+  comment = Column(Text)
+
+  creation_date = Column(DateTime)
+
+  def __init__(self, id_project, id_mark, release_hash, comment):
+    """
+    """
+    self.id_project = id_project
+    self.id_mark = id_mark
+    self.release_hash = release_hash
+    self.comment = comment
+    self.creation_date = datetime.now()
+
+  def __json__(self, request):
+    """
+    """
+    return { 'id':self.id,
+             'creation_date':self.creation_date.strftime('%d/%m/%Y %H:%M')}
+
+#------------------------------------------------------------------------------
+
 class RemoteLog(Base):
   """
   This table contains all logs entries

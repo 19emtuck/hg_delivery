@@ -101,7 +101,6 @@
                %endif
                <td><span>${node['date']}</span></td>
                <td><a href="#" onclick="view_diff_revision('${url(route_name='project_revision_details_json',id=project.id, rev=node['node'])}')">${node['desc']}</a></td>
-
               </tr>
             %endfor
            </tbody>
@@ -144,11 +143,11 @@
           <thead>
             <th></th>
             <th>Rev <span id="p_name_remote"></span></th>
-            <th>Rev <span id="p_name_local"></span></th>
+            <th>rev <span id="p_name_local"></span></th>
             <th></th>
             <th>Author</th>
             <th>Branch</th>
-            <th>Other branch</th>
+            <th>branch</th>
             <th>Date</th>
             <th>Description</th>
           </thead>
@@ -336,6 +335,10 @@
   </div>
 %endif
 <!-- nothing work -->
+
+<div>
+</div>
+
 
 <%block name="local_js">
   <script>

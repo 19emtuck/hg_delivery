@@ -36,6 +36,7 @@ def projects_include(config):
   config.add_route('project_revision_details_json',   '/detail/json/{id:\d+}/revision/{rev}', custom_predicates=(to_int('id'),))
   config.add_route('project_revision_details',        '/detail/{id:\d+}/revision/{rev}', custom_predicates=(to_int('id'),))
   config.add_route('project_update',                  '/update/{id:\d+}', custom_predicates=(to_int('id'),))
+  config.add_route('project_mark',                    '/mark/{id:\d+}/{hash}/{mark_id}', custom_predicates=(to_int('id'),to_int('mark_id'),))
 
   # push/pull from another project 
   config.add_route('project_pull_from',               '/pull/{id:\d+}/from/{source:\d+}', custom_predicates=(to_int('id'),to_int('source'),))

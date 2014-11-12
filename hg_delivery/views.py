@@ -21,6 +21,7 @@ from .models import (
     RemoteLog,
     User,
     Group,
+    ReleaseMark,
     )
 from hg_delivery.nodes import (
     NodeException,
@@ -278,6 +279,7 @@ def push(request):
           'lst_new_branches' : lst_new_branches,
           'buffer': data['buff'],
           'result':result}
+
 #------------------------------------------------------------------------------
 
 @view_config(route_name='project_pull_from', renderer='json', permission='edit')
@@ -424,6 +426,10 @@ def edit_project(request):
     if 'limit' in request.params and request.params['limit'].isdigit():
       limit = int(request.params['limit'])
 
+    list_marks = DBSession.query(ReleaseMark)\
+                          .filter(ReleaseMark.id_project == id_project)\
+                          .all()
+
     repository_error = None
 
     try :
@@ -449,6 +455,7 @@ def edit_project(request):
 
     return { 'project':project,
              'list_branches':list_branches,
+             'list_marks':list_marks,
              'limit':limit,
              'projects_list':projects_list,
              'filter_branch':branch,
@@ -456,6 +463,19 @@ def edit_project(request):
              'current_node':current_node,
              'linked_projects':linked_projects,
              'last_hundred_change_list':last_hundred_change_list}
+
+#------------------------------------------------------------------------------
+
+@view_config(route_name='project_mark', renderer='json', permission='edit')
+def mark_this_release(request):
+  """
+    mark this release inside this project
+  """
+
+  release_hash = request.matchdict['hash']
+  project_id = request.matchdict['id']
+  mark_id = request.matchdict['mark_id']
+  return {}
 
 #------------------------------------------------------------------------------
 
