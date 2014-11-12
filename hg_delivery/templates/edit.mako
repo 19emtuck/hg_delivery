@@ -93,7 +93,6 @@
                %endif :
         
                <td>${node['author']}</td>
-               <td><button class="glyphicon-inbox"></button></td>
         
                %if node['node'] == current_node.get('node'):
                  <td><span class="label label-warning">${node['branch']}</span></td>
