@@ -106,23 +106,20 @@ body {
 }
 
 @media screen and (max-width: 680px) {
-  #project_tab tbody td:nth-child(5),
-  #project_tab th:nth-child(5) {
-    display:none;
-  }
   #filter {
     margin-left:0px; 
   }
 }
 
 @media screen and (max-width: 380px) {
+  #project_tab tbody td:nth-child(5),
+  #project_tab th:nth-child(5) {
+    display:none;
+  }
   #filter {
     padding-left:0px; 
   }
 }
-
-
-
 
 /**
  * All the pygment style
