@@ -342,7 +342,7 @@ class HgNode(NodeSsh):
     Some node to manipulate remote hg repository
   """
 
-  _template = u"{node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{date(date,'%d/%m/%Y %H:%M')}|#|{desc|jsonescape}|#|{tags}\n" 
+  _template = u"{node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{date|isodate}|#|{desc|jsonescape}|#|{tags}\n" 
 
   def get_release(self):
     """
