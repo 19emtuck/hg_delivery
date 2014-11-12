@@ -470,6 +470,7 @@ function add_project(target_url){
                 $('#new_project_dialog .modal-body').after(_alert_html);
                 $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
               }
+	      // we refresh the number of projects ...
 	      $('#project_number').text($('#projects_list li').size().toString());
             }
          });
