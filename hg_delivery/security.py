@@ -51,6 +51,14 @@ def groupfinder(userid, request):
 class ProjectFactory(object):
 
     def __init__(self, request):
+      """
+        for some routes, especially for project routes,
+        we overwrite default root factory to serve specific
+        acl coming from database instead default and static ones ...
+
+        Maybe it could be a better idea to test group and linked ACL
+        instead of testing only default user ...
+      """
       self.__acl__ = []
 
       self.request = request
@@ -61,9 +69,11 @@ class ProjectFactory(object):
 
       # we check if user is administrator (for the moment it's only configuration that drive this test)
       if request.registry.settings['hg_delivery.default_login'] == id_user :
+        # shoud I link this to 'group:editors' instead of Authenticated ?
         self.__acl__ = [(Allow, Authenticated, 'edit')]
       else :
        for _label_acl in DBSession.query(Acl.acl).join(User).filter(Acl.id_project==id_project).filter(User.email==id_user) :
+        # shoud I link this to 'group:editors' instead of Authenticated ?
          self.__acl__.append((Allow, Authenticated, _label_acl))
 
 #------------------------------------------------------------------------------
