@@ -19,7 +19,8 @@ from pyramid.events import (
 from .models import (
     DBSession,
     Project,
-    RemoteLog
+    RemoteLog,
+    Acl
     )
 
 from .nodes import NodeSsh
