@@ -21,7 +21,7 @@ from .models import (
     Project,
     )
 
-GROUPS = {'editor': ['group:editors']}
+GROUPS = {}
 DEFAULT_USER = {}
 
 #------------------------------------------------------------------------------
@@ -49,17 +49,17 @@ def groupfinder(userid, request):
 #------------------------------------------------------------------------------
 
 class ProjectFactory(object):
-    __acl__ = []
 
     def __init__(self, request):
+      self.__acl__ = []
+
       self.request = request
 
       # because of predicates id should be an int ...
       id_project = request.matchdict[u'id']
       id_user = request.authenticated_userid
 
-      self.__acl__ = []
-
+      # we check if user is administrator (for the moment it's only configuration that drive this test)
       if request.registry.settings['hg_delivery.default_login'] == id_user :
         self.__acl__ = [(Allow, Authenticated, 'edit')]
       else :
