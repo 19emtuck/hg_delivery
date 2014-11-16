@@ -4,9 +4,12 @@
 % if logged_in is not None :
   <h2>
         <span class="label label-default">Dashboard</span>
+
+        % if logged_in is not None and request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid:
         <button type="button" style="background-color:transparent;border:none" onclick="$('#new_project_dialog').modal('show');" alt="add new project">
           <span class='glyphicon glyphicon-plus' style="font-size:26px;vertical-align:bottom"></span>
         </button>
+        % endif
   </h2>
   %for project in dashboard_list :
     <div class="panel panel-default">
