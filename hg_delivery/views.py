@@ -341,7 +341,7 @@ def add_project(request):
 @view_config(route_name='project_update', renderer='json', permission='edit')
 def update_project(request):
     """
-    update a project
+    update the project properties (host, path, password ...)
     """
     result = False
     id_project = request.matchdict['id']
