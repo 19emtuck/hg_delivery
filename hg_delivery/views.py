@@ -183,7 +183,11 @@ def default_view(request):
     projects_list = []
 
     if request.authenticated_userid :
-      projects_list =  DBSession.query(Project).order_by(Project.name.desc()).all()
+      projects_list =  []
+      if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
+        projects_list =  DBSession.query(Project).order_by(Project.name.desc()).all()
+      else :
+        projects_list =  DBSession.query(Project).join(Acl).order_by(Project.name.desc()).all()
 
       for project in projects_list :
         try :
@@ -485,8 +489,8 @@ def save_project_acls(request):
       for _acl in lst_acls :
         DBSession.delete(_acl)
 
-      for ele,_acl_label in request.params.iteritems() :
-        if ele.count('projectacl') :
+      for ele, _acl_label in request.params.iteritems() :
+        if ele.count('projectacl') and _acl_label in Acl.known_acls:
           id_user = int(ele.split('_')[1])
           DBSession.add(Acl(id_user, id_project, _acl_label))
       DBSession.flush()

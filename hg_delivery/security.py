@@ -72,9 +72,9 @@ class ProjectFactory(object):
         # shoud I link this to 'group:editors' instead of Authenticated ?
         self.__acl__ = [(Allow, Authenticated, 'edit')]
       else :
-       for _label_acl in DBSession.query(Acl.acl).join(User).filter(Acl.id_project==id_project).filter(User.email==id_user) :
-        # shoud I link this to 'group:editors' instead of Authenticated ?
-         self.__acl__.append((Allow, Authenticated, _label_acl))
+        for (_label_acl,) in DBSession.query(Acl.acl).join(User).filter(Acl.id_project==id_project).filter(User.email==id_user) :
+          # shoud I link this to 'group:editors' instead of Authenticated ?
+          self.__acl__.append((Allow, Authenticated, _label_acl))
 
 #------------------------------------------------------------------------------
 
