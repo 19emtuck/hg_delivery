@@ -20,6 +20,7 @@ from .models import (
     Project,
     RemoteLog,
     User,
+    Acl,
     Group,
     )
 from hg_delivery.nodes import (
@@ -426,6 +427,9 @@ def edit_project(request):
 
     repository_error = None
 
+    users = DBSession.query(User)
+    project_acls = {_acl.id_user:_acl.acl for _acl in DBSession.query(Acl).filter(Acl.id_project == id_project)}
+
     try :
       ssh_node = project.get_ssh_node()
 
@@ -447,6 +451,11 @@ def edit_project(request):
       list_branches = []
       last_hundred_change_list, map_change_sets = [], {}
 
+    id_user = request.authenticated_userid
+    allow_to_modify_acls = False
+    if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
+      allow_to_modify_acls = True
+
     return { 'project':project,
              'list_branches':list_branches,
              'limit':limit,
@@ -455,7 +464,40 @@ def edit_project(request):
              'repository_error':repository_error,
              'current_node':current_node,
              'linked_projects':linked_projects,
-             'last_hundred_change_list':last_hundred_change_list}
+             'last_hundred_change_list':last_hundred_change_list,
+             'users':users,
+             'allow_to_modify_acls':allow_to_modify_acls,
+             'project_acls':project_acls,
+             'knonwn_acl':Acl.known_acls}
+
+@view_config(route_name='project_save_acls', renderer='json', permission='edit')
+def save_project_acls(request):
+  """
+  """
+  id_project = request.matchdict['id']
+  project =  DBSession.query(Project).get(id_project)
+
+  result = False
+
+  if project :
+    try :
+      lst_acls = DBSession.query(Acl).filter(Acl.id_project == id_project).all()
+      for _acl in lst_acls :
+        DBSession.delete(_acl)
+
+      for ele,_acl_label in request.params.iteritems() :
+        if ele.count('projectacl') :
+          id_user = int(ele.split('_')[1])
+          DBSession.add(Acl(id_user, id_project, _acl_label))
+      DBSession.flush()
+      result = True
+    except IntegrityError as e:
+      DBSession.rollback()
+      result = False
+      explanation = u"wtf ?"
+
+  return {'result':result}
+
 
 #------------------------------------------------------------------------------
 

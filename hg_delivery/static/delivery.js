@@ -549,7 +549,13 @@ function display_logs(active_button) {
     localStorage.logs_enabled=0;
     $('#global_container').css('padding-bottom','0px');
   }
+}
 
+function save_project_acls(){
+  $.ajax({url:$('#project_acls').attr('action'),
+          data:$('#project_acls').serialize(),
+          success:function(json_response){}
+  });
 }
 
 /**

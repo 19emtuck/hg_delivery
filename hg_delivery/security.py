@@ -11,16 +11,20 @@
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
-from pyramid.security import remember, forget
+from pyramid.security import remember, forget, Allow, Everyone, Authenticated, authenticated_userid
 
 from .models import (
     User,
+    Acl, 
     Group,
     DBSession,
+    Project,
     )
 
 GROUPS = {'editor': ['group:editors']}
 DEFAULT_USER = {}
+
+#------------------------------------------------------------------------------
 
 def get_users():
   """
@@ -31,6 +35,8 @@ def get_users():
   db_result.update(DEFAULT_USER)
   return db_result
 
+#------------------------------------------------------------------------------
+
 def groupfinder(userid, request):
   result = None
 
@@ -39,6 +45,28 @@ def groupfinder(userid, request):
 
   # whatever every body is an editor
   return ['group:editors']
+
+#------------------------------------------------------------------------------
+
+class ProjectFactory(object):
+    __acl__ = []
+
+    def __init__(self, request):
+      self.request = request
+
+      # because of predicates id should be an int ...
+      id_project = request.matchdict[u'id']
+      id_user = request.authenticated_userid
+
+      self.__acl__ = []
+
+      if request.registry.settings['hg_delivery.default_login'] == id_user :
+        self.__acl__ = [(Allow, Authenticated, 'edit')]
+      else :
+       for _label_acl in DBSession.query(Acl.acl).join(User).filter(Acl.id_project==id_project).filter(User.email==id_user) :
+         self.__acl__.append((Allow, Authenticated, _label_acl))
+
+#------------------------------------------------------------------------------
 
 @view_config(route_name='login')
 def login(request):
@@ -64,6 +92,8 @@ def login(request):
     message = 'Failed login'
 
   return HTTPFound(location=request.route_url('home'))
+
+#------------------------------------------------------------------------------
 
 @view_config(route_name='logout')
 def logout(request):

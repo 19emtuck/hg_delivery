@@ -223,6 +223,28 @@ class User(Base):
 
 #------------------------------------------------------------------------------
 
+class Acl(Base):
+  """
+  """
+  __tablename__ = 'acl'
+
+  known_acls = ['edit', 'read']
+
+  id = Column(Integer, primary_key=True)
+  id_user = Column(Integer, ForeignKey(User.id))
+
+  id_project = Column(Integer, ForeignKey(Project.id))
+  project = relationship(Project)
+
+  acl = Column(String(30))
+
+  def __init__(self, id_user, id_project, acl_label) :
+    self.id_user = id_user
+    self.id_project = id_project
+    self.acl = acl_label 
+
+#------------------------------------------------------------------------------
+
 class RootFactory(object):
   """
   """
@@ -236,3 +258,4 @@ class RootFactory(object):
     pass
 
 #------------------------------------------------------------------------------
+

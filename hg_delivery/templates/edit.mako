@@ -7,11 +7,13 @@
   <li class="active"> <a href="#project_home">project <b>${project.name}</b></a> </li>
   <li> <a href="#related">Related projects</a> </li>
   <li> <a href="#revision">Revision</a> </li>
+  % if allow_to_modify_acls :
+    <li> <a href="#users">Users</a> </li>
+  % endif
 </ul>
 
 <!-- Tab panes -->
 <div class="tab-content">
-
 
   <!-- a tab -->
   <div class="tab-pane active" id="project_home">
@@ -185,6 +187,49 @@
       <!-- if not diff are available -->
   </div>
 
+  % if allow_to_modify_acls :
+    <!-- project users tab pane -->
+    <div class="tab-pane" id="users">
+        <div id="files_panel">
+          <div class="panel-heading">
+            <h3 class="panel-title">What users can do in this project</h3>
+          </div>
+          <div class="panel-body">
+             <form name="project_acls" id="project_acls" action="${url(route_name='project_save_acls', id=project.id)}">
+               <table style="width:300px">
+                   <thead>
+                      <th>User</th>
+                      <th>Available role</th>
+                   </thead>
+                   <tbody>
+                     % for user in users :
+                        <tr>
+                          <td>${user.name}</td>
+                          <td>
+                             <select name="projectacl_${user.id}">
+                               <option value=""> ----- </option>
+                               % for acl_label in knonwn_acl :
+                                   % if project_acls.get(user.id) == acl_label :
+                                     <option value="${acl_label}" selected>${acl_label}</option>
+                                   % else :
+                                     <option value="${acl_label}">${acl_label}</option>
+                                   % endif
+                               % endfor
+                             </select>
+                          </td>
+                        </tr>
+                     % endfor 
+                   </tbody>
+               </table>
+             </form>
+          </div>
+        </div>
+
+        <div id="files_panel">
+            <button onclick="save_project_acls()">save modifications</button>
+        </div>
+    </div>
+  % endif
 
 </div>
 
