@@ -14,7 +14,7 @@ from sqlalchemy import engine_from_config
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 
-from hg_delivery.security import groupfinder, GROUPS, DEFAULT_USER, ProjectFactory
+from hg_delivery.security import groupfinder, GROUPS, DEFAULT_USER, ProjectFactory, get_user
 from hg_delivery.predicates import to_int 
 
 from .models import (
@@ -93,6 +93,7 @@ def main(global_config, **settings):
 
   config.set_authentication_policy(authn_policy)
   config.set_authorization_policy(authz_policy)
+  config.add_request_method(get_user, 'user', reify=True)
 
   # config.add_static_view('static', 'static', cache_max_age=3600)
   config.add_static_view('static', 'static')

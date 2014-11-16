@@ -11,7 +11,7 @@
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
-from pyramid.security import remember, forget, Allow, Everyone, Authenticated, authenticated_userid
+from pyramid.security import remember, forget, Allow, Everyone, Authenticated, unauthenticated_userid
 
 from .models import (
     User,
@@ -23,6 +23,18 @@ from .models import (
 
 GROUPS = {}
 DEFAULT_USER = {}
+
+#------------------------------------------------------------------------------
+
+def get_user(request):
+  """
+  """
+  userid = unauthenticated_userid(request)
+  user = None
+  if userid is not None:
+    user = DBSession.query(User).filter(User.email==userid).scalar()
+
+  return user
 
 #------------------------------------------------------------------------------
 
@@ -40,8 +52,9 @@ def get_users():
 def groupfinder(userid, request):
   result = None
 
-  if userid in get_users() :
-    result = GROUPS.get(userid, ['group:editors'])
+  user = request.user
+  if user is not None :
+    result = GROUPS.get(user.email,['group:editors'])
 
   # whatever every body is an editor
   return ['group:editors']
@@ -72,7 +85,7 @@ class ProjectFactory(object):
         # shoud I link this to 'group:editors' instead of Authenticated ?
         self.__acl__ = [(Allow, Authenticated, 'edit')]
       else :
-        for (_label_acl,) in DBSession.query(Acl.acl).join(User).filter(Acl.id_project==id_project).filter(User.email==id_user) :
+        for (_label_acl,) in DBSession.query(Acl.acl).join(User).filter(Acl.id_project==id_project).filter(User.id==request.user.id) :
           # shoud I link this to 'group:editors' instead of Authenticated ?
           self.__acl__.append((Allow, Authenticated, _label_acl))
 
