@@ -408,7 +408,12 @@ def edit_project(request):
     result = False
     id_project = request.matchdict['id']
 
-    projects_list =  DBSession.query(Project).order_by(Project.name.desc()).all()
+    projects_list =  []
+    if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
+      projects_list =  DBSession.query(Project).order_by(Project.name.desc()).all()
+    else :
+      projects_list =  DBSession.query(Project).join(Acl).order_by(Project.name.desc()).all()
+
     projects_map =  {p.id:p for p in projects_list}
     project = projects_map.get(id_project)
 
