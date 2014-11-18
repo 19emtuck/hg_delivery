@@ -126,7 +126,7 @@ class RemoteLog(Base):
 
   id = Column(Integer, primary_key=True)
   id_project = Column(Integer, ForeignKey(Project.id))
-  project = relationship(Project)
+  project = relationship(Project, cascade='delete-orphan', single_parent=True)
 
   host = Column(String(100))
   path = Column(Text)
@@ -232,9 +232,10 @@ class Acl(Base):
 
   id = Column(Integer, primary_key=True)
   id_user = Column(Integer, ForeignKey(User.id))
+  user = relationship(User, backref='acls', cascade='delete-orphan', single_parent=True)
 
   id_project = Column(Integer, ForeignKey(Project.id))
-  project = relationship(Project)
+  project = relationship(Project, cascade='delete-orphan', single_parent=True)
 
   acl = Column(String(30))
 
