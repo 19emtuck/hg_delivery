@@ -490,14 +490,12 @@ def save_project_acls(request):
 
   if project :
     try :
-      lst_acls = DBSession.query(Acl).filter(Acl.id_project == id_project).all()
-      for _acl in lst_acls :
-        DBSession.delete(_acl)
-
+      # we remove old ACLs
+      project.acls[0:] = []
       for ele, _acl_label in request.params.iteritems() :
         if ele.count('projectacl') and _acl_label in Acl.known_acls:
           id_user = int(ele.split('_')[1])
-          DBSession.add(Acl(id_user, id_project, _acl_label))
+          project.acls.append(Acl(id_user, id_project, _acl_label))
       DBSession.flush()
       result = True
     except IntegrityError as e:
