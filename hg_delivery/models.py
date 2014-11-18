@@ -235,7 +235,7 @@ class Acl(Base):
   user = relationship(User, backref='acls', cascade='delete-orphan', single_parent=True)
 
   id_project = Column(Integer, ForeignKey(Project.id))
-  project = relationship(Project, cascade='delete-orphan', single_parent=True)
+  project = relationship(Project, backref='acls', cascade='delete-orphan', single_parent=True)
 
   acl = Column(String(30))
 
