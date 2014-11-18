@@ -66,6 +66,14 @@
         <br>
         <!-- node tables -->
         <table id="project_tab"class="table table-condensed">
+           <colgroup><col>
+             <col>
+             <col>
+             <col>
+             <col>
+             <col width="170px">
+             <col>
+           </colgroup>
            <thead>
              <th></th>
              <th>Rev.</th>
