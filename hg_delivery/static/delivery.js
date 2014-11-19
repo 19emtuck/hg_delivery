@@ -342,8 +342,6 @@ function update_user(target_url){
           method:'POST',
           data:$('#update_user_form').serialize(),
           dataType:'json',
-          complete:function(){
-          },
           success:function(json_response){
               var $sel, default_url, _alert_html;
               $('.alert').remove();
@@ -471,8 +469,8 @@ function add_project(target_url){
                 $('#new_project_dialog .modal-body').after(_alert_html);
                 $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
               }
-	      // we refresh the number of projects ...
-	      $('#project_number').text($('#projects_list li').size().toString());
+              // we refresh the number of projects ...
+              $('#project_number').text($('#projects_list li').size().toString());
             }
          });
 }
@@ -552,8 +550,18 @@ function display_logs(active_button) {
 }
 
 function save_project_acls(){
+  var label_button = $('#project_acls button').text();
+
   $.ajax({url:$('#project_acls').attr('action'),
           data:$('#project_acls').serialize(),
+          beforeSend:function(){
+            $('#project_acls button').text('saving ...');
+          },
+          complete:function(){
+            
+            setTimeout(function() { $('#project_acls button').text(label_button); }, 300);
+          },
+
           success:function(json_response){}
   });
 }
