@@ -8,7 +8,7 @@
   <li> <a href="#related">Related projects</a> </li>
   <li> <a href="#revision">Revision</a> </li>
   % if allow_to_modify_acls :
-    <li> <a href="#users">Users</a> </li>
+    <li> <a href="#users">Users (rights management)</a></li>
   % endif
 </ul>
 
@@ -65,7 +65,7 @@
         <!-- weird css ?? can some one explain me why below table is shifted to the right on firefox ??? -->
         <br>
         <!-- node tables -->
-        <table id="project_tab"class="table table-condensed">
+        <table id="project_tab" class="table table-condensed">
            <colgroup><col>
              <col>
              <col>
@@ -141,8 +141,8 @@
         </div>
         <div class="panel-body">
            <div id="other_projects" class="list-group">
-             <button id="button_pull" onclick="pull_from(${project.id}, '${url(route_name='project_pull_from', id=project.id, source='')}');">pull from</button>
-             <button id="button_push" onclick="push_to(${project.id}, '${url(route_name='project_push_to', id=project.id, target='')}',false);">push to</button>
+             <button id="button_pull" class="btn btn-primary" onclick="pull_from(${project.id}, '${url(route_name='project_pull_from', id=project.id, source='')}');">pull from</button>
+             <button id="button_push" class="btn btn-primary" onclick="push_to(${project.id}, '${url(route_name='project_push_to', id=project.id, target='')}',false);">push to</button>
            </div>
         </div>
       </div>
@@ -204,7 +204,7 @@
           </div>
           <div class="panel-body">
              <form name="project_acls" id="project_acls" action="${url(route_name='project_save_acls', id=project.id)}">
-               <table style="width:300px">
+               <table style="width:300px" class="table table-condensed">
                    <thead>
                       <th>User</th>
                       <th>Available role</th>
@@ -229,12 +229,10 @@
                      % endfor 
                    </tbody>
                </table>
+
+               <button type="button" onclick="save_project_acls()" class="btn btn-primary">save modifications</button>
              </form>
           </div>
-        </div>
-
-        <div id="files_panel">
-            <button onclick="save_project_acls()">save modifications</button>
         </div>
     </div>
   % endif
