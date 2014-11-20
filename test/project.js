@@ -33,8 +33,25 @@ casper.then(function(response){
   this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
 });
 
+// then we delete the project if it exists.
+casper.then(function(){
+  this.click('form[name="view_project"] button.dropdown-toggle');
+  var bool_link_exist = this.evaluate(function(){
+     return $('#projects_list a:contains("t8")').size()>0;
+  });
+  if(bool_link_exist){
+    var next_link = this.evaluate(function(){
+       return $('#projects_list a:contains("t8")').attr('href');
+    });
+    this.thenOpen(next_link);
+    this.waitUntilVisible('#project_home');
+    this.thenClick('#manage_project');
+    this.thenClick('#view_delete_project');
+  }
+});
+
 // add a new project
-casper.then(function(response){ this.click('span[class="glyphicon glyphicon-plus"]') });
+casper.thenClick('span[class="glyphicon glyphicon-plus"]');
 casper.then(function(response){ this.test.assertExists('#add_my_project'); });
 casper.then(function(response){
   this.fill('form[name="project"]', { 'name':'t8',
@@ -48,7 +65,7 @@ casper.waitWhileVisible('#new_project_dialog');
 casper.waitUntilVisible('.alert-success');
 
 // try to add the same project twice !
-casper.then(function(response){ this.click('span[class="glyphicon glyphicon-plus"]') });
+casper.thenClick('span[class="glyphicon glyphicon-plus"]');
 casper.then(function(response){ this.test.assertExists('#add_my_project'); });
 casper.then(function(response){
   this.fill('form[name="project"]', {'name':'t8',
