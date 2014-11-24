@@ -63,7 +63,7 @@
                    </button>
                    <ul id="projects_list" class="dropdown-menu" role="menu" data-url="${url(route_name='project_edit',id='')}">
                    % for __project in projects_list :
-                     <li><a href="${url(route_name='project_edit',id=__project.id)}">${__project.name}</a></li>
+                     <li><a class="project_link" href="${url(route_name='project_edit',id=__project.id)}">${__project.name}</a></li>
                    % endfor
                    % if (project is UNDEFINED and request.url == request.route_url('home')) or project is not UNDEFINED:
                      <li class="divider"></li>
