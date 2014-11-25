@@ -425,6 +425,10 @@ def edit_project(request):
     if 'branch' in request.params :
       branch = request.params['branch']
 
+    tag = None
+    if 'tag' in request.params :
+      tag = request.params['tag']
+
     limit = 200 
     settings = request.registry.settings
     if 'hg_delivery.default_log_limit' in settings and settings['hg_delivery.default_log_limit'].isdigit():
@@ -447,8 +451,9 @@ def edit_project(request):
 
       current_rev = ssh_node.get_current_rev_hash()
 
-      last_hundred_change_list, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch)
+      last_hundred_change_list, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch, revision_filter=tag)
       list_branches = ssh_node.get_branches()
+      list_tags = ssh_node.get_tags()
 
       current_node = map_change_sets.get(current_rev)
       if current_node is None :
@@ -458,6 +463,7 @@ def edit_project(request):
       log.error(e.value)
       current_node = None
       list_branches = []
+      list_tags = []
       last_hundred_change_list, map_change_sets = [], {}
 
     id_user = request.authenticated_userid
@@ -467,8 +473,10 @@ def edit_project(request):
 
     return { 'project':project,
              'list_branches':list_branches,
+             'list_tags':list_tags,
              'limit':limit,
              'projects_list':projects_list,
+             'filter_tag':tag,
              'filter_branch':branch,
              'repository_error':repository_error,
              'current_node':current_node,

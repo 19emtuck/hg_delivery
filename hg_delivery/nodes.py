@@ -286,7 +286,7 @@ class NodeSsh(object):
 
   @check_connections
   def run_command(self, command, log=False):
-    ''' Executes command via SSH. '''
+    ''' Executes command through SSH tunnel. '''
     # we lock threads per resource
     with self.lock :
       try :
@@ -473,6 +473,20 @@ class HgNode(NodeSsh):
         result = None
     return result
      
+  def get_tags(self):
+    """
+      return a list of tags labels
+    """
+    tags_and_key_revisions = []
+    try :
+      data = self.run_command(u'cd %s ; hg tags'%(self.path))
+    except NodeException as e :
+      pass
+    else :
+      tags_and_key_revisions = sorted((re.sub(' {2,}',' ',e).split(u' ') for e in data.strip().split(u'\n') if e.split(u' ')[0]))
+    
+    return tags_and_key_revisions
+
   def get_branches(self):
     """
       return a list of branches labels

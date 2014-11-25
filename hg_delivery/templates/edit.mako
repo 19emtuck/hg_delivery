@@ -39,6 +39,23 @@
          <form id="refresh" name="refresh" action="" method="POST" role="form" class="form-inline">
            <div class="btn-group">
              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="min-width:80px">
+               %if filter_tag :
+                 <span id="tag_name">${[t[0] for t in list_tags if t[1]==filter_tag][0]}</span> <span class="caret"></span>
+               %else :
+                 Tags <span class="caret"></span>
+               %endif
+             </button>
+             <ul class="dropdown-menu" role="menu">
+             %if filter_tag :
+               <li><a href="#" onclick="$('#tag').val('');$('#refresh').submit()"><b>All tags</b></a></li>
+             %endif
+             %for _tag in list_tags :
+               <li><a href="#" onclick="$('#tag').val('${_tag[1]}');$('#refresh').submit()">${_tag[0]}</a></li>
+             %endfor
+             </ul>
+           </div>
+           <div class="btn-group">
+             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="min-width:80px">
                %if filter_branch :
                  <span id="branch_name">${filter_branch}</span> <span class="caret"></span>
                %else :
@@ -55,6 +72,7 @@
              </ul>
            </div>
            <input type="hidden" id="branch" name="branch" value="">
+           <input type="hidden" id="tag" name="tag" value="">
            <input type="text" name="limit" value="${limit}" size="3" maxlength="4" style="margin-left:20px;">
            <button id="view_refresh_project" class="btn btn-primary" style="float:right">Filter this view</button>
          </form>
