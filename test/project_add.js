@@ -50,11 +50,11 @@ casper.then(function(){
 
  this.each(projects_names, function(self, next_link){
     self.click('form[name="view_project"] button.dropdown-toggle');
-    this.thenOpen(next_link);
-    this.waitUntilVisible('#project_home');
-    this.thenClick('#manage_project');
-    this.thenClick('#view_delete_project');
-    this.waitUntilVisible('form[name="view_project"] button.dropdown-toggle');
+    self.thenOpen(next_link);
+    self.waitUntilVisible('#project_home');
+    self.thenClick('#manage_project');
+    self.thenClick('#view_delete_project');
+    self.waitUntilVisible('form[name="view_project"] button.dropdown-toggle');
     self.wait(200);
  });
 
