@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2003-2007  Stéphane Bard <stephane.bard@gmail.com>
@@ -59,6 +58,9 @@ class Project(Base):
   rev_init = Column(String(100))
   dvcs_release = Column(String(20))
   dashboard = Column(Boolean)
+
+  logs = relationship('RemoteLog', cascade='delete, delete-orphan')
+  acls = relationship('Acl', backref='project', cascade='delete, delete-orphan')
 
   def __init__(self, name, user, password, host, path, rev_init, dashboard, dvcs_release):
     """
@@ -126,8 +128,6 @@ class RemoteLog(Base):
 
   id = Column(Integer, primary_key=True)
   id_project = Column(Integer, ForeignKey(Project.id))
-  project = relationship(Project, cascade='delete-orphan', single_parent=True)
-
   host = Column(String(100))
   path = Column(Text)
   command = Column(Text)
@@ -186,7 +186,8 @@ class User(Base):
   id = Column(Integer, primary_key=True)
 
   id_group = Column(Integer, ForeignKey(Group.id))
-  group = relationship(Group, backref=backref('users'))
+  group = relationship(Group, backref='users')
+  acls = relationship('Acl', backref='user', cascade='delete, delete-orphan')
 
   name = Column(String(100))
   id_groupe = Column(Integer)
@@ -232,11 +233,8 @@ class Acl(Base):
 
   id = Column(Integer, primary_key=True)
   id_user = Column(Integer, ForeignKey(User.id))
-  user = relationship(User, backref='acls', cascade='delete-orphan', single_parent=True)
 
   id_project = Column(Integer, ForeignKey(Project.id))
-  project = relationship(Project, backref='acls', cascade='delete-orphan', single_parent=True)
-
   acl = Column(String(30))
 
   def __init__(self, id_user, id_project, acl_label) :

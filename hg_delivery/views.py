@@ -502,17 +502,24 @@ def save_project_acls(request):
       project.acls[0:] = []
       for ele, _acl_label in request.params.iteritems() :
         if ele.count('projectacl') and _acl_label in Acl.known_acls:
+
+          # create acl object
           id_user = int(ele.split('_')[1])
-          project.acls.append(Acl(id_user, id_project, _acl_label))
+          acl = Acl(id_user, id_project, _acl_label)
+
+          # make the link with DBSession ...
+          DBSession.add(acl)
+          project.acls.append(acl)
+
       DBSession.flush()
       result = True
     except IntegrityError as e:
+      print(e)
       DBSession.rollback()
       result = False
       explanation = u"wtf ?"
 
   return {'result':result}
-
 
 #------------------------------------------------------------------------------
 
