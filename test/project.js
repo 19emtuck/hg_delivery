@@ -50,6 +50,10 @@ casper.then(function(){
   }
 });
 
+casper.waitForSelector('span[class="glyphicon glyphicon-plus"]', function(){
+  this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
+});
+
 // add a new project
 casper.thenClick('span[class="glyphicon glyphicon-plus"]');
 casper.then(function(response){ this.test.assertExists('#add_my_project'); });
