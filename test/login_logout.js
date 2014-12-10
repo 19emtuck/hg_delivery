@@ -39,7 +39,7 @@ casper.thenClick("#sign_out");
 
 // check I've loos my rights and be really disconnected
 // should take a 403 forbidden!
-casper.thenOpen('http://127.0.0.1:6543/users');
+casper.thenOpen('http://127.0.0.1:6543/users/view');
 casper.then(function(response){
   this.test.assertEqual(response.status,200);
   this.test.assertTextExists('403 Forbidden');

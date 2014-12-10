@@ -39,6 +39,18 @@ casper.then(function(response){
   this.test.assertTitle('Hg Delivery 1.0 welcome :)');
   this.test.assertTextExists('User management');
 });
+
+// delete the test user if it already exists
+// loop over known users to remove them ...
+casper.then(function(){
+  var user_label = 'toto@free.fr';
+  this.evaluate(function(user_label){$('td:contains("' + user_label + '")').closest('tr').find('button:contains("delete")').click();}, user_label);
+  this.wait(200);
+  this.waitWhileSelector('td:contains("' + user_label + '")');
+  this.wait(200);
+});
+
+
 casper.then(function(response){ this.click('span[class="glyphicon glyphicon-plus"]') });
 casper.waitUntilVisible('#new_user');
 casper.then(function(response){ this.test.assertExists('#new_user'); });
@@ -75,7 +87,7 @@ casper.then(function(){
    this.page.cookies=[];
 });
 
-// check I've loos my rights
+// check I've lose my rights
 // should take a 403 forbidden!
 casper.thenOpen('http://127.0.0.1:6543/users/view');
 casper.then(function(response){
@@ -91,7 +103,7 @@ casper.then(function(response){
 casper.then(function(response){
   this.test.assertTitle('Hg Delivery 1.0 welcome :)');
   this.test.assertTextExists('Dashboard');
-  this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
+  this.test.assertDoesntExist('span[class="glyphicon glyphicon-plus"]');
 });
 casper.thenClick("#sign_out");
 casper.then(function(response){
