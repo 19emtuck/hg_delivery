@@ -95,6 +95,8 @@ casper.then(function(){
 })
 casper.waitUntilVisible('#project_home');
 casper.thenClick('#manage_project');
+
+// finally we delete him ...
 casper.thenClick('#view_delete_project');
 
 // back to welcome page ...
@@ -104,5 +106,20 @@ casper.then(function(response){
   this.test.assertTextExists('Dashboard');
   this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
 });
+
+
+// add t8 project for normal test behavior
+casper.thenClick('span[class="glyphicon glyphicon-plus"]');
+casper.then(function(response){ this.test.assertExists('#add_my_project'); });
+casper.then(function(response){
+  this.fill('form[name="project"]', { 'name':'t8',
+                                      'host':'127.0.0.1',
+                                      'path':'/home/sbard/dev/t8',
+                                      'user':'sbard',
+                                      'password':'evangelion' });
+});
+casper.thenClick('#add_my_project');
+casper.waitWhileVisible('#new_project_dialog');
+casper.waitUntilVisible('.alert-success');
 
 casper.run();
