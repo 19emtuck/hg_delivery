@@ -11,12 +11,12 @@ casper.on('step.start', function(){
 });
 casper.on('step.complete', function(){
   if(!casper.cli.has('fast')){
-    this.capture('images/users_test_'+casper.step+'.jpg', undefined,{ format:'jpg', quality:100});
+    this.capture('images/init_some_users_test_'+casper.step+'.jpg', undefined,{ format:'jpg', quality:100});
   }
 });
 casper.on('step.error', function(error){
   if(!casper.cli.has('fast')){
-    this.capture('images/users_error_'+casper.step+'.jpg', undefined,{ format:'jpg', quality:100});
+    this.capture('images/init_some_users_error_'+casper.step+'.jpg', undefined,{ format:'jpg', quality:100});
   }
 });
 casper.on('remote.message',function(message){this.echo(message)});
