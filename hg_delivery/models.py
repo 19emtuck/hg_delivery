@@ -49,42 +49,42 @@ class Project(Base):
   """
   __tablename__ = 'projects'
 
-  id = Column(Integer, primary_key=True)
-  name = Column(String(100))
-  user = Column(String(100))
-  password = Column(String(100))
-  host = Column(String(100))
-  path = Column(Text)
-  rev_init = Column(String(100))
+  id           = Column(Integer, primary_key=True)
+  name         = Column(String(100))
+  user         = Column(String(100))
+  password     = Column(String(100))
+  host         = Column(String(100))
+  path         = Column(Text)
+  rev_init     = Column(String(100))
   dvcs_release = Column(String(20))
-  dashboard = Column(Boolean)
+  dashboard    = Column(Boolean)
 
-  logs = relationship('RemoteLog', cascade='delete, delete-orphan')
-  acls = relationship('Acl', backref='project', cascade='delete, delete-orphan')
+  logs         = relationship('RemoteLog', cascade='delete, delete-orphan')
+  acls         = relationship('Acl', backref='project', cascade='delete, delete-orphan')
 
   def __init__(self, name, user, password, host, path, rev_init, dashboard, dvcs_release):
     """
     """
-    self.name = name
-    self.user = user
-    self.password = password
-    self.host = host 
-    self.path = path 
-    self.rev_init = rev_init
-    self.dashboard = dashboard 
-    self.dvcs_release = dvcs_release 
+    self.name         = name
+    self.user         = user
+    self.password     = password
+    self.host         = host
+    self.path         = path
+    self.rev_init     = rev_init
+    self.dashboard    = dashboard
+    self.dvcs_release = dvcs_release
 
   def __json__(self, request):
     """
     """
-    return { 'id':self.id,
-             'name':self.name,
-             'host':self.host,
-             'path':self.path,
-             'user':self.user,
-             'password':'*'*len(self.password),
-             'dashboard':self.dashboard,
-             'dvcs_release':self.dvcs_release}
+    return { 'id'           : self.id,
+             'name'         : self.name,
+             'host'         : self.host,
+             'path'         : self.path,
+             'user'         : self.user,
+             'password'     : '*'*len(self.password),
+             'dashboard'    : self.dashboard,
+             'dvcs_release' : self.dvcs_release }
 
   def get_uri(self):
     """
@@ -126,30 +126,30 @@ class RemoteLog(Base):
   """
   __tablename__ = 'logs'
 
-  id = Column(Integer, primary_key=True)
-  id_project = Column(Integer, ForeignKey(Project.id))
-  host = Column(String(100))
-  path = Column(Text)
-  command = Column(Text)
+  id            = Column(Integer, primary_key=True)
+  id_project    = Column(Integer, ForeignKey(Project.id))
+  host          = Column(String(100))
+  path          = Column(Text)
+  command       = Column(Text)
   creation_date = Column(DateTime)
 
   def __init__(self, id_project, host, path, command):
     """
     """
-    self.id_project = id_project
+    self.id_project    = id_project
     self.creation_date = datetime.now()
-    self.host = host
-    self.path =path 
-    self.command = command
+    self.host          = host
+    self.path          = path
+    self.command       = command
 
   def __json__(self, request):
     """
     """
-    return { 'id':self.id,
-             'host':self.host,
-             'path':self.path,
-             'command':self.command,
-             'creation_date':self.creation_date.strftime('%d/%m/%Y %H:%M')}
+    return { 'id'            : self.id,
+             'host'          : self.host,
+             'path'          : self.path,
+             'command'       : self.command,
+             'creation_date' : self.creation_date.strftime('%d/%m/%Y %H : %M')}
 
 #------------------------------------------------------------------------------
 
@@ -159,22 +159,22 @@ class Group(Base):
   """
   __tablename__ = 'group'
 
-  id = Column(Integer, primary_key=True)
-  label = Column(String(100))
+  id            = Column(Integer, primary_key = True)
+  label         = Column(String(100))
   creation_date = Column(DateTime)
 
   def __init__(self, label, creation_date):
     """
     """
-    self.label = label
+    self.label         = label
     self.creation_date = creation_date
 
   def __json__(self, request):
     """
     """
-    return { 'id':self.id,
-             'label':self.label,
-             'creation_date':self.creation_date.strftime('%d/%m/%Y %H:%M')}
+    return { 'id'            : self.id,
+             'label'         : self.label,
+             'creation_date' : self.creation_date.strftime('%d/%m/%Y %H : %M')}
 #------------------------------------------------------------------------------
 
 class User(Base):
@@ -183,24 +183,24 @@ class User(Base):
   """
   __tablename__ = 'user'
 
-  id = Column(Integer, primary_key=True)
+  id            = Column(Integer, primary_key=True)
 
-  id_group = Column(Integer, ForeignKey(Group.id))
-  group = relationship(Group, backref='users')
-  acls = relationship('Acl', backref='user', cascade='delete, delete-orphan')
+  id_group      = Column(Integer, ForeignKey(Group.id))
+  group         = relationship(Group, backref='users')
+  acls          = relationship('Acl', backref='user', cascade = 'delete, delete-orphan')
 
-  name = Column(String(100))
-  id_groupe = Column(Integer)
-  pwd = Column(String(100))
-  email = Column(String(100), unique=True)
+  name          = Column(String(100))
+  id_groupe     = Column(Integer)
+  pwd           = Column(String(100))
+  email         = Column(String(100), unique=True)
   creation_date = Column(DateTime)
 
   def __init__(self, name, pwd, email, creation_date=None):
     """
     """
-    self.name = name 
-    self.pwd  = pwd 
-    self.email = email 
+    self.name  = name
+    self.pwd   = pwd
+    self.email = email
 
     if creation_date is None :
       self.creation_date = datetime.now()
@@ -212,15 +212,15 @@ class User(Base):
     if self.creation_date :
       creation_date = self.creation_date.strftime('%d/%m/%Y %H:%M')
 
-    return { 'id':self.id,
-             'name':self.name,
-             'email':self.email,
-             'pwd':self.pwd,
-             'get_url' : request.route_url(route_name='user_get',id=self.id),
-             'delete_url' : request.route_url(route_name='user_delete',id=self.id),
-             'update_url' : request.route_url(route_name='user_update',id=self.id),
-             'group':self.group,
-             'creation_date':creation_date }
+    return { 'id'            : self.id,
+             'name'          : self.name,
+             'email'         : self.email,
+             'pwd'           : self.pwd,
+             'get_url'       : request.route_url(route_name='user_get',id=self.id),
+             'delete_url'    : request.route_url(route_name='user_delete',id=self.id),
+             'update_url'    : request.route_url(route_name='user_update',id=self.id),
+             'group'         : self.group,
+             'creation_date' : creation_date }
 
 #------------------------------------------------------------------------------
 
@@ -231,16 +231,21 @@ class Acl(Base):
 
   known_acls = ['edit', 'read']
 
-  id = Column(Integer, primary_key=True)
-  id_user = Column(Integer, ForeignKey(User.id))
-
+  id         = Column(Integer, primary_key=True)
+  id_user    = Column(Integer, ForeignKey(User.id))
   id_project = Column(Integer, ForeignKey(Project.id))
-  acl = Column(String(30))
+  acl        = Column(String(30))
 
   def __init__(self, id_user, id_project, acl_label) :
-    self.id_user = id_user
+    """
+    Acl object constructor
+    :param id_user: the id of the attached user
+    :param id_project: the id of the attached project 
+    :param acl_label: the label of the project
+    """
+    self.id_user    = id_user
     self.id_project = id_project
-    self.acl = acl_label 
+    self.acl        = acl_label
 
 #------------------------------------------------------------------------------
 
