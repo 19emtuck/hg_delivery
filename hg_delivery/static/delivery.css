@@ -47,6 +47,15 @@ body {
   z-index:100;
 }
 
+#tasks ul {
+  padding:0;
+  list-style:none;
+}
+
+#tasks ul li {
+  padding-bottom:10px;
+}
+
 #container_alert .alert {
   margin-bottom:0px;
 }

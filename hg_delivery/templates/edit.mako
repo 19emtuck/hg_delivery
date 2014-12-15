@@ -9,6 +9,7 @@
   <li> <a href="#revision">Revision</a> </li>
   % if allow_to_modify_acls :
     <li> <a href="#users">Users (rights management)</a></li>
+    <li> <a href="#tasks">Additional Tasks</a> </li>
   % endif
 </ul>
 
@@ -253,6 +254,28 @@
           </div>
         </div>
     </div>
+
+    <!-- project tasks tab pane -->
+    <div class="tab-pane" id="tasks">
+        <div id="files_panel">
+          <div class="panel-heading">
+            <h3 class="panel-title">Additional tasks executed after each update</h3>
+          </div>
+          <div class="panel-body">
+             <form name="project_tasks" id="project_tasks" action="${url(route_name='project_save_tasks', id=project.id)}">
+               <ul id="tasks_list">
+                   %for task_content in project_tasks :
+                     <li><input type="text" name="task_content" size="150" value="${task_content.content}"></li>
+                   %endfor
+               </ul>
+               <button type="button" onclick="add_new_task()" class="btn btn-primary">add a task</button>
+               <button id="save_tasks" type="button" onclick="save_project_tasks()" class="btn btn-primary">save modifications</button>
+             </form>
+          </div>
+        </div>
+    </div>
+
+
   % endif
 
 </div>

@@ -549,6 +549,30 @@ function display_logs(active_button) {
   }
 }
 
+function add_new_task(){
+  $('<li><input type="text" name="task_content" size="150"></li>').appendTo('#tasks_list');
+}
+
+function save_project_tasks(){
+  $('#tasks_list li input[type="text"]').each(function(id,item){
+    if($(item).val()===''){
+      $(item).remove();
+    }
+  });
+
+  var label_button = $('#save_tasks').text();
+
+  $.ajax({url:$('#project_tasks').attr('action'),
+          data:$('#project_tasks').serialize(),
+          beforeSend:function(){
+            $('#save_tasks').text('saving ...');
+          },
+          complete:function(){
+            setTimeout(function() { $('#save_tasks').text(label_button); }, 300);
+          },
+  });
+}
+
 function save_project_acls(){
   var label_button = $('#project_acls button').text();
 
@@ -558,10 +582,8 @@ function save_project_acls(){
             $('#project_acls button').text('saving ...');
           },
           complete:function(){
-            
             setTimeout(function() { $('#project_acls button').text(label_button); }, 300);
           },
-
           success:function(json_response){}
   });
 }

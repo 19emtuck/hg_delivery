@@ -61,6 +61,7 @@ class Project(Base):
 
   logs         = relationship('RemoteLog', cascade='delete, delete-orphan')
   acls         = relationship('Acl', backref='project', cascade='delete, delete-orphan')
+  tasks        = relationship('Task', backref='project', cascade='delete, delete-orphan')
 
   def __init__(self, name, user, password, host, path, rev_init, dashboard, dvcs_release):
     """
@@ -246,6 +247,23 @@ class Acl(Base):
     self.id_user    = id_user
     self.id_project = id_project
     self.acl        = acl_label
+
+#------------------------------------------------------------------------------
+
+class Task(Base):
+  """
+  """
+  __tablename__ = 'task'
+
+  id         = Column(Integer, primary_key=True)
+  id_project = Column(Integer, ForeignKey(Project.id))
+  content    = Column(Text)
+
+  def __init__(self, id_project, task_content) :
+    """
+    """
+    self.id_project  = id_project
+    self.content     = task_content
 
 #------------------------------------------------------------------------------
 

@@ -21,6 +21,7 @@ from .models import (
     RemoteLog,
     User,
     Acl,
+    Task,
     Group,
     )
 from hg_delivery.nodes import (
@@ -442,6 +443,7 @@ def edit_project(request):
 
     users = DBSession.query(User)
     project_acls = {_acl.id_user:_acl.acl for _acl in DBSession.query(Acl).filter(Acl.id_project == id_project)}
+    project_tasks = DBSession.query(Task).filter(Task.id_project == id_project).all()
 
     try :
       ssh_node = project.get_ssh_node()
@@ -485,7 +487,36 @@ def edit_project(request):
              'users':users,
              'allow_to_modify_acls':allow_to_modify_acls,
              'project_acls':project_acls,
-             'knonwn_acl':Acl.known_acls}
+             'project_tasks':project_tasks,
+             'knonwn_acl':Acl.known_acls }
+
+@view_config(route_name='project_save_tasks', renderer='json', permission='edit')
+def save_project_tasks(request):
+  """
+  """
+  id_project = request.matchdict['id']
+  project =  DBSession.query(Project).get(id_project)
+  result = False
+
+  if project :
+    try :
+      # we remove old tasks 
+      project.tasks[0:] = []
+      for  _task_content in request.params.getall('task_content') :
+        if _task_content :
+          task = Task(id_project, _task_content)
+          # make the link with DBSession ...
+          DBSession.add(task)
+          project.tasks.append(task)
+
+      DBSession.flush()
+      result = True
+    except IntegrityError as e:
+      DBSession.rollback()
+      result = False
+      explanation = u"wtf ?"
+
+  return {'result':result}
 
 @view_config(route_name='project_save_acls', renderer='json', permission='edit')
 def save_project_acls(request):
@@ -514,7 +545,6 @@ def save_project_acls(request):
       DBSession.flush()
       result = True
     except IntegrityError as e:
-      print(e)
       DBSession.rollback()
       result = False
       explanation = u"wtf ?"
@@ -625,6 +655,10 @@ def update_project_to(request):
       time.sleep(0.100)
       current_rev = ssh_node.get_current_rev_hash()
       stop_at += 1
+    
+    for task in project.tasks :
+      ssh_node.run_command(task.content, log=True)
+
   return HTTPFound(location=request.route_url(route_name='project_edit', id=project.id))
 
 #------------------------------------------------------------------------------
