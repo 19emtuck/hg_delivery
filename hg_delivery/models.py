@@ -278,7 +278,8 @@ class Task(Base):
     """
     """
     return { 'id'      : self.id,
-             'content' : self.content
+             'content' : self.content,
+             'url'     : request.route_url(route_name='project_run_task', id=self.id),
            }
 #------------------------------------------------------------------------------
 

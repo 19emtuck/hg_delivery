@@ -585,6 +585,15 @@ function save_project_tasks(){
           beforeSend:function(){
             $('#save_tasks').text('saving ...');
           },
+          success:function(json_response){
+            $tasks_list = $('#tasks_list');
+            $tasks_list.find('li').remove();
+
+            json_response.tasks.forEach(function(item, i){
+              $('<li><input type="text" name="task_content" size="150" value="' + item.content + '"> <button data-id="' + item.id + '" data-url="' + item.url + '" onclick="run_this_task(this)" type="button" class="btn">run it ..</button></li>').appendTo('#tasks_list');
+            })
+
+          },
           complete:function(){
             setTimeout(function() { $('#save_tasks').text(label_button); }, 300);
           },
