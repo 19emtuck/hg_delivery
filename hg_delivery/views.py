@@ -502,10 +502,29 @@ def run_task(request):
     try :
       ssh_node = task.project.get_ssh_node()
       ssh_node.run_command(task.content, log=True)
-      result = True
     except IntegrityError as e:
       result = False
       explanation = u"wtf ?"
+    else :
+      result = True 
+
+  return {'result':result}
+
+@view_config(route_name='project_delete_task', renderer='json', permission='edit')
+def remove_project_task(request):
+  """
+    remove some task on project
+  """
+  id_task = request.matchdict['id']
+  result = False
+  try :
+    task =  DBSession.query(Task).get(id_task)
+    DBSession.delete(task)
+  except IntegrityError as e:
+    result = False
+    explanation = u"wtf ?"
+  else :
+    result = True 
 
   return {'result':result}
 

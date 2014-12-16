@@ -549,6 +549,25 @@ function display_logs(active_button) {
   }
 }
 
+function delete_this_task(button) {
+  var $button = $(button);
+  $button.prop('disabled',true);
+  var url = $button.data('url');
+  var label_button = $button.text();
+  $.ajax({url:url,
+          beforeSend:function(){
+            $button.text('delete ...');
+          },
+          success:function(json_response){
+            if(json_response.result){
+              console.log($button.closest('li'));
+              $button.closest('li').remove();
+            }
+          },
+  });
+}
+
+
 function run_this_task(button){
   var $button = $(button);
   $button.prop('disabled',true);
@@ -558,7 +577,7 @@ function run_this_task(button){
           beforeSend:function(){
             $button.text('runing ...');
           },
-          complete:function(){
+          complete:function(json_response){
             setTimeout(function() { $button.text(label_button); }, 300);
             $button.prop('disabled',false);
           },
@@ -590,7 +609,12 @@ function save_project_tasks(){
             $tasks_list.find('li').remove();
 
             json_response.tasks.forEach(function(item, i){
-              $('<li><input type="text" name="task_content" size="150" value="' + item.content + '"> <button data-id="' + item.id + '" data-url="' + item.url + '" onclick="run_this_task(this)" type="button" class="btn">run it ..</button></li>').appendTo('#tasks_list');
+              var html = '<li>';
+              html = html + ' <input type="text" name="task_content" size="150" value="' + item.content + '">';
+              html = html + ' <button data-id="' + item.id + '" data-url="' + item.execute_url + '" onclick="run_this_task(this)" type="button" class="btn">run it ..</button>';
+              html = html + ' <button data-id="' + item.id + '" data-url="' + item.delete_url + '" onclick="delete_this_task(this)" type="button" class="btn">delete it ..</button>';
+              html = html + ' </li>';
+              $(html).appendTo('#tasks_list');
             })
 
           },

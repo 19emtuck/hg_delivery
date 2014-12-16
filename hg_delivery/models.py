@@ -277,9 +277,10 @@ class Task(Base):
   def __json__(self, request):
     """
     """
-    return { 'id'      : self.id,
-             'content' : self.content,
-             'url'     : request.route_url(route_name='project_run_task', id=self.id),
+    return { 'id'          : self.id,
+             'content'     : self.content,
+             'execute_url' : request.route_url(route_name='project_run_task', id=self.id),
+             'delete_url'  : request.route_url(route_name='project_delete_task', id=self.id),
            }
 #------------------------------------------------------------------------------
 
