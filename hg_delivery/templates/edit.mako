@@ -264,8 +264,8 @@
           <div class="panel-body">
              <form name="project_tasks" id="project_tasks" action="${url(route_name='project_save_tasks', id=project.id)}">
                <ul id="tasks_list">
-                   %for task_content in project_tasks :
-                     <li><input type="text" name="task_content" size="150" value="${task_content.content}"></li>
+                   %for task in project_tasks :
+                     <li><input type="text" name="task" size="150" value="${task.content}"> <button data-id="${task.id}" data-url="${url(route_name='project_run_task', id=task.id)}" onclick="run_this_task(this)" type="button" class="btn">run it ..</button</li>
                    %endfor
                </ul>
                <button type="button" onclick="add_new_task()" class="btn btn-primary">add a task</button>

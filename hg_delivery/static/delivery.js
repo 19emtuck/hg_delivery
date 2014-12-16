@@ -549,6 +549,23 @@ function display_logs(active_button) {
   }
 }
 
+function run_this_task(button){
+  var $button = $(button);
+  $button.prop('disabled',true);
+  var url = $button.data('url');
+  var label_button = $button.text();
+  $.ajax({url:url,
+          beforeSend:function(){
+            $button.text('runing ...');
+          },
+          complete:function(){
+            setTimeout(function() { $button.text(label_button); }, 300);
+            $button.prop('disabled',false);
+          },
+  });
+
+}
+
 function add_new_task(){
   $('<li><input type="text" name="task_content" size="150"></li>').appendTo('#tasks_list');
 }

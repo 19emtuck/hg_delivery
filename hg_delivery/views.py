@@ -490,6 +490,26 @@ def edit_project(request):
              'project_tasks':project_tasks,
              'knonwn_acl':Acl.known_acls }
 
+
+@view_config(route_name='project_run_task', renderer='json', permission='edit')
+def run_task(request):
+  """
+  """
+  id_task = request.matchdict['id']
+  task =  DBSession.query(Task).get(id_task)
+  result = False
+  if task :
+    try :
+      ssh_node = task.project.get_ssh_node()
+      ssh_node.run_command(task.content, log=True)
+      result = True
+    except IntegrityError as e:
+      result = False
+      explanation = u"wtf ?"
+
+  return {'result':result}
+
+
 @view_config(route_name='project_save_tasks', renderer='json', permission='edit')
 def save_project_tasks(request):
   """
