@@ -580,6 +580,7 @@ function save_project_tasks(){
   var label_button = $('#save_tasks').text();
 
   $.ajax({url:$('#project_tasks').attr('action'),
+          method:'POST',
           data:$('#project_tasks').serialize(),
           beforeSend:function(){
             $('#save_tasks').text('saving ...');

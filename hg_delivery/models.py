@@ -248,6 +248,15 @@ class Acl(Base):
     self.id_project = id_project
     self.acl        = acl_label
 
+  def __json__(self, request):
+    """
+    """
+    return { 'id'         : self.id,
+             'id_project' : self.id_project,
+             'id_user'    : self.id_user,
+             'acl'        : self.acl
+           }
+
 #------------------------------------------------------------------------------
 
 class Task(Base):
@@ -265,6 +274,12 @@ class Task(Base):
     self.id_project  = id_project
     self.content     = task_content
 
+  def __json__(self, request):
+    """
+    """
+    return { 'id'      : self.id,
+             'content' : self.content
+           }
 #------------------------------------------------------------------------------
 
 class RootFactory(object):

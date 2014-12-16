@@ -528,7 +528,6 @@ def save_project_tasks(request):
           # make the link with DBSession ...
           DBSession.add(task)
           project.tasks.append(task)
-
       DBSession.flush()
       result = True
     except IntegrityError as e:
@@ -536,7 +535,7 @@ def save_project_tasks(request):
       result = False
       explanation = u"wtf ?"
 
-  return {'result':result}
+  return {'result':result, 'tasks':project.tasks}
 
 @view_config(route_name='project_save_acls', renderer='json', permission='edit')
 def save_project_acls(request):
