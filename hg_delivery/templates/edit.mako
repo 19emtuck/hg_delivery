@@ -84,7 +84,7 @@
         <!-- weird css ?? can some one explain me why below table is shifted to the right on firefox ??? -->
         <br>
         <!-- node tables -->
-        <table id="project_tab" class="table table-condensed">
+        <table id="revision_table" class="table table-condensed">
            <colgroup><col>
              <col>
              <col>
@@ -447,7 +447,7 @@
   $('#project_tab a').click(function (e) {
     e.preventDefault()
     $(this).tab('show')
-  })
+  });
 
   </script>
 </%block>
