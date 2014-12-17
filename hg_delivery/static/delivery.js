@@ -492,6 +492,9 @@ function delete_this_project(){
 }
 
 
+/**
+ * View diff
+ */
 function view_diff_revision(target_url){
   $.ajax({url:target_url,
           success:function(json_response){
@@ -515,6 +518,9 @@ function view_diff_revision(target_url){
          });
 }
 
+/**
+ * Display log content
+ */
 function display_logs(active_button) {
   $button = $(active_button);
 
@@ -549,6 +555,9 @@ function display_logs(active_button) {
   }
 }
 
+/**
+ * Delete a task link to the input button
+ */
 function delete_this_task(button) {
   var $button = $(button);
   $button.prop('disabled',true);
@@ -556,18 +565,23 @@ function delete_this_task(button) {
   var label_button = $button.text();
   $.ajax({url:url,
           beforeSend:function(){
-            $button.text('delete ...');
+            $button.text('deleting ...');
+          },
+          complete:function(){
+            $button.prop('disabled',false);
+            $button.text(label_button);
           },
           success:function(json_response){
             if(json_response.result){
-              console.log($button.closest('li'));
               $button.closest('li').remove();
             }
           },
   });
 }
 
-
+/**
+ * Run the task attached to this button
+ */
 function run_this_task(button){
   var $button = $(button);
   $button.prop('disabled',true);
@@ -578,25 +592,34 @@ function run_this_task(button){
             $button.text('runing ...');
           },
           complete:function(json_response){
-            setTimeout(function() { $button.text(label_button); }, 300);
+            $button.text(label_button);
             $button.prop('disabled',false);
           },
   });
 
 }
 
+/**
+ * Insert a new task inside DOM
+ */
 function add_new_task(){
   $('<li><input type="text" name="task_content" size="150"></li>').appendTo('#tasks_list');
 }
 
+/**
+ * Save all project task and strip those whithout content
+ */
 function save_project_tasks(){
+  var $button = $('#save_tasks');
+  $button.prop('disabled',true);
+  var label_button = $button.text();
+
   $('#tasks_list li input[type="text"]').each(function(id,item){
     if($(item).val()===''){
       $(item).remove();
     }
   });
 
-  var label_button = $('#save_tasks').text();
 
   $.ajax({url:$('#project_tasks').attr('action'),
           method:'POST',
@@ -619,13 +642,19 @@ function save_project_tasks(){
 
           },
           complete:function(){
-            setTimeout(function() { $('#save_tasks').text(label_button); }, 300);
+            $button.text(label_button);
+            $button.prop('disabled',false);
           },
   });
 }
 
+/**
+ * Save all project ACLS
+ */
 function save_project_acls(){
-  var label_button = $('#project_acls button').text();
+  var $button = $('#project_acls button');
+  $button.prop('disabled',true);
+  var label_button = $button.text();
 
   $.ajax({url:$('#project_acls').attr('action'),
           data:$('#project_acls').serialize(),
@@ -633,9 +662,11 @@ function save_project_acls(){
             $('#project_acls button').text('saving ...');
           },
           complete:function(){
-            setTimeout(function() { $('#project_acls button').text(label_button); }, 300);
+            $('#project_acls button').text(label_button);
+            $button.prop('disabled',false);
           },
-          success:function(json_response){}
+          success:function(json_response){
+          }
   });
 }
 
