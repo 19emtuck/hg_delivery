@@ -14,7 +14,7 @@ from sqlalchemy import engine_from_config
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 
-from hg_delivery.security import groupfinder, GROUPS, DEFAULT_USER, ProjectFactory, get_user
+from hg_delivery.security import groupfinder, GROUPS, DEFAULT_USER, ProjectFactory, TaskFactory, get_user
 from hg_delivery.predicates import to_int 
 
 from .models import (
@@ -32,13 +32,10 @@ def projects_include(config):
   config.add_route('project_add',                     '/add')
   config.add_route('project_delete',                  '/delete/{id:\d+}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
   config.add_route('project_edit',                    '/edit/{id:\d+}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
-  config.add_route('project_fetch',                   '/fetch/{id:\d+}', custom_predicates=(to_int('id'),))
-  config.add_route('project_save_acls',               '/acls/save/{id:\d+}', custom_predicates=(to_int('id'),))
-  config.add_route('project_save_tasks',              '/tasks/save/{id:\d+}', custom_predicates=(to_int('id'),))
-  config.add_route('project_run_task',                '/tasks/run/{id:\d+}', custom_predicates=(to_int('id'),))
-  config.add_route('project_delete_task',             '/tasks/delete/{id:\d+}', custom_predicates=(to_int('id'),))
-
+  config.add_route('project_fetch',                   '/fetch/{id:\d+}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
+  config.add_route('project_save_acls',               '/acls/save/{id:\d+}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
   config.add_route('project_revision_details_json',   '/detail/json/{id:\d+}/revision/{rev}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
+
   config.add_route('project_revision_details',        '/detail/{id:\d+}/revision/{rev}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
   config.add_route('project_update',                  '/update/{id:\d+}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
 
@@ -48,11 +45,14 @@ def projects_include(config):
 
   # move project to another revision
   config.add_route('project_change_to',               '/change/{id:\d+}/to/{rev}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
-
   config.add_route('project_logs',                    '/logs/{id:\d+}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
 
   # provide difference between two revision
-  config.add_route('project_revisions_diff',          '/{id:\d+}/diff', custom_predicates=(to_int('id'),))
+  config.add_route('project_revisions_diff',          '/{id:\d+}/diff', custom_predicates=(to_int('id'),), factory = ProjectFactory)
+
+  config.add_route('project_save_tasks',              '/tasks/save/{id:\d+}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
+  config.add_route('project_run_task',                '/tasks/run/{id:\d+}', custom_predicates=(to_int('id'),), factory = TaskFactory)
+  config.add_route('project_delete_task',             '/tasks/delete/{id:\d+}', custom_predicates=(to_int('id'),), factory = TaskFactory)
 
 #------------------------------------------------------------------------------
 

@@ -19,6 +19,7 @@ from .models import (
     Group,
     DBSession,
     Project,
+    Task,
     )
 
 GROUPS = {}
@@ -62,32 +63,75 @@ def groupfinder(userid, request):
 #------------------------------------------------------------------------------
 
 class ProjectFactory(object):
+  """
+    Specific factory for all Project object
+  """
 
-    def __init__(self, request):
-      """
-        for some routes, especially for project routes,
-        we overwrite default root factory to serve specific
-        acl coming from database instead default and static ones ...
+  def __init__(self, request):
+    """
+      for some routes, especially for project routes,
+      we overwrite default root factory to serve specific
+      acl coming from database instead default and static ones ...
 
-        Maybe it could be a better idea to test group and linked ACL
-        instead of testing only default user ...
-      """
-      self.__acl__ = []
+      Maybe it could be a better idea to test group and linked ACL
+      instead of testing only default user ...
+    """
+    self.__acl__ = []
 
-      self.request = request
+    self.request = request
+    request.acl_container = self 
 
-      # because of predicates id should be an int ...
-      id_project = request.matchdict[u'id']
-      id_user = request.authenticated_userid
+    id_user = request.authenticated_userid
 
-      # we check if user is administrator (for the moment it's only configuration that drive this test)
-      if request.registry.settings['hg_delivery.default_login'] == id_user :
-        # shoud I link this to 'group:editors' instead of Authenticated ?
-        self.__acl__ = [(Allow, Authenticated, 'edit')]
-      else :
-        for (_label_acl,) in DBSession.query(Acl.acl).join(User).filter(Acl.id_project==id_project).filter(User.id==request.user.id) :
-          # shoud I link this to 'group:editors' instead of Authenticated ?
-          self.__acl__.append((Allow, Authenticated, _label_acl))
+    # we check if user is administrator (for the moment it's only configuration that drive this test)
+    if request.registry.settings['hg_delivery.default_login'] == id_user :
+      # shoud I link this to 'group:editors' instead of Authenticated ?
+      self.__acl__ = [(Allow, Authenticated, 'edit'), (Allow, Authenticated, 'read')]
+    else :
+      self.__acl__ = self.get_acl()
+
+  def get_acl(self):
+    """
+    """
+    # because of predicates id should be an int ...
+    id_project = self.request.matchdict[u'id']
+    lst_acl = []
+    for (_label_acl,) in DBSession.query(Acl.acl).join(User).filter(Acl.id_project==id_project).filter(User.id==self.request.user.id) :
+      # shoud I link this to 'group:editors' instead of Authenticated ?
+      lst_acl.append((Allow, Authenticated, _label_acl))
+      if _label_acl == 'edit' :
+        lst_acl.append((Allow, Authenticated, 'read'))
+
+    return lst_acl
+
+
+  def contains(self, label_acl):
+    """
+    :param label_acl: label_acl
+    """
+    result = False
+    if (Allow, Authenticated, label_acl) in self.__acl__ :
+      result = True
+    return result
+
+class TaskFactory(ProjectFactory):
+  """
+    Specific factory for all Task object
+  """
+
+  def get_acl(self):
+    """
+    """
+    # because of predicates id should be an int ...
+    id_task = self.request.matchdict[u'id']
+    id_project = DBSession.query(Project.id).join(Task).filter(Task.id==id_task).scalar()
+    lst_acl = []
+    for (_label_acl,) in DBSession.query(Acl.acl).join(User).filter(Acl.id_project==id_project).filter(User.id==self.request.user.id) :
+      # shoud I link this to 'group:editors' instead of Authenticated ?
+      lst_acl.append((Allow, Authenticated, _label_acl))
+      if _label_acl == 'edit' :
+        lst_acl.append((Allow, Authenticated, 'read'))
+    return lst_acl
 
 #------------------------------------------------------------------------------
 

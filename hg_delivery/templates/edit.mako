@@ -9,6 +9,8 @@
   <li> <a href="#revision">Revision</a> </li>
   % if allow_to_modify_acls :
     <li> <a href="#users">Users (rights management)</a></li>
+  % endif
+  % if request.acl_container.contains('edit') :
     <li> <a href="#tasks">Additional Tasks</a> </li>
   % endif
 </ul>
@@ -226,7 +228,7 @@
                <table style="width:300px" class="table table-condensed">
                    <thead>
                       <th>User</th>
-                      <th>Available role</th>
+                      <th>Available roles</th>
                    </thead>
                    <tbody>
                      % for user in users :
@@ -254,7 +256,9 @@
           </div>
         </div>
     </div>
+  % endif
 
+  % if request.acl_container.contains('edit') :
     <!-- project tasks tab pane -->
     <div class="tab-pane" id="tasks">
         <div id="files_panel">
@@ -262,6 +266,7 @@
             <h3 class="panel-title">Additional tasks executed after each update</h3>
           </div>
           <div class="panel-body">
+
              <form name="project_tasks" id="project_tasks" action="${url(route_name='project_save_tasks', id=project.id)}">
                <ul id="tasks_list">
                    %for task in project_tasks :
@@ -278,8 +283,6 @@
           </div>
         </div>
     </div>
-
-
   % endif
 
 </div>

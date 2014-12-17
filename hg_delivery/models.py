@@ -240,6 +240,7 @@ class Acl(Base):
   def __init__(self, id_user, id_project, acl_label) :
     """
     Acl object constructor
+
     :param id_user: the id of the attached user
     :param id_project: the id of the attached project 
     :param acl_label: the label of the project

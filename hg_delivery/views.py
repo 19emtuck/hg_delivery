@@ -402,7 +402,7 @@ def delete_project(request):
 
 #------------------------------------------------------------------------------
 
-@view_config(route_name='project_edit', renderer='edit.mako', permission='edit')
+@view_config(route_name='project_edit', renderer='edit.mako', permission='read')
 def edit_project(request):
     """
     """
