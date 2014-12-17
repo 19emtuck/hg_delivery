@@ -74,8 +74,7 @@ function push_to(target_project_id, target_url, force_branch){
                  // get the active link and fetch him twice
                  setTimeout(function() {
                     $('#container_alert').html('');
-                    fetch_this_other_project($('#other_projects a.active')[0]);}
-                   ,1250);
+                    fetch_this_other_project($('#other_projects a.active')[0]);}, 1250);
                } else if(json_response.new_branch_stop){
                  // dialog : should we force ?
                    $('#confirm_force_push_dialog .modal-body').html("Should we push them ?<br><br>"+json_response.lst_new_branches.join(','));
@@ -109,8 +108,7 @@ function pull_from(target_project_id, target_url){
                setTimeout(function() {
                   $('#container_alert').html('');
                   // reload this fucking page ...
-                  window.location.reload(); }
-                 ,1250);
+                  window.location.reload(); }, 1250);
              },
      });
   }
@@ -638,7 +636,7 @@ function save_project_tasks(){
               html = html + ' <button data-id="' + item.id + '" data-url="' + item.delete_url + '" onclick="delete_this_task(this)" type="button" class="btn">delete it ..</button>';
               html = html + ' </li>';
               $(html).appendTo('#tasks_list');
-            })
+            });
 
           },
           complete:function(){
