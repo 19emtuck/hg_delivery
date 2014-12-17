@@ -543,7 +543,7 @@ def save_project_tasks(request):
       project.tasks[0:] = []
       for  _task_content in request.params.getall('task_content') :
         if _task_content :
-          task = Task(id_project, _task_content)
+          task = Task(id_project, _task_content.strip())
           # make the link with DBSession ...
           DBSession.add(task)
           project.tasks.append(task)
