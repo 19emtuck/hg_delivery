@@ -566,8 +566,10 @@ function delete_this_task(button) {
             $button.text('deleting ...');
           },
           complete:function(){
-            $button.prop('disabled',false);
-            $button.text(label_button);
+	    setTimeout(function() { 
+              $button.prop('disabled',false);
+              $button.text(label_button);
+	    }, 600);
           },
           success:function(json_response){
             if(json_response.result){
@@ -590,8 +592,10 @@ function run_this_task(button){
             $button.text('runing ...');
           },
           complete:function(json_response){
-            $button.text(label_button);
-            $button.prop('disabled',false);
+	    setTimeout(function() { 
+              $button.text(label_button);
+              $button.prop('disabled',false);
+	    }, 600);
           },
   });
 
@@ -640,8 +644,10 @@ function save_project_tasks(){
 
           },
           complete:function(){
-            $button.text(label_button);
-            $button.prop('disabled',false);
+	    setTimeout(function() { 
+              $button.text(label_button);
+              $button.prop('disabled',false);
+	    }, 600);
           },
   });
 }
@@ -660,8 +666,10 @@ function save_project_acls(){
             $('#project_acls button').text('saving ...');
           },
           complete:function(){
-            $('#project_acls button').text(label_button);
-            $button.prop('disabled',false);
+	    setTimeout(function() { 
+                $('#project_acls button').text(label_button);
+                $button.prop('disabled',false);
+	    }, 600);
           },
           success:function(json_response){
           }
