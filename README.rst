@@ -17,9 +17,11 @@ inspired from :
 
 features list :
 
+  - remote repository access ssh access *only*
+
   - add/delete/edit project items
 
-  - projects dashboard
+  - clip project on dashboard
 
   - display project remote summarize (last commit, current revision ...)
 
@@ -27,10 +29,26 @@ features list :
 
   - update to a specific revision for remote repository
 
-  - repositories compare
+  - one/one repository compare
 
-  - pushing or pulling on a remote repository
+  - pushing or pulling on/from a remote repository
 
+  - add additional task when updating a repository (*usefull for flushing the cache* or *for gracefull apache*)
+
+  - responsive design (thanks to bootstrap)
+
+Made for what ?
+---------------
+
+hg_delivery has been designed to simplify developper daily work.
+
+ - If you developp php application, this can be usefull to deliver your project (no reload expected)
+
+ - In fact any other webapps made with other languages is suitable too.
+
+ - If you need fine grain delivery and or immediate rollback
+
+ - If you whish to manage external repository and change branch one a click
 
 Licensing
 ---------
@@ -67,3 +85,8 @@ Changelog
   - v_0_3 :
     - fix bug with node password when push or pull
 
+  - v_0_4 :
+    - bug and typo fixes
+
+  - v_0_5 :
+    - add task feature with acl control
