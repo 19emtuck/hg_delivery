@@ -106,7 +106,8 @@ class DiffWrapper(object):
   def __get_lst_files(self):
     """
     """
-    groups = re.findall(u"diff -r [a-z0-9]+ (?P<file_name>.+)$",self.raw_diff, re.MULTILINE)
+    # add some non capturing group for revision argument ... (just for remind !)
+    groups = re.findall(u"diff(?: -r [a-z0-9]+){1,2} (?P<file_name>.+)$",self.raw_diff, re.MULTILINE)
     return groups
 
   def __get_files_to_diff(self):
