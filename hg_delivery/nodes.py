@@ -435,15 +435,15 @@ class HgNode(NodeSsh):
     list_nodes = []
     map_nodes = {}
 
-    data = (line for line in data.splitlines())
-    node = {}
+    if data :
+      data = (line for line in data.splitlines())
 
-    for line in data :
-      node, author, branch, rev, parents, date, desc, tags = line.split(u'|#|')
-      desc = desc.replace(u'\\n','\n')
-      if not branch : branch = 'default'
-      list_nodes.append({'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date})
-      map_nodes[node]=list_nodes[-1]
+      for line in data :
+        node, author, branch, rev, parents, date, desc, tags = line.split(u'|#|')
+        desc = desc.replace(u'\\n','\n')
+        if not branch : branch = 'default'
+        list_nodes.append({'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date})
+        map_nodes[node]=list_nodes[-1]
 
     return list_nodes, map_nodes
 
@@ -497,7 +497,8 @@ class HgNode(NodeSsh):
     except NodeException as e :
       pass
     else :
-      branches = sorted((e.split(u' ')[0] for e in data.strip().split(u'\n') if e.split(u' ')[0]))
+      if data :
+        branches = sorted((e.split(u' ')[0] for e in data.strip().split(u'\n') if e.split(u' ')[0]))
 
     return branches
 
@@ -630,15 +631,14 @@ class GitNode(NodeSsh):
     list_nodes = []
     map_nodes = {}
 
-    data = (line for line in data.splitlines())
-    node = {}
-
-    for line in data :
-      node, author, branch, rev, parents, desc, tags = line.split(u'|#|')
-      desc = desc.replace(u'\\n','\n')
-      if not branch : branch = 'default'
-      list_nodes.append({'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date})
-      map_nodes[node]=list_nodes[-1]
+    if data :
+      data = (line for line in data.splitlines())
+      for line in data :
+        node, author, branch, rev, parents, desc, tags = line.split(u'|#|')
+        desc = desc.replace(u'\\n','\n')
+        if not branch : branch = 'default'
+        list_nodes.append({'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date})
+        map_nodes[node]=list_nodes[-1]
 
     return list_nodes, map_nodes
 
