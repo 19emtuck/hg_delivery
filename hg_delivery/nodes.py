@@ -737,6 +737,15 @@ class PoolSsh(object):
   max_nodes_in_pool = 10
 
   @classmethod
+  def delete_nodes(cls, uri):
+    """
+    when a project is deleted we should also remove HgNode object
+    to avoid confusion ...
+    """
+    if uri in cls.nodes :
+      del cls.nodes[uri][0:]
+
+  @classmethod
   def get_node(cls, uri, project_id):
     """
     try to acquire a free ssh channel or open a new one ...

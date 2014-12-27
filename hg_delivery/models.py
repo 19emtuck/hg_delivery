@@ -99,6 +99,13 @@ class Project(Base):
     uri = self.get_uri()
     return PoolSsh.get_node(uri, self.id)
 
+  def delete_nodes(self):
+    """
+      if project is deleted we should clean ssh nodes
+      maybe this can be also done by an alchemy hook
+    """
+    uri = self.get_uri()
+    return PoolSsh.delete_nodes(uri)
 
   def is_initial_revision_init(self):
     """

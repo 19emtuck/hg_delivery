@@ -392,12 +392,15 @@ def delete_project(request):
     try :
       id_project = request.matchdict['id']
       project =  DBSession.query(Project).get(id_project)
+      project.delete_nodes()
+
       DBSession.delete(project)
       DBSession.flush()
       result = True
     except :
       DBSession.rollback()
       result = False
+
     return { 'result':result }
 
 #------------------------------------------------------------------------------
