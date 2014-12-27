@@ -75,7 +75,7 @@
                  <!-- Single button for project management-->
                  <div class="btn-group" style="display:none">
                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                       Projects <span class="caret"></span>
+                       Projects (<span id="project_number">0</span>) <span class="caret"></span>
                    </button>
                    <ul id="projects_list" class="dropdown-menu" role="menu" data-url="${url(route_name='project_edit',id='')}">
                    </ul>
