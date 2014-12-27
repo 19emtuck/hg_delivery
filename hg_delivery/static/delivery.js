@@ -289,7 +289,7 @@ function update_project(target_url){
                   $sel.find('li').remove();
                   default_url = $sel.data('url');
                   json_response.projects_list.forEach(function(item){
-                    $sel.append('<li><a href="'+default_url+item.id+'">'+item.name+'</a></li>');
+                    $sel.append('<li><a class="project_link" href="'+default_url+item.id+'">'+item.name+'</a></li>');
                   });
                 }
                 if(json_response.explanation){
@@ -452,7 +452,7 @@ function add_project(target_url){
                   $sel.find('li').remove();
                   default_url = $sel.data('url');
                   json_response.projects_list.forEach(function(item){
-                    $sel.append('<li><a href="'+default_url+item.id+'">'+item.name+'</a></li>');
+                    $sel.append('<li><a class="project_link" href="'+default_url+item.id+'">'+item.name+'</a></li>');
                   });
                 }
                 if(json_response.explanation){
