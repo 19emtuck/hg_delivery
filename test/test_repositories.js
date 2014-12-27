@@ -4,6 +4,7 @@ var execFile = child_process.execFile;
 var fs = require('fs');
 var local_path = fs.workingDirectory; 
 var map_project_to_url = {};
+var lst_projects_labels = ['d1', 'd2']
 
 casper.spawn = function(){
   var command = arguments[0];
@@ -90,10 +91,14 @@ casper.then(function(response){
 
 // loop over projects to remove them ...
 casper.then(function(){
- projects_urls = this.evaluate(function() {
-   return $('#projects_list .project_link').map(function(id,item){return $(item).attr('href');}).toArray();
- });
- // require('utils').dump(projects_urls);
+  var projects_urls = this.evaluate(function(lst_projects_labels) {
+      return $('#projects_list .project_link').map(function(id,item){
+        if(lst_projects_labels.indexOf($(item).text())!==-1){
+          return $(item).attr('href');
+        }
+      }).toArray();
+  }, lst_projects_labels );
+ //require('utils').dump(projects_urls);
  this.each(projects_urls, function(self, next_link){
     self.click('form[name="view_project"] button.dropdown-toggle');
     self.thenOpen(next_link);
@@ -107,9 +112,13 @@ casper.then(function(){
 });
 
 casper.then(function(){
-  var projects_urls = this.evaluate(function() {
-      return $('#projects_list .project_link').map(function(id,item){return $(item).attr('href');}).toArray();
-  });
+  var projects_urls = this.evaluate(function(lst_projects_labels) {
+      return $('#projects_list .project_link').map(function(id,item){
+        if(lst_projects_labels.indexOf($(item).text())!==-1){
+          return $(item).attr('href');
+        }
+      }).toArray();
+  }, lst_projects_labels );
   casper.test.assertEquals(projects_urls.length, 0);
 });
 
@@ -118,7 +127,7 @@ casper.waitUntilVisible('span[class="glyphicon glyphicon-plus"]',
 });
 
 casper.then(function(){
- this.each(['d1','d2'], function(self, project_id){
+ this.each(lst_projects_labels, function(self, project_id){
     // add a new project
     self.thenClick('span[class="glyphicon glyphicon-plus"]');
     self.then(function(response){ this.test.assertExists('#add_my_project'); });
@@ -154,13 +163,9 @@ casper.then(function(){
   this.hg("add", "./repositories/d1/README.txt", "-R", "./repositories/d1/");
 });
 
-//casper.wait(300);
-
 casper.then(function(){
   this.hg("ci", "-m", 'my_first_commit', "-R", "./repositories/d1/", "-u", "stephane.bard@gmail.com");
 });
-
-//casper.wait(300);
 
 casper.then(function(){
   this.open(map_project_to_url.d1);
@@ -196,6 +201,72 @@ casper.thenClick('#move_to');
 casper.waitUntilVisible('#project_home', function(){
   this.test.assertExists('.glyphicon-ok');
   this.test.assertTextExists('my_first_commit');
+  var link_str = this.evaluate(function(){ return $('#revision_table > tbody > tr > td:nth-child(7) > a').text(); });
+  this.test.assertEquals(link_str, 'my_first_commit');
 });
+
+// click on revision link
+casper.thenClick('#revision_table > tbody > tr > td:nth-child(7) > a');
+casper.waitUntilVisible('#files_panel');
+
+casper.then(function(){
+  var tab_str = this.evaluate(function(){ return $('#project_tab li.active > a').text(); });
+  this.test.assertEquals(tab_str, "Revision");
+});
+
+casper.waitForSelector('div.source > pre');
+
+casper.thenClick('#files a');
+casper.wait(300);
+
+casper.then(function(){
+  fs.write('./repositories/d2/README.txt','PROJECT DESCRIPTION FILE \n HELLO WORLD !\n FROM d2 repositories. it rocks','w');
+});
+casper.then(function(){
+  this.hg("ci", "-m", 'second_commit_d2', "-R", "./repositories/d2/", "-u", "stephane.bard@gmail.com");
+});
+
+casper.reload();
+casper.waitUntilVisible('#project_home', function(){
+  this.test.assertExists('.glyphicon-ok');
+  this.test.assertTextExists('second_commit_d2');
+});
+casper.then(function(){
+  this.open(map_project_to_url.d1);
+});
+casper.waitUntilVisible('#project_home', function(){
+  this.test.assertExists('.glyphicon-ok');
+  this.test.assertTextDoesntExist('second_commit_d2');
+});
+
+casper.thenClick('a[href="#related"]');
+casper.thenClick('#other_projects a:first-child');
+casper.waitForSelector('#button_pull');
+casper.thenClick('#button_pull');
+
+casper.waitUntilVisible('#container_alert .progress-bar', function(){
+  this.test.assertExists('#container_alert .progress-bar');
+});
+
+casper.waitWhileVisible('#container_alert .progress-bar', function(){
+  this.test.assertDoesntExist('#container_alert .progress-bar');
+  this.test.assertNotVisible('#button_push');
+});
+
+casper.waitUntilVisible('#project_home', function(){
+  this.test.assertExists('.glyphicon-ok');
+  this.test.assertTextExists('second_commit_d2');
+});
+
+casper.thenClick('#revision_table tbody tr:nth-child(1) td:nth-child(2) a');
+casper.waitUntilVisible('#confirm_move_dialog', function(){
+  this.test.assertTextExists('from 0 to 1 revision');
+});
+casper.thenClick('#move_to');
+casper.waitWhileVisible('#confirm_move_dialog');
+casper.waitUntilVisible('#project_home');
+
+// finish by logout
+casper.thenClick("#sign_out");
 
 casper.run();
