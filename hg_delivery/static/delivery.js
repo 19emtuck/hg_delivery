@@ -159,8 +159,9 @@ function fetch_this_other_project(active_a){
  * display difference between two repository from te same project
  */
 function show_difference_between_changeset_stacks(remote_project_name, local_last_change_list, remote_last_change_list, current_node){
-  var top_remote_rev = parseInt(remote_last_change_list[0].rev);
-  var top_local_rev = parseInt(local_last_change_list[0].rev);
+  var top_remote_rev = remote_last_change_list.length>0 ? parseInt(remote_last_change_list[0].rev) : -1;
+  var top_local_rev = local_last_change_list.length>0 ? parseInt(local_last_change_list[0].rev) : -1;
+
   var more_recent_change_list, less_recent_change_list;
   var local_is_recent, pull, push;
 
