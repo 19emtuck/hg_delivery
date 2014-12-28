@@ -69,9 +69,9 @@ class ProjectFactory(object):
 
   def __init__(self, request):
     """
-      for some routes, especially for project routes,
+      For some routes, especially for project routes,
       we overwrite default root factory to serve specific
-      acl coming from database instead default and static ones ...
+      acl coming from database instead of default and static ones ...
 
       Maybe it could be a better idea to test group and linked ACL
       instead of testing only default user ...
@@ -114,6 +114,8 @@ class ProjectFactory(object):
       result = True
     return result
 
+#------------------------------------------------------------------------------
+
 class TaskFactory(ProjectFactory):
   """
     Specific factory for all Task object
@@ -138,15 +140,15 @@ class TaskFactory(ProjectFactory):
 @view_config(route_name='login')
 def login(request):
   login_url = request.route_url('login')
-  referrer = request.url
+  referrer  = request.url
 
   if referrer == login_url:
       referrer = '/'  # never use login form itself as came_from
 
   came_from = request.params.get('came_from', referrer)
-  message = ''
-  login = ''
-  password = ''
+  message   = ''
+  login     = ''
+  password  = ''
 
   if 'login' in request.params and 'password' in request.params :
     login = request.params['login']
@@ -154,8 +156,8 @@ def login(request):
     all_known_users =  get_users()
     if login and password and all_known_users.get(login) == password:
         headers = remember(request, login)
-        return HTTPFound( location= came_from,
-                          headers = headers )
+        return HTTPFound( location = came_from,
+                          headers  = headers )
     message = 'Failed login'
 
   return HTTPFound(location=request.route_url('home'))
@@ -167,5 +169,5 @@ def logout(request):
   headers = forget(request)
   url = request.route_url('home')
 
-  return HTTPFound( location= url,
-                    headers = headers )
+  return HTTPFound( location = url,
+                    headers  = headers )
