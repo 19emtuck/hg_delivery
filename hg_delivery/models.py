@@ -57,13 +57,13 @@ class Project(Base):
   path         = Column(Text)
   rev_init     = Column(String(100))
   dvcs_release = Column(String(20))
-  dashboard    = Column(Boolean)
 
-  logs         = relationship('RemoteLog', cascade='delete, delete-orphan')
-  acls         = relationship('Acl', backref='project', cascade='delete, delete-orphan')
-  tasks        = relationship('Task', backref='project', cascade='delete, delete-orphan')
+  logs         = relationship('RemoteLog', cascade = 'delete, delete-orphan')
+  acls         = relationship('Acl', backref = 'project', cascade = 'delete, delete-orphan')
+  tasks        = relationship('Task', backref = 'project', cascade = 'delete, delete-orphan')
+  clip         = relationship('DashBoard', backref = 'project', cascade = 'delete, delete-orphan')
 
-  def __init__(self, name, user, password, host, path, rev_init, dashboard, dvcs_release):
+  def __init__(self, name, user, password, host, path, rev_init, dvcs_release):
     """
     """
     self.name         = name
@@ -72,7 +72,6 @@ class Project(Base):
     self.host         = host
     self.path         = path
     self.rev_init     = rev_init
-    self.dashboard    = dashboard
     self.dvcs_release = dvcs_release
 
   def __json__(self, request):
@@ -84,7 +83,6 @@ class Project(Base):
              'path'         : self.path,
              'user'         : self.user,
              'password'     : '*'*len(self.password),
-             'dashboard'    : self.dashboard,
              'dvcs_release' : self.dvcs_release }
 
   def get_uri(self):
@@ -191,17 +189,16 @@ class User(Base):
   """
   __tablename__ = 'user'
 
-  id            = Column(Integer, primary_key=True)
-
-  id_group      = Column(Integer, ForeignKey(Group.id))
-  group         = relationship(Group, backref='users')
-  acls          = relationship('Acl', backref='user', cascade = 'delete, delete-orphan')
-
-  name          = Column(String(100))
-  id_groupe     = Column(Integer)
-  pwd           = Column(String(100))
-  email         = Column(String(100), unique=True)
-  creation_date = Column(DateTime)
+  id              = Column(Integer, primary_key = True)
+  id_group        = Column(Integer, ForeignKey(Group.id))
+  group           = relationship(Group, backref = 'users')
+  acls            = relationship('Acl', backref = 'user', cascade = 'delete, delete-orphan')
+  dashboard_clips = relationship('DashBoard', backref = 'user', cascade = 'delete, delete-orphan')
+  name            = Column(String(100))
+  id_groupe       = Column(Integer)
+  pwd             = Column(String(100))
+  email           = Column(String(100), unique = True)
+  creation_date   = Column(DateTime)
 
   def __init__(self, name, pwd, email, creation_date=None):
     """
@@ -229,6 +226,37 @@ class User(Base):
              'update_url'    : request.route_url(route_name='user_update',id=self.id),
              'group'         : self.group,
              'creation_date' : creation_date }
+
+#------------------------------------------------------------------------------
+
+class DashBoard(Base):
+  """
+  """
+  __tablename__ = 'dashboard'
+
+  id         = Column(Integer, primary_key=True)
+  id_user    = Column(Integer, ForeignKey(User.id))
+  id_project = Column(Integer, ForeignKey(Project.id))
+
+  def __init__(self, id_user, id_project) :
+    """
+    DashBoard object constructor
+
+    :param id_user: the id of the attached user
+    :param id_project: the id of the attached project 
+    """
+    self.id_user    = id_user
+    self.id_project = id_project
+
+  def __json__(self, request):
+    """
+    """
+    return { 'id'         : self.id,
+             'id_project' : self.id_project,
+             'id_user'    : self.id_user,
+           }
+
+Index('dashboard_unique', DashBoard.id_project, DashBoard.id_user, unique=True)
 
 #------------------------------------------------------------------------------
 

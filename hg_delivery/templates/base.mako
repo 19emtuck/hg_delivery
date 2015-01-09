@@ -93,8 +93,11 @@
                    <li class="divider"></li>
                    <li><a id="view_delete_project" href="#" onclick="delete_this_project()" data-url="${url(route_name='project_delete',id=project.id)}">Delete</a></li>
                  </ul>
-                 <button type="button" class="btn btn-default" id="button_log" style="margin-left:10px" id="logs" onclick="display_logs(this);" data-url="${url(route_name='project_logs',id=project.id)}">
+                 <button type="button" class="btn btn-default" id="button_log" style="margin-left:10px" onclick="display_logs(this);" data-url="${url(route_name='project_logs',id=project.id)}">
                    Logs
+                 </button>
+
+                 <button type="button" class="btn btn-default glyphicon glyphicon-paperclip" id="clip_it" style="margin-left:10px" onclick="clip_it_to_dashboard(this);" data-url="${url(route_name='project_clip_dashboard',id=project.id)}">
                  </button>
                </div>
                % endif

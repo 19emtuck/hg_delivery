@@ -335,20 +335,6 @@
                   <input id="project_password" class="form-control" name="password" type="password" placeholder="password" value="${project.password}">
                 </div>
               </div>
-              <div class="form-group">
-                <label for="project_dashboard" class="col-sm-4 control-label">Clip to dashboard</label>
-                <div class="col-sm-7">
-                  <div class="checkbox">
-                    <label>
-                      % if project.dashboard :
-                        <input id="project_dashboard" name="dashboard" type="checkbox" value="1" checked>
-                      % else :
-                        <input id="project_dashboard" name="dashboard" type="checkbox" value="1">
-                      % endif
-                    </label>
-                  </div>
-                </div>
-              </div>
            <form>
         </div>
       </div>

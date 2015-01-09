@@ -34,7 +34,6 @@ def get_user(request):
   user = None
   if userid is not None:
     user = DBSession.query(User).filter(User.email==userid).scalar()
-
   return user
 
 #------------------------------------------------------------------------------

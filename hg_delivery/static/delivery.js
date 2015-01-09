@@ -554,6 +554,23 @@ function display_logs(active_button) {
   }
 }
 
+function clip_it_to_dashboard (active_button) {
+  $button = $(active_button);
+
+  if(!$button.hasClass('btn-success')){
+    $.ajax({ url:$button.data('url'),
+             success:function(json_response){
+               if(json_response.result){
+                 $button.addClass('btn-success');
+               }
+             }
+           });
+  } else {
+    $button.removeClass('btn-success');
+  }
+}
+
+
 /**
  * Delete a task link to the input button
  */

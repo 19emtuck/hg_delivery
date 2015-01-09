@@ -14,6 +14,7 @@ from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
 
 from sqlalchemy.exc import DBAPIError, IntegrityError
+from sqlalchemy.orm import joinedload
 
 from .models import (
     DBSession,
@@ -23,6 +24,7 @@ from .models import (
     Acl,
     Task,
     Group,
+    DashBoard,
     )
 from hg_delivery.nodes import (
     NodeException,
@@ -184,18 +186,18 @@ def default_view(request):
     projects_list = []
 
     if request.authenticated_userid :
-      projects_list =  []
+      projects_list = []
       if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-        projects_list =  DBSession.query(Project).order_by(Project.name.desc()).all()
+        projects_list = DBSession.query(Project).options(joinedload('clip')).order_by(Project.name.desc()).all()
       else :
-        projects_list =  DBSession.query(Project).join(Acl).join(User).filter(User.id==request.user.id).order_by(Project.name.desc()).all()
+        projects_list = DBSession.query(Project).options(joinedload('clip')).join(Acl).join(User).filter(User.id==request.user.id).order_by(Project.name.desc()).all()
 
       for project in projects_list :
         try :
           if not project.is_initial_revision_init() :
             project.init_initial_revision()
 
-          if project.dashboard!=1 :
+          if not project.clip :
             continue
 
           dashboard_list.append(project)
@@ -367,9 +369,6 @@ def update_project(request):
         for key in request.params :
           setattr(project, key, request.params[key])
 
-        if 'dashboard' not in request.params :
-          project.dashboard = 0
-
         DBSession.flush()
         explanation = u'This project : %s@%s/%s has been updated ...'%(user, host, path)
         result = True
@@ -493,6 +492,35 @@ def edit_project(request):
              'project_tasks':project_tasks,
              'knonwn_acl':Acl.known_acls }
 
+#------------------------------------------------------------------------------
+
+@view_config(route_name='project_clip_dashboard', renderer='json', permission='edit')
+def clip_to_dashboard(request):
+  """
+  """
+  result = False
+  if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
+    pass
+  else :
+    id_project = request.matchdict['id']
+    project =  DBSession.query(Project).options(joinedload('clip')).get(id_project)
+
+    if project.clip :
+      project.clip[0:] = []
+    elif request.user :
+      try :
+        DBSession.add(DashBoard(request.user.id, project.id))
+        DBSession.flush()
+      except IntegrityError as e:
+        DBSession.rollback()
+        result = False
+        explanation = u"Unicity error"
+      else :
+        result = True 
+
+  return {'result':result}
+
+#------------------------------------------------------------------------------
 
 @view_config(route_name='project_run_task', renderer='json', permission='edit')
 def run_task(request):
@@ -513,6 +541,8 @@ def run_task(request):
 
   return {'result':result}
 
+#------------------------------------------------------------------------------
+
 @view_config(route_name='project_delete_task', renderer='json', permission='edit')
 def remove_project_task(request):
   """
@@ -531,6 +561,7 @@ def remove_project_task(request):
 
   return {'result':result}
 
+#------------------------------------------------------------------------------
 
 @view_config(route_name='project_save_tasks', renderer='json', permission='edit')
 def save_project_tasks(request):
@@ -558,6 +589,8 @@ def save_project_tasks(request):
       explanation = u"wtf ?"
 
   return {'result':result, 'tasks':project.tasks}
+
+#------------------------------------------------------------------------------
 
 @view_config(route_name='project_save_acls', renderer='json', permission='edit')
 def save_project_acls(request):
