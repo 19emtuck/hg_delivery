@@ -58,7 +58,7 @@ casper.waitForSelector('span[class="glyphicon glyphicon-plus"]', function(){
 casper.thenClick('span[class="glyphicon glyphicon-plus"]');
 casper.then(function(response){ this.test.assertExists('#add_my_project'); });
 casper.then(function(response){
-  this.fill('form[name="project"]', { 'name':'t8',
+  this.fill('form[name="project_add"]', { 'name':'t8',
                                       'host':'127.0.0.1',
                                       'path':'/home/sbard/dev/t8',
                                       'user':'sbard',
@@ -72,7 +72,7 @@ casper.waitUntilVisible('.alert-success');
 casper.thenClick('span[class="glyphicon glyphicon-plus"]');
 casper.then(function(response){ this.test.assertExists('#add_my_project'); });
 casper.then(function(response){
-  this.fill('form[name="project"]', {'name':'t8',
+  this.fill('form[name="project_add"]', {'name':'t8',
                    'host':'127.0.0.1',
                    'path':'/home/sbard/dev/t8',
                          'user':'sbard',
@@ -112,7 +112,7 @@ casper.then(function(response){
 casper.thenClick('span[class="glyphicon glyphicon-plus"]');
 casper.then(function(response){ this.test.assertExists('#add_my_project'); });
 casper.then(function(response){
-  this.fill('form[name="project"]', { 'name':'t8',
+  this.fill('form[name="project_add"]', { 'name':'t8',
                                       'host':'127.0.0.1',
                                       'path':'/home/sbard/dev/t8',
                                       'user':'sbard',

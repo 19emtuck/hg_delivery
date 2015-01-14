@@ -132,11 +132,11 @@ casper.then(function(){
     self.thenClick('span[class="glyphicon glyphicon-plus"]');
     self.then(function(response){ this.test.assertExists('#add_my_project'); });
     self.then(function(response){
-      this.fill('form[name="project"]', { 'name':project_id,
-                                          'host':'127.0.0.1',
-                                          'path': local_path + '/repositories/' +project_id,
-                                          'user':'sbard',
-                                          'password':'evangelion' });
+      this.fill('form[name="project_add"]', { 'name':project_id,
+                                              'host':'127.0.0.1',
+                                              'path': local_path + '/repositories/' +project_id,
+                                              'user':'sbard',
+                                              'password':'evangelion' });
     });
     self.thenClick('#add_my_project');
     self.waitWhileVisible('#new_project_dialog');

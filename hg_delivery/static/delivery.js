@@ -438,7 +438,7 @@ function update_user_list(){
 function add_project(target_url){
   $.ajax({url: target_url,
           method:'POST',
-          data:$('#project').serialize(),
+          data:$('#project_add').serialize(),
           dataType:'json',
           complete:function(){
           },

@@ -2,6 +2,7 @@
   import json
 %>
 <%inherit file="base.mako"/>
+<%namespace name="lib" file="lib.mako"/>
 
 <ul id="project_tab" class="nav nav-tabs" style="margin-top:4px;margin-bottom:6px">
   <li class="active"> <a href="#project_home">project <b>${project.name}</b></a> </li>
@@ -349,7 +350,7 @@
                   </div>
                 </div>
               </div>
-           <form>
+           </form>
         </div>
       </div>
 
@@ -423,6 +424,9 @@
 </div><!-- /.modal -->
 <!-- end dismiss to dialog -->
 
+% if logged_in is not None :
+   ${lib.publish_project_dialog()}
+% endif
 
 
 <!-- nothing work -->
