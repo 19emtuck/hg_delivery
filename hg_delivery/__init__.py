@@ -40,7 +40,9 @@ def projects_include(config):
   config.add_route('project_update',                  '/update/{id:\d+}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
 
   # push/pull from another project 
+  config.add_route('project_pull_test',               '/pull/test/{id:\d+}/from/{source:\d+}', custom_predicates=(to_int('id'),to_int('source'),), factory = ProjectFactory)
   config.add_route('project_pull_from',               '/pull/{id:\d+}/from/{source:\d+}', custom_predicates=(to_int('id'),to_int('source'),), factory = ProjectFactory)
+  config.add_route('project_push_test',               '/push/test/{id:\d+}/to/{target:\d+}', custom_predicates=(to_int('id'),to_int('target'),), factory = ProjectFactory)
   config.add_route('project_push_to',                 '/push/{id:\d+}/to/{target:\d+}', custom_predicates=(to_int('id'),to_int('target'),), factory = ProjectFactory)
 
   # move project to another revision

@@ -151,7 +151,7 @@
         <div class="panel-body">
            <div id="other_projects" class="list-group">
              %for link in linked_projects :
-             <a href="#" class="list-group-item" data-id="${link.id}" data-url="${url(route_name='project_fetch',id=link.id)}" data-name="${link.name}" onclick="fetch_this_other_project(this)">${link.name}</a>
+             <a href="#" class="list-group-item" data-id="${link.id}" data-pushtest="${url(route_name='project_push_test', id=project.id, target=link.id)}" data-pulltest="${url(route_name='project_pull_test', id=project.id, source=link.id)}" data-url="${url(route_name='project_fetch',id=link.id, source=project.id)}" data-name="${link.name}" onclick="fetch_this_other_project(this)">${link.name}</a>
              %endfor
            </div>
         </div>

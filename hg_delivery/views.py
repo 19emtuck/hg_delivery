@@ -228,6 +228,48 @@ def project_logs(request):
 
 #------------------------------------------------------------------------------
 
+@view_config(route_name='project_push_test', renderer='json')
+def shall_we_push(request):
+  """
+    test if push is avaiable looking from push query
+  """
+  id_project = request.matchdict['id']
+  id_target_project = request.matchdict['target']
+
+  project =  DBSession.query(Project).get(id_project)
+  target_project =  DBSession.query(Project).get(id_target_project)
+  result = False
+  if project and target_project :
+    try :
+      ssh_node = project.get_ssh_node()
+      result = ssh_node.pushable(project, target_project)
+    except NodeException as e:
+      log.error(e)
+  return {'result':result}
+
+#------------------------------------------------------------------------------
+
+@view_config(route_name='project_pull_test', renderer='json')
+def shall_we_pull(request):
+  """
+    test if pull is avaiable looking from push query
+  """
+  id_project = request.matchdict['id']
+  id_target_project = request.matchdict['source']
+
+  project =  DBSession.query(Project).get(id_project)
+  target_project =  DBSession.query(Project).get(id_target_project)
+  result = False
+  if project and target_project :
+    try :
+      ssh_node = project.get_ssh_node()
+      result = ssh_node.pullable(project, target_project)
+    except NodeException as e:
+      log.error(e)
+  return {'result':result}
+
+#------------------------------------------------------------------------------
+
 @view_config(route_name='project_push_to', renderer='json')
 def push(request):
   """

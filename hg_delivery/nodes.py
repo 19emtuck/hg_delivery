@@ -372,9 +372,59 @@ class HgNode(NodeSsh):
       result = data.strip(u'\n').split(u' ')[0].strip(u'+')
     return result
 
+  def pullable(self, local_project, target_project):
+    """
+    try to check if between two input projects we can push
+
+    :param local_project: an alchemy Project object 
+    :param target_project: an alchemy Project object
+    """
+    if not local_project.dvcs_release :
+      local_project.dvcs_release = self.get_release()
+
+    if (local_project.dvcs_release is not None and self.compare_release_a_sup_equal_b(local_project.dvcs_release, '1.7.4')) :
+      insecure = u" --insecure "
+    else:
+      insecure = u" "
+    data = self.run_command_and_feed_password_prompt(u'cd %s ; hg in%sssh://%s@%s/%s'%(
+                                                        self.path,
+                                                        insecure,
+                                                        target_project.user,
+                                                        target_project.host,
+                                                        target_project.path),
+                                                        target_project.password)
+    return data['buff'].count('changeset:')>0
+
+  def pushable(self, local_project, target_project):
+    """
+    try to check if between two input projects we can push
+
+    :param local_project: an SshNode
+    :param target_project: an SshNode
+    """
+    if not local_project.dvcs_release :
+      local_project.dvcs_release = self.get_release()
+
+    if (local_project.dvcs_release is not None and self.compare_release_a_sup_equal_b(local_project.dvcs_release, '1.7.4')) :
+      insecure = u" --insecure "
+    else:
+      insecure = u" "
+    data = self.run_command_and_feed_password_prompt(u'cd %s ; hg out%sssh://%s@%s/%s'%(
+                                                        self.path,
+                                                        insecure,
+                                                        target_project.user,
+                                                        target_project.host,
+                                                        target_project.path),
+                                                        target_project.password)
+    return data['buff'].count('changeset:')>0
+
   def push_to(self, local_project, target_project, force_branch):
     """
     this may method may raise an exception
+
+    :param local_project: an alchemy Project object 
+    :param target_project: an alchemy Project object
+    :param force_branch: and boolean to force push 
     """
     if force_branch :
       new_branch_arg = ' --new-branch'
@@ -405,6 +455,8 @@ class HgNode(NodeSsh):
 
   def pull_from(self, local_project, source_project):
     """
+    :param local_project: an alchemy Project object 
+    :param source_project: an alchemy Project object
     """
     if not local_project.dvcs_release :
       local_project.dvcs_release = self.get_release()
@@ -423,6 +475,7 @@ class HgNode(NodeSsh):
   def get_last_logs_starting_from(self, start_from_this_hash_revision) :
     """
       return last logs ... because we use hash start mercurial will reverse list output
+
       :param start_from_this_hash_revision: hash string, the revision hash from which we retrieve log 
     """
     data = self.run_command(u'cd %s ; hg log --template "%s" -r%s:'%(self.path, self._template, start_from_this_hash_revision))
@@ -442,7 +495,10 @@ class HgNode(NodeSsh):
   def get_last_logs(self, nb_lines, branch_filter=None, revision_filter=None):
     """
       return last logs ...
+
       :param nb_lines: integer, limit the number of lines
+      :param branch_filter: an branch name (string) that can filter result
+      :param revision_filter: an revision hash (string) that can filter result
     """
 
     if revision_filter :
@@ -469,6 +525,8 @@ class HgNode(NodeSsh):
 
   def get_file_content(self, file_name, revision):
     """
+    :param file_name: the file name (string)
+    :param revision: the revision hash (string)
     """
     try :
       result = self.run_command(u"cd %s ; hg cat %s -r %s"%(self.path, file_name, revision))
@@ -539,7 +597,7 @@ class HgNode(NodeSsh):
 
   def get_revision_diff(self, revision):
     """
-    :param revision: the revision hash
+    :param revision: the revision hash (string)
     """
     diff_content = ""
     try :
@@ -548,23 +606,24 @@ class HgNode(NodeSsh):
       diff_content = "" 
     return DiffWrapper(diff_content)
 
-  def get_revision_description(self, rev):
+  def get_revision_description(self, revision):
     """
+    :param revision: the revision hash (string)
     """
-    list_nodes, map_nodes = self.get_last_logs(1, revision_filter=rev)
+    list_nodes, map_nodes = self.get_last_logs(1, revision_filter=revision)
     first_node = {}
     if list_nodes :
       first_node = list_nodes[0]
     return first_node
 
-  def update_to(self, rev):
+  def update_to(self, revision):
     """
     update project to a certain release
-    :param rev: string, the revision hash
+    :param revision: string, the revision hash
     """
     result = True
     try :
-      data = self.run_command(u'cd %s ; hg update -C -r %s'%(self.path, rev), True)
+      data = self.run_command(u'cd %s ; hg update -C -r %s'%(self.path, revision), True)
     except NodeException as e :
       result = False
     return result

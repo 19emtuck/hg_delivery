@@ -149,6 +149,8 @@ function fetch_this_other_project(active_a){
     $('#project_comparison').hide();
   } else {
     var target_url = $active_a.data('url');
+    var target_url_pull = $active_a.data('pulltest');
+    var target_url_push = $active_a.data('pushtest');
     var starting_from_this_hash_node = $('#revision_table tbody tr').last().data('node');
     var remote_project_name = $active_a.data('name');
 
@@ -159,8 +161,34 @@ function fetch_this_other_project(active_a){
       data.limit = limit;
     }
 
+    $('#button_push').hide();
+    $('#button_pull').hide();
+
+    $.ajax({url:target_url_push,
+            dataType:'json',
+            success:function(json_response){
+              if(json_response.result){
+                $('#pushpull').show();
+                $('#p_name_remote').text(remote_project_name);
+                $('#p_name_local').text(local_project_name);
+                $('#button_push').show();
+              }
+            },
+    });
+
+    $.ajax({url:target_url_pull,
+            dataType:'json',
+            success:function(json_response){
+              if(json_response.result){
+                $('#pushpull').show();
+                $('#p_name_remote').text(remote_project_name);
+                $('#p_name_local').text(local_project_name);
+                $('#button_pull').show();
+              }
+            },
+    });
+
     $.ajax({url:target_url,
-            async:false,
             dataType:'json',
             data:data,
             success:function(json_response){
@@ -353,40 +381,11 @@ function show_difference_between_changeset_stacks(active_a, remote_project_name,
       fetch_this_other_project(active_a);
     }
   } else {
-    push = false;
-    pull = false;
-    if(cross_node.nb_nodes_unknown_nodes_in_remote>0){
-      push = true;
-    }
-    if(cross_node.nb_nodes_unknown_nodes_in_local>0){
-      pull = true;
-    }
-
     $tbody_comparison = $('#project_comparison tbody');
     $tbody_comparison.find('tr').remove();
 
     merging_list(local_last_change_list, remote_last_change_list, current_node, $tbody_comparison);
 
-    if(push || pull){
-      $('#pushpull').show();
-      $('#p_name_remote').text(remote_project_name);
-      $('#p_name_local').text(local_project_name);
-
-      if(push){
-        $('#button_push').show();
-      } else {
-        $('#button_push').hide();
-      }
-      if(pull){
-        $('#button_pull').show();
-      } else {
-        $('#button_pull').hide();
-      }
-    } else {
-      $('#pushpull').hide();
-      $('#button_push').hide();
-      $('#button_pull').hide();
-    }
   }
 
 }
