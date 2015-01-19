@@ -1,3 +1,11 @@
+/**
+ * This casperjs/phantomjs test is about
+ * repositories relationship.
+ *
+ * We're going to create new real repository
+ * and clone it to follow differences
+ *
+ **/
 var child_process = require("child_process");
 var spawn = child_process.spawn;
 var execFile = child_process.execFile;
@@ -156,7 +164,7 @@ casper.then(function(){
 });
 
 casper.then(function(){
-  fs.write('./repositories/d1/README.txt','PROJECT DESCRIPTION FILE \n HELLO WORLD !','w');
+  fs.write('./repositories/d1/README.txt','PROJECT DESCRIPTION FILE\nHELLO WORLD !','w');
 });
 
 casper.then(function(){
@@ -220,7 +228,7 @@ casper.thenClick('#files a');
 casper.wait(300);
 
 casper.then(function(){
-  fs.write('./repositories/d2/README.txt','PROJECT DESCRIPTION FILE \n HELLO WORLD !\n FROM d2 repositories. it rocks','w');
+  fs.write('./repositories/d2/README.txt','PROJECT DESCRIPTION FILE\nHELLO WORLD !\nFROM d2 repositories. it rocks','w');
 });
 casper.then(function(){
   this.hg("ci", "-m", 'second_commit_d2', "-R", "./repositories/d2/", "-u", "stephane.bard@gmail.com");
@@ -265,6 +273,29 @@ casper.waitUntilVisible('#confirm_move_dialog', function(){
 casper.thenClick('#move_to');
 casper.waitWhileVisible('#confirm_move_dialog');
 casper.waitUntilVisible('#project_home');
+
+
+
+
+
+// now both commits separatly 
+// but on different branch
+
+casper.then(function(){
+  fs.write('./repositories/d1/README.txt','PROJECT DESCRIPTION FILE\nHELLO WORLD !\nFROM d2 repositories. it rocks\nThis is pretty awesome','w');
+  this.hg("branch", "brch_1", "-R", "./repositories/d1/");
+});
+casper.then(function(){
+  this.hg("ci", "-m", 'third_commit_d1', "-R", "./repositories/d1/", "-u", "stephane.bard@gmail.com");
+});
+
+casper.then(function(){
+  fs.write('./repositories/d2/README.txt','PROJECT DESCRIPTION FILE\nHELLO WORLD !\nFROM d2 repositories. it rocks\nAre you sure ?','w');
+});
+casper.then(function(){
+  this.hg("ci", "-m", 'third_commit_d2', "-R", "./repositories/d2/", "-u", "stephane.bard@gmail.com");
+});
+
 
 // finish by logout
 casper.thenClick("#sign_out");
