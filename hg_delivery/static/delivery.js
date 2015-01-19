@@ -215,8 +215,8 @@ function find_last_common_node(local_last_change_list, remote_last_change_list){
           remote_list_pos = i;
           local_list_pos  = j;
           last_node = node_remote
+          match = true;
         }
-        match = true;
       }
     }
     if(!match){
