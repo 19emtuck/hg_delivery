@@ -7,10 +7,10 @@
  *
  */
 
- 
+
 /**
-* global jquery init !
-*/
+ * global jquery init !
+ */
 $(function() {
 
   String.prototype.repeat = function( num ) {
@@ -21,16 +21,16 @@ $(function() {
   };
 
   String.prototype.toTitleCase = function () {
-      return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+    return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
   };
 
   String.prototype.ljust = function( width, padding ) {
     var _padding = padding || " ";
     _padding = _padding.substr( 0, 1 );
     if( this.length < width )
-      return this + _padding.repeat( width - this.length );
+  return this + _padding.repeat( width - this.length );
     else
-      return this;
+  return this;
   };
 
   String.prototype.rjust = function( width, padding ) {
@@ -57,35 +57,36 @@ function go_to(url) {
  */
 function push_to(target_project_id, target_url, force_branch){
   if($('#other_projects a.active').length>0){
-     var src_project_id = $('#other_projects a.active').data('id');
-     $.ajax({url:target_url+src_project_id,
-             data:{'force_branch':force_branch},
-             beforeSend:function(){
-               $('#container_alert').html('<div class="low_gauge_container"><div class="progress"> <div class="progress-bar" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%;"><span class="sr-only">20% Complete</span> </div></div></div>');
-             },
-             complete:function(){
-               $('#container_alert .progress-bar').css('width','100%').attr('aria-valuenow',100);
-               $('#container_alert span').text('100% Complete');
-             },
-             dataType:'json',
-             success:function(json_response){
-               if(json_response.result){
-                 // we just reload the current comparison
-                 // get the active link and fetch him twice
-                 setTimeout(function() {
-                    $('#container_alert').html('');
-                    fetch_this_other_project($('#other_projects a.active')[0]);}, 1250);
-               } else if(json_response.new_branch_stop){
-                 // dialog : should we force ?
-                   $('#confirm_force_push_dialog .modal-body').html("Should we push them ?<br><br>"+json_response.lst_new_branches.join(','));
-                   $('#new_branch').off().on('click',function(){ $('#confirm_force_push_dialog').modal('hide');$('#container_alert').html(''); push_to(target_project_id, target_url, true);});
-                   $('#confirm_force_push_dialog').modal('show');
-               } else if(json_response.new_head_stop){
-                   $('#dismiss_force_push_dialog').modal('show');
-                   $('#container_alert').delay(1000).html('');
-               }
-             },
-     });
+    var src_project_id = $('#other_projects a.active').data('id');
+    $.ajax({url:target_url+src_project_id,
+      data:{'force_branch':force_branch},
+      beforeSend:function(){
+        $('#container_alert').html('<div class="low_gauge_container"><div class="progress"> <div class="progress-bar" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%;"><span class="sr-only">20% Complete</span> </div></div></div>');
+      },
+      complete:function(){
+        $('#container_alert .progress-bar').css('width','100%').attr('aria-valuenow',100);
+        $('#container_alert span').text('100% Complete');
+      },
+      dataType:'json',
+      success:function(json_response){
+        if(json_response.result){
+          // we just reload the current comparison
+          // get the active link and fetch him twice
+          setTimeout(function() {
+             $('#container_alert').html('');
+             fetch_this_other_project($('#other_projects a.active')[0]);}, 10);
+        } else if(json_response.new_branch_stop){
+          // dialog : should we force ?
+          $('#confirm_force_push_dialog .modal-body').html("Should we push them ?<br><br>"+json_response.lst_new_branches.join(','));
+          $('#abort_new_branch').off().on('click',function(){$('#container_alert').delay(1000).html('');});
+          $('#new_branch').off().on('click',function(){ $('#confirm_force_push_dialog').modal('hide');$('#container_alert').html(''); push_to(target_project_id, target_url, true);});
+          $('#confirm_force_push_dialog').modal('show');
+        } else if(json_response.new_head_stop){
+          $('#dismiss_force_push_dialog').modal('show');
+          $('#container_alert').delay(1000).html('');
+        }
+      },
+    });
   }
 }
 
@@ -94,23 +95,23 @@ function push_to(target_project_id, target_url, force_branch){
  */
 function pull_from(target_project_id, target_url){
   if($('#other_projects a.active').length>0){
-     var src_project_id = $('#other_projects a.active').data('id');
-     $.ajax({url:target_url+src_project_id,
-             beforeSend:function(){
-               $('#container_alert').html('<div class="low_gauge_container"><div class="progress"> <div class="progress-bar" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%;"><span class="sr-only">20% Complete</span> </div></div></div>');
-             },
-             complete:function(){
-               $('#container_alert .progress-bar').css('width','100%').attr('aria-valuenow',100);
-               $('#container_alert span').text('100% Complete');
-             },
-             dataType:'json',
-             success:function(){
-               setTimeout(function() {
-                  $('#container_alert').html('');
-                  // reload this fucking page ...
-                  window.location.reload(); }, 1250);
-             },
-     });
+    var src_project_id = $('#other_projects a.active').data('id');
+    $.ajax({url:target_url+src_project_id,
+      beforeSend:function(){
+        $('#container_alert').html('<div class="low_gauge_container"><div class="progress"> <div class="progress-bar" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%;"><span class="sr-only">20% Complete</span> </div></div></div>');
+      },
+      complete:function(){
+        $('#container_alert .progress-bar').css('width','100%').attr('aria-valuenow',100);
+        $('#container_alert span').text('100% Complete');
+      },
+      dataType:'json',
+      success:function(){
+        setTimeout(function() {
+          $('#container_alert').html('');
+          // reload this fucking page ...
+          window.location.reload(); }, 1250);
+      },
+    });
   }
 }
 
@@ -127,11 +128,20 @@ function change_project_to_this_release(active_a, target_url){
 
 /**
  * retrieve json data for a specific repository (set active component)
+ * this will allow an comparison between both repositories ...
  */
 function fetch_this_other_project(active_a){
   var $active_a = $(active_a);
   var $tbody_comparison = $('#project_comparison tbody');
   $tbody_comparison.find('tr').remove();
+
+  var limit = 200;
+  if(typeof($active_a.data('limit'))==="undefined"){
+    $active_a.data('limit',limit);
+  } else {
+    limit = parseInt($active_a.data('limit'))+limit;
+    $active_a.data('limit',limit);
+  }
 
   if($active_a.hasClass('active')){
     $active_a.removeClass('active');
@@ -139,134 +149,241 @@ function fetch_this_other_project(active_a){
     $('#project_comparison').hide();
   } else {
     var target_url = $active_a.data('url');
+    var starting_from_this_hash_node = $('#revision_table tbody tr').last().data('node');
     var remote_project_name = $active_a.data('name');
 
     $('#project_comparison').show();
     $('#other_projects a').removeClass('active');
+    var data = {};
+    if(typeof(limit)!=="undefined"){
+      data.limit = limit;
+    }
+
     $.ajax({url:target_url,
             async:false,
             dataType:'json',
+            data:data,
             success:function(json_response){
-                    $active_a.addClass('active');
-                    var remote_project_last_change_list = json_response.last_hundred_change_list;
-                    show_difference_between_changeset_stacks(remote_project_name, local_project_last_change_list, remote_project_last_change_list, current_node);
-                 },
-            });
+              $active_a.addClass('active');
+              var remote_project_last_change_list = json_response.last_hundred_change_list;
+              show_difference_between_changeset_stacks(active_a, remote_project_name, local_project_last_change_list, remote_project_last_change_list, current_node);
+            },
+    });
   }
+}
+
+/**
+ * try to find the last node
+ * that both share.
+ **/
+function find_last_common_node(local_last_change_list, remote_last_change_list){
+
+  var node_local, node_remote, last_node, i, j, remote_list_pos, local_list_pos, nb_nodes_unknown_nodes_in_local,
+      nb_nodes_unknown_nodes_in_remote, match;
+
+  last_node        = null;
+  local_list_pos   = null;
+  remote_list_post = null;
+
+  nb_nodes_unknown_nodes_in_local  = 0
+  nb_nodes_unknown_nodes_in_remote = 0
+
+  for (i = local_last_change_list.length - 1; i >=0 ; i--) {
+    node_local = local_last_change_list[i].node;
+    match = false;
+    for (j = remote_last_change_list.length - 1; j >=0 ; j--) {
+      node_remote = remote_last_change_list[j].node;
+      if(node_remote==node_local){
+        remote_list_pos = j;
+        local_list_pos  = i;
+        last_node = node_remote;
+        match = true;
+      }
+    }
+    if(!match){
+      nb_nodes_unknown_nodes_in_remote++;
+    }
+  }
+  // we do reverse if necessary
+  for (i = remote_last_change_list.length - 1; i >=0 ; i--) {
+    node_remote = remote_last_change_list[i].node;
+    match = false;
+    for (j = local_last_change_list.length - 1; j >=0 ; j--) {
+      node_local = local_last_change_list[j].node;
+      if(node_remote==node_local){
+        if(last_node === null){
+          remote_list_pos = i;
+          local_list_pos  = j;
+          last_node = node_remote
+        }
+        match = true;
+      }
+    }
+    if(!match){
+      nb_nodes_unknown_nodes_in_local++;
+    }
+  }
+
+  return {  'last_node'       : last_node,
+            'local_list_pos'  : local_list_pos,
+            'remote_list_pos' : remote_list_pos,
+            'nb_nodes_unknown_nodes_in_remote':nb_nodes_unknown_nodes_in_remote,
+            'nb_nodes_unknown_nodes_in_local':nb_nodes_unknown_nodes_in_local,
+  }
+}
+
+function merging_list(local_last_change_list, remote_last_change_list, current_node, $tbody_comparison){
+  // we should start from the back and get on, then reverse
+  var row, rows_container, i, max_size_list;
+  max_size_list = local_last_change_list.length >= remote_last_change_list.length  ? local_last_change_list.length  : remote_last_change_list.length;
+  rows_container = [];
+
+  var __feed_row = function(row, node, current_node){
+
+    if(node.node === current_node.node){
+      row.push('<span class="glyphicon glyphicon-ok" style="color:#f0ad4e;font-size:27px"></span>');
+    } else {
+      row.push("");
+    }
+    row.push(node.author);
+
+    if (node.node == current_node.node){
+      row.push('<span class="label label-warning">'+node.branch+'</span>');
+    } else {
+      row.push('<span class="label label-success">'+node.branch+'</span>');
+    }
+
+    row.push(node.branch);
+    row.push(node.date);
+    row.push(node.desc);
+  }
+
+  var __build_row_for_interval = function(local_last_change_list, remote_last_change_list, current_node, i, rows_container, set_published) {
+    var __local_node, __remote_node;
+    if(local_last_change_list.length > i){
+      __local_node = local_last_change_list[i];
+    } else {
+      __local_node = null;
+    }
+
+    if(remote_last_change_list.length>i){
+      __remote_node = remote_last_change_list[i];
+    } else {
+      __remote_node = null;
+    }
+
+    if(__local_node!==null && __remote_node!==null && __local_node.node === __remote_node.node){
+      row = ['',  __remote_node.rev,  __local_node.rev]
+        __feed_row(row, __local_node, current_node);
+      rows_container.push(row);
+      set_published[__local_node.node] = rows_container.length - 1;
+    } else if(__local_node!==null && __remote_node!==null) {
+      if(__remote_node.node in set_published){
+        row = rows_container[set_published[__remote_node.node]];
+        row[1] = __remote_node.rev;
+      } else {
+        row = ['',  __remote_node.rev, '']
+        __feed_row(row, __remote_node, current_node);
+        rows_container.push(row);
+        set_published[__remote_node.node] = rows_container.length - 1;
+      }
+
+      if(__local_node.node in set_published){
+        row = rows_container[set_published[__local_node.node]];
+        row[2] = __local_node.rev;
+      } else {
+        row = ['',  '',  __local_node.rev]
+          __feed_row(row, __local_node, current_node);
+        rows_container.push(row);
+        set_published[__local_node.node] = rows_container.length - 1;
+      }
+    } else if(__local_node!==null) {
+      if(__local_node.node in set_published){
+        row = rows_container[set_published[__local_node.node]];
+        row[2] = __local_node.rev;
+      } else {
+        row = ['',  '',  __local_node.rev]
+          __feed_row(row, __local_node, current_node);
+        rows_container.push(row);
+        set_published[__local_node.node] = rows_container.length - 1;
+      }
+    } else if(__remote_node!==null) {
+      if(__remote_node.node in set_published){
+        row = rows_container[set_published[__remote_node.node]];
+        row[1] = __remote_node.rev;
+      } else {
+        row = ['',  __remote_node.rev, '']
+        __feed_row(row, __remote_node, current_node);
+        rows_container.push(row);
+        set_published[__remote_node.node] = rows_container.length - 1;
+      }
+    }
+  }
+
+  row = [];
+  local_last_change_list.reverse();
+  remote_last_change_list.reverse();
+  set_published = {};
+
+  // build the difference til the first common node ...
+  for (i = 0 ; i < max_size_list ; i++) {
+    __build_row_for_interval(local_last_change_list, remote_last_change_list, current_node, i, rows_container, set_published);
+  }
+
+  rows_container.reverse();
+  rows_container.forEach(function(row){
+    $tbody_comparison.append('<tr><td>'+row.join('</td><td>')+'</td></tr>');
+  });
 }
 
 /**
  * display difference between two repository from te same project
  */
-function show_difference_between_changeset_stacks(remote_project_name, local_last_change_list, remote_last_change_list, current_node){
-  var top_remote_rev = remote_last_change_list.length>0 ? parseInt(remote_last_change_list[0].rev) : -1;
-  var top_local_rev = local_last_change_list.length>0 ? parseInt(local_last_change_list[0].rev) : -1;
+function show_difference_between_changeset_stacks(active_a, remote_project_name, local_last_change_list, remote_last_change_list, current_node){
+  var pull, push, top_remote_rev, top_local_rev;
+  top_remote_rev = remote_last_change_list.length > 0 ? parseInt(remote_last_change_list[0].rev) : -1;
+  top_local_rev = local_last_change_list.length > 0 ? parseInt(local_last_change_list[0].rev) : -1;
 
-  var more_recent_change_list, less_recent_change_list;
-  var local_is_recent, pull, push;
+  var cross_node = find_last_common_node(local_last_change_list, remote_last_change_list);
 
-  if (top_local_rev > top_remote_rev){
-     // we are ahead 
-     // means we can push to it
-     local_is_recent = true;
-     pull = false;
-     push = true;
-     more_recent_change_list = local_last_change_list;
-     less_recent_change_list = remote_last_change_list;
-  } else if (top_local_rev < top_remote_rev){
-     // we are late
-     // means we can from it
-     pull = true;
-     push = false;
-     local_is_recent = false;
-     less_recent_change_list = local_last_change_list;
-     more_recent_change_list = remote_last_change_list;
-  } else {
-     pull = false;
-     push = false;
-     more_recent_change_list = local_last_change_list;
-     less_recent_change_list = remote_last_change_list;
-  }
-
-  var j = 0;
-  var sync=false;
-  var row = [];
-  var __recent_rev_, __less_rev_;
-
-  $tbody_comparison = $('#project_comparison tbody');
-  $tbody_comparison.find('tr').remove();
-
-  for(var i=0 ; i < more_recent_change_list.length ; i++){
-      if(sync){
-        j++;
-      }
-      __recent_list_node = more_recent_change_list[i];
-
-      if(j<less_recent_change_list.length){
-        __less_list_node = less_recent_change_list[j];
-      } else {
-        __less_list_node = null;
-      }
-
-      row = [''];
-      __recent_rev_ = __recent_list_node.rev;
-
-      if (__less_list_node !== null && __less_list_node.node === __recent_list_node.node) {
-        sync = true;
-        __less_rev_ = __less_list_node.rev;
-      } else if(__less_list_node !== null && sync) {
-        __less_rev_ = __less_list_node.rev;
-      } else {
-        __less_rev_ = '';
-      }
-
-
-      if(local_is_recent){
-        row.push(__less_rev_);
-        row.push(__recent_rev_);
-        if(__recent_list_node.node === current_node.node){
-           row.push('<span class="glyphicon glyphicon-ok" style="color:#f0ad4e;font-size:27px"></span>');
-        } else {
-           row.push("");
-        }
-      } else {
-        row.push(__recent_rev_);
-        row.push(__less_rev_);
-
-        if(__less_rev_!=="" && __less_list_node!== null && __less_list_node.node === current_node.node){
-           row.push('<span class="glyphicon glyphicon-ok" style="color:#f0ad4e;font-size:27px"></span>');
-        } else {
-           row.push("");
-        }
-     }
-     row.push(__recent_list_node.author);
-     if (__recent_list_node.node == current_node.node){
-      row.push('<span class="label label-warning">'+__recent_list_node.branch+'</span>');
-     } else {
-      row.push('<span class="label label-success">'+__recent_list_node.branch+'</span>');
-     }
-     row.push(__recent_list_node.branch);
-     row.push(__recent_list_node.date);
-     row.push(__recent_list_node.desc);
-     $tbody_comparison.append('<tr><td>'+row.join('</td><td>')+'</td></tr>');
-  }
-
-  if(push || pull){
-    $('#pushpull').show();
-    $('#p_name_remote').text(remote_project_name);
-    $('#p_name_local').text(local_project_name);
-
-    if(push){
-      $('#button_push').show();
-      $('#button_pull').hide();
-    } else if (pull){
-      $('#button_push').hide();
-      $('#button_pull').show();
+  // if one of those list is empty (the comparison cannot work)
+  if(cross_node.last_node===null && remote_last_change_list.length>0 && local_last_change_list.length>0){
+    $('#other_projects a').removeClass('active');
+    if($(active_a).data('limit')<2000){
+      fetch_this_other_project(active_a);
     }
   } else {
-    $('#pushpull').hide();
-    $('#button_push').hide();
-    $('#button_pull').hide();
+    push = false;
+    pull = false;
+    if(cross_node.nb_nodes_unknown_nodes_in_remote>0){
+      push = true;
+    }
+    if(cross_node.nb_nodes_unknown_nodes_in_local>0){
+      pull = true;
+    }
+
+    $tbody_comparison = $('#project_comparison tbody');
+    $tbody_comparison.find('tr').remove();
+
+    merging_list(local_last_change_list, remote_last_change_list, current_node, $tbody_comparison);
+
+    if(push || pull){
+      $('#pushpull').show();
+      $('#p_name_remote').text(remote_project_name);
+      $('#p_name_local').text(local_project_name);
+
+      if(push){
+        $('#button_push').show();
+        $('#button_pull').hide();
+      } else if (pull){
+        $('#button_push').hide();
+        $('#button_pull').show();
+      }
+    } else {
+      $('#pushpull').hide();
+      $('#button_push').hide();
+      $('#button_pull').hide();
+    }
   }
 
 }
@@ -276,39 +393,39 @@ function show_difference_between_changeset_stacks(remote_project_name, local_las
  */
 function update_project(target_url){
   $.ajax({url: target_url,
-          method:'POST',
-          data:$('#project').serialize(),
-          dataType:'json',
-          success:function(json_response){
-              var default_url, $sel, _alert_html;
-              $('.alert').remove();
-              if(json_response.result){
-                $('#edit_project_dialog').modal('hide');
-                $sel = $('#projects_list');
-                $('#project_name').text(json_response.project.name);
-                if($sel){
-                  $sel.find('li').remove();
-                  default_url = $sel.data('url');
-                  json_response.projects_list.forEach(function(item){
-                    $sel.append('<li><a class="project_link" href="'+default_url+item.id+'">'+item.name+'</a></li>');
-                  });
-                }
-                if(json_response.explanation){
-                   _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
-                   _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-                   $('#container_alert').html(_alert_html);
-                   $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
-                }
-              } else if(json_response.explanation){
-                 _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
-                 _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-                 $('#container_alert').html(_alert_html);
-                 $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
-              } else {
-              
-              }
-            },
-         });
+    method:'POST',
+  data:$('#project').serialize(),
+  dataType:'json',
+  success:function(json_response){
+    var default_url, $sel, _alert_html;
+    $('.alert').remove();
+    if(json_response.result){
+      $('#edit_project_dialog').modal('hide');
+      $sel = $('#projects_list');
+      $('#project_name').text(json_response.project.name);
+      if($sel){
+        $sel.find('li').remove();
+        default_url = $sel.data('url');
+        json_response.projects_list.forEach(function(item){
+          $sel.append('<li><a class="project_link" href="'+default_url+item.id+'">'+item.name+'</a></li>');
+        });
+      }
+      if(json_response.explanation){
+        _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+        _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+        $('#container_alert').html(_alert_html);
+        $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
+      }
+    } else if(json_response.explanation){
+      _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+      _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+      $('#container_alert').html(_alert_html);
+      $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
+    } else {
+
+    }
+  },
+  });
 }
 
 /**
@@ -317,18 +434,18 @@ function update_project(target_url){
  */
 function edit_user(target_update_url, target_get_url, user_id){
   $.ajax({url:target_get_url,
-          success:function(json_response){
-             if(json_response.result){
-                $('#update_user_dialog').modal('show');
-                $('#update_user').attr('action',target_update_url);
-                $('#update_user_name').val(json_response.user.name);
-                $('#update_user_email').val(json_response.user.email);
-                $('#update_user_password').val(json_response.user.pwd);
-                $('#update_my_user').bind('click',function(){
-                   update_user(target_update_url);
-                });
-             }
-         }
+    success:function(json_response){
+      if(json_response.result){
+        $('#update_user_dialog').modal('show');
+        $('#update_user').attr('action',target_update_url);
+        $('#update_user_name').val(json_response.user.name);
+        $('#update_user_email').val(json_response.user.email);
+        $('#update_user_password').val(json_response.user.pwd);
+        $('#update_my_user').bind('click',function(){
+          update_user(target_update_url);
+        });
+      }
+    }
   });
 }
 
@@ -338,62 +455,62 @@ function edit_user(target_update_url, target_get_url, user_id){
  */
 function update_user(target_url){
   $.ajax({url: target_url,
-          method:'POST',
-          data:$('#update_user_form').serialize(),
-          dataType:'json',
-          success:function(json_response){
-              var $sel, default_url, _alert_html;
-              $('.alert').remove();
-              if(json_response.result){
-                $('#update_user_dialog').modal('hide');
-                if(json_response.explanation){
-                   _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
-                   _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-                   $('#container_alert').html(_alert_html);
-                   $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
-                }
-                update_user_list();
-              } else if(json_response.explanation){
-                   _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
-                   _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-                $('#update_user_dialog .modal-body').after(_alert_html);
-                $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
-              }
-            },
-         });
+    method:'POST',
+  data:$('#update_user_form').serialize(),
+  dataType:'json',
+  success:function(json_response){
+    var $sel, default_url, _alert_html;
+    $('.alert').remove();
+    if(json_response.result){
+      $('#update_user_dialog').modal('hide');
+      if(json_response.explanation){
+        _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+        _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+        $('#container_alert').html(_alert_html);
+        $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
+      }
+      update_user_list();
+    } else if(json_response.explanation){
+      _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+      _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+      $('#update_user_dialog .modal-body').after(_alert_html);
+      $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
+    }
+  },
+  });
 }
 
 /**
-* add a a user from filled form
-*
-*/
+ * add a a user from filled form
+ *
+ */
 function add_user(target_url){
   $.ajax({url: target_url,
-          method:'POST',
-          data:$('#user').serialize(),
-          dataType:'json',
-          complete:function(){
-          },
-          success:function(json_response){
-              var $sel, default_url, _alert_html;
-              $('.alert').remove();
-              if(json_response.result){
-                $('#new_user_dialog').modal('hide');
-                if(json_response.explanation){
-                   _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
-                   _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-                   $('#container_alert').html(_alert_html);
-                   $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
-                }
-                update_user_list();
-              } else if(json_response.explanation){
-                   _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
-                   _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-                $('#new_user_dialog .modal-body').after(_alert_html);
-                $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
-              }
-            },
-         });
+    method:'POST',
+  data:$('#user').serialize(),
+  dataType:'json',
+  complete:function(){
+  },
+  success:function(json_response){
+    var $sel, default_url, _alert_html;
+    $('.alert').remove();
+    if(json_response.result){
+      $('#new_user_dialog').modal('hide');
+      if(json_response.explanation){
+        _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+        _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+        $('#container_alert').html(_alert_html);
+        $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
+      }
+      update_user_list();
+    } else if(json_response.explanation){
+      _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+      _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+      $('#new_user_dialog .modal-body').after(_alert_html);
+      $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
+    }
+  },
+  });
 }
 
 /**
@@ -401,35 +518,35 @@ function add_user(target_url){
  */
 function delete_user(button,target_delete_url){
   $.ajax({url:target_delete_url,
-          method:'POST',
-          success:function(){
-            $(button).closest('tr').remove();
-             if($('#users_overview').find('tr').not('tr:first').size()===0){
-               $('#users_overview').append('<tr><td colspan="5" style="text-align:center;padding-top:20px">No Users defined</td></tr>');
-             }
-          }});
+    method:'POST',
+  success:function(){
+    $(button).closest('tr').remove();
+    if($('#users_overview').find('tr').not('tr:first').size()===0){
+      $('#users_overview').append('<tr><td colspan="5" style="text-align:center;padding-top:20px">No Users defined</td></tr>');
+    }
+  }});
 }
 
 function update_user_list(){
   var target_url = $('#users_overview').data('update_url');
   $.ajax({ url:target_url,
-           method:'GET',
-           success:function(json_response){
-             $('#users_overview').find('tr').not('tr:first').remove();
-             if(json_response.lst_users.length>0){
-               json_response.lst_users.forEach(function(user){
-                 var name = '<td>'+user.name+'</td>';
-                 var email = '<td>'+user.email+'</td>';
-                 var creation_date = '<td>'+user.creation_date+'</td>';
-                 var button_update = "<td><button class=\"btn btn-default\" onclick=\"edit_user('" + user.update_url + "','"+ user.get_url +"',"+user.id+")\">edit</button></td>";
-                 var button_delete = "<td><button class=\"btn btn-default\" onclick=\"delete_user(this,'" + user.delete_url + "')\">delete</button></td>";
-                 $('#users_overview').append('<tr>'+name+email+creation_date+button_update+button_delete+'</tr>');
-               });
-             } else {
-                 $('#users_overview').append('<tr><td colspan="5" style="text-align:center;padding-top:20px">No Users defined</td></tr>');
-             }
-          }
+    method:'GET',
+    success:function(json_response){
+      $('#users_overview').find('tr').not('tr:first').remove();
+      if(json_response.lst_users.length>0){
+        json_response.lst_users.forEach(function(user){
+          var name = '<td>'+user.name+'</td>';
+          var email = '<td>'+user.email+'</td>';
+          var creation_date = '<td>'+user.creation_date+'</td>';
+          var button_update = "<td><button class=\"btn btn-default\" onclick=\"edit_user('" + user.update_url + "','"+ user.get_url +"',"+user.id+")\">edit</button></td>";
+          var button_delete = "<td><button class=\"btn btn-default\" onclick=\"delete_user(this,'" + user.delete_url + "')\">delete</button></td>";
+          $('#users_overview').append('<tr>'+name+email+creation_date+button_update+button_delete+'</tr>');
         });
+      } else {
+        $('#users_overview').append('<tr><td colspan="5" style="text-align:center;padding-top:20px">No Users defined</td></tr>');
+      }
+    }
+  });
 }
 
 /**
@@ -437,41 +554,41 @@ function update_user_list(){
  */
 function add_project(target_url){
   $.ajax({url: target_url,
-          method:'POST',
-          data:$('#project_add').serialize(),
-          dataType:'json',
-          complete:function(){
-          },
-          success:function(json_response){
-              var $sel, default_url, _alert_html;
-              $('.alert').remove();
-              if(json_response.result){
-                $('#new_project_dialog').modal('hide');
-                $sel = $('#projects_list');
-                if($sel){
-                  $sel.parent().show();
-                  $sel.find('li').remove();
-                  default_url = $sel.data('url');
-                  json_response.projects_list.forEach(function(item){
-                    $sel.append('<li><a class="project_link" href="'+default_url+item.id+'">'+item.name+'</a></li>');
-                  });
-                }
-                if(json_response.explanation){
-                   _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
-                   _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-                   $('#container_alert').html(_alert_html);
-                   $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
-                }
-              } else if(json_response.explanation){
-                   _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
-                   _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
-                $('#new_project_dialog .modal-body').after(_alert_html);
-                $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
-              }
-              // we refresh the number of projects ...
-              $('#project_number').text($('#projects_list li').size().toString());
-            }
-         });
+    method:'POST',
+  data:$('#project_add').serialize(),
+  dataType:'json',
+  complete:function(){
+  },
+  success:function(json_response){
+    var $sel, default_url, _alert_html;
+    $('.alert').remove();
+    if(json_response.result){
+      $('#new_project_dialog').modal('hide');
+      $sel = $('#projects_list');
+      if($sel){
+        $sel.parent().show();
+        $sel.find('li').remove();
+        default_url = $sel.data('url');
+        json_response.projects_list.forEach(function(item){
+          $sel.append('<li><a class="project_link" href="'+default_url+item.id+'">'+item.name+'</a></li>');
+        });
+      }
+      if(json_response.explanation){
+        _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+        _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+        $('#container_alert').html(_alert_html);
+        $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
+      }
+    } else if(json_response.explanation){
+      _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+      _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
+      $('#new_project_dialog .modal-body').after(_alert_html);
+      $('.alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
+    }
+    // we refresh the number of projects ...
+    $('#project_number').text($('#projects_list li').size().toString());
+  }
+  });
 }
 
 /**
@@ -480,14 +597,14 @@ function add_project(target_url){
 function delete_this_project(){
   var target_url = $('#view_delete_project').data('url');
   $.ajax({url:target_url,
-          success:function(json_response){
-            if(json_response.result){
-              // fallback to root
-              go_to('/');
-              return true;
-            }
-          } 
-         });
+    success:function(json_response){
+      if(json_response.result){
+        // fallback to root
+        go_to('/');
+        return true;
+      }
+    } 
+  });
 }
 
 
@@ -496,25 +613,25 @@ function delete_this_project(){
  */
 function view_diff_revision(target_url){
   $.ajax({url:target_url,
-          success:function(json_response){
-            $('#files a').remove();
-            var lst_links = [];
-            var diffs_content = [];
+    success:function(json_response){
+      $('#files a').remove();
+      var lst_links = [];
+      var diffs_content = [];
 
-            json_response.diff.lst_basename_files.forEach(function(item){
-              var file_name = json_response.diff.lst_files[lst_links.length];
-              lst_links.push('<a href="#" class="list-group-item" onclick="$(\'div[id^=file_]\').hide();$(\'#file_'+lst_links.length+'\').show()">'+item+'</a>');
-              diffs_content.push('<div id="file_' + diffs_content.length + '" style="display:none">'+json_response.diff.dict_files[file_name]+'</div>');
-            });
+      json_response.diff.lst_basename_files.forEach(function(item){
+        var file_name = json_response.diff.lst_files[lst_links.length];
+        lst_links.push('<a href="#" class="list-group-item" onclick="$(\'div[id^=file_]\').hide();$(\'#file_'+lst_links.length+'\').show()">'+item+'</a>');
+        diffs_content.push('<div id="file_' + diffs_content.length + '" style="display:none">'+json_response.diff.dict_files[file_name]+'</div>');
+      });
 
-            $('#revision_description').html('id : '+json_response.revision.rev+'<br> date : '+json_response.revision.date+'<br> author : '+json_response.revision.author+'<br><br>'+json_response.revision.desc);
+      $('#revision_description').html('id : '+json_response.revision.rev+'<br> date : '+json_response.revision.date+'<br> author : '+json_response.revision.author+'<br><br>'+json_response.revision.desc);
 
-            $('#files').html(lst_links.join('\n'));
-            $('#diffs_container').show().html(diffs_content.join('\n'));
-            $('#files_panel').show();
-            $('#project_tab a[href="#revision"]').tab('show');
-          } 
-         });
+      $('#files').html(lst_links.join('\n'));
+      $('#diffs_container').show().html(diffs_content.join('\n'));
+      $('#files_panel').show();
+      $('#project_tab a[href="#revision"]').tab('show');
+    } 
+  });
 }
 
 /**
@@ -531,21 +648,21 @@ function display_logs(active_button) {
     }
 
     $.ajax({ url:$button.data('url'),
-             success:function(json_response){
-               var log_resume = [];
-               json_response.logs.forEach(function(item){
-                 var _id = item.id.toString().rjust(4,'0');
-                 log_resume.push("<ul class='row_log'><li>" + _id + "</li><li><i>"+item.creation_date +"</i></li><li>" + item.host + "</li><li>" + item.path + "</li><li>" + item.command+"</li></ul>");
-               });
-               var __loc_html = '<ul class="log"><li>'+log_resume.join('</li><li>')+'</li></ul>';
-               $('#logs').html(__loc_html);
-               $button.addClass('btn-success');
-               $('#container_logs').show();
-               $('#global_container').css('padding-bottom','160px');
-               localStorage.logs_enabled=1;
-               localStorage.last_logs=__loc_html;
-             }
-           });
+      success:function(json_response){
+        var log_resume = [];
+        json_response.logs.forEach(function(item){
+          var _id = item.id.toString().rjust(4,'0');
+          log_resume.push("<ul class='row_log'><li>" + _id + "</li><li><i>"+item.creation_date +"</i></li><li>" + item.host + "</li><li>" + item.path + "</li><li>" + item.command+"</li></ul>");
+        });
+        var __loc_html = '<ul class="log"><li>'+log_resume.join('</li><li>')+'</li></ul>';
+        $('#logs').html(__loc_html);
+        $button.addClass('btn-success');
+        $('#container_logs').show();
+        $('#global_container').css('padding-bottom','160px');
+        localStorage.logs_enabled=1;
+        localStorage.last_logs=__loc_html;
+      }
+    });
   } else {
     $button.removeClass('btn-success');
     $('#container_logs').hide();
@@ -563,20 +680,20 @@ function delete_this_task(button) {
   var url = $button.data('url');
   var label_button = $button.text();
   $.ajax({url:url,
-          beforeSend:function(){
-            $button.text('deleting ...');
-          },
-          complete:function(){
-	    setTimeout(function() { 
-              $button.prop('disabled',false);
-              $button.text(label_button);
-	    }, 600);
-          },
-          success:function(json_response){
-            if(json_response.result){
-              $button.closest('li').remove();
-            }
-          },
+    beforeSend:function(){
+      $button.text('deleting ...');
+    },
+    complete:function(){
+      setTimeout(function() { 
+        $button.prop('disabled',false);
+        $button.text(label_button);
+      }, 600);
+    },
+    success:function(json_response){
+      if(json_response.result){
+        $button.closest('li').remove();
+      }
+    },
   });
 }
 
@@ -589,15 +706,15 @@ function run_this_task(button){
   var url = $button.data('url');
   var label_button = $button.text();
   $.ajax({url:url,
-          beforeSend:function(){
-            $button.text('runing ...');
-          },
-          complete:function(json_response){
-	    setTimeout(function() { 
-              $button.text(label_button);
-              $button.prop('disabled',false);
-	    }, 600);
-          },
+    beforeSend:function(){
+      $button.text('runing ...');
+    },
+    complete:function(json_response){
+      setTimeout(function() { 
+        $button.text(label_button);
+        $button.prop('disabled',false);
+      }, 600);
+    },
   });
 
 }
@@ -625,31 +742,31 @@ function save_project_tasks(){
 
 
   $.ajax({url:$('#project_tasks').attr('action'),
-          method:'POST',
-          data:$('#project_tasks').serialize(),
-          beforeSend:function(){
-            $('#save_tasks').text('saving ...');
-          },
-          success:function(json_response){
-            $tasks_list = $('#tasks_list');
-            $tasks_list.find('li').remove();
+    method:'POST',
+    data:$('#project_tasks').serialize(),
+    beforeSend:function(){
+      $('#save_tasks').text('saving ...');
+    },
+    success:function(json_response){
+      $tasks_list = $('#tasks_list');
+      $tasks_list.find('li').remove();
 
-            json_response.tasks.forEach(function(item, i){
-              var html = '<li>';
-              html = html + ' <input type="text" name="task_content" size="150" value="' + item.content + '">';
-              html = html + ' <button data-id="' + item.id + '" data-url="' + item.execute_url + '" onclick="run_this_task(this)" type="button" class="btn">run it ..</button>';
-              html = html + ' <button data-id="' + item.id + '" data-url="' + item.delete_url + '" onclick="delete_this_task(this)" type="button" class="btn">delete it ..</button>';
-              html = html + ' </li>';
-              $(html).appendTo('#tasks_list');
-            });
+      json_response.tasks.forEach(function(item, i){
+        var html = '<li>';
+        html = html + ' <input type="text" name="task_content" size="150" value="' + item.content + '">';
+        html = html + ' <button data-id="' + item.id + '" data-url="' + item.execute_url + '" onclick="run_this_task(this)" type="button" class="btn">run it ..</button>';
+        html = html + ' <button data-id="' + item.id + '" data-url="' + item.delete_url + '" onclick="delete_this_task(this)" type="button" class="btn">delete it ..</button>';
+        html = html + ' </li>';
+        $(html).appendTo('#tasks_list');
+      });
 
-          },
-          complete:function(){
-	    setTimeout(function() { 
-              $button.text(label_button);
-              $button.prop('disabled',false);
-	    }, 600);
-          },
+    },
+    complete:function(){
+      setTimeout(function() { 
+        $button.text(label_button);
+        $button.prop('disabled',false);
+      }, 600);
+    },
   });
 }
 
@@ -662,18 +779,18 @@ function save_project_acls(){
   var label_button = $button.text();
 
   $.ajax({url:$('#project_acls').attr('action'),
-          data:$('#project_acls').serialize(),
-          beforeSend:function(){
-            $('#project_acls button').text('saving ...');
-          },
-          complete:function(){
-	    setTimeout(function() { 
-                $('#project_acls button').text(label_button);
-                $button.prop('disabled',false);
-	    }, 600);
-          },
-          success:function(json_response){
-          }
+    data:$('#project_acls').serialize(),
+    beforeSend:function(){
+      $('#project_acls button').text('saving ...');
+    },
+    complete:function(){
+      setTimeout(function() { 
+        $('#project_acls button').text(label_button);
+        $button.prop('disabled',false);
+      }, 600);
+    },
+    success:function(json_response){
+    }
   });
 }
 

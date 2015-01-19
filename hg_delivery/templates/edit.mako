@@ -108,7 +108,7 @@
         
            <tbody>
             %for node in last_hundred_change_list :
-              <tr>
+              <tr data-node="${node['node']}">
                %if node['node'] == current_node.get('node'):
                   <td><span class="glyphicon glyphicon-ok" data-current_rev="${current_node['rev']}" style="color:#f0ad4e;font-size:27px"></span></td>
                %else :
@@ -397,7 +397,7 @@
         Should we push also it ?
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button id="abort_new_branch" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button id="new_branch" type="button" class="btn btn-primary">Push this new branch</button>
       </div>
     </div><!-- /.modal-content -->

@@ -420,6 +420,25 @@ class HgNode(NodeSsh):
                                                             source_project.path),
                                                             source_project.password)
 
+  def get_last_logs_starting_from(self, start_from_this_hash_revision) :
+    """
+      return last logs ... because we use hash start mercurial will reverse list output
+      :param start_from_this_hash_revision: hash string, the revision hash from which we retrieve log 
+    """
+    data = self.run_command(u'cd %s ; hg log --template "%s" -r%s:'%(self.path, self._template, start_from_this_hash_revision))
+    list_nodes = []
+    map_nodes = {}
+
+    if data :
+      data = (line for line in data.splitlines())
+      for line in reversed(tuple(data)) :
+        node, author, branch, rev, parents, date, desc, tags = line.split(u'|#|')
+        desc = desc.replace(u'\\n','\n')
+        if not branch : branch = 'default'
+        list_nodes.append({'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date})
+        map_nodes[node]=list_nodes[-1]
+    return list_nodes, map_nodes
+
   def get_last_logs(self, nb_lines, branch_filter=None, revision_filter=None):
     """
       return last logs ...
