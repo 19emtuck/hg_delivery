@@ -182,7 +182,7 @@ casper.then(function(){
 casper.waitUntilVisible('#project_home');
 casper.thenClick('a[href="#related"]');
 casper.thenClick('#other_projects a:first-child');
-casper.waitForSelector('#button_push');
+casper.waitUntilVisible('#button_push');
 casper.thenClick('#button_push');
 
 casper.waitUntilVisible('#container_alert .progress-bar', function(){
@@ -249,7 +249,7 @@ casper.waitUntilVisible('#project_home', function(){
 
 casper.thenClick('a[href="#related"]');
 casper.thenClick('#other_projects a:first-child');
-casper.waitForSelector('#button_pull');
+casper.waitUntilVisible('#button_pull');
 casper.thenClick('#button_pull');
 
 casper.waitUntilVisible('#container_alert .progress-bar', function(){
