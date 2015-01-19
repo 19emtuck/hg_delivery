@@ -374,10 +374,13 @@ function show_difference_between_changeset_stacks(active_a, remote_project_name,
 
       if(push){
         $('#button_push').show();
-        $('#button_pull').hide();
-      } else if (pull){
+      } else {
         $('#button_push').hide();
+      }
+      if(pull){
         $('#button_pull').show();
+      } else {
+        $('#button_pull').hide();
       }
     } else {
       $('#pushpull').hide();
