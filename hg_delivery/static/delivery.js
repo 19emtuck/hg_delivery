@@ -209,9 +209,9 @@ function find_last_common_node(local_last_change_list, remote_last_change_list){
   var node_local, node_remote, last_node, i, j, remote_list_pos, local_list_pos, nb_nodes_unknown_nodes_in_local,
       nb_nodes_unknown_nodes_in_remote, match;
 
-  last_node        = null;
-  local_list_pos   = null;
-  remote_list_post = null;
+  last_node       = null;
+  local_list_pos  = null;
+  remote_list_pos = null;
 
   nb_nodes_unknown_nodes_in_local  = 0
   nb_nodes_unknown_nodes_in_remote = 0
@@ -222,7 +222,6 @@ function find_last_common_node(local_last_change_list, remote_last_change_list){
     for (j = remote_last_change_list.length - 1; j >=0 ; j--) {
       node_remote = remote_last_change_list[j].node;
       if(node_remote==node_local){
-        remote_list_pos = j;
         local_list_pos  = i;
         last_node = node_remote;
         match = true;
@@ -241,8 +240,9 @@ function find_last_common_node(local_last_change_list, remote_last_change_list){
       if(node_remote==node_local){
         if(last_node === null){
           remote_list_pos = i;
-          local_list_pos  = j;
-          last_node = node_remote
+          if(last_node ===null){
+            last_node = node_remote
+          }
           match = true;
         }
       }
@@ -257,14 +257,14 @@ function find_last_common_node(local_last_change_list, remote_last_change_list){
             'remote_list_pos' : remote_list_pos,
             'nb_nodes_unknown_nodes_in_remote':nb_nodes_unknown_nodes_in_remote,
             'nb_nodes_unknown_nodes_in_local':nb_nodes_unknown_nodes_in_local,
-  }
+  };
+
 }
 
 function merging_list(local_last_change_list, remote_last_change_list, current_node, $tbody_comparison){
   // we should start from the back and get on, then reverse
   var row, rows_container, i, max_size_list;
   max_size_list = local_last_change_list.length >= remote_last_change_list.length  ? local_last_change_list.length  : remote_last_change_list.length;
-  rows_container = [];
 
   var __feed_row = function(row, node, current_node){
 
@@ -287,22 +287,24 @@ function merging_list(local_last_change_list, remote_last_change_list, current_n
   }
 
   var __build_row_for_interval = function(local_last_change_list, remote_last_change_list, current_node, i, rows_container, set_published) {
-    var __local_node, __remote_node;
+    var __local_node, __remote_node, row;
     if(local_last_change_list.length > i){
       __local_node = local_last_change_list[i];
+      __local_node.rev = parseInt(__local_node.rev,10);
     } else {
       __local_node = null;
     }
 
     if(remote_last_change_list.length>i){
       __remote_node = remote_last_change_list[i];
+      __remote_node.rev = parseInt(__remote_node.rev,10);
     } else {
       __remote_node = null;
     }
 
     if(__local_node!==null && __remote_node!==null && __local_node.node === __remote_node.node){
       row = ['',  __remote_node.rev,  __local_node.rev]
-        __feed_row(row, __local_node, current_node);
+      __feed_row(row, __local_node, current_node);
       rows_container.push(row);
       set_published[__local_node.node] = rows_container.length - 1;
     } else if(__local_node!==null && __remote_node!==null) {
@@ -315,7 +317,6 @@ function merging_list(local_last_change_list, remote_last_change_list, current_n
         rows_container.push(row);
         set_published[__remote_node.node] = rows_container.length - 1;
       }
-
       if(__local_node.node in set_published){
         row = rows_container[set_published[__local_node.node]];
         row[2] = __local_node.rev;
@@ -352,13 +353,26 @@ function merging_list(local_last_change_list, remote_last_change_list, current_n
   local_last_change_list.reverse();
   remote_last_change_list.reverse();
   set_published = {};
+  rows_container = [];
 
-  // build the difference til the first common node ...
   for (i = 0 ; i < max_size_list ; i++) {
     __build_row_for_interval(local_last_change_list, remote_last_change_list, current_node, i, rows_container, set_published);
   }
 
-  rows_container.reverse();
+  rows_container.sort(function(a,b){
+    var _a, _b;
+    _a = a[1]!=='' ? a[1] : a[2];
+    _b = b[1]!=='' ? b[1] : b[2];
+    if(_a>_b){
+      return -1;
+    } else if(_b>_a){
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+
+
   rows_container.forEach(function(row){
     $tbody_comparison.append('<tr><td>'+row.join('</td><td>')+'</td></tr>');
   });
@@ -373,6 +387,7 @@ function show_difference_between_changeset_stacks(active_a, remote_project_name,
   top_local_rev = local_last_change_list.length > 0 ? parseInt(local_last_change_list[0].rev) : -1;
 
   var cross_node = find_last_common_node(local_last_change_list, remote_last_change_list);
+  console.log(cross_node);
 
   // if one of those list is empty (the comparison cannot work)
   if(cross_node.last_node===null && remote_last_change_list.length>0 && local_last_change_list.length>0){
@@ -383,9 +398,7 @@ function show_difference_between_changeset_stacks(active_a, remote_project_name,
   } else {
     $tbody_comparison = $('#project_comparison tbody');
     $tbody_comparison.find('tr').remove();
-
     merging_list(local_last_change_list, remote_last_change_list, current_node, $tbody_comparison);
-
   }
 
 }
