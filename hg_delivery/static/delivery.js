@@ -387,7 +387,6 @@ function show_difference_between_changeset_stacks(active_a, remote_project_name,
   top_local_rev = local_last_change_list.length > 0 ? parseInt(local_last_change_list[0].rev) : -1;
 
   var cross_node = find_last_common_node(local_last_change_list, remote_last_change_list);
-  console.log(cross_node);
 
   // if one of those list is empty (the comparison cannot work)
   if(cross_node.last_node===null && remote_last_change_list.length>0 && local_last_change_list.length>0){
