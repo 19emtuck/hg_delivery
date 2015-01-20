@@ -386,19 +386,9 @@ function show_difference_between_changeset_stacks(active_a, remote_project_name,
   top_remote_rev = remote_last_change_list.length > 0 ? parseInt(remote_last_change_list[0].rev) : -1;
   top_local_rev = local_last_change_list.length > 0 ? parseInt(local_last_change_list[0].rev) : -1;
 
-  var cross_node = find_last_common_node(local_last_change_list, remote_last_change_list);
-
-  // if one of those list is empty (the comparison cannot work)
-  if(cross_node.last_node===null && remote_last_change_list.length>0 && local_last_change_list.length>0){
-    $('#other_projects a').removeClass('active');
-    if($(active_a).data('limit')<2000){
-      fetch_this_other_project(active_a);
-    }
-  } else {
-    $tbody_comparison = $('#project_comparison tbody');
-    $tbody_comparison.find('tr').remove();
-    merging_list(local_last_change_list, remote_last_change_list, current_node, $tbody_comparison);
-  }
+  $tbody_comparison = $('#project_comparison tbody');
+  $tbody_comparison.find('tr').remove();
+  merging_list(local_last_change_list, remote_last_change_list, current_node, $tbody_comparison);
 
 }
 
