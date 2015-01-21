@@ -173,18 +173,17 @@ function fetch_this_other_project(active_a){
                 $('#p_name_local').text(local_project_name);
                 $('#button_push').show();
               }
-            },
-    });
-
-    $.ajax({url:target_url_pull,
-            dataType:'json',
-            success:function(json_response){
-              if(json_response.result){
-                $('#pushpull').show();
-                $('#p_name_remote').text(remote_project_name);
-                $('#p_name_local').text(local_project_name);
-                $('#button_pull').show();
-              }
+              $.ajax({url:target_url_pull,
+                      dataType:'json',
+                      success:function(json_response){
+                        if(json_response.result){
+                          $('#pushpull').show();
+                          $('#p_name_remote').text(remote_project_name);
+                          $('#p_name_local').text(local_project_name);
+                          $('#button_pull').show();
+                        }
+                      },
+              });
             },
     });
 
@@ -382,10 +381,7 @@ function merging_list(local_last_change_list, remote_last_change_list, current_n
  * display difference between two repository from te same project
  */
 function show_difference_between_changeset_stacks(active_a, remote_project_name, local_last_change_list, remote_last_change_list, current_node){
-  var pull, push, top_remote_rev, top_local_rev;
-  top_remote_rev = remote_last_change_list.length > 0 ? parseInt(remote_last_change_list[0].rev) : -1;
-  top_local_rev = local_last_change_list.length > 0 ? parseInt(local_last_change_list[0].rev) : -1;
-
+  var $tbody_comparison;
   $tbody_comparison = $('#project_comparison tbody');
   $tbody_comparison.find('tr').remove();
   merging_list(local_last_change_list, remote_last_change_list, current_node, $tbody_comparison);
