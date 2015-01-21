@@ -180,7 +180,7 @@ class NodeSsh(object):
     return ssh
 
   @check_connections
-  def run_command_and_feed_password_prompt(self, command, password, reg_password ='password: ', reg_shell = '[^\n\r]+@[^\n\r]+\$'):
+  def run_command_and_feed_password_prompt(self, command, password, reg_password ='password: ', reg_shell = '[^\n\r]+@[^\n\r]+\$', log_it=True):
     '''
       Execute command through SSH and also feed prompt !
 
@@ -278,7 +278,8 @@ class NodeSsh(object):
 
     self.state_locked = False
 
-    self.__class__.logs.append((self.project_id, self.host, self.path, re.sub(u"^cd[^;]*;",'',command)))
+    if log_it :
+      self.__class__.logs.append((self.project_id, self.host, self.path, re.sub(u"^cd[^;]*;",'',command)))
 
     return {u'out':    full_log,
             u'err':    [],
@@ -392,7 +393,8 @@ class HgNode(NodeSsh):
                                                         target_project.user,
                                                         target_project.host,
                                                         target_project.path),
-                                                        target_project.password)
+                                                        target_project.password,
+                                                        log_it=False)
     return data['buff'].count('changeset:')>0
 
   def pushable(self, local_project, target_project):
@@ -415,7 +417,8 @@ class HgNode(NodeSsh):
                                                         target_project.user,
                                                         target_project.host,
                                                         target_project.path),
-                                                        target_project.password)
+                                                        target_project.password,
+                                                        log_it=False)
     return data['buff'].count('changeset:')>0
 
   def push_to(self, local_project, target_project, force_branch):
