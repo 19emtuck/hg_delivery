@@ -231,7 +231,7 @@ def project_logs(request):
 @view_config(route_name='project_push_test', renderer='json')
 def shall_we_push(request):
   """
-    test if push is avaiable looking from push query
+    test if push is available regarding to push query result
   """
   id_project = request.matchdict['id']
   id_target_project = request.matchdict['target']
@@ -252,7 +252,7 @@ def shall_we_push(request):
 @view_config(route_name='project_pull_test', renderer='json')
 def shall_we_pull(request):
   """
-    test if pull is avaiable looking from push query
+    test if pull is available regarding to push query result
   """
   id_project = request.matchdict['id']
   id_target_project = request.matchdict['source']
