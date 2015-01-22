@@ -387,7 +387,7 @@ class HgNode(NodeSsh):
       insecure = u" --insecure "
     else:
       insecure = u" "
-    data = self.run_command_and_feed_password_prompt(u'cd %s ; hg in%sssh://%s@%s/%s'%(
+    data = self.run_command_and_feed_password_prompt(u'cd %s ; hg in -l 1 %sssh://%s@%s/%s'%(
                                                         self.path,
                                                         insecure,
                                                         target_project.user,
@@ -411,7 +411,7 @@ class HgNode(NodeSsh):
       insecure = u" --insecure "
     else:
       insecure = u" "
-    data = self.run_command_and_feed_password_prompt(u'cd %s ; hg out%sssh://%s@%s/%s'%(
+    data = self.run_command_and_feed_password_prompt(u'cd %s ; hg out -l 1 %sssh://%s@%s/%s'%(
                                                         self.path,
                                                         insecure,
                                                         target_project.user,
