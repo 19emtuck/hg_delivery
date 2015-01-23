@@ -135,14 +135,6 @@ function fetch_this_other_project(active_a){
   var $tbody_comparison = $('#project_comparison tbody');
   $tbody_comparison.find('tr').remove();
 
-  var limit = 200;
-  if(typeof($active_a.data('limit'))==="undefined"){
-    $active_a.data('limit',limit);
-  } else {
-    limit = parseInt($active_a.data('limit'))+limit;
-    $active_a.data('limit',limit);
-  }
-
   if($active_a.hasClass('active')){
     $active_a.removeClass('active');
     $('#pushpull').hide();
@@ -157,10 +149,6 @@ function fetch_this_other_project(active_a){
     $('#nosync, #pushpull_buttons').hide();
     $('#project_comparison, #pushpull').show();
     $('#other_projects a').removeClass('active');
-    var data = {};
-    if(typeof(limit)!=="undefined"){
-      data.limit = limit;
-    }
 
     $('#button_push').hide();
     $('#button_pull').hide();
@@ -195,7 +183,6 @@ function fetch_this_other_project(active_a){
 
     $.ajax({url:target_url,
             dataType:'json',
-            data:data,
             success:function(json_response){
               $active_a.addClass('active');
               var remote_project_last_change_list = json_response.last_hundred_change_list;
