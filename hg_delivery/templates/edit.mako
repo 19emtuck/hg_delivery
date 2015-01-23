@@ -162,9 +162,12 @@
           <h3 class="panel-title">Should we pull/push from this related project ?</h3>
         </div>
         <div class="panel-body">
-           <div id="other_projects" class="list-group">
-             <button id="button_pull" class="btn btn-primary" onclick="pull_from(${project.id}, '${url(route_name='project_pull_from', id=project.id, source='')}');">pull from</button>
+           <div id="nosync" style="display:none">
+               nothing to synchronize ...
+           </div>
+           <div id="pushpull_buttons" class="list-group">
              <button id="button_push" class="btn btn-primary" onclick="push_to(${project.id}, '${url(route_name='project_push_to', id=project.id, target='')}',false);">push to</button>
+             <button id="button_pull" class="btn btn-primary" onclick="pull_from(${project.id}, '${url(route_name='project_pull_from', id=project.id, source='')}');">pull from</button>
            </div>
         </div>
       </div>

@@ -154,7 +154,8 @@ function fetch_this_other_project(active_a){
     var starting_from_this_hash_node = $('#revision_table tbody tr').last().data('node');
     var remote_project_name = $active_a.data('name');
 
-    $('#project_comparison').show();
+    $('#nosync, #pushpull_buttons').hide();
+    $('#project_comparison, #pushpull').show();
     $('#other_projects a').removeClass('active');
     var data = {};
     if(typeof(limit)!=="undefined"){
@@ -168,9 +169,9 @@ function fetch_this_other_project(active_a){
             dataType:'json',
             success:function(json_response){
               if(json_response.result){
-                $('#pushpull').show();
                 $('#p_name_remote').text(remote_project_name);
                 $('#p_name_local').text(local_project_name);
+                $('#pushpull_buttons').show();
                 $('#button_push').show();
               }
               $.ajax({url:target_url_pull,
@@ -180,7 +181,12 @@ function fetch_this_other_project(active_a){
                           $('#pushpull').show();
                           $('#p_name_remote').text(remote_project_name);
                           $('#p_name_local').text(local_project_name);
+                          $('#pushpull_buttons').show();
                           $('#button_pull').show();
+                        } else {
+                          if(!$('#button_push').is(':visible')) {
+                            $('#nosync').show();
+                          }
                         }
                       },
               });

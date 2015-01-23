@@ -141,6 +141,8 @@ class NodeSsh(object):
       uri should like this
 
       "{user}:{password}@{host}:{path}"
+
+    :param uri: an string that looks like "{user}:{password}@{host}:{path}"
     """
     self.uri = uri
     self.project_id = project_id
@@ -156,6 +158,7 @@ class NodeSsh(object):
 
   def decode_raw_bytes(self, bytes_content):
     """
+    :param bytes_content: octet string an 2.x 3x bytes string decode wrapper
     """
     content = ""
     for codec in (u'latin-1', u'utf-8') :
@@ -169,7 +172,7 @@ class NodeSsh(object):
 
   def get_ssh(self):
     """
-      set ssh ...
+      get the ssh object connection.
     """
     try :
       ssh = paramiko.SSHClient()
