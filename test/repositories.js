@@ -14,6 +14,8 @@ var local_path = fs.workingDirectory;
 var map_project_to_url = {};
 var lst_projects_labels = ['d1', 'd2']
 
+// casper.options.waitTimeout = 80000;
+
 casper.spawn = function(){
   var command = arguments[0];
   var _arguments = [];
@@ -183,6 +185,11 @@ casper.waitUntilVisible('#project_home');
 casper.thenClick('a[href="#related"]');
 casper.thenClick('#other_projects a:first-child');
 casper.waitUntilVisible('#button_push');
+casper.waitFor(function check(){
+  return this.evaluate(function(){
+    return typeof($('#button_push').attr('disabled'))==='undefined';
+  });
+});
 casper.thenClick('#button_push');
 
 casper.waitUntilVisible('#container_alert .progress-bar', function(){
@@ -250,6 +257,11 @@ casper.waitUntilVisible('#project_home', function(){
 casper.thenClick('a[href="#related"]');
 casper.thenClick('#other_projects a:first-child');
 casper.waitUntilVisible('#button_pull');
+casper.waitFor(function check(){
+  return this.evaluate(function(){
+    return typeof($('#button_pull').attr('disabled'))==='undefined';
+  });
+});
 casper.thenClick('#button_pull');
 
 casper.waitUntilVisible('#container_alert .progress-bar', function(){

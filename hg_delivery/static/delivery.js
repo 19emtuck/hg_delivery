@@ -146,34 +146,37 @@ function fetch_this_other_project(active_a){
     var starting_from_this_hash_node = $('#revision_table tbody tr').last().data('node');
     var remote_project_name = $active_a.data('name');
 
-    $('#nosync, #pushpull_buttons').hide();
+    $('#nosync').hide();
+    $('#pushpull_buttons').show();
     $('#project_comparison, #pushpull').show();
     $('#other_projects a').removeClass('active');
-
-    $('#button_push').hide();
-    $('#button_pull').hide();
-
+    $('#button_pull, #button_push').attr('disabled','disabled').addClass('active');
     $.ajax({url:target_url_push,
             dataType:'json',
+            complete:function(){
+              $('#button_push').removeClass('active');
+            },
             success:function(json_response){
               if(json_response.result){
                 $('#p_name_remote').text(remote_project_name);
                 $('#p_name_local').text(local_project_name);
-                $('#pushpull_buttons').show();
-                $('#button_push').show();
+                $('#button_push').removeAttr('disabled');
               }
               $.ajax({url:target_url_pull,
                       dataType:'json',
+                      complete:function(){
+                        $('#button_pull').removeClass('active');
+                      },
                       success:function(json_response){
                         if(json_response.result){
                           $('#pushpull').show();
                           $('#p_name_remote').text(remote_project_name);
                           $('#p_name_local').text(local_project_name);
-                          $('#pushpull_buttons').show();
-                          $('#button_pull').show();
+                          $('#button_pull').removeAttr('disabled');
                         } else {
-                          if(!$('#button_push').is(':visible')) {
+                          if(typeof($('#button_push').attr('disabled'))!=='undefined') {
                             $('#nosync').show();
+                            $('#pushpull_buttons').hide();
                           }
                         }
                       },
@@ -244,11 +247,11 @@ function find_last_common_node(local_last_change_list, remote_last_change_list){
     }
   }
 
-  return {  'last_node'       : last_node,
-            'local_list_pos'  : local_list_pos,
-            'remote_list_pos' : remote_list_pos,
-            'nb_nodes_unknown_nodes_in_remote':nb_nodes_unknown_nodes_in_remote,
-            'nb_nodes_unknown_nodes_in_local':nb_nodes_unknown_nodes_in_local,
+  return {  'last_node'                        : last_node,
+            'local_list_pos'                   : local_list_pos,
+            'remote_list_pos'                  : remote_list_pos,
+            'nb_nodes_unknown_nodes_in_remote' : nb_nodes_unknown_nodes_in_remote,
+            'nb_nodes_unknown_nodes_in_local'  : nb_nodes_unknown_nodes_in_local,
   };
 
 }
@@ -547,10 +550,10 @@ function update_user_list(){
  */
 function add_project(target_url){
   $.ajax({url: target_url,
-    method:'POST',
-  data:$('#project_add').serialize(),
-  dataType:'json',
-  complete:function(){
+       method:'POST',
+         data:$('#project_add').serialize(),
+     dataType:'json',
+     complete:function(){
   },
   success:function(json_response){
     var $sel, default_url, _alert_html;

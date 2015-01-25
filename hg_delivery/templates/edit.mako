@@ -40,7 +40,7 @@
          <h3 class="panel-title">Filter</h3>
        </div>
        <div style="padding:8px 9px">
-         <form id="refresh" name="refresh" action="" method="POST" role="form" class="form-inline">
+         <form id="time" name="time" action="" method="POST" role="form" class="form-inline">
            <div class="btn-group">
              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="min-width:80px">
                %if filter_tag :
@@ -51,10 +51,10 @@
              </button>
              <ul class="dropdown-menu" role="menu">
              %if filter_tag :
-               <li><a href="#" onclick="$('#tag').val('');$('#refresh').submit()"><b>All tags</b></a></li>
+               <li><a href="#" onclick="$('#tag').val('');$('#time').submit()"><b>All tags</b></a></li>
              %endif
              %for _tag in list_tags :
-               <li><a href="#" onclick="$('#tag').val('${_tag[1]}');$('#refresh').submit()">${_tag[0]}</a></li>
+               <li><a href="#" onclick="$('#tag').val('${_tag[1]}');$('#time').submit()">${_tag[0]}</a></li>
              %endfor
              </ul>
            </div>
@@ -68,17 +68,17 @@
              </button>
              <ul class="dropdown-menu" role="menu">
              %if filter_branch :
-               <li><a href="#" onclick="$('#branch').val('');$('#refresh').submit()"><b>All branches</b></a></li>
+               <li><a href="#" onclick="$('#branch').val('');$('#time').submit()"><b>All branches</b></a></li>
              %endif
              %for _branch in list_branches :
-               <li><a href="#" onclick="$('#branch').val('${_branch}');$('#refresh').submit()">${_branch}</a></li>
+               <li><a href="#" onclick="$('#branch').val('${_branch}');$('#time').submit()">${_branch}</a></li>
              %endfor
              </ul>
            </div>
            <input type="hidden" id="branch" name="branch" value="">
            <input type="hidden" id="tag" name="tag" value="">
            <input type="text" name="limit" value="${limit}" size="3" maxlength="4" style="margin-left:20px;">
-           <button id="view_refresh_project" class="btn btn-primary" style="float:right">Filter this view</button>
+           <button id="view_time_project" class="btn btn-primary" style="float:right">Filter this view</button>
          </form>
        </div>
      </div>
@@ -166,8 +166,14 @@
                nothing to synchronize ...
            </div>
            <div id="pushpull_buttons" class="list-group">
-             <button id="button_push" class="btn btn-primary" onclick="push_to(${project.id}, '${url(route_name='project_push_to', id=project.id, target='')}',false);">push to</button>
-             <button id="button_pull" class="btn btn-primary" onclick="pull_from(${project.id}, '${url(route_name='project_pull_from', id=project.id, source='')}');">pull from</button>
+             <button id="button_push" disabled="disabled" class="btn btn-primary has-spinner" onclick="push_to(${project.id}, '${url(route_name='project_push_to', id=project.id, target='')}',false);">
+               <span class="spinner"><i class="icon-spin glyphicon glyphicon-refresh"></i></span>
+               push to
+             </button>
+             <button id="button_pull" disabled="disabled" class="btn btn-primary has-spinner" onclick="pull_from(${project.id}, '${url(route_name='project_pull_from', id=project.id, source='')}');">
+               <span class="spinner"><i class="icon-spin glyphicon glyphicon-refresh"></i></span>
+               pull from
+             </button>
            </div>
         </div>
       </div>
