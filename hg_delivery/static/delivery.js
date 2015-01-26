@@ -139,7 +139,7 @@ function fetch_this_other_project(active_a){
 
   if($active_a.hasClass('active')){
     $active_a.removeClass('active');
-    if($('#button_pull.active, #button_push.active').size()===0){
+    if(!$('#button_pull').hasClass('active') &&  !$('#button_push').hasClass('active')){
       $('#pushpull').hide();
       $('#project_comparison').hide();
     }
@@ -197,6 +197,8 @@ function fetch_this_other_project(active_a){
               show_difference_between_changeset_stacks(active_a, remote_project_name, local_project_last_change_list, remote_project_last_change_list, current_node);
             },
     });
+  } else {
+    $active_a.removeClass('active');
   }
 }
 
