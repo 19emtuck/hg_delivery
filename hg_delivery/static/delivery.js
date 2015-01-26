@@ -144,6 +144,7 @@ function fetch_this_other_project(active_a){
       $('#project_comparison').hide();
     }
   } else if($('#button_pull.active, #button_push.active').size()===0){
+    $('#other_projects a').removeClass('active');
     $active_a.addClass('active');
 
     var target_url = $active_a.data('url');
