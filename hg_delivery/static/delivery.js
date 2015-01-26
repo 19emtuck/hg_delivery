@@ -139,12 +139,13 @@ function fetch_this_other_project(active_a){
 
   if($active_a.hasClass('active')){
     $active_a.removeClass('active');
-    $('#pushpull').hide();
-    $('#project_comparison').hide();
-  } else {
-    if(!$active_a.hasClass('active')){
-      $active_a.addClass('active');
+    if($('#button_pull.active, #button_push.active').size()===0){
+      $('#pushpull').hide();
+      $('#project_comparison').hide();
     }
+  } else if($('#button_pull.active, #button_push.active').size()===0){
+    $active_a.addClass('active');
+
     var target_url = $active_a.data('url');
     var target_url_pull = $active_a.data('pulltest');
     var target_url_push = $active_a.data('pushtest');
@@ -154,7 +155,6 @@ function fetch_this_other_project(active_a){
     $('#nosync').hide();
     $('#pushpull_buttons').show();
     $('#project_comparison, #pushpull').show();
-    $('#other_projects a').removeClass('active');
     $('#button_pull, #button_push').attr('disabled','disabled').addClass('active');
 
     $.ajax({url:target_url_push,
@@ -193,7 +193,6 @@ function fetch_this_other_project(active_a){
     $.ajax({url:target_url,
             dataType:'json',
             success:function(json_response){
-              $active_a.addClass('active');
               var remote_project_last_change_list = json_response.last_hundred_change_list;
               show_difference_between_changeset_stacks(active_a, remote_project_name, local_project_last_change_list, remote_project_last_change_list, current_node);
             },
