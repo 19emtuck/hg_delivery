@@ -134,8 +134,6 @@ function change_project_to_this_release(active_a, target_url){
  */
 function fetch_this_other_project(active_a){
   var $active_a = $(active_a);
-  var $tbody_comparison = $('#project_comparison tbody');
-  $tbody_comparison.find('tr').remove();
 
   if($active_a.hasClass('active')){
     $active_a.removeClass('active');
@@ -143,7 +141,10 @@ function fetch_this_other_project(active_a){
       $('#pushpull').hide();
       $('#project_comparison').hide();
     }
-  } else if($('#button_pull.active, #button_push.active').size()===0){
+  } else if(!($('#button_pull').hasClass('active') || $('#button_push').hasClass('active'))){
+    var $tbody_comparison = $('#project_comparison tbody');
+    $tbody_comparison.find('tr').remove();
+
     $('#other_projects a').removeClass('active');
     $active_a.addClass('active');
 
