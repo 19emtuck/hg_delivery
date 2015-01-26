@@ -74,7 +74,9 @@ function push_to(target_project_id, target_url, force_branch){
           // get the active link and fetch him twice
           setTimeout(function() {
              $('#container_alert').html('');
-             fetch_this_other_project($('#other_projects a.active')[0]);}, 10);
+             var link = $('#other_projects a.active')[0];
+             $('#other_projects a.active').removeClass('active');
+             fetch_this_other_project(link);}, 10);
         } else if(json_response.new_branch_stop){
           // dialog : should we force ?
           $('#confirm_force_push_dialog .modal-body').html("Should we push them ?<br><br>"+json_response.lst_new_branches.join(','));
@@ -140,6 +142,9 @@ function fetch_this_other_project(active_a){
     $('#pushpull').hide();
     $('#project_comparison').hide();
   } else {
+    if(!$active_a.hasClass('active')){
+      $active_a.addClass('active');
+    }
     var target_url = $active_a.data('url');
     var target_url_pull = $active_a.data('pulltest');
     var target_url_push = $active_a.data('pushtest');
@@ -151,6 +156,7 @@ function fetch_this_other_project(active_a){
     $('#project_comparison, #pushpull').show();
     $('#other_projects a').removeClass('active');
     $('#button_pull, #button_push').attr('disabled','disabled').addClass('active');
+
     $.ajax({url:target_url_push,
             dataType:'json',
             complete:function(){
@@ -374,7 +380,7 @@ function merging_list(local_last_change_list, remote_last_change_list, current_n
 }
 
 /**
- * display difference between two repository from te same project
+ * display difference between two repositories from te same project
  */
 function show_difference_between_changeset_stacks(active_a, remote_project_name, local_last_change_list, remote_last_change_list, current_node){
   var $tbody_comparison;
