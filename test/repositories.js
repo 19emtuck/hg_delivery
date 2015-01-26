@@ -198,7 +198,6 @@ casper.waitUntilVisible('#container_alert .progress-bar', function(){
 
 casper.waitWhileVisible('#container_alert .progress-bar', function(){
   this.test.assertDoesntExist('#container_alert .progress-bar');
-  this.test.assertNotVisible('#button_push');
 });
 
 casper.then(function(){
