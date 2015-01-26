@@ -139,7 +139,7 @@ function fetch_this_other_project(active_a){
 
   if($active_a.hasClass('active')){
     $active_a.removeClass('active');
-    if(!$('#button_pull').hasClass('active') &&  !$('#button_push').hasClass('active')){
+    if(!($('#button_pull').hasClass('active') || $('#button_push').hasClass('active'))){
       $('#pushpull').hide();
       $('#project_comparison').hide();
     }
