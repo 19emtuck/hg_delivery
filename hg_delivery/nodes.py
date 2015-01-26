@@ -154,7 +154,27 @@ class NodeSsh(object):
 
     self.ssh = self.get_ssh()
     self.lock = threading.Lock()
-    self.state_locked = False
+
+    self.__state_locked = False
+
+  def lock_it(self):
+    """
+    """
+    # we release it ...
+    with self.lock :
+      self.__state_locked = True
+
+  def is_locked(self):
+    """
+    """
+    return self.__state_locked
+
+  def release_lock(self):
+    """
+    """
+    # we release it ...
+    with self.lock :
+      self.__state_locked = False
 
   def decode_raw_bytes(self, bytes_content):
     """
@@ -201,21 +221,39 @@ class NodeSsh(object):
     command += u";echo '%s'"%guid
 
     full_log = []
-    with self.lock :
 
-      self.state_locked = True
-      channel = self.ssh.invoke_shell()
-      channel.settimeout(self.__class__.max_timeout)
+    channel = self.ssh.invoke_shell()
+    channel.settimeout(self.__class__.max_timeout)
 
-      # We received a potential prompt.
-      # something like toto@hostname:~$
+    # We received a potential prompt.
+    # something like toto@hostname:~$
+    buff = ''
+    t0 = time.time()
+    time_out = False
+    full_log.append(u'org_command %s'%command)
+
+    wait_time = 0.05
+    while len(re.findall(reg_shell, buff, re.MULTILINE))==0:
+        resp = channel.recv(9999)
+        buff += self.decode_raw_bytes(resp)
+        global_buff_content += "\n" + buff
+
+        time.sleep(wait_time)
+        wait_time += 0.05
+
+        if time.time() - t0 > 60 :
+          time_out = True
+          break
+    full_log.append(u'buff1 %s'%buff)
+
+    if not time_out :
+      # ssh and wait for the password prompt.
+      channel.send(command + '\n')
+
       buff = ''
       t0 = time.time()
-      time_out = False
-      full_log.append(u'org_command %s'%command)
-
       wait_time = 0.05
-      while len(re.findall(reg_shell, buff, re.MULTILINE))==0:
+      while not buff.endswith(reg_password):
           resp = channel.recv(9999)
           buff += self.decode_raw_bytes(resp)
           global_buff_content += "\n" + buff
@@ -223,63 +261,43 @@ class NodeSsh(object):
           time.sleep(wait_time)
           wait_time += 0.05
 
+          if time.time()-t0 > 60 :
+            time_out = True
+            break
+      full_log.append(u'buff2 %s'%buff)
+
+    if not time_out :
+      # Send the password and wait for a prompt.
+      channel.send(password + '\n')
+ 
+      buff = u''
+      t0 = time.time()
+      # wait : 'added 99 changesets with 243 changes to 27 files'
+      # wait : "(run 'hg update' to get a working copy)"
+      #
+      # sample pushing ...
+      #
+      # searching for changes
+      # remote: adding changesets
+      # remote: adding manifests
+      # remote: adding file changes
+      # remote: added 90 changesets with 102 changes to 68 files
+      wait_time = 0.05
+      while buff.find(u'to get a working copy') < 0 and buff.find(u'changesets with') < 0 and buff.find(u"abort: push creates new remote branches") < 0 and len(re.findall(reg_shell, buff, re.MULTILINE))==0 and buff.find(guid)<0:
+          resp = channel.recv(9999)
+          buff += self.decode_raw_bytes(resp)
+          global_buff_content += "\n" + buff
+
+          time.sleep(wait_time)
+          wait_time += 0.05
           if time.time() - t0 > 60 :
             time_out = True
             break
-      full_log.append(u'buff1 %s'%buff)
 
-      if not time_out :
-        # ssh and wait for the password prompt.
-        channel.send(command + '\n')
+      full_log.append(u'buff2 %s'%buff)
+      ret=buff
 
-        buff = ''
-        t0 = time.time()
-        wait_time = 0.05
-        while not buff.endswith(reg_password):
-            resp = channel.recv(9999)
-            buff += self.decode_raw_bytes(resp)
-            global_buff_content += "\n" + buff
-
-            time.sleep(wait_time)
-            wait_time += 0.05
-
-            if time.time()-t0 > 60 :
-              time_out = True
-              break
-        full_log.append(u'buff2 %s'%buff)
-
-      if not time_out :
-        # Send the password and wait for a prompt.
-        channel.send(password + '\n')
- 
-        buff = u''
-        t0 = time.time()
-        # wait : 'added 99 changesets with 243 changes to 27 files'
-        # wait : "(run 'hg update' to get a working copy)"
-        #
-        # sample pushing ...
-        #
-        # searching for changes
-        # remote: adding changesets
-        # remote: adding manifests
-        # remote: adding file changes
-        # remote: added 90 changesets with 102 changes to 68 files
-        wait_time = 0.05
-        while buff.find(u'to get a working copy') < 0 and buff.find(u'changesets with') < 0 and buff.find(u"abort: push creates new remote branches") < 0 and len(re.findall(reg_shell, buff, re.MULTILINE))==0 and buff.find(guid)<0:
-            resp = channel.recv(9999)
-            buff += self.decode_raw_bytes(resp)
-            global_buff_content += "\n" + buff
-
-            time.sleep(wait_time)
-            wait_time += 0.05
-            if time.time() - t0 > 60 :
-              time_out = True
-              break
-
-        full_log.append(u'buff2 %s'%buff)
-        ret=buff
-
-    self.state_locked = False
+    self.release_lock()
 
     if log_it :
       self.__class__.logs.append((self.project_id, self.host, self.path, re.sub(u"^cd[^;]*;",'',command)))
@@ -314,6 +332,8 @@ class NodeSsh(object):
           return None
       except socket.gaierror :
         raise NodeException(u"host unavailable")
+
+      self.release_lock()
 
   def compare_release_a_sup_equal_b(self, release_a, release_b):
     """
@@ -833,6 +853,9 @@ class PoolSsh(object):
   def get_node(cls, uri, project_id):
     """
     try to acquire a free ssh channel or open a new one ...
+
+    :param uri: the ssh url for the project
+    :param project_id: an integer (the project.id)
     """
     node = None
 
@@ -841,13 +864,28 @@ class PoolSsh(object):
       node = cls.nodes[uri][0]
     else :
       for __node in cls.nodes[uri] :
-        if not __node.state_locked :
+        if not __node.is_locked() :
+          cpt = 0
+          while not __node.is_locked() :
+            __node.lock_it()
+
+            # if unfortunatly we cannot aquire it we just loop
+            if not __node.is_locked() :
+              time.sleep(0.1)
+              cpt+=1
+
+            if cpt > 600 :
+              raise Exception("lock cannot be acquire before timeout")
+
           node = __node
           break
 
       if node is None and len(cls.nodes[uri]) < cls.max_nodes_in_pool :
         log.warning(u"creating additional node in pool (%s)"%(len(cls.nodes[uri])))
         node = HgNode(uri, project_id)
+        # this one is unknown of the other threads ...
+        # we lock it immediatly
+        node.lock_it()
         cls.nodes[uri].append(node)
       elif node is None :
         log.warning(u"creating extra node (%s)"%(len(cls.nodes[uri])))

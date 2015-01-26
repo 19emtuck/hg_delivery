@@ -245,6 +245,8 @@ def shall_we_push(request):
       result = ssh_node.pushable(project, target_project)
     except NodeException as e:
       log.error(e)
+    finally :
+      ssh_node.release_lock()
   return {'result':result}
 
 #------------------------------------------------------------------------------
@@ -266,6 +268,8 @@ def shall_we_pull(request):
       result = ssh_node.pullable(project, target_project)
     except NodeException as e:
       log.error(e)
+    finally :
+      ssh_node.release_lock()
   return {'result':result}
 
 #------------------------------------------------------------------------------
@@ -291,6 +295,9 @@ def push(request):
 
     if 'force_branch' in request.params and request.params['force_branch']=='true':
       force_branch = True 
+
+    ssh_node = None
+    ssh_node_remote = None
 
     try :
       ssh_node = project.get_ssh_node()
@@ -320,6 +327,11 @@ def push(request):
       data = e.value
     else :
       result = True
+    finally :
+      if ssh_node :
+        ssh_node.release_lock()
+      if ssh_node_remote :
+        ssh_node_remote.release_lock()
   
   return {'new_branch_stop' : new_branch_stop,
           'new_head_stop' : new_head_stop,
@@ -344,8 +356,9 @@ def pull(request):
     ssh_node.pull_from(project, source_project)
   except NodeException as e:
     log.error(e)
-  else :
-    pass
+  finally :
+    ssh_node.release_lock()
+
   return {}
 
 #------------------------------------------------------------------------------
@@ -512,6 +525,8 @@ def edit_project(request):
       list_branches = []
       list_tags = []
       last_hundred_change_list, map_change_sets = [], {}
+    finally :
+      ssh_node.release_lock()
 
     id_user = request.authenticated_userid
     allow_to_modify_acls = False
@@ -552,6 +567,8 @@ def run_task(request):
       explanation = u"wtf ?"
     else :
       result = True 
+    finally :
+      ssh_node.release_lock()
 
   return {'result':result}
 
@@ -664,6 +681,8 @@ def fetch_project(request):
       repository_error = e.value
       log.error(e)
       last_hundred_change_list, map_change_sets = [], {}
+    finally :
+      ssh_node.release_lock()
 
     return { 'repository_error':repository_error,
              'last_hundred_change_list':last_hundred_change_list}
@@ -689,6 +708,8 @@ def fetch_revision(request):
   except NodeException as e:
     repository_error = e.value
     log.error(e)
+  finally :
+    ssh_node.release_lock()
 
   return {'diff':diff,
           'repository_error':repository_error,
@@ -712,6 +733,8 @@ def fetch_revision(request):
     revision_description = ssh_node.get_revision_description(revision)
   except NodeException as e:
     log.error(e)
+  finally :
+    ssh_node.release_lock()
   return {'diff':diff, 'project':project,'revision':revision_description}
 
 #------------------------------------------------------------------------------
@@ -728,9 +751,7 @@ def update_project_to(request):
     ssh_node = project.get_ssh_node()
     ssh_node.update_to(revision)
     current_rev = ssh_node.get_current_rev_hash()
-  except NodeException as e:
-    log.error(e)
-  else :
+
     stop_at = 0
 
     while current_rev!=revision and stop_at<10 :
@@ -738,9 +759,13 @@ def update_project_to(request):
       time.sleep(0.100)
       current_rev = ssh_node.get_current_rev_hash()
       stop_at += 1
-    
     for task in project.tasks :
       ssh_node.run_command(task.content, log=True)
+
+  except NodeException as e:
+    log.error(e)
+  finally :
+    ssh_node.release_lock()
 
   return HTTPFound(location=request.route_url(route_name='project_edit', id=project.id))
 
