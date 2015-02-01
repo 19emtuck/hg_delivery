@@ -93,15 +93,15 @@ class ProjectFactory(object):
   def get_acl(self):
     """
     """
-    # because of predicates id should be an int ...
-    id_project = self.request.matchdict[u'id']
     lst_acl = []
-    for (_label_acl,) in DBSession.query(Acl.acl).join(User).filter(Acl.id_project==id_project).filter(User.id==self.request.user.id) :
-      # shoud I link this to 'group:editors' instead of Authenticated ?
-      lst_acl.append((Allow, Authenticated, _label_acl))
-      if _label_acl == 'edit' :
-        lst_acl.append((Allow, Authenticated, 'read'))
-
+    # because of predicates id should be an int ...
+    id_project = self.request.matchdict.get(u'id')
+    if id_project is not None and self.request.user and self.request.user.id is not None :
+      for (_label_acl,) in DBSession.query(Acl.acl).join(User).filter(Acl.id_project==id_project).filter(User.id==self.request.user.id) :
+        # shoud I link this to 'group:editors' instead of Authenticated ?
+        lst_acl.append((Allow, Authenticated, _label_acl))
+        if _label_acl == 'edit' :
+          lst_acl.append((Allow, Authenticated, 'read'))
     return lst_acl
 
 
