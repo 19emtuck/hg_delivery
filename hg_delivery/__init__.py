@@ -44,9 +44,11 @@ def projects_include(config):
   config.add_route('project_pull_from',               '/pull/{id:\d+}/from/{source:\d+}', custom_predicates=(to_int('id'),to_int('source'),), factory = ProjectFactory)
   config.add_route('project_push_test',               '/push/test/{id:\d+}/to/{target:\d+}', custom_predicates=(to_int('id'),to_int('target'),), factory = ProjectFactory)
   config.add_route('project_push_to',                 '/push/{id:\d+}/to/{target:\d+}', custom_predicates=(to_int('id'),to_int('target'),), factory = ProjectFactory)
+  config.add_route('project_brothers_update_check',    '/check/{id:\d+}/{rev}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
 
   # move project to another revision
-  config.add_route('project_change_to',               '/change/{id:\d+}/to/{rev}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
+  # add a fizzle to get projects list target by the action
+  config.add_route('project_change_to',               '/update/{rev}/in/{id:\d+}/and/*brother_id', custom_predicates=(to_int('id'), to_int('brother_id'),), factory = ProjectFactory)
   config.add_route('project_logs',                    '/logs/{id:\d+}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
 
   # provide difference between two revision

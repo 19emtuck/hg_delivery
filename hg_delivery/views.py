@@ -184,11 +184,11 @@ def default_view(request):
     projects_list = []
 
     if request.authenticated_userid :
-      projects_list =  []
+      projects_list = []
       if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-        projects_list =  DBSession.query(Project).order_by(Project.name.desc()).all()
+        projects_list = DBSession.query(Project).order_by(Project.name.desc()).all()
       else :
-        projects_list =  DBSession.query(Project).join(Acl).join(User).filter(User.id==request.user.id).order_by(Project.name.desc()).all()
+        projects_list = DBSession.query(Project).join(Acl).join(User).filter(User.id==request.user.id).order_by(Project.name.desc()).all()
 
       for project in projects_list :
         try :
@@ -236,8 +236,8 @@ def shall_we_push(request):
   id_project = request.matchdict['id']
   id_target_project = request.matchdict['target']
 
-  project =  DBSession.query(Project).get(id_project)
-  target_project =  DBSession.query(Project).get(id_target_project)
+  project = DBSession.query(Project).get(id_project)
+  target_project = DBSession.query(Project).get(id_target_project)
   result = False
   if project and target_project :
     try :
@@ -259,8 +259,8 @@ def shall_we_pull(request):
   id_project = request.matchdict['id']
   id_target_project = request.matchdict['source']
 
-  project =  DBSession.query(Project).get(id_project)
-  target_project =  DBSession.query(Project).get(id_target_project)
+  project = DBSession.query(Project).get(id_project)
+  target_project = DBSession.query(Project).get(id_target_project)
   result = False
   if project and target_project :
     try :
@@ -274,15 +274,45 @@ def shall_we_pull(request):
 
 #------------------------------------------------------------------------------
 
-@view_config(route_name='project_push_to', renderer='json')
+@view_config(route_name='project_brothers_update_check', renderer='json')
+def who_share_this_id(request):
+  """
+    check who is sharing this id
+  """
+  id_project = request.matchdict['id']
+  rev = request.matchdict['rev']
+  project = DBSession.query(Project).get(id_project)
+  projects_list = []
+  if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
+    projects_list = DBSession.query(Project).order_by(Project.name.desc()).all()
+  else :
+    projects_list = DBSession.query(Project).join(Acl).join(User).filter(User.id==request.user.id).order_by(Project.name.desc()).all()
+  linked_projects = [p for p in projects_list if p.rev_init is not None and p.rev_init == project.rev_init and p.id != project.id]
+
+  projects_sharing_that_rev = []
+  for __p in linked_projects:
+    # we check if this rev in it ...
+    try :
+      ssh_node = __p.get_ssh_node()
+      if ssh_node.get_revision_description(rev) :
+        projects_sharing_that_rev.append(__p)
+    except NodeException as e:
+      log.error(e)
+
+  # found linked projects
+  return {'projects_sharing_that_rev':projects_sharing_that_rev}
+
+#------------------------------------------------------------------------------
+
+@view_config(route_name='project_push_to', renderer='json', permission='edit')
 def push(request):
   """
   """
   id_project = request.matchdict['id']
   id_target_project = request.matchdict['target']
 
-  project =  DBSession.query(Project).get(id_project)
-  target_project =  DBSession.query(Project).get(id_target_project)
+  project = DBSession.query(Project).get(id_project)
+  target_project = DBSession.query(Project).get(id_target_project)
 
   new_branch_stop = False
   new_head_stop = False
@@ -348,8 +378,8 @@ def pull(request):
   id_source_project = request.matchdict['source']
 
 
-  project =  DBSession.query(Project).get(id_project)
-  source_project =  DBSession.query(Project).get(id_source_project)
+  project = DBSession.query(Project).get(id_project)
+  source_project = DBSession.query(Project).get(id_source_project)
 
   try :
     ssh_node = project.get_ssh_node()
@@ -418,7 +448,7 @@ def update_project(request):
       explanation = u'Your project should contain a valid path'
     else:
       try :
-        project =  DBSession.query(Project).get(id_project)
+        project = DBSession.query(Project).get(id_project)
         for key in request.params :
           setattr(project, key, request.params[key])
 
@@ -446,7 +476,7 @@ def delete_project(request):
     result = False
     try :
       id_project = request.matchdict['id']
-      project =  DBSession.query(Project).get(id_project)
+      project = DBSession.query(Project).get(id_project)
       project.delete_nodes()
 
       DBSession.delete(project)
@@ -467,13 +497,13 @@ def edit_project(request):
     result = False
     id_project = request.matchdict['id']
 
-    projects_list =  []
+    projects_list = []
     if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-      projects_list =  DBSession.query(Project).order_by(Project.name.desc()).all()
+      projects_list = DBSession.query(Project).order_by(Project.name.desc()).all()
     else :
-      projects_list =  DBSession.query(Project).join(Acl).join(User).filter(User.id==request.user.id).order_by(Project.name.desc()).all()
+      projects_list = DBSession.query(Project).join(Acl).join(User).filter(User.id==request.user.id).order_by(Project.name.desc()).all()
 
-    projects_map =  {p.id:p for p in projects_list}
+    projects_map = {p.id:p for p in projects_list}
     project = projects_map.get(id_project)
 
     if project is None :
@@ -556,7 +586,7 @@ def run_task(request):
   """
   """
   id_task = request.matchdict['id']
-  task =  DBSession.query(Task).get(id_task)
+  task = DBSession.query(Task).get(id_task)
   result = False
   if task :
     try :
@@ -580,7 +610,7 @@ def remove_project_task(request):
   id_task = request.matchdict['id']
   result = False
   try :
-    task =  DBSession.query(Task).get(id_task)
+    task = DBSession.query(Task).get(id_task)
     DBSession.delete(task)
   except IntegrityError as e:
     result = False
@@ -596,7 +626,7 @@ def save_project_tasks(request):
   """
   """
   id_project = request.matchdict['id']
-  project =  DBSession.query(Project).get(id_project)
+  project = DBSession.query(Project).get(id_project)
   result = False
 
   if project :
@@ -623,7 +653,7 @@ def save_project_acls(request):
   """
   """
   id_project = request.matchdict['id']
-  project =  DBSession.query(Project).get(id_project)
+  project = DBSession.query(Project).get(id_project)
 
   result = False
 
@@ -661,7 +691,7 @@ def fetch_project(request):
     """
     result = False
     id_project = request.matchdict['id']
-    project =  DBSession.query(Project).get(id_project)
+    project = DBSession.query(Project).get(id_project)
 
     branch = None
     if 'branch' in request.params :
@@ -699,7 +729,7 @@ def fetch_revision(request):
   revision_to = request.params['rev_to']
   file_name = request.params['file_name']
 
-  project =  DBSession.query(Project).get(id_project)
+  project = DBSession.query(Project).get(id_project)
   repository_error = None
 
   try :
@@ -725,7 +755,7 @@ def fetch_revision(request):
   id_project = request.matchdict['id']
   revision = request.matchdict['rev']
 
-  project =  DBSession.query(Project).get(id_project)
+  project = DBSession.query(Project).get(id_project)
 
   try :
     ssh_node = project.get_ssh_node()
@@ -744,28 +774,37 @@ def update_project_to(request):
   """
   """
   id_project = request.matchdict['id']
+  brothers_id_project = request.matchdict['brother_id']
   revision = request.matchdict['rev']
-  project =  DBSession.query(Project).get(id_project)
 
-  try :
-    ssh_node = project.get_ssh_node()
-    ssh_node.update_to(revision)
-    current_rev = ssh_node.get_current_rev_hash()
-
-    stop_at = 0
-
-    while current_rev!=revision and stop_at<10 :
-      # sleep 100 ms
-      time.sleep(0.100)
+  def move_it(project) :
+    try :
+      ssh_node = project.get_ssh_node()
+      ssh_node.update_to(revision)
       current_rev = ssh_node.get_current_rev_hash()
-      stop_at += 1
-    for task in project.tasks :
-      ssh_node.run_command(task.content, log=True)
 
-  except NodeException as e:
-    log.error(e)
-  finally :
-    ssh_node.release_lock()
+      stop_at = 0
+
+      while current_rev!=revision and stop_at<10 :
+        # sleep 100 ms
+        time.sleep(0.100)
+        current_rev = ssh_node.get_current_rev_hash()
+        stop_at += 1
+      for task in project.tasks :
+        ssh_node.run_command(task.content, log=True)
+    except NodeException as e:
+      log.error(e)
+    finally :
+      ssh_node.release_lock()
+
+  project = DBSession.query(Project).get(id_project)
+  if project :
+    move_it(project)
+
+  for _id_project in brothers_id_project :
+    project_brother = DBSession.query(Project).get(_id_project)
+    if project_brother :
+      move_it(project_brother)
 
   return HTTPFound(location=request.route_url(route_name='project_edit', id=project.id))
 

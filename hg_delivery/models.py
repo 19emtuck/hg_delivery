@@ -120,7 +120,9 @@ class Project(Base):
     """
     if not self.is_initial_revision_init():
       ssh_node = self.get_ssh_node()
-      self.rev_init = ssh_node.get_initial_hash()
+      _rev_init = ssh_node.get_initial_hash()
+      if _rev_init != "0000000000000000000000000000000000000000" :
+        self.rev_init = _rev_init
 
 Index('project_unique', Project.host, Project.path, unique=True)
 Index('project_root', Project.rev_init)

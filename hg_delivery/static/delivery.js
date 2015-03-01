@@ -121,11 +121,43 @@ function pull_from(target_project_id, target_url){
 /**
  * update local source to a specific release
  */
-function change_project_to_this_release(active_a, target_url){
-  $('#src_revision').text($('.glyphicon-ok').data('current_rev'));
-  $('#target_revision').text($(active_a).text());
-  $('#confirm_move_dialog').modal('show');
-  $('#move_to').off().on('click',function(){ go_to(target_url);});
+function change_project_to_this_release(active_a, target_url, target_brothers_check){
+  // check other projects that may be interested by this move
+  $.ajax({url:target_brothers_check,
+          error:function(){
+            $('#possible_update').hide();
+            $('#none_possible_update').show();
+          },
+          success:function(json_response){
+             $('#possible_update a').remove();
+             json_response.projects_sharing_that_rev.forEach(function(_link_project){
+             if($('#possible_update a').size()===0){
+               $('#possible_update').hide();
+               $('#none_possible_update').show();
+             } else {
+               $('#possible_update').show();
+               $('#none_possible_update').hide();
+             }
+               $('#possible_update').append('<a href="#" class="list-group-item" onclick="$(this).toggleClass(\'active\')" data-id="'+ _link_project.id + '">' + _link_project.name + '</a>');
+             });
+
+             if($('#possible_update a').size()===0){
+               $('#possible_update').hide();
+               $('#none_possible_update').show();
+             } else {
+               $('#possible_update').show();
+               $('#none_possible_update').hide();
+             }
+
+             $('#src_revision').text($('.glyphicon-ok').data('current_rev'));
+             $('#target_revision').text($(active_a).text());
+             $('#confirm_move_dialog').modal('show');
+             $('#move_to').off().on('click',function(){
+               var lst_brother = $('#possible_update a.active').map(function(_i,_item){return $(_item).data('id');}).toArray();
+               go_to(target_url+lst_brother.join('/'));
+             });
+          }
+  });
 }
 
 /**
@@ -217,8 +249,8 @@ function find_last_common_node(local_last_change_list, remote_last_change_list){
   local_list_pos  = null;
   remote_list_pos = null;
 
-  nb_nodes_unknown_nodes_in_local  = 0
-  nb_nodes_unknown_nodes_in_remote = 0
+  nb_nodes_unknown_nodes_in_local  = 0;
+  nb_nodes_unknown_nodes_in_remote = 0;
 
   for (i = local_last_change_list.length - 1; i >=0 ; i--) {
     node_local = local_last_change_list[i].node;
@@ -245,7 +277,7 @@ function find_last_common_node(local_last_change_list, remote_last_change_list){
         if(last_node === null){
           remote_list_pos = i;
           if(last_node ===null){
-            last_node = node_remote
+            last_node = node_remote;
           }
           match = true;
         }
@@ -288,7 +320,7 @@ function merging_list(local_last_change_list, remote_last_change_list, current_n
     row.push(node.branch);
     row.push(node.date);
     row.push(node.desc);
-  }
+  };
 
   var __build_row_for_interval = function(local_last_change_list, remote_last_change_list, current_node, i, rows_container, set_published) {
     var __local_node, __remote_node, row;
@@ -307,7 +339,7 @@ function merging_list(local_last_change_list, remote_last_change_list, current_n
     }
 
     if(__local_node!==null && __remote_node!==null && __local_node.node === __remote_node.node){
-      row = ['',  __remote_node.rev,  __local_node.rev]
+      row = ['',  __remote_node.rev,  __local_node.rev];
       __feed_row(row, __local_node, current_node);
       rows_container.push(row);
       set_published[__local_node.node] = rows_container.length - 1;
@@ -316,7 +348,7 @@ function merging_list(local_last_change_list, remote_last_change_list, current_n
         row = rows_container[set_published[__remote_node.node]];
         row[1] = __remote_node.rev;
       } else {
-        row = ['',  __remote_node.rev, '']
+        row = ['',  __remote_node.rev, ''];
         __feed_row(row, __remote_node, current_node);
         rows_container.push(row);
         set_published[__remote_node.node] = rows_container.length - 1;
@@ -325,7 +357,7 @@ function merging_list(local_last_change_list, remote_last_change_list, current_n
         row = rows_container[set_published[__local_node.node]];
         row[2] = __local_node.rev;
       } else {
-        row = ['',  '',  __local_node.rev]
+        row = ['',  '',  __local_node.rev];
           __feed_row(row, __local_node, current_node);
         rows_container.push(row);
         set_published[__local_node.node] = rows_container.length - 1;
@@ -335,7 +367,7 @@ function merging_list(local_last_change_list, remote_last_change_list, current_n
         row = rows_container[set_published[__local_node.node]];
         row[2] = __local_node.rev;
       } else {
-        row = ['',  '',  __local_node.rev]
+        row = ['',  '',  __local_node.rev];
           __feed_row(row, __local_node, current_node);
         rows_container.push(row);
         set_published[__local_node.node] = rows_container.length - 1;
@@ -345,13 +377,13 @@ function merging_list(local_last_change_list, remote_last_change_list, current_n
         row = rows_container[set_published[__remote_node.node]];
         row[1] = __remote_node.rev;
       } else {
-        row = ['',  __remote_node.rev, '']
+        row = ['',  __remote_node.rev, ''];
         __feed_row(row, __remote_node, current_node);
         rows_container.push(row);
         set_published[__remote_node.node] = rows_container.length - 1;
       }
     }
-  }
+  };
 
   row = [];
   local_last_change_list.reverse();

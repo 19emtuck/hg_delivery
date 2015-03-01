@@ -4,24 +4,7 @@
 <%inherit file="base.mako"/>
 <%namespace name="lib" file="lib.mako"/>
 
-<ul id="project_tab" class="nav nav-tabs" style="margin-top:4px;margin-bottom:6px">
-  <li class="active"> <a href="#project_home">project <b>${project.name}</b></a> </li>
-  <li> <a href="#related">Related projects</a> </li>
-  <li> <a href="#revision">Revision</a> </li>
-  % if allow_to_modify_acls :
-    <li> <a href="#users">Users (rights management)</a></li>
-  % endif
-  % if request.acl_container.contains('edit') :
-    <li> <a href="#tasks">Additional Tasks</a> </li>
-  % endif
-</ul>
-
-<!-- Tab panes -->
-<div class="tab-content">
-
-  <!-- a tab -->
-  <div class="tab-pane active" id="project_home">
-
+<%def name="publish_project_html(current_node, filter_branch, filter_tag, last_hundred_change_list)">
     % if current_node is not UNDEFINED and current_node is not None :
       <div class="panel panel-default col-md-6" style="padding-left:0px;padding-right:0px;">
         <div class="panel-heading">
@@ -115,7 +98,7 @@
                  <td></td>
                %endif
                <td>
-                 <a href="#" onclick="change_project_to_this_release(this, '${url('project_change_to',id=project.id, rev=node['node'])}')" title="revert to the node ${node['node']}">${node['rev']}</a>
+                 <a href="#" onclick="change_project_to_this_release(this, '${url('project_change_to',id=project.id, rev=node['node'], brother_id =[])}', '${url('project_brothers_update_check',id=project.id, rev=node['node'])}')" title="revert to the node ${node['node']}">${node['rev']}</a>
                </td>
         
                %if node['tags']:
@@ -139,6 +122,26 @@
            </tbody>
         </table>
      </div>
+</%def>
+
+<ul id="project_tab" class="nav nav-tabs" style="margin-top:4px;margin-bottom:6px">
+  <li class="active"> <a href="#project_home">project <b>${project.name}</b></a> </li>
+  <li> <a href="#related">Related projects</a> </li>
+  <li> <a href="#revision">Revision</a> </li>
+  % if allow_to_modify_acls :
+    <li> <a href="#users">Users (rights management)</a></li>
+  % endif
+  % if request.acl_container.contains('edit') :
+    <li> <a href="#tasks">Additional Tasks</a> </li>
+  % endif
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+
+  <!-- a tab -->
+  <div class="tab-pane active" id="project_home">
+    ${publish_project_html(current_node, filter_branch, filter_tag, last_hundred_change_list)}
   </div>
 
   <!-- a tab -->
@@ -294,12 +297,7 @@
         </div>
     </div>
   % endif
-
 </div>
-
-
-
-
 
 
 <!-- project edition -->
@@ -382,7 +380,21 @@
         <h4 class="modal-title">Are you sure to move project <b>${project.name}</b> ?</h4>
       </div>
       <div class="modal-body">
-        from <span id="src_revision"></span> to <span id="target_revision"></span> revision
+        <p>
+          from <span id="src_revision"></span> to <span id="target_revision"></span> revision
+        </p>
+        <div id="possible_update" class="list-group">
+          <p>
+            <i>Some linked projects are also sharing this release. Would you like to update them ? You can select them
+               and finish by clicking on "Move to this revision" button</i>
+          </p>
+          <p class="list-group"></p>
+        </div>
+        <div id="none_possible_update">
+          <p>
+            <i>None of the linked projects has this revision</i>
+          </p>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
