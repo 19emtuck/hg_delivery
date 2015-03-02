@@ -134,7 +134,6 @@ function change_project_to_this_release(active_a, target_url, target_refresh_url
   // check other projects that may be interested by this move
   $.ajax({url:target_brothers_check,
           beforeSend:function(){
-            // $('<button disabled="disabled" class="btn btn-primary has-spinner active"><span class="spinner"><i class="icon-spin glyphicon glyphicon-refresh"></i></span></button>').insertBefore(active_a);
             $('<div class="has-spinner active"><span class="spinner"><i class="icon-spin glyphicon glyphicon-refresh"></i></span></div>').insertBefore(active_a);
             $(active_a).hide();
           },
@@ -173,8 +172,11 @@ function change_project_to_this_release(active_a, target_url, target_refresh_url
              $('#move_to').off().on('click',function(){
                var lst_brother = $('#possible_update a.active').map(function(_i,_item){return $(_item).data('id');}).toArray();
                $.ajax({url:target_url+lst_brother.join('/'),
-                       success:function(json_response){
+                       beforeSend:function(){
                          $('#confirm_move_dialog').modal('hide');
+                         $('<div class="has-spinner active"><span class="spinner"><i class="icon-spin glyphicon glyphicon-refresh"></i></span></div>').insertBefore(active_a);
+                       },
+                       success:function(json_response){
                          refresh_project_view(target_refresh_url);
                          lst_projects_id = Object.keys(json_response.result);
                          var map_project = {};
