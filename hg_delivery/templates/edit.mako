@@ -98,7 +98,7 @@
                  <td></td>
                %endif
                <td>
-                 <a href="#" onclick="change_project_to_this_release(this, '${url('project_change_to',id=project.id, rev=node['node'], brother_id =[])}', '${url('project_brothers_update_check',id=project.id, rev=node['node'])}')" title="revert to the node ${node['node']}">${node['rev']}</a>
+                 <a href="#" onclick="change_project_to_this_release(this, '${url('project_change_to',id=project.id, rev=node['node'], brother_id =[])}', '${url('project_refresh_state',id=project.id)}', '${url('project_brothers_update_check',id=project.id, rev=node['node'])}')" title="revert to the node ${node['node']}">${node['rev']}</a>
                </td>
         
                %if node['tags']:

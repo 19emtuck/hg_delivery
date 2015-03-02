@@ -117,11 +117,20 @@ function pull_from(target_project_id, target_url){
   }
 }
 
+function refresh_project_view(target_refresh_url) {
+  console.log(target_refresh_url);
+  $.ajax({url:target_refresh_url,
+          success:function(html_response){
+           $('#project_home').html(html_response);
+          }
+        });
+}
+
 
 /**
  * update local source to a specific release
  */
-function change_project_to_this_release(active_a, target_url, target_brothers_check){
+function change_project_to_this_release(active_a, target_url, target_refresh_url, target_brothers_check){
   // check other projects that may be interested by this move
   $.ajax({url:target_brothers_check,
           error:function(){
@@ -152,9 +161,15 @@ function change_project_to_this_release(active_a, target_url, target_brothers_ch
              $('#src_revision').text($('.glyphicon-ok').data('current_rev'));
              $('#target_revision').text($(active_a).text());
              $('#confirm_move_dialog').modal('show');
+
              $('#move_to').off().on('click',function(){
                var lst_brother = $('#possible_update a.active').map(function(_i,_item){return $(_item).data('id');}).toArray();
-               go_to(target_url+lst_brother.join('/'));
+               $.ajax({url:target_url+lst_brother.join('/'),
+                       success:function(){
+                         $('#confirm_move_dialog').modal('hide');
+                         refresh_project_view(target_refresh_url);
+                       }
+                 });
              });
           }
   });

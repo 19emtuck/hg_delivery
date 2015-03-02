@@ -489,7 +489,7 @@ def delete_project(request):
     return { 'result':result }
 
 #------------------------------------------------------------------------------
-
+@view_config(route_name='project_refresh_state', renderer='edit#publish_project_html.mako', permission='edit')
 @view_config(route_name='project_edit', renderer='edit.mako', permission='read')
 def edit_project(request):
     """
@@ -769,27 +769,34 @@ def fetch_revision(request):
 
 #------------------------------------------------------------------------------
 
-@view_config(route_name='project_change_to', permission='edit')
+@view_config(route_name='project_change_to', permission='edit', renderer='json')
 def update_project_to(request):
   """
   """
   id_project = request.matchdict['id']
+
   brothers_id_project = request.matchdict['brother_id']
   revision = request.matchdict['rev']
+  result = {}
 
-  def move_it(project) :
+  def move_it(project, revision, result) :
+    """
+      update a project to a specific revision (a hash)
+    """
     try :
       ssh_node = project.get_ssh_node()
       ssh_node.update_to(revision)
       current_rev = ssh_node.get_current_rev_hash()
-
       stop_at = 0
-
       while current_rev!=revision and stop_at<10 :
         # sleep 100 ms
         time.sleep(0.100)
         current_rev = ssh_node.get_current_rev_hash()
         stop_at += 1
+
+      if current_rev == revision :
+        result[project.id] = True
+
       for task in project.tasks :
         ssh_node.run_command(task.content, log=True)
     except NodeException as e:
@@ -799,14 +806,16 @@ def update_project_to(request):
 
   project = DBSession.query(Project).get(id_project)
   if project :
-    move_it(project)
+    result[project.id] = False
+    move_it(project, revision, result)
 
   for _id_project in brothers_id_project :
     project_brother = DBSession.query(Project).get(_id_project)
     if project_brother :
-      move_it(project_brother)
+      result[project_brother.id] = False
+      move_it(project_brother, revision, result)
 
-  return HTTPFound(location=request.route_url(route_name='project_edit', id=project.id))
+  return result
 
 #------------------------------------------------------------------------------
 
