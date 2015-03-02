@@ -134,8 +134,8 @@ function change_project_to_this_release(active_a, target_url, target_refresh_url
   // check other projects that may be interested by this move
   $.ajax({url:target_brothers_check,
           beforeSend:function(){
-            $('<div class="has-spinner active"><span class="spinner"><i class="icon-spin glyphicon glyphicon-refresh"></i></span></div>').insertBefore(active_a);
             $(active_a).hide();
+            $('<div class="has-spinner active"><span class="spinner"><i class="icon-spin glyphicon glyphicon-refresh"></i></span></div>').insertBefore(active_a);
           },
           error:function(){
             $('#possible_update').hide();
@@ -174,6 +174,7 @@ function change_project_to_this_release(active_a, target_url, target_refresh_url
                $.ajax({url:target_url+lst_brother.join('/'),
                        beforeSend:function(){
                          $('#confirm_move_dialog').modal('hide');
+                         $(active_a).hide();
                          $('<div class="has-spinner active"><span class="spinner"><i class="icon-spin glyphicon glyphicon-refresh"></i></span></div>').insertBefore(active_a);
                        },
                        success:function(json_response){
