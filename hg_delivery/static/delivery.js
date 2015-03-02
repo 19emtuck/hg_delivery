@@ -165,9 +165,23 @@ function change_project_to_this_release(active_a, target_url, target_refresh_url
              $('#move_to').off().on('click',function(){
                var lst_brother = $('#possible_update a.active').map(function(_i,_item){return $(_item).data('id');}).toArray();
                $.ajax({url:target_url+lst_brother.join('/'),
-                       success:function(){
+                       success:function(json_response){
                          $('#confirm_move_dialog').modal('hide');
                          refresh_project_view(target_refresh_url);
+                         lst_projects_id = Object.keys(json_response.result);
+                         var map_project = {};
+                         json_response.projects_list.forEach(function(proj) {map_project[proj.id]=proj;});
+                         $('#container_alert').html('');
+                         lst_projects_id.forEach(function(_id) {
+                           var _c = 'alert-danger';
+                           if(json_response.result[_id]){
+                             _c = 'alert-success';
+                           }
+                           var _alert_html = '<div class="alert '+_c+'"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                           _alert_html += '<strong>Project ' + map_project[_id].name + ' has been updated successfully</strong></div>';
+                           $('#container_alert').append(_alert_html);
+                         });
+                         $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
                        }
                  });
              });

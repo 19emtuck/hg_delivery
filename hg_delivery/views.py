@@ -815,7 +815,7 @@ def update_project_to(request):
       result[project_brother.id] = False
       move_it(project_brother, revision, result)
 
-  return result
+  return {'result':result}
 
 #------------------------------------------------------------------------------
 
