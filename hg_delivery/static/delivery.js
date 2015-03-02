@@ -133,9 +133,17 @@ function refresh_project_view(target_refresh_url) {
 function change_project_to_this_release(active_a, target_url, target_refresh_url, target_brothers_check){
   // check other projects that may be interested by this move
   $.ajax({url:target_brothers_check,
+          beforeSend:function(){
+            // $('<button disabled="disabled" class="btn btn-primary has-spinner active"><span class="spinner"><i class="icon-spin glyphicon glyphicon-refresh"></i></span></button>').insertBefore(active_a);
+            $('<div class="has-spinner active"><span class="spinner"><i class="icon-spin glyphicon glyphicon-refresh"></i></span></div>').insertBefore(active_a);
+            $(active_a).hide();
+          },
           error:function(){
             $('#possible_update').hide();
             $('#none_possible_update').show();
+          },
+          complete:function(){
+            $(active_a).show().prev().remove();
           },
           success:function(json_response){
              $('#possible_update a').remove();
