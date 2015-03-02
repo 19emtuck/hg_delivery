@@ -118,7 +118,6 @@ function pull_from(target_project_id, target_url){
 }
 
 function refresh_project_view(target_refresh_url) {
-  console.log(target_refresh_url);
   $.ajax({url:target_refresh_url,
           success:function(html_response){
            $('#project_home').html(html_response);
