@@ -838,7 +838,7 @@ class PoolSsh(object):
   """
 
   nodes = {}
-  max_nodes_in_pool = 10
+  max_nodes_in_pool = 4
 
   @classmethod
   def delete_nodes(cls, uri):
@@ -877,7 +877,7 @@ class PoolSsh(object):
     :param project_id: an integer (the project.id)
     """
     node = None
-    key_uri_node = cls.get_key_hash_node(uri)
+    key_uri_node = uri 
 
     if key_uri_node not in cls.nodes :
       cls.nodes[key_uri_node] = [HgNode(uri, project_id)]
