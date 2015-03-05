@@ -30,6 +30,10 @@ from hg_delivery.nodes import (
     HgNewHeadsForbidden,
     )
 import paramiko
+import logging
+
+logging.getLogger("paramiko").setLevel(logging.WARNING)
+
 import time
 import logging
 import re 
@@ -191,6 +195,7 @@ def default_view(request):
         projects_list = DBSession.query(Project).join(Acl).join(User).filter(User.id==request.user.id).order_by(Project.name.desc()).all()
 
       for project in projects_list :
+        ssh_node = None
         try :
           if not project.is_initial_revision_init() :
             project.init_initial_revision()
@@ -207,9 +212,13 @@ def default_view(request):
             current_rev = repository_node['node']
 
           nodes_description[project.id] = repository_node
+          ssh_node.release_lock()
 
         except NodeException as e:
           nodes_description[project.id] = {}
+
+          if ssh_node :
+            ssh_node.release_lock()
 
     return { 'projects_list':projects_list,
              'nodes_description':nodes_description,
@@ -243,10 +252,11 @@ def shall_we_push(request):
     try :
       ssh_node = project.get_ssh_node()
       result = ssh_node.pushable(project, target_project)
+      ssh_node.release_lock()
     except NodeException as e:
       log.error(e)
-    finally :
-      ssh_node.release_lock()
+      if ssh_node :
+        ssh_node.release_lock()
   return {'result':result}
 
 #------------------------------------------------------------------------------
@@ -266,9 +276,9 @@ def shall_we_pull(request):
     try :
       ssh_node = project.get_ssh_node()
       result = ssh_node.pullable(project, target_project)
+      ssh_node.release_lock()
     except NodeException as e:
       log.error(e)
-    finally :
       ssh_node.release_lock()
   return {'result':result}
 
@@ -296,9 +306,11 @@ def who_share_this_id(request):
       ssh_node = __p.get_ssh_node()
       if ssh_node.get_revision_description(rev) :
         projects_sharing_that_rev.append(__p)
+      ssh_node.release_lock()
     except NodeException as e:
       log.error(e)
-
+      if ssh_node :
+        ssh_node.release_lock()
   # found linked projects
   return {'projects_sharing_that_rev':projects_sharing_that_rev}
 
@@ -332,9 +344,14 @@ def push(request):
     try :
       ssh_node = project.get_ssh_node()
       data = ssh_node.push_to(project, target_project, force_branch)
+      ssh_node.release_lock()
     except NodeException as e:
       log.error(e)
+      if ssh_node :
+        ssh_node.release_lock()
     except HgNewBranchForbidden as e:
+      if ssh_node :
+        ssh_node.release_lock()
       # we may inform user that he cannot push ...
       # maybe add a configuration parameter to fix this
       # and send --new-branch directly on the first time
@@ -342,10 +359,15 @@ def push(request):
       new_branch_stop = True
       result = False
       set_local_branches = set(ssh_node.get_branches())
-      ssh_node_remote = target_project.get_ssh_node()
-      set_remote_branches = set(ssh_node_remote.get_branches())
-      lst_new_branches = list(set_local_branches - set_remote_branches)
-      data = e.value
+      try :
+        ssh_node_remote = target_project.get_ssh_node()
+        set_remote_branches = set(ssh_node_remote.get_branches())
+        lst_new_branches = list(set_local_branches - set_remote_branches)
+        data = e.value
+        ssh_node_remote.release_lock()
+      except :
+        data = {}
+        ssh_node_remote.release_lock()
     except HgNewHeadsForbidden as e:
       # we may inform user that he cannot push ...
       # maybe add a configuration parameter to fix this
@@ -355,18 +377,15 @@ def push(request):
       result = False
       lst_new_branches = [] 
       data = e.value
-    else :
-      result = True
-    finally :
       if ssh_node :
         ssh_node.release_lock()
-      if ssh_node_remote :
-        ssh_node_remote.release_lock()
+    else :
+      result = True
   
   return {'new_branch_stop' : new_branch_stop,
           'new_head_stop' : new_head_stop,
           'lst_new_branches' : lst_new_branches,
-          'buffer': data['buff'],
+          'buffer': data.get('buff'),
           'result':result}
 #------------------------------------------------------------------------------
 
@@ -384,11 +403,11 @@ def pull(request):
   try :
     ssh_node = project.get_ssh_node()
     ssh_node.pull_from(project, source_project)
+    ssh_node.release_lock()
   except NodeException as e:
     log.error(e)
-  finally :
-    ssh_node.release_lock()
-
+    if ssh_node :
+      ssh_node.release_lock()
   return {}
 
 #------------------------------------------------------------------------------
@@ -548,6 +567,8 @@ def edit_project(request):
       current_node = map_change_sets.get(current_rev)
       if current_node is None :
         current_node = ssh_node.get_revision_description(current_rev)
+
+      ssh_node.release_lock()
     except NodeException as e:
       repository_error = e.value
       log.error(e.value)
@@ -555,8 +576,9 @@ def edit_project(request):
       list_branches = []
       list_tags = []
       last_hundred_change_list, map_change_sets = [], {}
-    finally :
-      ssh_node.release_lock()
+
+      if ssh_node :
+        ssh_node.release_lock()
 
     id_user = request.authenticated_userid
     allow_to_modify_acls = False
@@ -592,13 +614,15 @@ def run_task(request):
     try :
       ssh_node = task.project.get_ssh_node()
       ssh_node.run_command(task.content, log=True)
+      ssh_node.release_lock()
     except IntegrityError as e:
       result = False
       explanation = u"wtf ?"
+
+      if ssh_node :
+        ssh_node.release_lock()
     else :
       result = True 
-    finally :
-      ssh_node.release_lock()
 
   return {'result':result}
 
@@ -707,43 +731,16 @@ def fetch_project(request):
       ssh_node = project.get_ssh_node()
       current_rev = ssh_node.get_current_rev_hash()
       last_hundred_change_list, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch)
+      ssh_node.release_lock()
     except NodeException as e:
       repository_error = e.value
       log.error(e)
       last_hundred_change_list, map_change_sets = [], {}
-    finally :
-      ssh_node.release_lock()
+      if ssh_node :
+        ssh_node.release_lock()
 
     return { 'repository_error':repository_error,
              'last_hundred_change_list':last_hundred_change_list}
-
-#------------------------------------------------------------------------------
-
-@view_config(route_name='full_diff', renderer='templates/diff.mako', permission='edit')
-def fetch_revision(request):
-  """
-  """
-  id_project = request.matchdict['id']
-
-  revision_from = request.params['rev_from']
-  revision_to = request.params['rev_to']
-  file_name = request.params['file_name']
-
-  project = DBSession.query(Project).get(id_project)
-  repository_error = None
-
-  try :
-    ssh_node = project.get_ssh_node()
-    content = ssh_node.get_file_content(file_name, revision)
-  except NodeException as e:
-    repository_error = e.value
-    log.error(e)
-  finally :
-    ssh_node.release_lock()
-
-  return {'diff':diff,
-          'repository_error':repository_error,
-          'project':project}
 
 #------------------------------------------------------------------------------
 
@@ -761,10 +758,11 @@ def fetch_revision(request):
     ssh_node = project.get_ssh_node()
     diff = ssh_node.get_revision_diff(revision)
     revision_description = ssh_node.get_revision_description(revision)
+    ssh_node.release_lock()
   except NodeException as e:
     log.error(e)
-  finally :
-    ssh_node.release_lock()
+    if ssh_node :
+      ssh_node.release_lock()
   return {'diff':diff, 'project':project,'revision':revision_description}
 
 #------------------------------------------------------------------------------
@@ -793,16 +791,15 @@ def update_project_to(request):
         time.sleep(0.100)
         current_rev = ssh_node.get_current_rev_hash()
         stop_at += 1
-
       if current_rev == revision :
         result[project.id] = True
-
       for task in project.tasks :
         ssh_node.run_command(task.content, log=True)
+      ssh_node.release_lock()
     except NodeException as e:
       log.error(e)
-    finally :
-      ssh_node.release_lock()
+      if ssh_node :
+        ssh_node.release_lock()
 
   project = DBSession.query(Project).get(id_project)
   if project :

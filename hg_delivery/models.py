@@ -7,6 +7,8 @@
 # hg_delivery is free software; you can redistribute it and/or modify it under the
 # terms of the M.I.T License.
 #
+import logging
+
 from pyramid.security import (
     Allow,
     Everyone,
@@ -35,7 +37,7 @@ from sqlalchemy.orm import (
 from zope.sqlalchemy import ZopeTransactionExtension
 
 from .nodes import PoolSsh 
-
+log = logging.getLogger(__name__)
 from datetime import datetime
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
@@ -119,10 +121,15 @@ class Project(Base):
     """
     """
     if not self.is_initial_revision_init():
-      ssh_node = self.get_ssh_node()
-      _rev_init = ssh_node.get_initial_hash()
-      if _rev_init != "0000000000000000000000000000000000000000" :
-        self.rev_init = _rev_init
+      try:
+        ssh_node = self.get_ssh_node()
+        _rev_init = ssh_node.get_initial_hash()
+        if _rev_init != "0000000000000000000000000000000000000000" :
+          self.rev_init = _rev_init
+      except Exception as e:
+        log.error(e)
+      finally :
+        ssh_node.release_lock()
 
 Index('project_unique', Project.host, Project.path, unique=True)
 Index('project_root', Project.rev_init)

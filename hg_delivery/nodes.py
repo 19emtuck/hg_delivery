@@ -850,6 +850,25 @@ class PoolSsh(object):
       del cls.nodes[uri][0:]
 
   @classmethod
+  def log_nodes_state(cls):
+    """
+    """
+    for key_uri in cls.nodes :
+      for _node in cls.nodes[key_uri] :
+        log.info("STATE is locked ?: %s" % _node.is_locked())
+
+  @classmethod
+  def get_key_hash_node(cls, uri):
+    """
+    """
+    # uri is a too large key for gathering connection
+    # we should use a more accurate one
+    # lets try user+host
+    user,password_host,path = uri.split(u':')
+    password, host = password_host.split(u'@')
+    return user+host
+
+  @classmethod
   def get_node(cls, uri, project_id):
     """
     try to acquire a free ssh channel or open a new one ...
@@ -858,41 +877,34 @@ class PoolSsh(object):
     :param project_id: an integer (the project.id)
     """
     node = None
+    key_uri_node = cls.get_key_hash_node(uri)
 
-    if uri not in cls.nodes :
-      cls.nodes[uri] = [HgNode(uri, project_id)]
-      node = cls.nodes[uri][0]
+    if key_uri_node not in cls.nodes :
+      cls.nodes[key_uri_node] = [HgNode(uri, project_id)]
+      node = cls.nodes[key_uri_node][0]
     else :
-      for __node in cls.nodes[uri] :
-        if not __node.is_locked() :
-          cpt = 0
-          while not __node.is_locked() :
+      t0 = time.time()
+
+      # we wait 60 seconds
+      # we wait to acquire a node (wait for a free node)
+      while node is None and  time.time() - t0 < 60 :
+
+        if time.time() - t0 > 1 :
+          time.sleep(1)
+
+        for __node in cls.nodes[key_uri_node] :
+          if not __node.is_locked() :
             __node.lock_it()
+            node = __node
+            break
 
-            # if unfortunatly we cannot aquire it we just loop
-            if not __node.is_locked() :
-              time.sleep(0.1)
-              cpt+=1
-
-            if cpt > 600 :
-              raise Exception("lock cannot be acquire before timeout")
-
-          node = __node
-          break
-
-      if node is None and len(cls.nodes[uri]) < cls.max_nodes_in_pool :
-        log.warning(u"creating additional node in pool (%s)"%(len(cls.nodes[uri])))
-        node = HgNode(uri, project_id)
-        # this one is unknown of the other threads ...
-        # we lock it immediatly
-        node.lock_it()
-        cls.nodes[uri].append(node)
-      elif node is None :
-        log.warning(u"creating extra node (%s)"%(len(cls.nodes[uri])))
-        # we create a new node to avoid flooding which will be
-        # garbage collected at the end of request
-        # this is slower but max nodes should represent a correct usage
-        node = HgNode(uri, project_id)
+        if node is None and len(cls.nodes[key_uri_node]) < cls.max_nodes_in_pool :
+          log.warning(u"creating additional node in pool (%s)"%(len(cls.nodes[key_uri_node])))
+          node = HgNode(uri, project_id)
+          # this one is unknown of the other threads ...
+          # we lock it immediatly
+          node.lock_it()
+          cls.nodes[key_uri_node].append(node)
 
     return node
 
