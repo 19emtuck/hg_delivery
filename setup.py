@@ -29,6 +29,8 @@ requires = [
     'pygments',
     'paramiko',
     'alembic',
+    'apscheduler==2.1.2',
+    'pyramid-scheduler',
     ]
 
 setup(name='hg_delivery',

@@ -36,7 +36,7 @@ from sqlalchemy.orm import (
 
 from zope.sqlalchemy import ZopeTransactionExtension
 
-from .nodes import PoolSsh 
+from .nodes import PoolSsh, NodeController, NodeException
 log = logging.getLogger(__name__)
 from datetime import datetime
 
@@ -121,15 +121,10 @@ class Project(Base):
     """
     """
     if not self.is_initial_revision_init():
-      try:
-        ssh_node = self.get_ssh_node()
+      with NodeController(self, silent=True) as ssh_node :
         _rev_init = ssh_node.get_initial_hash()
         if _rev_init != "0000000000000000000000000000000000000000" :
           self.rev_init = _rev_init
-      except Exception as e:
-        log.error(e)
-      finally :
-        ssh_node.release_lock()
 
 Index('project_unique', Project.host, Project.path, unique=True)
 Index('project_root', Project.rev_init)

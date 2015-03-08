@@ -9,10 +9,14 @@
 # terms of the M.I.T License.
 #
 
+import time
+import logging
+
 from pyramid.events import (
      NewRequest,
      NewResponse,
      BeforeRender,
+     ApplicationCreated,
      subscriber
      )
 
@@ -23,11 +27,15 @@ from .models import (
     Acl
     )
 
-from .nodes import NodeSsh
+from .nodes import NodeSsh, PoolSsh
+
+log = logging.getLogger(__name__)
 
 @subscriber(BeforeRender)
 def mysubscriber(event):
+
   request = event['request']
+  # request.registry.scheduler.add_interval_job(interval_process, minutes=1)
 
   event['url'] = request.route_url
   event['static_url'] = request.static_url
@@ -51,5 +59,13 @@ def mysubscriber(event):
     # also empty the list container
     del NodeSsh.logs[0:]
 
-
+@subscriber(ApplicationCreated)
+def app_start(event):
+  """
+  when the app start we declare a watchdog to check ssh connection that should be closed
+  """
+  if hasattr(event.app.registry, 'scheduler'):
+    event.app.registry.scheduler.add_interval_job(PoolSsh.close_un_used_nodes, minutes=30)
+  else :
+    log.error("please install pyramid_scheduler project and add reference inside your .ini file")
 

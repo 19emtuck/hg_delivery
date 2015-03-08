@@ -28,6 +28,7 @@ from hg_delivery.nodes import (
     NodeException,
     HgNewBranchForbidden,
     HgNewHeadsForbidden,
+    NodeController,
     )
 import paramiko
 import logging
@@ -204,21 +205,17 @@ def default_view(request):
             continue
 
           dashboard_list.append(project)
-          ssh_node = project.get_ssh_node()
-          repository_node = ssh_node.get_current_revision_description()
 
-          current_rev = None 
-          if repository_node and 'node' in repository_node :
-            current_rev = repository_node['node']
+          with NodeController(project) as ssh_node :
+            repository_node = ssh_node.get_current_revision_description()
 
-          nodes_description[project.id] = repository_node
-          ssh_node.release_lock()
+            current_rev = None 
+            if repository_node and 'node' in repository_node :
+              current_rev = repository_node['node']
+            nodes_description[project.id] = repository_node
 
         except NodeException as e:
           nodes_description[project.id] = {}
-
-          if ssh_node :
-            ssh_node.release_lock()
 
     return { 'projects_list':projects_list,
              'nodes_description':nodes_description,
@@ -249,14 +246,8 @@ def shall_we_push(request):
   target_project = DBSession.query(Project).get(id_target_project)
   result = False
   if project and target_project :
-    try :
-      ssh_node = project.get_ssh_node()
+    with NodeController(project, silent=True) as ssh_node :
       result = ssh_node.pushable(project, target_project)
-      ssh_node.release_lock()
-    except NodeException as e:
-      log.error(e)
-      if ssh_node :
-        ssh_node.release_lock()
   return {'result':result}
 
 #------------------------------------------------------------------------------
@@ -273,13 +264,8 @@ def shall_we_pull(request):
   target_project = DBSession.query(Project).get(id_target_project)
   result = False
   if project and target_project :
-    try :
-      ssh_node = project.get_ssh_node()
+    with NodeController(project, silent=True) as ssh_node :
       result = ssh_node.pullable(project, target_project)
-      ssh_node.release_lock()
-    except NodeException as e:
-      log.error(e)
-      ssh_node.release_lock()
   return {'result':result}
 
 #------------------------------------------------------------------------------
@@ -302,15 +288,9 @@ def who_share_this_id(request):
   projects_sharing_that_rev = []
   for __p in linked_projects:
     # we check if this rev in it ...
-    try :
-      ssh_node = __p.get_ssh_node()
+    with NodeController(project, silent=True) as ssh_node :
       if ssh_node.get_revision_description(rev) :
         projects_sharing_that_rev.append(__p)
-      ssh_node.release_lock()
-    except NodeException as e:
-      log.error(e)
-      if ssh_node :
-        ssh_node.release_lock()
   # found linked projects
   return {'projects_sharing_that_rev':projects_sharing_that_rev}
 
@@ -342,43 +322,34 @@ def push(request):
     ssh_node_remote = None
 
     try :
-      ssh_node = project.get_ssh_node()
-      data = ssh_node.push_to(project, target_project, force_branch)
-      ssh_node.release_lock()
-    except NodeException as e:
-      log.error(e)
-      if ssh_node :
-        ssh_node.release_lock()
+      with NodeController(project) as ssh_node :
+        data = ssh_node.push_to(project, target_project, force_branch)
     except HgNewBranchForbidden as e:
-      if ssh_node :
-        ssh_node.release_lock()
       # we may inform user that he cannot push ...
       # maybe add a configuration parameter to fix this
       # and send --new-branch directly on the first time
-      log.error(e)
       new_branch_stop = True
       result = False
-      set_local_branches = set(ssh_node.get_branches())
+
+      set_local_branches = set()
+      with NodeController(project, silent=True) as ssh_node :
+        set_local_branches = set(ssh_node.get_branches())
+
       try :
-        ssh_node_remote = target_project.get_ssh_node()
-        set_remote_branches = set(ssh_node_remote.get_branches())
-        lst_new_branches = list(set_local_branches - set_remote_branches)
-        data = e.value
-        ssh_node_remote.release_lock()
+        with NodeController(target_project) as ssh_node_remote :
+          set_remote_branches = set(ssh_node_remote.get_branches())
+          lst_new_branches = list(set_local_branches - set_remote_branches)
+          data = e.value
       except :
         data = {}
-        ssh_node_remote.release_lock()
     except HgNewHeadsForbidden as e:
       # we may inform user that he cannot push ...
       # maybe add a configuration parameter to fix this
       # and send --new-branch directly on the first time
-      log.error(e)
       new_head_stop = True
       result = False
       lst_new_branches = [] 
       data = e.value
-      if ssh_node :
-        ssh_node.release_lock()
     else :
       result = True
   
@@ -396,18 +367,11 @@ def pull(request):
   id_project = request.matchdict['id']
   id_source_project = request.matchdict['source']
 
-
   project = DBSession.query(Project).get(id_project)
   source_project = DBSession.query(Project).get(id_source_project)
 
-  try :
-    ssh_node = project.get_ssh_node()
+  with NodeController(project, silent=True) as ssh_node :
     ssh_node.pull_from(project, source_project)
-    ssh_node.release_lock()
-  except NodeException as e:
-    log.error(e)
-    if ssh_node :
-      ssh_node.release_lock()
   return {}
 
 #------------------------------------------------------------------------------
@@ -553,22 +517,20 @@ def edit_project(request):
     project_tasks = DBSession.query(Task).filter(Task.id_project == id_project).all()
 
     try :
-      ssh_node = project.get_ssh_node()
+      with NodeController(project) as ssh_node :
 
-      if not project.dvcs_release :
-        project.dvcs_release = ssh_node.get_release()
+        if not project.dvcs_release :
+          project.dvcs_release = ssh_node.get_release()
 
-      current_rev = ssh_node.get_current_rev_hash()
+        current_rev = ssh_node.get_current_rev_hash()
 
-      last_hundred_change_list, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch, revision_filter=tag)
-      list_branches = ssh_node.get_branches()
-      list_tags = ssh_node.get_tags()
+        last_hundred_change_list, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch, revision_filter=tag)
+        list_branches = ssh_node.get_branches()
+        list_tags = ssh_node.get_tags()
 
-      current_node = map_change_sets.get(current_rev)
-      if current_node is None :
-        current_node = ssh_node.get_revision_description(current_rev)
-
-      ssh_node.release_lock()
+        current_node = map_change_sets.get(current_rev)
+        if current_node is None :
+          current_node = ssh_node.get_revision_description(current_rev)
     except NodeException as e:
       repository_error = e.value
       log.error(e.value)
@@ -576,9 +538,6 @@ def edit_project(request):
       list_branches = []
       list_tags = []
       last_hundred_change_list, map_change_sets = [], {}
-
-      if ssh_node :
-        ssh_node.release_lock()
 
     id_user = request.authenticated_userid
     allow_to_modify_acls = False
@@ -612,15 +571,11 @@ def run_task(request):
   result = False
   if task :
     try :
-      ssh_node = task.project.get_ssh_node()
-      ssh_node.run_command(task.content, log=True)
-      ssh_node.release_lock()
+      with NodeController(task.project) as ssh_node :
+        ssh_node.run_command(task.content, log=True)
     except IntegrityError as e:
       result = False
       explanation = u"wtf ?"
-
-      if ssh_node :
-        ssh_node.release_lock()
     else :
       result = True 
 
@@ -728,16 +683,13 @@ def fetch_project(request):
     repository_error = None
 
     try :
-      ssh_node = project.get_ssh_node()
-      current_rev = ssh_node.get_current_rev_hash()
-      last_hundred_change_list, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch)
-      ssh_node.release_lock()
+      with NodeController(project) as ssh_node :
+        current_rev = ssh_node.get_current_rev_hash()
+        last_hundred_change_list, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch)
     except NodeException as e:
       repository_error = e.value
       log.error(e)
       last_hundred_change_list, map_change_sets = [], {}
-      if ssh_node :
-        ssh_node.release_lock()
 
     return { 'repository_error':repository_error,
              'last_hundred_change_list':last_hundred_change_list}
@@ -754,15 +706,13 @@ def fetch_revision(request):
 
   project = DBSession.query(Project).get(id_project)
 
-  try :
-    ssh_node = project.get_ssh_node()
+  diff = ""
+  revision_description = {}
+
+  with NodeController(project, silent=True) as ssh_node :
     diff = ssh_node.get_revision_diff(revision)
     revision_description = ssh_node.get_revision_description(revision)
-    ssh_node.release_lock()
-  except NodeException as e:
-    log.error(e)
-    if ssh_node :
-      ssh_node.release_lock()
+
   return {'diff':diff, 'project':project,'revision':revision_description}
 
 #------------------------------------------------------------------------------
@@ -781,8 +731,8 @@ def update_project_to(request):
     """
       update a project to a specific revision (a hash)
     """
-    try :
-      ssh_node = project.get_ssh_node()
+    with NodeController(project, silent=True) as ssh_node:
+
       ssh_node.update_to(revision)
       current_rev = ssh_node.get_current_rev_hash()
       stop_at = 0
@@ -795,11 +745,6 @@ def update_project_to(request):
         result[project.id] = True
       for task in project.tasks :
         ssh_node.run_command(task.content, log=True)
-      ssh_node.release_lock()
-    except NodeException as e:
-      log.error(e)
-      if ssh_node :
-        ssh_node.release_lock()
 
   project = DBSession.query(Project).get(id_project)
   if project :

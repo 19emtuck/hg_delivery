@@ -154,6 +154,7 @@ class NodeSsh(object):
 
     self.ssh = self.get_ssh()
     self.lock = threading.Lock()
+    self.last_release_lock_event = None
 
     self.__state_locked = False
 
@@ -175,6 +176,7 @@ class NodeSsh(object):
     # we release it ...
     with self.lock :
       self.__state_locked = False
+      self.last_release_lock_event = time.time()
 
   def decode_raw_bytes(self, bytes_content):
     """
@@ -201,6 +203,13 @@ class NodeSsh(object):
     except socket.gaierror :
       raise NodeException(u"host unavailable")
     return ssh
+
+  def close_connection(self):
+    """
+    """
+    with self.lock :
+      self.ssh.close()
+      self.last_release_lock_event = None
 
   @check_connections
   def run_command_and_feed_password_prompt(self, command, password, reg_password ='password: ', reg_shell = '[^\n\r]+@[^\n\r]+\$', log_it=True):
@@ -705,7 +714,6 @@ class GitNode(NodeSsh):
     """
     data = self.run_command_and_feed_password_prompt(u'cd %s ; git push%sssh://%s@%s/%s'%(
                                                         self.path,
-                                                        insecure,
                                                         target_project.user,
                                                         target_project.host,
                                                         target_project.path),
@@ -715,7 +723,6 @@ class GitNode(NodeSsh):
     """
     """
     data = self.run_command_and_feed_password_prompt(u'cd %s ; git pull%sssh://%s@%s/%s'%(self.path,
-                                                            insecure,
                                                             source_project.user,
                                                             source_project.host,
                                                             source_project.path),
@@ -827,11 +834,62 @@ class GitNode(NodeSsh):
     """
     result = True
     try :
-      data = self.run_command(u'git reset ; git reset %s'%(self.path, rev), True)
+      data = self.run_command(u'cd %s ; git reset ; git reset %s'%(self.path, rev), True)
     except NodeException as e :
       result = False
     return result
 
+#------------------------------------------------------------------------------
+
+class NodeController(object):
+  """
+     control an ssh node and release the lock
+     when we finish to use it
+
+     this implement a with statement 
+
+     sample usage ::
+
+      with NodeController(project, silent=True) as ssh_node :
+        result = ssh_node.pushable(project, target_project)
+
+     silent key-param could be provided to control that 'with' statement
+     will re-raise exception
+  """
+
+  def __init__(self, project, silent=True):
+    """
+    :param Project project: an alchemy model
+    :key-param silent: don't re-raise exception if something happen
+                       the node will just release the lock and log
+                       the error
+    """
+    self.project = project
+    self.silent = silent
+
+  def __enter__(self):
+    """
+    """
+    self.ssh_node = self.project.get_ssh_node()
+    return self.ssh_node
+
+  def __exit__(self, exc_type, exc_value, traceback):
+    """
+    python will re-raise error regarding to exit output
+    """
+    if exc_value :
+      log.error(exc_value)
+
+      if(self.silent) :
+        result = True
+      else :
+        result = False
+    else :
+      result = False
+
+    if self.ssh_node :
+      self.ssh_node.release_lock()
+   
 #------------------------------------------------------------------------------
 
 class PoolSsh(object):
@@ -842,6 +900,21 @@ class PoolSsh(object):
 
   nodes = {}
   max_nodes_in_pool = 4
+  # seconds ...
+  time_elapse_before_closing_connection = 3600
+
+  @classmethod
+  def close_un_used_nodes(cls):
+    """
+    we close nodes that are unused ...
+    """
+    for key_uri in cls.nodes :
+      for _node in cls.nodes[key_uri] :
+        if not __node.is_locked() and _node.last_release_lock_event is not None :
+          if time.time() - _node.last_release_lock_event > cls.time_elapse_before_closing_connection :
+            # lets close the connection
+            # and put it in None state
+            _node.close_connection()
 
   @classmethod
   def delete_nodes(cls, uri):
