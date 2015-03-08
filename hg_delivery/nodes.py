@@ -297,6 +297,9 @@ class NodeSsh(object):
       full_log.append(u'buff2 %s'%buff)
       ret=buff
 
+    if channel :
+      channel.close()
+
     self.release_lock()
 
     if log_it :
