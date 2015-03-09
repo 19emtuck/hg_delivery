@@ -65,7 +65,7 @@ def app_start(event):
   when the app start we declare a watchdog to check ssh connection that should be closed
   """
   if hasattr(event.app.registry, 'scheduler'):
-    event.app.registry.scheduler.add_interval_job(PoolSsh.close_un_used_nodes, minutes=30)
+    event.app.registry.scheduler.add_interval_job(PoolSsh.close_un_used_nodes, minutes=15)
   else :
     log.error("please install pyramid_scheduler project and add reference inside your .ini file")
 

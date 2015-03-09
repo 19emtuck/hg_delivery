@@ -210,6 +210,7 @@ class NodeSsh(object):
     with self.lock :
       self.ssh.close()
       self.last_release_lock_event = None
+      log.info("this connection hasn't been used from long time ago, closing connection to : %s"%self.host)
 
   @check_connections
   def run_command_and_feed_password_prompt(self, command, password, reg_password ='password: ', reg_shell = '[^\n\r]+@[^\n\r]+\$', log_it=True):
