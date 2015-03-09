@@ -30,7 +30,7 @@ requires = [
     'paramiko',
     'alembic',
     'apscheduler==2.1.2',
-    'pyramid-scheduler',
+    'pyramid-scheduler==0.2.2',
     ]
 
 setup(name='hg_delivery',
