@@ -910,7 +910,7 @@ class PoolSsh(object):
     """
     for key_uri in cls.nodes :
       for _node in cls.nodes[key_uri] :
-        if not __node.is_locked() and _node.last_release_lock_event is not None :
+        if not _node.is_locked() and _node.last_release_lock_event is not None :
           if time.time() - _node.last_release_lock_event > cls.time_elapse_before_closing_connection :
             # lets close the connection
             # and put it in None state
