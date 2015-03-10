@@ -19,13 +19,13 @@ casper.on('step.error', function(error){
     this.capture('images/projects_error_'+casper.step+'.jpg', undefined,{ format:'jpg', quality:100});
   }
 });
-casper.on('remote.message',function(message){this.echo(message)});
+casper.on('remote.message',function(message){this.echo(message);});
 
 casper.thenOpen('http://127.0.0.1:6543');
 casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
 casper.then(function(response){
   this.fill('#login_form', {'login':'editor','password':'editor'});
-  this.click('#log_me')
+  this.click('#log_me');
 });
 casper.then(function(response){
   this.test.assertTitle('Hg Delivery 1.0 welcome :)');
@@ -37,11 +37,11 @@ casper.then(function(response){
 casper.then(function(){
   this.click('form[name="view_project"] button.dropdown-toggle');
   var bool_link_exist = this.evaluate(function(){
-     return $('#projects_list a:contains("t8")').size()>0;
+     return $('#projects_list a:contains("d1")').size()>0;
   });
   if(bool_link_exist){
     var next_link = this.evaluate(function(){
-       return $('#projects_list a:contains("t8")').attr('href');
+       return $('#projects_list a:contains("d1")').attr('href');
     });
     this.thenOpen(next_link);
     this.waitUntilVisible('#project_home');
@@ -58,11 +58,11 @@ casper.waitForSelector('span[class="glyphicon glyphicon-plus"]', function(){
 casper.thenClick('span[class="glyphicon glyphicon-plus"]');
 casper.then(function(response){ this.test.assertExists('#add_my_project'); });
 casper.then(function(response){
-  this.fill('form[name="project_add"]', { 'name':'t8',
-                                      'host':'127.0.0.1',
-                                      'path':'/home/sbard/dev/t8',
-                                      'user':'sbard',
-                                      'password':'evangelion' });
+  this.fill('form[name="project_add"]', { 'name':'d1',
+                                          'host':'127.0.0.1',
+                                          'path':'/home/sbard/dev/hg_delivery/test/repositories/d1',
+                                          'user':'sbard',
+                                          'password':'evangelion' });
 });
 casper.thenClick('#add_my_project');
 casper.waitWhileVisible('#new_project_dialog');
@@ -72,12 +72,12 @@ casper.waitUntilVisible('.alert-success');
 casper.thenClick('span[class="glyphicon glyphicon-plus"]');
 casper.then(function(response){ this.test.assertExists('#add_my_project'); });
 casper.then(function(response){
-  this.fill('form[name="project_add"]', {'name':'t8',
+  this.fill('form[name="project_add"]', {'name':'d1',
                    'host':'127.0.0.1',
-                   'path':'/home/sbard/dev/t8',
-                         'user':'sbard',
-                         'password':'evangelion',
-                        });
+                   'path':'/home/sbard/dev/hg_delivery/test/repositories/d1',
+                   'user':'sbard',
+                   'password':'evangelion',
+              });
 });
 casper.thenClick('#add_my_project');
 casper.waitUntilVisible('.alert-danger');
@@ -86,13 +86,13 @@ casper.waitWhileVisible('#new_project_dialog');
 
 // then we delete the project
 casper.thenClick('form[name="view_project"] button.dropdown-toggle');
-casper.then(function(response){this.test.assertTextExists('t8');});
+casper.then(function(response){this.test.assertTextExists('d1');});
 casper.then(function(){
   var next_link = this.evaluate(function(){
-     return $('#projects_list a:contains("t8")').attr('href');
+     return $('#projects_list a:contains("d1")').attr('href');
   });
   this.thenOpen(next_link);
-})
+});
 casper.waitUntilVisible('#project_home');
 casper.thenClick('#manage_project');
 
@@ -108,15 +108,15 @@ casper.then(function(response){
 });
 
 
-// add t8 project for normal test behavior
+// add d1 project for normal test behavior
 casper.thenClick('span[class="glyphicon glyphicon-plus"]');
 casper.then(function(response){ this.test.assertExists('#add_my_project'); });
 casper.then(function(response){
-  this.fill('form[name="project_add"]', { 'name':'t8',
-                                      'host':'127.0.0.1',
-                                      'path':'/home/sbard/dev/t8',
-                                      'user':'sbard',
-                                      'password':'evangelion' });
+  this.fill('form[name="project_add"]', { 'name':'d1',
+                                          'host':'127.0.0.1',
+                                          'path':'/home/sbard/dev/hg_delivery/test/repositories/d1',
+                                          'user':'sbard',
+                                          'password':'evangelion' });
 });
 casper.thenClick('#add_my_project');
 casper.waitWhileVisible('#new_project_dialog');

@@ -12,7 +12,7 @@ var execFile = child_process.execFile;
 var fs = require('fs');
 var local_path = fs.workingDirectory; 
 var map_project_to_url = {};
-var lst_projects_labels = ['d1', 'd2']
+var lst_projects_labels = ['d1', 'd2'];
 
 // casper.options.waitTimeout = 80000;
 
@@ -85,6 +85,7 @@ casper.then(function(){
 // we clone the empty repo
 casper.then(function(){
   this.hg("clone", "./repositories/d1", "./repositories/d2");
+  this.hg("clone", "./repositories/d1", "./repositories/d3");
 });
 
 casper.thenOpen('http://127.0.0.1:6543');
@@ -212,7 +213,8 @@ casper.thenClick('#revision_table tbody tr td:nth-child(2) a');
 casper.waitUntilVisible('#confirm_move_dialog');
 casper.thenClick('#move_to');
 
-casper.waitUntilVisible('#project_home', function(){
+casper.waitUntilVisible('#project_home');
+casper.waitUntilVisible('.glyphicon-ok', function(){
   this.test.assertExists('.glyphicon-ok');
   this.test.assertTextExists('my_first_commit');
   var link_str = this.evaluate(function(){ return $('#revision_table > tbody > tr > td:nth-child(7) > a').text(); });

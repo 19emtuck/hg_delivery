@@ -21,7 +21,7 @@ casper.on('step.error', function(error){
     this.capture('images/projects_add_error_'+casper.step+'.jpg', undefined,{ format:'jpg', quality:100});
   }
 });
-casper.on('remote.message',function(message){this.echo(message)});
+casper.on('remote.message',function(message){this.echo(message);});
 
 casper.on("page.error", function(msg, trace) {
   this.echo("-> Error:    " + msg, "ERROR");
@@ -55,7 +55,8 @@ casper.then(function(){
     self.thenClick('#manage_project');
     self.thenClick('#view_delete_project');
     self.waitUntilVisible('form[name="view_project"] button.dropdown-toggle');
-    self.wait(200);
+    // wait a bit ...
+    self.wait(700);
  });
 
 });
@@ -68,20 +69,20 @@ casper.then(function(){
 });
 
 casper.waitUntilVisible('span[class="glyphicon glyphicon-plus"]',
-    function(){this.test.assertExists('span[class="glyphicon glyphicon-plus"]')
+    function(){this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
 });
 
 casper.then(function(){
- this.each(['t8','t2','t3'], function(self, project_id){
+ this.each(['d1','d2','d3'], function(self, project_id){
     // add a new project
     self.thenClick('span[class="glyphicon glyphicon-plus"]');
     self.then(function(response){ this.test.assertExists('#add_my_project'); });
     self.then(function(response){
       this.fill('form[name="project_add"]', { 'name':project_id,
-                                          'host':'127.0.0.1',
-                                          'path':'/home/sbard/dev/'+project_id,
-                                          'user':'sbard',
-                                          'password':'evangelion' });
+                                              'host':'127.0.0.1',
+                                              'path':'/home/sbard/dev/hg_delivery/test/repositories/'+project_id,
+                                              'user':'sbard',
+                                              'password':'evangelion' });
     });
     self.thenClick('#add_my_project');
     self.waitWhileVisible('#new_project_dialog');
