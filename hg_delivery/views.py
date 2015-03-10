@@ -288,7 +288,7 @@ def who_share_this_id(request):
   projects_sharing_that_rev = []
   for __p in linked_projects:
     # we check if this rev in it ...
-    with NodeController(project, silent=True) as ssh_node :
+    with NodeController(__p, silent=True) as ssh_node :
       if ssh_node.get_revision_description(rev) :
         projects_sharing_that_rev.append(__p)
   # found linked projects

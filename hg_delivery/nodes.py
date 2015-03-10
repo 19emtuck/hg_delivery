@@ -890,6 +890,8 @@ class NodeController(object):
 
     if self.ssh_node :
       self.ssh_node.release_lock()
+
+    return result
    
 #------------------------------------------------------------------------------
 
