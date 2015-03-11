@@ -858,7 +858,7 @@ class NodeController(object):
      will re-raise exception
   """
 
-  def __init__(self, project, silent=True):
+  def __init__(self, project, silent=False):
     """
     :param Project project: an alchemy model
     :key-param silent: don't re-raise exception if something happen
@@ -878,6 +878,8 @@ class NodeController(object):
     """
     python will re-raise error regarding to exit output
     """
+    result = False
+
     if exc_value :
       log.error(exc_value)
 
