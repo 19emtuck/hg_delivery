@@ -700,8 +700,15 @@ function view_diff_revision(target_url){
         diffs_content.push('<div id="file_' + diffs_content.length + '" style="display:none">'+json_response.diff.dict_files[file_name]+'</div>');
       });
 
-      $('#revision_description').html('id : '+json_response.revision.rev+'<br> date : '+json_response.revision.date+'<br> author : '+json_response.revision.author+'<br><br>'+json_response.revision.desc);
-
+      // publish revision description ...
+      var revision_description = "<ul style='list-style:none;padding-left:0'>";
+      Object.keys(json_response.revision).forEach(function(attr_item){
+	      if(json_response.revision[attr_item]){
+		      revision_description+="<li><b>"+attr_item + "</b><span> : "+json_response.revision[attr_item]+"</span></li>";
+	      }
+      });
+      revision_description += "</ul>";
+      $('#revision_description').html(revision_description);
       $('#files').html(lst_links.join('\n'));
       $('#diffs_container').show().html(diffs_content.join('\n'));
       $('#files_panel').show();
