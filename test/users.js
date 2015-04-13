@@ -1,6 +1,15 @@
 casper.userAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X)');
 casper.start();
 
+var verbose = false;
+if(casper.cli.has('verbose')){
+  verbose = true;
+}
+
+casper.options.logLevel = 'debug';
+casper.options.verbose = verbose;
+casper.options.waitTimeout = 5000;
+
 // fix view port to get large screenshot image
 casper.viewport(1024, 768);
 

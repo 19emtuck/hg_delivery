@@ -14,7 +14,14 @@ var local_path = fs.workingDirectory;
 var map_project_to_url = {};
 var lst_projects_labels = ['d1', 'd2'];
 
-// casper.options.waitTimeout = 80000;
+var verbose = false;
+if(casper.cli.has('verbose')){
+  verbose = true;
+}
+
+casper.options.logLevel = 'debug';
+casper.options.verbose = verbose;
+casper.options.waitTimeout = 5000;
 
 casper.spawn = function(){
   var command = arguments[0];
@@ -203,9 +210,14 @@ casper.waitWhileVisible('#container_alert .progress-bar', function(){
 });
 
 casper.then(function(){
-  this.open(map_project_to_url.d2);
+  project_pushed_name = this.evaluate(function(){return $('#other_projects a:first-child').data('name')});
+  // get project where I pushed ...
+  this.open(map_project_to_url[project_pushed_name]);
 });
 
+// wait refresh has been done ...
+casper.waitForResource('project\/edit\/[0-9]+');
+casper.wait(1000);
 casper.waitUntilVisible('#project_home', function(){
   this.test.assertDoesntExist('.glyphicon-ok');
   this.test.assertTextExists('my_first_commit');
@@ -215,6 +227,8 @@ casper.waitUntilVisible('#confirm_move_dialog');
 casper.thenClick('#move_to');
 
 casper.waitUntilVisible('#project_home');
+casper.waitForResource('project\/edit\/[0-9]+');
+casper.wait(1000);
 casper.waitUntilVisible('.glyphicon-ok', function(){
   this.test.assertExists('.glyphicon-ok');
   this.test.assertTextExists('my_first_commit');
