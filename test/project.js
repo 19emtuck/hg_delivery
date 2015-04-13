@@ -100,7 +100,7 @@ casper.thenClick('#manage_project');
 casper.thenClick('#view_delete_project');
 
 // back to welcome page ...
-casper.waitWhileVisible('span[class="glyphicon glyphicon-plus"]');
+casper.waitUntilVisible('span[class="glyphicon glyphicon-plus"]');
 casper.then(function(response){
   this.test.assertTitle('Hg Delivery 1.0 welcome :)');
   this.test.assertTextExists('Dashboard');

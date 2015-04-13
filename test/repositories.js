@@ -184,6 +184,7 @@ casper.then(function(){
 
 casper.waitUntilVisible('#project_home');
 casper.thenClick('a[href="#related"]');
+casper.waitForSelector('#other_projects a:first-child');
 casper.thenClick('#other_projects a:first-child');
 casper.waitUntilVisible('#button_push');
 casper.waitFor(function check(){
