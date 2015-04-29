@@ -273,6 +273,13 @@ function show_difference_between_changeset_stacks(remote_project_name, local_las
 }
 
 /**
+ *
+ */
+function edit_mark(target_url){
+  $('#edit_mark_dialog').modal('show');
+}
+
+/**
  * update this project
  */
 function update_project(target_url){

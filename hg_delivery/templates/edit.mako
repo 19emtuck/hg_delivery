@@ -71,6 +71,7 @@
              <th>Author</th>
              <th>Branch</th>
              <th>Date</th>
+             <th>Mark</th>
              <th>Description</th>
            </thead>
         
@@ -100,6 +101,7 @@
                  <td><span class="label label-success">${node['branch']}</span></td>
                %endif
                <td><span>${node['date']}</span></td>
+               <td><a href="#" onclick="edit_mark('${url(route_name='project_mark', id=project.id, hash=node['node'], mark_id=0)}')">[x]</a></td>
                <td><a href="#" onclick="view_diff_revision('${url(route_name='project_revision_details_json',id=project.id, rev=node['node'])}')">${node['desc']}</a></td>
               </tr>
             %endfor
@@ -323,6 +325,41 @@
 </div><!-- /.modal -->
 <!-- end dismiss to dialog -->
 
+<!-- edit mark dialog -->
+<div id="edit_mark_dialog" class="modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Wants to add a mark ?</h4>
+      </div>
+      <div class="modal-body">
+        <div>
+          <button type="button" class="btn btn-default">SAFE</button>
+          <button type="button" class="btn btn-default">UNSAFE</button>
+
+          <div class="btn-group">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                 <span id="mark_explanation">Explanation </span> <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li><a href="#">SERIALISATION SCHEMA HAS CHANGE</a></li>
+                <li><a href="#">HAS DEPENDENCY</a></li>
+            </ul>
+          </div>
+
+        </div>
+        <br>
+        <textarea style="width:100%; height:4em;" placeholder="Express yourself"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default pull-left">Save</button>
+        <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- end dismiss to dialog -->
 
 
 <!-- nothing work -->
