@@ -30,6 +30,7 @@ requires = [
     'paramiko',
     'alembic',
     'apscheduler==2.1.2',
+    'redis',
     'pyramid-scheduler==0.3.1',
     ]
 
