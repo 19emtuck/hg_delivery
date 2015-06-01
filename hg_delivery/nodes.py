@@ -422,7 +422,9 @@ class HgNode(NodeSsh):
     if (local_project.dvcs_release is not None and self.compare_release_a_sup_equal_b(local_project.dvcs_release, '1.7.4')) :
       insecure = u" --insecure "
     else:
-      insecure = u" "
+      # what ever mercurial release, even if its not mandatory
+      # we feed that param
+      insecure = u" --insecure "
     data = self.run_command_and_feed_password_prompt(u'cd %s ; hg in -l 1 %sssh://%s@%s/%s'%(
                                                         self.path,
                                                         insecure,
@@ -437,7 +439,6 @@ class HgNode(NodeSsh):
     """
     try to check if between two input projects we can push
 
-    :param local_project: an SshNode
     :param target_project: an SshNode
     """
     if not local_project.dvcs_release :
@@ -446,7 +447,9 @@ class HgNode(NodeSsh):
     if (local_project.dvcs_release is not None and self.compare_release_a_sup_equal_b(local_project.dvcs_release, '1.7.4')) :
       insecure = u" --insecure "
     else:
-      insecure = u" "
+      # what ever mercurial release, even if its not mandatory
+      # we feed that param
+      insecure = u" --insecure "
     data = self.run_command_and_feed_password_prompt(u'cd %s ; hg out -l 1 %sssh://%s@%s/%s'%(
                                                         self.path,
                                                         insecure,
@@ -461,7 +464,6 @@ class HgNode(NodeSsh):
     """
     this may method may raise an exception
 
-    :param local_project: an alchemy Project object 
     :param target_project: an alchemy Project object
     :param force_branch: and boolean to force push 
     """
@@ -476,7 +478,9 @@ class HgNode(NodeSsh):
     if (local_project.dvcs_release is not None and self.compare_release_a_sup_equal_b(local_project.dvcs_release, '1.7.4')) :
       insecure = u" --insecure "
     else:
-      insecure = u" "
+      # what ever mercurial release, even if its not mandatory
+      # we feed that param
+      insecure = u" --insecure "
 
     data = self.run_command_and_feed_password_prompt(u'cd %s ; hg push%sssh://%s@%s/%s%s'%(
                                                         self.path,
@@ -494,7 +498,6 @@ class HgNode(NodeSsh):
 
   def pull_from(self, local_project, source_project):
     """
-    :param local_project: an alchemy Project object 
     :param source_project: an alchemy Project object
     """
     if not local_project.dvcs_release :
@@ -503,7 +506,10 @@ class HgNode(NodeSsh):
     if (local_project.dvcs_release is not None and self.compare_release_a_sup_equal_b(local_project.dvcs_release, '1.7.4')) :
       insecure = " --insecure "
     else:
-      insecure = " "
+      # what ever mercurial release, even if its not mandatory
+      # we feed that param
+      insecure = u" --insecure "
+
     data = self.run_command_and_feed_password_prompt(u'cd %s ; hg pull%sssh://%s@%s/%s'%(self.path,
                                                             insecure,
                                                             source_project.user,
