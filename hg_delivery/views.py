@@ -489,6 +489,17 @@ def edit_project(request):
     projects_map = {p.id:p for p in projects_list}
     project = projects_map.get(id_project)
 
+    delivered_hash = {}
+    for l in DBSession.query(RemoteLog)\
+                      .order_by(RemoteLog.creation_date.desc())\
+                      .limit(100) :
+      if l.command.count('hg update -C -r') :
+        hash_rev = l.command.split('hg update -C -r ')[1].strip()
+        if hash_rev in delivered_hash :
+          delivered_hash[hash_rev].append(l.creation_date)
+        else :
+          delivered_hash[hash_rev] = [l.creation_date]
+
     if project is None :
       return HTTPFound(location=request.route_url(route_name='home'))
     linked_projects = [p for p in projects_list if p.rev_init is not None and p.rev_init == project.rev_init and p.id != project.id]
@@ -559,7 +570,8 @@ def edit_project(request):
              'allow_to_modify_acls':allow_to_modify_acls,
              'project_acls':project_acls,
              'project_tasks':project_tasks,
-             'knonwn_acl':Acl.known_acls }
+             'knonwn_acl':Acl.known_acls,
+             'delivered_hash':delivered_hash}
 
 
 @view_config(route_name='project_run_task', renderer='json', permission='edit')

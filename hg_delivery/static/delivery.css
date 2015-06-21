@@ -176,12 +176,10 @@ body {
 */
 
 @media screen and (max-width: 1000px) {
-  #project_tab tbody td:nth-child(3),
-  #project_tab th:nth-child(3),
-  #project_tab tbody td:nth-child(4),
-  #project_tab th:nth-child(4),
-  #project_tab tbody td:nth-child(6),
-  #project_tab th:nth-child(6) {
+  #revision_table tbody td:nth-child(3),
+  #revision_table th:nth-child(3),
+  #revision_table tbody td:nth-child(6),
+  #revision_table th:nth-child(6) {
     display:none;
   }
 
@@ -195,12 +193,19 @@ body {
     margin-left:0px; 
   }
 }
-
-@media screen and (max-width: 380px) {
-  #project_tab tbody td:nth-child(5),
-  #project_tab th:nth-child(5) {
+@media screen and (max-width: 680px) {
+  #revision_table tbody td:nth-child(4),
+  #revision_table th:nth-child(4) {
     display:none;
   }
+}
+
+@media screen and (max-width: 380px) {
+  #revision_table tbody td:nth-child(5),
+  #revision_table th:nth-child(5) {
+    display:none;
+  }
+
   #filter {
     padding-left:0px; 
   }

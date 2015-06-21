@@ -87,6 +87,7 @@
              <th>Branch</th>
              <th>Date</th>
              <th>Description</th>
+             <th>Delivered</th>
            </thead>
         
            <tbody>
@@ -116,7 +117,11 @@
                %endif
                <td><span>${node['date']}</span></td>
                <td><a href="#" onclick="view_diff_revision('${url(route_name='project_revision_details_json',id=project.id, rev=node['node'])}')">${node['desc']}</a></td>
-
+               <td>
+                %if node['node'] in delivered_hash :
+                ${len(delivered_hash[node['node']])} <i class="glyphicon glyphicon-pushpin" title="${"\n".join(['delivered the %s'%(d.strftime('%d/%m/%Y %H:%M:%S')) for d in delivered_hash[node['node']]]) |n}"></i>
+                %endif
+               </td>
               </tr>
             %endfor
            </tbody>
