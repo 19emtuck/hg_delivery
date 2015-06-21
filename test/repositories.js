@@ -6,13 +6,26 @@
  * and clone it to follow differences
  *
  **/
-var child_process = require("child_process");
-var spawn = child_process.spawn;
-var execFile = child_process.execFile;
-var fs = require('fs');
-var local_path = fs.workingDirectory; 
-var map_project_to_url = {};
+
+if(!casper.cli.has("login")){
+  casper.echo('please provide --login=xxxx argument', "ERROR");
+  casper.exit();
+}
+if(!casper.cli.has("password")){
+  casper.echo('please provide --password=xxxx argument', "ERROR");
+  casper.exit();
+}
+
+var child_process       = require("child_process");
+var spawn               = child_process.spawn;
+var execFile            = child_process.execFile;
+var fs                  = require('fs');
+var local_path          = fs.workingDirectory;
+var map_project_to_url  = {};
 var lst_projects_labels = ['d1', 'd2'];
+
+var login               = casper.cli.get("login");
+var password            = casper.cli.get("password");
 
 var verbose = false;
 if(casper.cli.has('verbose')){
@@ -150,11 +163,11 @@ casper.then(function(){
     self.thenClick('span[class="glyphicon glyphicon-plus"]');
     self.then(function(response){ this.test.assertExists('#add_my_project'); });
     self.then(function(response){
-      this.fill('form[name="project_add"]', { 'name':project_id,
-                                              'host':'127.0.0.1',
-                                              'path': local_path + '/repositories/' +project_id,
-                                              'user':'sbard',
-                                              'password':'evangelion' });
+      this.fill('form[name="project_add"]', { 'name'     : project_id,
+                                              'host'     : '127.0.0.1',
+                                              'path'     : local_path + '/repositories/' +project_id,
+                                              'user'     : login,
+                                              'password' : password });
     });
     self.thenClick('#add_my_project');
     self.waitWhileVisible('#new_project_dialog');

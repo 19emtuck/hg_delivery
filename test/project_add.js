@@ -1,5 +1,17 @@
+if(!casper.cli.has("login")){
+  casper.echo('please provide --login=xxxx argument', "ERROR");
+  casper.exit();
+}
+if(!casper.cli.has("password")){
+  casper.echo('please provide --password=xxxx argument', "ERROR");
+  casper.exit();
+}
 
 var javascript_errors = [];
+var local_path        = fs.workingDirectory;
+var login             = casper.cli.get("login");
+var password          = casper.cli.get("password");
+
 casper.userAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X)');
 casper.start();
 
@@ -80,9 +92,9 @@ casper.then(function(){
     self.then(function(response){
       this.fill('form[name="project_add"]', { 'name':project_id,
                                               'host':'127.0.0.1',
-                                              'path':'/home/sbard/dev/hg_delivery/test/repositories/'+project_id,
-                                              'user':'sbard',
-                                              'password':'evangelion' });
+                                              'path': local_path + '/repositories/' +project_id,
+                                              'user':login,
+                                              'password':password });
     });
     self.thenClick('#add_my_project');
     self.waitWhileVisible('#new_project_dialog');
