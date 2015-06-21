@@ -490,9 +490,10 @@ def edit_project(request):
     project = projects_map.get(id_project)
 
     delivered_hash = {}
-    for l in DBSession.query(RemoteLog)\
+    for l in DBSession.query(RemoteLog.command, RemoteLog.creation_date)\
                       .order_by(RemoteLog.creation_date.desc())\
-                      .limit(100) :
+                      .filter(RemoteLog.id_project==id_project)\
+                      .limit(200) :
       if l.command.count('hg update -C -r') :
         hash_rev = l.command.split('hg update -C -r ')[1].strip()
         if hash_rev in delivered_hash :
