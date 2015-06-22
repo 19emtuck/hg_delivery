@@ -223,7 +223,7 @@ casper.waitWhileVisible('#container_alert .progress-bar', function(){
 });
 
 casper.then(function(){
-  project_pushed_name = this.evaluate(function(){return $('#other_projects a:first-child').data('name')});
+  project_pushed_name = this.evaluate(function(){return $('#other_projects a:first-child').data('name');});
   // get project where I pushed ...
   this.open(map_project_to_url[project_pushed_name]);
 });
@@ -307,21 +307,45 @@ casper.waitUntilVisible('#project_home', function(){
   this.test.assertTextExists('second_commit_d2');
 });
 
+casper.then(function(){
+  this.test.assertDoesntExist('.glyphicon-pushpin');
+});
+casper.then(function(){
+  this.spawn("chmod", "500", "./repositories/d1");
+});
+// we click on the first release line to update repo to
+// the last release
 casper.thenClick('#revision_table tbody tr:nth-child(1) td:nth-child(2) a');
 casper.waitUntilVisible('#confirm_move_dialog', function(){
   this.test.assertTextExists('from 0 to 1 revision');
 });
 casper.thenClick('#move_to');
 casper.waitWhileVisible('#confirm_move_dialog');
-casper.waitUntilVisible('#project_home');
+casper.waitForText('Project d1 has not been updated :( please check permission and or check local update with hg command');
+casper.wait(100);
+casper.thenClick('.alert button.close');
+casper.then(function(){
+  this.spawn("chmod", "755", "./repositories/d1");
+});
 
-
-
-
+// we click on the first release line to update repo to
+// the last release
+casper.thenClick('#revision_table tbody tr:nth-child(1) td:nth-child(2) a');
+casper.waitUntilVisible('#confirm_move_dialog', function(){
+  this.test.assertTextExists('from 0 to 1 revision');
+});
+casper.thenClick('#move_to');
+casper.waitWhileVisible('#confirm_move_dialog');
+casper.waitForText('Project d1 has been updated successfully');
+casper.wait(100);
+casper.waitWhileVisible('.alert');
+casper.then(function(){
+  // after update a new pushpin icon appear which gives update dates to user
+  this.test.assertExists('.glyphicon-pushpin');
+});
 
 // now both commits separatly 
 // but on different branch
-
 casper.then(function(){
   fs.write('./repositories/d1/README.txt','PROJECT DESCRIPTION FILE\nHELLO WORLD !\nFROM d2 repositories. it rocks\nThis is pretty awesome','w');
   this.hg("branch", "brch_1", "-R", "./repositories/d1/");

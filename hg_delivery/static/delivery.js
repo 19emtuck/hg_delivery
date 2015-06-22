@@ -183,12 +183,18 @@ function change_project_to_this_release(active_a, target_url, target_refresh_url
                          json_response.projects_list.forEach(function(proj) {map_project[proj.id]=proj;});
                          $('#container_alert').html('');
                          lst_projects_id.forEach(function(_id) {
-                           var _c = 'alert-danger';
+                           var _c, _h, _alert_html;
                            if(json_response.result[_id]){
                              _c = 'alert-success';
+                             _h = '<strong>Project ' + map_project[_id].name + ' has been updated successfully</strong>';
+                           } else {
+                             _c = 'alert-danger';
+                             _h = '<strong>Project ' + map_project[_id].name + ' has not been updated :( please check permission and or check local update with hg command</strong>';
+                             $('div.has-spinner').next().show();
+                             $('div.has-spinner').remove();
                            }
-                           var _alert_html = '<div class="alert '+_c+'"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
-                           _alert_html += '<strong>Project ' + map_project[_id].name + ' has been updated successfully</strong></div>';
+                           _alert_html = '<div class="alert '+_c+'"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                           _alert_html += _h + '</div>';
                            $('#container_alert').append(_alert_html);
                          });
                          $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
