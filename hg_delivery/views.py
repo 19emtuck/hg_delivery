@@ -493,6 +493,7 @@ def edit_project(request):
     for l in DBSession.query(RemoteLog.command, RemoteLog.creation_date)\
                       .order_by(RemoteLog.creation_date.desc())\
                       .filter(RemoteLog.id_project==id_project)\
+                      .filter(RemoteLog.command.like('%hg update -C -r%'))\
                       .limit(200) :
       if l.command.count('hg update -C -r') :
         hash_rev = l.command.split('hg update -C -r ')[1].strip()
