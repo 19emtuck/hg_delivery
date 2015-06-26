@@ -94,7 +94,7 @@
             %for node in last_hundred_change_list :
               <tr data-node="${node['node']}">
                %if node['node'] == current_node.get('node'):
-                  <td><span class="glyphicon glyphicon-ok" data-current_rev="${current_node['rev']}" style="color:#f0ad4e;font-size:27px"></span></td>
+                  <td><span class="glyphicon glyphicon-ok yellow_mark_big" data-current_rev="${current_node['rev']}"></span></td>
                %else :
                  <td></td>
                %endif
@@ -118,8 +118,10 @@
                <td><span>${node['date']}</span></td>
                <td><a href="#" onclick="view_diff_revision('${url(route_name='project_revision_details_json',id=project.id, rev=node['node'])}')">${node['desc']}</a></td>
                <td>
-                %if node['node'] in delivered_hash :
-                ${len(delivered_hash[node['node']])} <i class="glyphicon glyphicon-pushpin" title="${"\n".join(['delivered the %s'%(d.strftime('%d/%m/%Y %H:%M:%S')) for d in delivered_hash[node['node']]]) |n}"></i>
+                %if node['node'] in delivered_hash and node['node'] == current_node.get('node'):
+                    <span class="yellow_mark_small">${len(delivered_hash[node['node']])}</span> <i class="glyphicon glyphicon-pushpin yellow_mark_small" title="${"\n".join(['delivered the %s'%(d.strftime('%d/%m/%Y %H:%M:%S')) for d in delivered_hash[node['node']]]) |n}"></i>
+                %elif node['node'] in delivered_hash :
+                    ${len(delivered_hash[node['node']])} <i class="glyphicon glyphicon-pushpin" title="${"\n".join(['delivered the %s'%(d.strftime('%d/%m/%Y %H:%M:%S')) for d in delivered_hash[node['node']]]) |n}"></i>
                 %endif
                </td>
               </tr>
