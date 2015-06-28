@@ -19,6 +19,7 @@ import os.path
 import logging
 import uuid
 import sys
+import chardet
 
 from pygments import highlight
 from pygments.lexers import DiffLexer
@@ -183,7 +184,7 @@ class NodeSsh(object):
     :param bytes_content: octet string an 2.x 3x bytes string decode wrapper
     """
     content = ""
-    for codec in (u'latin-1', u'utf-8') :
+    for codec in (u'utf-8', u'latin-1') :
       try :
         content = u(bytes_content, codec)
       except Exception as e:
@@ -380,7 +381,18 @@ class HgNode(NodeSsh):
     Some node to manipulate remote hg repository
   """
 
-  _template = u"{node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{date|isodate}|#|{desc|jsonescape}|#|{tags}\n" 
+  _template = u"{node}|#|{p1node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{date|isodate}|#|{desc|jsonescape}|#|{tags}\n" 
+
+
+  def get_content(self, revision, file_name):
+    """
+    """
+    try :
+      data = self.run_command(u"cd %s ; hg cat -r %s %s"%(self.path, revision, file_name))
+    except Exception as e:
+      data = None
+    return data
+
 
   def get_release(self):
     """
@@ -530,10 +542,10 @@ class HgNode(NodeSsh):
     if data :
       data = (line for line in data.splitlines())
       for line in reversed(tuple(data)) :
-        node, author, branch, rev, parents, date, desc, tags = line.split(u'|#|')
+        node, parent_node, author, branch, rev, parents, date, desc, tags = line.split(u'|#|')
         desc = desc.replace(u'\\n','\n')
         if not branch : branch = 'default'
-        list_nodes.append({'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date})
+        list_nodes.append({'node':node, 'p1node':parent_node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date})
         map_nodes[node]=list_nodes[-1]
     return list_nodes, map_nodes
 
@@ -560,10 +572,10 @@ class HgNode(NodeSsh):
       data = (line for line in data.splitlines())
 
       for line in data :
-        node, author, branch, rev, parents, date, desc, tags = line.split(u'|#|')
+        node, parent_node, author, branch, rev, parents, date, desc, tags = line.split(u'|#|')
         desc = desc.replace(u'\\n','\n')
         if not branch : branch = 'default'
-        list_nodes.append({'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date})
+        list_nodes.append({'node':node, 'p1node':parent_node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date})
         map_nodes[node]=list_nodes[-1]
 
     return list_nodes, map_nodes

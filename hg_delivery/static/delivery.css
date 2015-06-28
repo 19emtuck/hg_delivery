@@ -28,6 +28,31 @@ body {
   margin-bottom: 10px;
 }
 
+#files_panel {
+  margin-left:10px;
+  margin-right:5px;
+  padding-left:0px;
+  padding-right:0px;
+  display:none
+}
+
+#merge {
+  margin-left:0.5em;
+}
+
+.file_simple_diff {
+  display:none;
+  position:relative;
+}
+
+.merge_trigger {
+  position:absolute;
+  right:0;
+  top:0;
+  border:none;
+  background:transparent;
+}
+
 .low_gauge_container {
   padding: 15px 3px 15px 3px;
   background-color: rgb(252, 249, 249);

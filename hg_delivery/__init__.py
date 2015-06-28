@@ -39,13 +39,14 @@ def projects_include(config):
 
   config.add_route('project_revision_details',        '/detail/{id:\d+}/revision/{rev}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
   config.add_route('project_update',                  '/update/{id:\d+}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
+  config.add_route('view_file_content',               '/get/{id:\d+}/{rev}/*file_name', custom_predicates=(to_int('id'),), factory = ProjectFactory)
 
   # push/pull from another project 
   config.add_route('project_pull_test',               '/pull/test/{id:\d+}/from/{source:\d+}', custom_predicates=(to_int('id'),to_int('source'),), factory = ProjectFactory)
   config.add_route('project_pull_from',               '/pull/{id:\d+}/from/{source:\d+}', custom_predicates=(to_int('id'),to_int('source'),), factory = ProjectFactory)
   config.add_route('project_push_test',               '/push/test/{id:\d+}/to/{target:\d+}', custom_predicates=(to_int('id'),to_int('target'),), factory = ProjectFactory)
   config.add_route('project_push_to',                 '/push/{id:\d+}/to/{target:\d+}', custom_predicates=(to_int('id'),to_int('target'),), factory = ProjectFactory)
-  config.add_route('project_brothers_update_check',    '/check/{id:\d+}/{rev}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
+  config.add_route('project_brothers_update_check',   '/check/{id:\d+}/{rev}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
 
   # move project to another revision
   # add a fizzle to get projects list target by the action

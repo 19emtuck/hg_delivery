@@ -213,7 +213,7 @@
   <!-- project revision tab pane -->
   <div class="tab-pane" id="revision">
 
-      <div id="files_panel" class="panel panel-default col-md-3" style="margin-left:10px;padding-left:0px;padding-right:0px;display:none">
+      <div id="files_panel" class="panel panel-default col-md-5">
         <div class="panel-heading">
           <h3 class="panel-title">Description and files</h3>
         </div>
@@ -226,7 +226,7 @@
       </div>
 
       <!-- panel who will contains diffs -->
-      <div class="panel" id="diffs_container" style="display:none"></div>
+      <div class="panel" id="diffs_container" style="display:none" data-orig1="${url(route_name='view_file_content', id=project.id,rev="--REV--",file_name="--FNAME--")}" data-orig2="${url(route_name='view_file_content', id=project.id,rev="--REV--",file_name="--FNAME--")}"></div>
       <!-- panel who will contains diffs -->
       
       <!-- if not diff are available -->
@@ -306,6 +306,10 @@
   % endif
 </div>
 
+
+<!-- diff merge -->
+<div id="merge_container" style="display:none" class="panel">
+</div>
 
 <!-- project edition -->
 <div id="edit_project_dialog" class="modal">

@@ -13,6 +13,8 @@
     <!-- Bootstrap -->
     <link href="${request.static_url('hg_delivery:static/bootstrap-3.1.1/css/bootstrap.css')}" rel="stylesheet">
     <link href="${request.static_url('hg_delivery:static/delivery.css')}" rel="stylesheet">
+    <link href="${request.static_url('hg_delivery:static/codemirror.css')}" rel="stylesheet">
+    <link href="${request.static_url('hg_delivery:static/mergely.css')}" rel="stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -135,6 +137,9 @@
     <script src="${request.static_url('hg_delivery:static/delivery.js')}"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="${request.static_url('hg_delivery:static/bootstrap-3.1.1/js/bootstrap.min.js')}"></script>
+    <script src="${request.static_url('hg_delivery:static/codemirror.min.js')}"></script>
+    <script src="${request.static_url('hg_delivery:static/searchcursor.js')}"></script>
+    <script src="${request.static_url('hg_delivery:static/mergely.min.js')}"></script>
     <!-- ENDING/ GLOBAL SCRIPT -->
     
     <%block name="local_js">

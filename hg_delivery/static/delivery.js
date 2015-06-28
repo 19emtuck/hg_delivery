@@ -52,6 +52,55 @@ function go_to(url) {
   window.location.href = url;
 }
 
+function merge(){
+  var full_path, node, p1node;
+  orig1_url = $('#diffs_container').data('orig1');
+  orig2_url = $('#diffs_container').data('orig2');
+
+  full_path = $('#files a.active').data('full_path');
+  node      = $('#revision_description').data('node');
+  p1node    = $('#revision_description').data('p1node');
+
+  orig2_url  = orig2_url.replace('--REV--', node).replace('--FNAME--',full_path);
+  orig1_url  = orig1_url.replace('--REV--', p1node).replace('--FNAME--',full_path);
+
+  // clean merge ...
+  $('#merge').remove();
+  $('#merge_container').html('<div id="merge"></div>').show();
+
+  // create the object
+  $('#merge').mergely({
+      width: 'auto',
+      height: '600',
+      fgcolor: {a:'#ddffdd', c:'#cccccc', d:'#ffdddd'},
+      bgcolor: '#fff',
+      viewport: true,
+      cmsettings: {mode: 'text/plain', readOnly: true, lineWrapping: false, lineNumbers: true},
+      lhs: function(setValue) {
+          /*if("${c.node1.is_binary}" == "True"){
+              setValue('Binary file');
+          }
+          else{*/
+              $.ajax(orig1_url, {dataType: 'text', success: setValue});
+          //}
+
+      },
+      rhs: function(setValue) {
+          /*if("${c.node2.is_binary}" == "True"){
+              setValue('Binary file');
+          }
+          else{*/
+              $.ajax(orig2_url, {dataType: 'text', success: setValue});
+          //}
+      }
+  });
+  $('#merge').show();
+}
+
+
+
+
+
 /**
  * update from this project
  */
@@ -124,7 +173,6 @@ function refresh_project_view(target_refresh_url) {
           }
         });
 }
-
 
 /**
  * update local source to a specific release
@@ -689,6 +737,18 @@ function delete_this_project(){
   });
 }
 
+function activate_diff_file(file_link, __j){
+  $(file_link).parent().find('a').not(file_link).removeClass('active');
+  $(file_link).toggleClass('active');
+
+  $('div[id^=file_]').hide();
+  if($(file_link).parent().find('a.active').size()>0){
+    $('#file_'+__j).show();
+  } else {
+    $('#file_'+__j).hide();
+  }
+  $('#merge').remove();
+}
 
 /**
  * View diff
@@ -697,13 +757,15 @@ function view_diff_revision(target_url){
   $.ajax({url:target_url,
     success:function(json_response){
       $('#files a').remove();
-      var lst_links = [];
+
+      var lst_links     = [];
       var diffs_content = [];
 
-      json_response.diff.lst_basename_files.forEach(function(item){
-        var file_name = json_response.diff.lst_files[lst_links.length];
-        lst_links.push('<a href="#" class="list-group-item" onclick="$(\'div[id^=file_]\').hide();$(\'#file_'+lst_links.length+'\').show()">'+item+'</a>');
-        diffs_content.push('<div id="file_' + diffs_content.length + '" style="display:none">'+json_response.diff.dict_files[file_name]+'</div>');
+      json_response.diff.lst_basename_files.forEach(function(item,__j){
+        var file_name = json_response.diff.lst_files[__j];
+        lst_links.push('<a href="#" data-full_path="'+file_name+'" class="list-group-item" onclick="activate_diff_file(this,'+__j+')">'+item+'</a>');
+        var button_merge_style = "<button type='button' class='merge_trigger' onclick='merge()'><i class=\"glyphicon glyphicon-random\" title=\"more details (merge style)\"></i></button>";
+        diffs_content.push('<div class="file_simple_diff" id="file_' + diffs_content.length + '" style="display:none;position:relative">'+json_response.diff.dict_files[file_name]+ button_merge_style+'</div>');
       });
 
       // publish revision description ...
@@ -718,6 +780,7 @@ function view_diff_revision(target_url){
       $('#files').html(lst_links.join('\n'));
       $('#diffs_container').show().html(diffs_content.join('\n'));
       $('#files_panel').show();
+      $('#revision_description').data('node',json_response.revision.node).data('p1node',json_response.revision.p1node);
       $('#project_tab a[href="#revision"]').tab('show');
     } 
   });

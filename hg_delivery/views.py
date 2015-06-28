@@ -449,6 +449,21 @@ def update_project(request):
              'project':project,
              'explanation':explanation  }
 
+@view_config(route_name='view_file_content', permission='edit')
+def get_file_content(request):
+    """
+    view file content regarding to revision id
+    """
+    id_project = request.matchdict['id']
+    revision = request.matchdict['rev']
+    file_name = "/".join(request.matchdict['file_name'])
+    project = DBSession.query(Project).get(id_project)
+    data = ""
+    with NodeController(project, silent=True) as ssh_node :
+      data = ssh_node.get_content(revision, file_name)
+    response = Response(data)
+    return response
+
 #------------------------------------------------------------------------------
 
 @view_config(route_name='project_delete', renderer='json', permission='edit')
