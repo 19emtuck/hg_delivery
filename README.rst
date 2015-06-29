@@ -69,6 +69,11 @@ Getting Started
     $VENV/bin/initialize_hg_delivery_db development.ini
     $VENV/bin/pserve development.ini
 
+Sample usage
+------------
+
+
+.. image:: documentation/repositories_hg.gif
 
 
 Changelog
