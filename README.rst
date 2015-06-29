@@ -3,6 +3,8 @@ hg_delivery README
 
 A one-click deployment tool written in python with `pyramid <http://www.pylonsproject.org>`_ web framework
 
+**current release : v_0_7**
+
 Global overview
 ---------------
 
@@ -95,3 +97,6 @@ Changelog
 
   - v_0_5 :
     - add task feature with acl control
+
+  - v_0_7 :
+    - reuse logs to display delivery date
