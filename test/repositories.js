@@ -112,6 +112,7 @@ casper.thenOpen('http://127.0.0.1:6543');
 casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
 casper.then(function(response){
   this.fill('#login_form', {'login':'editor','password':'editor'});
+  this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#log_me');
   this.click('#log_me');
 });
 casper.then(function(response){
@@ -131,10 +132,13 @@ casper.then(function(){
   }, lst_projects_labels );
  //require('utils').dump(projects_urls);
  this.each(projects_urls, function(self, next_link){
-    self.click('form[name="view_project"] button.dropdown-toggle');
+    self.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, 'form[name="view_project"] button.dropdown-toggle');
+    self.thenClick('form[name="view_project"] button.dropdown-toggle');
     self.thenOpen(next_link);
     self.waitUntilVisible('#project_home');
+    self.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#manage_project');
     self.thenClick('#manage_project');
+    self.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#view_delete_project');
     self.thenClick('#view_delete_project');
     self.waitUntilVisible('form[name="view_project"] button.dropdown-toggle');
     self.wait(200);
@@ -160,6 +164,7 @@ casper.waitUntilVisible('span[class="glyphicon glyphicon-plus"]',
 casper.then(function(){
  this.each(lst_projects_labels, function(self, project_id){
     // add a new project
+    self.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, 'span[class="glyphicon glyphicon-plus"]');
     self.thenClick('span[class="glyphicon glyphicon-plus"]');
     self.then(function(response){ this.test.assertExists('#add_my_project'); });
     self.then(function(response){
@@ -169,6 +174,7 @@ casper.then(function(){
                                               'user'     : login,
                                               'password' : password });
     });
+    self.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#add_my_project');
     self.thenClick('#add_my_project');
     self.waitWhileVisible('#new_project_dialog');
     self.waitUntilVisible('.alert-success');
@@ -187,7 +193,9 @@ casper.then(function(){
 });
 
 casper.then(function(){
-  fs.write('./repositories/d1/README.txt','PROJECT DESCRIPTION FILE\nHELLO WORLD !','w');
+  var f = fs.open('./repositories/d1/README.txt','w');
+  f.write('PROJECT DESCRIPTION FILE\nHELLO WORLD !');
+  f.close();
 });
 
 casper.then(function(){
@@ -203,16 +211,22 @@ casper.then(function(){
 });
 
 casper.waitUntilVisible('#project_home');
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, 'a[href="#related"]');
 casper.thenClick('a[href="#related"]');
 casper.waitForSelector('#other_projects a:first-child');
+casper.thenEvaluate(function(selector){ $(selector).css('border','').css('color',''); }, 'a[href="#related"]');
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#other_projects a:first-child');
 casper.thenClick('#other_projects a:first-child');
+casper.thenEvaluate(function(selector){ $(selector).css('border','').css('color',''); }, '#other_projects a:first-child');
 casper.waitUntilVisible('#button_push');
 casper.waitFor(function check(){
   return this.evaluate(function(){
     return typeof($('#button_push').attr('disabled'))==='undefined';
   });
 });
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#button_push');
 casper.thenClick('#button_push');
+casper.thenEvaluate(function(selector){ $(selector).css('border','').css('color',''); }, '#button_push');
 
 casper.waitUntilVisible('#container_alert .progress-bar', function(){
   this.test.assertExists('#container_alert .progress-bar');
@@ -235,6 +249,7 @@ casper.waitUntilVisible('#project_home', function(){
   this.test.assertDoesntExist('.glyphicon-ok');
   this.test.assertTextExists('my_first_commit');
 });
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#revision_table tbody tr td:nth-child(2) a');
 casper.thenClick('#revision_table tbody tr td:nth-child(2) a');
 casper.waitUntilVisible('#confirm_move_dialog');
 casper.thenClick('#move_to');
@@ -250,6 +265,7 @@ casper.waitUntilVisible('.glyphicon-ok', function(){
 });
 
 // click on revision link
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#revision_table > tbody > tr > td:nth-child(7) > a');
 casper.thenClick('#revision_table > tbody > tr > td:nth-child(7) > a');
 casper.waitUntilVisible('#files_panel');
 
@@ -260,17 +276,25 @@ casper.then(function(){
 
 casper.waitForSelector('div.source > pre');
 
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#files a');
 casper.thenClick('#files a');
 casper.wait(300);
 
 casper.then(function(){
-  fs.write('./repositories/d2/README.txt','PROJECT DESCRIPTION FILE\nHELLO WORLD !\nFROM d2 repositories. it rocks','w');
+  var f = fs.open('./repositories/d2/README.txt','w');
+  f.write('PROJECT DESCRIPTION FILE\nHELLO WORLD !\nFROM d2 repositories. it rocks');
+  f.close();
 });
+casper.wait(300);
+
 casper.then(function(){
   this.hg("ci", "-m", 'second_commit_d2', "-R", "./repositories/d2/", "-u", "stephane.bard@gmail.com");
 });
+// we shall wait a bit to be sure 
+casper.wait(300);
 
 casper.reload();
+casper.waitForText('second_commit_d2');
 casper.waitUntilVisible('#project_home', function(){
   this.test.assertExists('.glyphicon-ok');
   this.test.assertTextExists('second_commit_d2');
@@ -283,14 +307,18 @@ casper.waitUntilVisible('#project_home', function(){
   this.test.assertTextDoesntExist('second_commit_d2');
 });
 
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, 'a[href="#related"]');
 casper.thenClick('a[href="#related"]');
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#other_projects a:first-child');
 casper.thenClick('#other_projects a:first-child');
+casper.thenEvaluate(function(selector){ $(selector).css('border','').css('color',''); }, '#other_projects a:first-child');
 casper.waitUntilVisible('#button_pull');
 casper.waitFor(function check(){
   return this.evaluate(function(){
     return typeof($('#button_pull').attr('disabled'))==='undefined';
   });
 });
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#button_pull');
 casper.thenClick('#button_pull');
 
 casper.waitUntilVisible('#container_alert .progress-bar', function(){
@@ -315,14 +343,17 @@ casper.then(function(){
 });
 // we click on the first release line to update repo to
 // the last release
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#revision_table tbody tr:nth-child(1) td:nth-child(2) a');
 casper.thenClick('#revision_table tbody tr:nth-child(1) td:nth-child(2) a');
 casper.waitUntilVisible('#confirm_move_dialog', function(){
   this.test.assertTextExists('from 0 to 1 revision');
 });
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#move_to');
 casper.thenClick('#move_to');
 casper.waitWhileVisible('#confirm_move_dialog');
 casper.waitForText('Project d1 has not been updated :( please check permission and or check local update with hg command');
 casper.wait(100);
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#alert button.close');
 casper.thenClick('.alert button.close');
 casper.then(function(){
   this.spawn("chmod", "755", "./repositories/d1");
@@ -330,10 +361,12 @@ casper.then(function(){
 
 // we click on the first release line to update repo to
 // the last release
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#revision_table tbody tr:nth-child(1) td:nth-child(2) a');
 casper.thenClick('#revision_table tbody tr:nth-child(1) td:nth-child(2) a');
 casper.waitUntilVisible('#confirm_move_dialog', function(){
   this.test.assertTextExists('from 0 to 1 revision');
 });
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#move_to');
 casper.thenClick('#move_to');
 casper.waitWhileVisible('#confirm_move_dialog');
 casper.waitForText('Project d1 has been updated successfully');
@@ -347,7 +380,9 @@ casper.then(function(){
 // now both commits separatly 
 // but on different branch
 casper.then(function(){
-  fs.write('./repositories/d1/README.txt','PROJECT DESCRIPTION FILE\nHELLO WORLD !\nFROM d2 repositories. it rocks\nThis is pretty awesome','w');
+  var f = fs.open('./repositories/d1/README.txt','w');
+  f.write('PROJECT DESCRIPTION FILE\nHELLO WORLD !\nFROM d2 repositories. it rocks\nThis is pretty awesome');
+  f.close();
   this.hg("branch", "brch_1", "-R", "./repositories/d1/");
 });
 casper.then(function(){
@@ -355,7 +390,9 @@ casper.then(function(){
 });
 
 casper.then(function(){
-  fs.write('./repositories/d2/README.txt','PROJECT DESCRIPTION FILE\nHELLO WORLD !\nFROM d2 repositories. it rocks\nAre you sure ?','w');
+  var f = fs.open('./repositories/d2/README.txt','w');
+  f.write('PROJECT DESCRIPTION FILE\nHELLO WORLD !\nFROM d2 repositories. it rocks\nAre you sure ?');
+  f.close();
 });
 casper.then(function(){
   this.hg("ci", "-m", 'third_commit_d2', "-R", "./repositories/d2/", "-u", "stephane.bard@gmail.com");
@@ -363,6 +400,7 @@ casper.then(function(){
 
 
 // finish by logout
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#sign_out');
 casper.thenClick("#sign_out");
 
 casper.run();

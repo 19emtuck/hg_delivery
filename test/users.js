@@ -34,7 +34,8 @@ casper.thenOpen('http://127.0.0.1:6543');
 casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
 casper.then(function(response){
   this.fill('#login_form', {'login':'editor','password':'editor'});
-  this.click('#log_me');
+  this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#log_me');
+  this.thenClick('#log_me');
 });
 casper.then(function(response){
   this.test.assertTitle('Hg Delivery 1.0 welcome :)');
@@ -42,6 +43,7 @@ casper.then(function(response){
   this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
 });
 
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, 'li a[href$="users/view"]');
 casper.thenClick('li a[href$="users/view"]');
 casper.waitUntilVisible('span[class="glyphicon glyphicon-plus"]');
 casper.then(function(response){
@@ -60,8 +62,10 @@ casper.then(function(){
 });
 
 
-casper.then(function(response){ this.click('span[class="glyphicon glyphicon-plus"]');});
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, 'span[class="glyphicon glyphicon-plus"]');
+casper.thenClick('span[class="glyphicon glyphicon-plus"]');
 casper.waitUntilVisible('#new_user');
+casper.thenEvaluate(function(selector){ $(selector).css('border','').css('color',''); }, 'span[class="glyphicon glyphicon-plus"]');
 casper.then(function(response){ this.test.assertExists('#new_user'); });
 casper.then(function(response){
   this.fill('form[name="user"]', {'name':'toto',
@@ -69,14 +73,18 @@ casper.then(function(response){
                                   'pwd':'dudule',
                                  });
 });
-casper.then(function(response){ this.click('#add_my_user');});
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#add_my_user');
+casper.thenClick('#add_my_user');
 casper.waitWhileVisible('#new_user');
 casper.waitUntilVisible('div.alert-success');
 casper.waitWhileVisible('div.alert-success');
+casper.thenEvaluate(function(selector){ $(selector).css('border','').css('color',''); }, '#add_my_user');
 
 // try another time to add the same user with the same email address
-casper.then(function(response){ this.click('span[class="glyphicon glyphicon-plus"]');});
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, 'span[class="glyphicon glyphicon-plus"]');
+casper.thenClick('span[class="glyphicon glyphicon-plus"]');
 casper.waitUntilVisible('#new_user');
+casper.thenEvaluate(function(selector){ $(selector).css('border','').css('color',''); }, 'span[class="glyphicon glyphicon-plus"]');
 casper.then(function(response){ this.test.assertExists('#new_user'); });
 casper.then(function(response){
   this.fill('form[name="user"]', {'name':'toto',
@@ -84,10 +92,13 @@ casper.then(function(response){
                                   'pwd':'dudule',
                                  });
 });
-casper.then(function(response){ this.click('#add_my_user');});
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#add_my_user');
+casper.thenClick('#add_my_user');
 casper.waitUntilVisible('.alert-danger');
 casper.waitWhileVisible('.alert-danger');
-casper.then(function(response){ this.click('#cancel_add_user');});
+casper.thenEvaluate(function(selector){ $(selector).css('border','').css('color',''); }, '#add_my_user');
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#cancel_add_user');
+casper.thenClick('#cancel_add_user');
 
 // then we save our current cookie
 // try to change from user, check user password
@@ -107,13 +118,15 @@ casper.thenOpen('http://127.0.0.1:6543');
 casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
 casper.then(function(response){
   this.fill('#login_form', {'login':'toto@free.fr','password':'dudule'});
-  this.click('#log_me');
+  this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#log_me');
+  this.thenClick('#log_me');
 });
 casper.then(function(response){
   this.test.assertTitle('Hg Delivery 1.0 welcome :)');
   this.test.assertTextExists('Dashboard');
   this.test.assertDoesntExist('span[class="glyphicon glyphicon-plus"]');
 });
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#sign_out');
 casper.thenClick("#sign_out");
 casper.then(function(response){
   this.test.assertTitle('Hg Delivery 1.0');
@@ -125,17 +138,20 @@ casper.thenOpen('http://127.0.0.1:6543');
 casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
 casper.then(function(response){
   this.fill('#login_form', {'login':'editor','password':'editor'});
-  this.click('#log_me');
+  this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#log_me');
+  this.thenClick('#log_me');
 });
 casper.then(function(response){
   this.test.assertTitle('Hg Delivery 1.0 welcome :)');
   this.test.assertTextExists('Dashboard');
   this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
 });
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, 'li a[href$="users/view"]');
 casper.thenClick('li a[href$="users/view"]');
 
 // then we delete the user !
 casper.then(function(response){
+  this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, 'table tr:last-child button:last-child');
   this.evaluate(function(){$('table tr:last-child button:last-child').click();});
 });
 casper.wait(1000);
@@ -143,6 +159,7 @@ casper.then(function(response){
   this.test.assertTextDoesntExist('toto@free.fr');
 });
 
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#sign_out');
 casper.thenClick("#sign_out");
 
 // check I've loos my rights

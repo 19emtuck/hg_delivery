@@ -34,7 +34,8 @@ casper.thenOpen('http://127.0.0.1:6543');
 casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
 casper.then(function(response){
   this.fill('#login_form', {'login':'editor','password':'editor'});
-  this.click('#log_me')
+  this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#log_me');
+  this.thenClick('#log_me')
 });
 casper.then(function(response){
   this.test.assertTitle('Hg Delivery 1.0 welcome :)');

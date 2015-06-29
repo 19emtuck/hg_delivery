@@ -36,7 +36,8 @@ casper.then(function(response){
 });
 casper.then(function(response){
   this.fill('#login_form', {'login':'editor','password':'editor'});
-  this.click('#log_me')
+  this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#log_me');
+  this.thenClick('#log_me')
 });
 casper.then(function(response){
   this.test.assertTitle('Hg Delivery 1.0 welcome :)');
@@ -44,6 +45,7 @@ casper.then(function(response){
   this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
 });
 
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#sign_out');
 casper.thenClick("#sign_out");
 
 // check I lost my rights and be really disconnected
