@@ -646,10 +646,10 @@ class HgNode(NodeSsh):
     except NodeException as e :
       node = {}
     else :
-      node, author, branch, rev, parents, date, desc, tags = data.split(u'|#|')
+      node, parent_node, author, branch, rev, parents, date, desc, tags = line.split(u'|#|')
       desc = desc.replace(u'\\n','\n')
       if not branch : branch = 'default'
-      node = {'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date}
+      node = {'node':node, 'p1node':parent_node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date}
     return node 
 
   def get_revision_diff(self, revision):
