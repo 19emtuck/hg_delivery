@@ -19,13 +19,13 @@ inspired from :
 
 features list :
 
-  - remote repository access ssh access *only*
+  - remote repository access *ssh only*
 
   - add/delete/edit project items
 
   - clip project on dashboard
 
-  - display project remote summarize (last commit, current revision ...)
+  - display remote project summarize (last commit, current revision ...)
 
   - display the state of repository
 
@@ -38,6 +38,10 @@ features list :
   - add additional task when updating a repository (*usefull for flushing the cache* or *for gracefull apache*)
 
   - responsive design (thanks to bootstrap)
+
+  - a scheduler is available to close ssh pool connection if none are used, it leaves clean connections, *thx to pyramid-scheduler*
+
+  - a diff viewer or merge style *thx to mergely* 
 
 Made for what ?
 ---------------
