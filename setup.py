@@ -27,12 +27,12 @@ classifiers = [
     'Environment :: Web Environment',
     'Framework :: Pyramid',
     'Intended Audience :: Developers',
-    'License :: M.I.T License',
+    'License :: OSI Approved :: MIT License',
     'Operating System :: OS Independent',
     'Programming Language :: Python',
     'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3.4',
-    'Topic :: Software Development :: Version Control :: Delivery',
+    'Topic :: Software Development :: Version Control',
 ]
 
 requires = [
