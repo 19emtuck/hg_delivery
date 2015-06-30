@@ -8,7 +8,7 @@ A one-click deployment tool written in python with `pyramid <http://www.pylonspr
 Global overview
 ---------------
 
-hg_delivery is a web application who wants to simplify the delivery of small projects and helping people to quickly
+hg_delivery is a web application who aims to simplify the delivery of small projects and helping people to quickly
 revert to a previous stable release if something's wrong. This project targets people bothered by command line, looking
 for a nice and simple web interface, able to manage multiple remote repositories. 
 
