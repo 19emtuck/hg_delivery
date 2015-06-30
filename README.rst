@@ -104,3 +104,4 @@ Changelog
 
   - v_0_7 :
     - reuse logs to display delivery date
+    - pypi delivery
