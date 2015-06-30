@@ -19,7 +19,6 @@ import os.path
 import logging
 import uuid
 import sys
-import chardet
 
 from pygments import highlight
 from pygments.lexers import DiffLexer
