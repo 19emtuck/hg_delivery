@@ -18,6 +18,23 @@ with open(os.path.join(here, 'README.rst')) as f:
 with open(os.path.join(here, 'CHANGES.txt')) as f:
     CHANGES = f.read()
 
+description = ('HgDelivery is an easy way to deliver products  '
+               'for Mercurial and Git with a built in push/pull server, '
+               'as well as repositories comparison')
+
+classifiers = [
+    'Development Status :: 4 - Beta',
+    'Environment :: Web Environment',
+    'Framework :: Pyramid',
+    'Intended Audience :: Developers',
+    'License :: M.I.T License',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3.4',
+    'Topic :: Software Development :: Version Control :: Delivery',
+]
+
 requires = [
     'pyramid',
     'pyramid_mako',
@@ -35,19 +52,14 @@ requires = [
     ]
 
 setup(name='hg_delivery',
-      version='0.0',
-      description='hg_delivery',
+      version='0.7',
+      description=description,
       long_description=README + '\n\n' + CHANGES,
-      classifiers=[
-        "Programming Language :: Python",
-        "Framework :: Pyramid",
-        "Topic :: Internet :: WWW/HTTP",
-        "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
-        ],
+      classifiers=classifiers,
       author='Stéphane Bard',
       author_email='stephane.bard@gmail.com',
       url='',
-      keywords='web wsgi bfg pylons pyramid',
+      keywords='web pyramid hg mercurial git',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
