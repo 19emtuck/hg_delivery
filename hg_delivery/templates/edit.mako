@@ -234,6 +234,12 @@
         <p class="bg-info"> <br> &nbsp;  No diff is available for this revision <br> <br></p>
       </div>
       <!-- if not diff are available -->
+
+
+      <!-- diff merge -->
+      <div id="merge_container" style="display:none" class="panel">
+      </div>
+
   </div>
 
   % if allow_to_modify_acls :
@@ -306,10 +312,6 @@
   % endif
 </div>
 
-
-<!-- diff merge -->
-<div id="merge_container" style="display:none" class="panel">
-</div>
 
 <!-- project edition -->
 <div id="edit_project_dialog" class="modal">
