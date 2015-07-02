@@ -226,7 +226,7 @@
       </div>
 
       <!-- panel who will contains diffs -->
-      <div class="panel" id="diffs_container" style="display:none" data-orig1="${url(route_name='view_file_content', id=project.id,rev="--REV--",file_name="--FNAME--")}" data-orig2="${url(route_name='view_file_content', id=project.id,rev="--REV--",file_name="--FNAME--")}"></div>
+      <div class="panel col-md-5 col-lg-6 col-xs-7" id="diffs_container" style="display:none" data-orig1="${url(route_name='view_file_content', id=project.id,rev="--REV--",file_name="--FNAME--")}" data-orig2="${url(route_name='view_file_content', id=project.id,rev="--REV--",file_name="--FNAME--")}"></div>
       <!-- panel who will contains diffs -->
       
       <!-- if not diff are available -->
