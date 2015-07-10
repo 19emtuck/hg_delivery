@@ -35,9 +35,10 @@ def projects_include(config):
   config.add_route('project_refresh_state',           '/refresh/{id:\d+}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
   config.add_route('project_fetch',                   '/fetch/{id:\d+}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
   config.add_route('project_save_acls',               '/acls/save/{id:\d+}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
-  config.add_route('project_revision_details_json',   '/detail/json/{id:\d+}/revision/{rev}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
 
+  config.add_route('project_revision_details_json',   '/detail/json/{id:\d+}/revision/{rev}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
   config.add_route('project_revision_details',        '/detail/{id:\d+}/revision/{rev}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
+
   config.add_route('project_update',                  '/update/{id:\d+}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
   config.add_route('view_file_content',               '/get/{id:\d+}/{rev}/*file_name', custom_predicates=(to_int('id'),), factory = ProjectFactory)
 
