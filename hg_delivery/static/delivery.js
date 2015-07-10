@@ -762,9 +762,14 @@ function view_diff_revision(target_url){
       var diffs_content = [];
 
       json_response.diff.lst_basename_files.forEach(function(item,__j){
-        var file_name = json_response.diff.lst_files[__j];
+        var button_merge_style, file_name;
+        file_name = json_response.diff.lst_files[__j];
         lst_links.push('<a href="#" data-full_path="'+file_name+'" class="list-group-item" onclick="activate_diff_file(this,'+__j+')">'+item+'</a>');
-        var button_merge_style = "<button type='button' class='merge_trigger' onclick='merge()'><i class=\"glyphicon glyphicon-random\" title=\"more details (merge style)\"></i></button>";
+
+        button_merge_style = "";
+        if(json_response.revision.hasOwnProperty('p1node')){
+          button_merge_style = "<button type='button' class='merge_trigger' onclick='merge()'><i class=\"glyphicon glyphicon-random\" title=\"more details (merge style)\"></i></button>";
+        }
         diffs_content.push('<div class="file_simple_diff" id="file_' + diffs_content.length + '" style="display:none">'+json_response.diff.dict_files[file_name]+ button_merge_style+'</div>');
       });
 
