@@ -571,7 +571,7 @@ function edit_user(target_update_url, target_get_url, user_id){
         $('#update_user_name').val(json_response.user.name);
         $('#update_user_email').val(json_response.user.email);
         $('#update_user_password').val(json_response.user.pwd);
-        $('#update_my_user').bind('click',function(){
+        $('#update_my_user').off().bind('click',function(){
           update_user(target_update_url);
         });
       }
