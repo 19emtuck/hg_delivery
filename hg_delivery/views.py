@@ -55,7 +55,9 @@ def update_user(request):
                     .scalar()
 
     result = False
-    if user :
+
+    if user is not None :
+
       try :
         for attribute in request.params :
           setattr(user, attribute, request.params[attribute])
@@ -67,7 +69,11 @@ def update_user(request):
         result = False
         explanation = u"You can't update this user, this email is already used (%s %s) ..."%(request.params['name'], request.params['email'])
 
+    else :
+      explanation = u"This user is unknown or has already been deleted"
+
     return {'result':result, 'explanation':explanation}
+
 #------------------------------------------------------------------------------
 
 @view_config(route_name='user_delete', renderer='json', permission='edit')
@@ -487,6 +493,7 @@ def delete_project(request):
     return { 'result':result }
 
 #------------------------------------------------------------------------------
+
 @view_config(route_name='project_refresh_state', renderer='edit#publish_project_html.mako', permission='edit')
 @view_config(route_name='project_edit', renderer='edit.mako', permission='read')
 def edit_project(request):
