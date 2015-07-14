@@ -22,7 +22,7 @@ var execFile            = child_process.execFile;
 var fs                  = require('fs');
 var local_path          = fs.workingDirectory;
 var map_project_to_url  = {};
-var lst_projects_labels = ['d1', 'd2'];
+var lst_projects_labels = ['d1', 'd2', 'd3'];
 
 var login               = casper.cli.get("login");
 var password            = casper.cli.get("password");
@@ -52,6 +52,7 @@ casper.spawn = function(){
   child.on("exit", function (code) {
     console.log("spawn EXIT:", code);
   });
+  this.wait(600);
 };
 
 casper.hg = function(){
@@ -213,11 +214,11 @@ casper.then(function(){
 casper.waitUntilVisible('#project_home');
 casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, 'a[href="#related"]');
 casper.thenClick('a[href="#related"]');
-casper.waitForSelector('#other_projects a:first-child');
+casper.waitForSelector('#other_projects a[data-name="d2"]');
 casper.thenEvaluate(function(selector){ $(selector).css('border','').css('color',''); }, 'a[href="#related"]');
-casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#other_projects a:first-child');
-casper.thenClick('#other_projects a:first-child');
-casper.thenEvaluate(function(selector){ $(selector).css('border','').css('color',''); }, '#other_projects a:first-child');
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#other_projects a[data-name="d2"]');
+casper.thenClick('#other_projects a[data-name="d2"]');
+casper.thenEvaluate(function(selector){ $(selector).css('border','').css('color',''); }, '#other_projects a[data-name="d2"]');
 casper.waitUntilVisible('#button_push');
 casper.waitFor(function check(){
   return this.evaluate(function(){
@@ -237,7 +238,7 @@ casper.waitWhileVisible('#container_alert .progress-bar', function(){
 });
 
 casper.then(function(){
-  project_pushed_name = this.evaluate(function(){return $('#other_projects a:first-child').data('name');});
+  var project_pushed_name = this.evaluate(function(){return $('#other_projects a[data-name="d2"]').data('name');});
   // get project where I pushed ...
   this.open(map_project_to_url[project_pushed_name]);
 });
@@ -282,10 +283,10 @@ casper.wait(300);
 
 casper.then(function(){
   var f = fs.open('./repositories/d2/README.txt','w');
-  f.write('PROJECT DESCRIPTION FILE\nHELLO WORLD !\nFROM d2 repositories. it rocks');
+  f.write('PROJECT DESCRIPTION FILE\nHELLO WORLD !\nFROM d2 repositories. it rocks\nYes it is');
   f.close();
+  this.wait(100);
 });
-casper.wait(300);
 
 casper.then(function(){
   this.hg("ci", "-m", 'second_commit_d2', "-R", "./repositories/d2/", "-u", "stephane.bard@gmail.com");
@@ -309,9 +310,9 @@ casper.waitUntilVisible('#project_home', function(){
 
 casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, 'a[href="#related"]');
 casper.thenClick('a[href="#related"]');
-casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#other_projects a:first-child');
-casper.thenClick('#other_projects a:first-child');
-casper.thenEvaluate(function(selector){ $(selector).css('border','').css('color',''); }, '#other_projects a:first-child');
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#other_projects a[data-name="d2"]');
+casper.thenClick('#other_projects a[data-name="d2"]');
+casper.thenEvaluate(function(selector){ $(selector).css('border','').css('color',''); }, '#other_projects a[data-name="d2"]');
 casper.waitUntilVisible('#button_pull');
 casper.waitFor(function check(){
   return this.evaluate(function(){
