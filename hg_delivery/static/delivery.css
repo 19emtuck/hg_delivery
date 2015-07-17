@@ -39,6 +39,11 @@ body {
   margin-left:0.5em;
 }
 
+input[name="task_content"] {
+  width:100%;
+  margin-bottom:0.5em;
+}
+
 .file_simple_diff {
   position:relative;
 }

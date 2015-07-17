@@ -880,7 +880,7 @@ function run_this_task(button){
  * Insert a new task inside DOM
  */
 function add_new_task(){
-  $('<li><input type="text" name="task_content" size="150"></li>').appendTo('#tasks_list');
+  $('<li><input type="text" name="task_content"></li>').appendTo('#tasks_list');
 }
 
 /**
