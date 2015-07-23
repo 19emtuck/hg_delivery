@@ -202,6 +202,14 @@ class NodeSsh(object):
       ssh.connect(self.host, username=self.user, password=self.password)
     except socket.gaierror :
       raise NodeException(u"host unavailable")
+    except paramiko.ssh_exception.AuthenticationException :
+      raise NodeException(u"wrong password or user is not allowed to connect to host")
+    except paramiko.ssh_exception.BadAuthenticationType :
+      raise NodeException(u"wrong password or user is not allowed to connect to host")
+    except paramiko.ssh_exception.BadHostKeyException :
+      raise NodeException(u"The host key given by the SSH server did not match what we were expecting.")
+    except paramiko.ssh_exception.PasswordRequiredException :
+      raise NodeException(u"Exception raised when a password is needed to unlock a private key file.")
     return ssh
 
   def close_connection(self):
