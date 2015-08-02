@@ -28,14 +28,14 @@ casper.on('step.error', function(error){
     this.capture('images/init_some_users_error_'+casper.step+'.jpg', undefined,{ format:'jpg', quality:100});
   }
 });
-casper.on('remote.message',function(message){this.echo(message)});
+casper.on('remote.message',function(message){this.echo(message);});
 
 casper.thenOpen('http://127.0.0.1:6543');
 casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
 casper.then(function(response){
   this.fill('#login_form', {'login':'editor','password':'editor'});
   this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#log_me');
-  this.thenClick('#log_me')
+  this.thenClick('#log_me');
 });
 casper.then(function(response){
   this.test.assertTitle('Hg Delivery 1.0 welcome :)');
@@ -69,17 +69,20 @@ casper.then(function(){
                     {'name':'titi', 'email':'titi@free.fr', 'pwd':'dudule'},
                     {'name':'tata', 'email':'tata@free.fr', 'pwd':'dudule'} ];
 
-  this.each(list_users, function(self, user_info){
-    self.click('span[class="glyphicon glyphicon-plus"]');
-    self.wait(200);
-    self.waitForSelector('#add_my_user');
-    self.fill('form[name="user"]', user_info);
-    self.click('#add_my_user');
-    self.wait(200);
-    self.waitWhileVisible('#add_my_user');
-    self.waitForText(user_info.email);
-    self.waitWhileVisible('div.alert-success');
-    self.wait(200);
+  this.each(list_users, function(casp, user_info){
+    casp.thenClick('span[class="glyphicon glyphicon-plus"]', function(){
+      this.wait(200);
+      this.waitForSelector('#add_my_user');
+      this.fill('form[name="user"]', user_info);
+
+      this.thenClick('#add_my_user', function(){
+        this.wait(200);
+        this.waitWhileVisible('#add_my_user');
+        this.waitForText(user_info.email);
+        this.waitWhileVisible('div.alert-success');
+        this.wait(200);
+      });
+    });
   });
 
 });
