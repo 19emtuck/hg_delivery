@@ -3,6 +3,7 @@ var map_project_to_url = {};
 var local_path         = fs.workingDirectory;
 var login              = casper.cli.get("login");
 var password           = casper.cli.get("password");
+var new_task_id        = null;
 
 casper.userAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X)');
 casper.start();
@@ -95,6 +96,7 @@ casper.waitForSelectorTextChange('#save_tasks');
 
 casper.waitForText('run it ..');
 casper.then(function(){
+  new_task_id = this.evaluate(function(){return $('button:contains("run it ..")').data('id');});
   this.clickLabel('run it ..');
 });
 
@@ -112,11 +114,37 @@ casper.waitWhileVisible('#container_logs button.close');
 casper.then(function(){
   this.test.assertDoesntExist('#button_log.btn-success');
 });
+
+casper.then(function(){
+  this.clickLabel('Tasks');
+});
+
+casper.wait(200);
+
+casper.then(function(){
+  this.test.assertTextExists("Project : d1");
+  this.test.assertExists('button[data-id="'+new_task_id+'"]');
+});
+
+casper.back();
+
+casper.thenClick('a[href="#tasks"]');
+
 casper.then(function(){
   this.clickLabel('delete it ..');
 });
 casper.waitWhileVisible('input[name="task_content"]');
+
+casper.then(function(){
+  this.clickLabel('Tasks');
+});
+
 casper.wait(200);
+
+casper.then(function(){
+  this.test.assertTextDoesntExist("Project : d1");
+  this.test.assertDoesntExist('button[data-id="'+new_task_id+'"]');
+});
 
 casper.run(function() {
   if (javascript_errors.length > 0) {
