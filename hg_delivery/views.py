@@ -14,6 +14,8 @@ from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
 
 from sqlalchemy.exc import DBAPIError, IntegrityError
+from sqlalchemy.orm import joinedload
+from collections import OrderedDict
 
 from .models import (
     DBSession,
@@ -30,6 +32,7 @@ from hg_delivery.nodes import (
     HgNewHeadsForbidden,
     NodeController,
     )
+
 import paramiko
 import logging
 
@@ -597,6 +600,7 @@ def edit_project(request):
              'knonwn_acl':Acl.known_acls,
              'delivered_hash':delivered_hash}
 
+#------------------------------------------------------------------------------
 
 @view_config(route_name='project_run_task', renderer='json', permission='edit')
 def run_task(request):
@@ -617,6 +621,30 @@ def run_task(request):
 
   return {'result':result}
 
+#------------------------------------------------------------------------------
+
+@view_config(route_name='tasks', renderer='templates/tasks.mako', permission='edit')
+def view_all_tasks(request):
+  """
+  """
+  if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
+    tasks = DBSession.query(Task).join(Project).options(joinedload(Task.project)).order_by(Project.name.desc()).all()
+  else :
+    tasks = DBSession.query(Task).join(Project).join(Acl).join(User).filter(User.id==request.user.id).options(joinedload(Task.project)).order_by(Project.name.desc()).all()
+
+  dict_project_to_tasks = OrderedDict()
+
+  for task in tasks :
+    project = task.project
+    if project in dict_project_to_tasks :
+      dict_project_to_tasks[project].append(task)
+    else :
+      dict_project_to_tasks[project] = [task]
+
+  return {'dict_project_to_tasks':dict_project_to_tasks}
+
+#------------------------------------------------------------------------------
+
 @view_config(route_name='project_delete_task', renderer='json', permission='edit')
 def remove_project_task(request):
   """
@@ -635,6 +663,7 @@ def remove_project_task(request):
 
   return {'result':result}
 
+#------------------------------------------------------------------------------
 
 @view_config(route_name='project_save_tasks', renderer='json', permission='edit')
 def save_project_tasks(request):
@@ -662,6 +691,8 @@ def save_project_tasks(request):
       explanation = u"wtf ?"
 
   return {'result':result, 'tasks':project.tasks}
+
+#------------------------------------------------------------------------------
 
 @view_config(route_name='project_save_acls', renderer='json', permission='edit')
 def save_project_acls(request):
