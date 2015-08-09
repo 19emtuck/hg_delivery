@@ -75,7 +75,8 @@ def update_user(request):
     else :
       explanation = u"This user is unknown or has already been deleted"
 
-    return {'result':result, 'explanation':explanation}
+    return {'result'      : result,
+            'explanation' : explanation}
 
 #------------------------------------------------------------------------------
 
@@ -108,7 +109,10 @@ def get_user(request):
                     .filter(User.id==user_id)\
                     .scalar()
     result = True
-    return {'result':result, 'user':user}
+
+    return {'result' : result,
+            'user'   : user}
+
 #------------------------------------------------------------------------------
 
 @view_config(route_name='user_add', renderer='json', permission='edit')
@@ -146,20 +150,12 @@ def add_user(request):
         result = False
         explanation = u'This user and this email are already defined (%s %s) ...'%(name, email)
 
-    return { 'result':result,
-             'explanation':explanation }
+    return { 'result'      : result,
+             'explanation' : explanation }
+
 #------------------------------------------------------------------------------
 
 @view_config(route_name='users_json', renderer='json', permission='edit')
-def manage_users_json(request):
-    """
-    manage users ...
-    """
-    lst_users = DBSession.query(User).all()
-    return {'lst_users':lst_users}
-
-#------------------------------------------------------------------------------
-
 @view_config(route_name='users', renderer='templates/users.mako', permission='edit')
 def manage_users(request):
     """
@@ -180,15 +176,6 @@ def contact(request):
 
 #------------------------------------------------------------------------------
 
-@view_config(route_name='logs', renderer='json', permission='edit')
-def logs(request):
-    """
-    create a new project
-    """
-    return { 'logs':DBSession.query(RemoteLog).order_by(RemoteLog.creation_date.desc()).limit(50).all() }
-
-#------------------------------------------------------------------------------
-
 @view_config(route_name='home', renderer='templates/index.mako')
 def default_view(request):
     """
@@ -202,7 +189,12 @@ def default_view(request):
       if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
         projects_list = DBSession.query(Project).order_by(Project.name.desc()).all()
       else :
-        projects_list = DBSession.query(Project).join(Acl).join(User).filter(User.id==request.user.id).order_by(Project.name.desc()).all()
+        projects_list = DBSession.query(Project)\
+                                 .join(Acl)\
+                                 .join(User)\
+                                 .filter(User.id==request.user.id)\
+                                 .order_by(Project.name.desc())\
+                                 .all()
 
       for project in projects_list :
         ssh_node = None
@@ -233,13 +225,33 @@ def default_view(request):
 
 #------------------------------------------------------------------------------
 
+@view_config(route_name='logs', renderer='json', permission='edit')
+def logs(request):
+    """
+    fetch all logs
+    """
+    lst_logs = DBSession.query(RemoteLog)\
+                        .order_by(RemoteLog.creation_date.desc())\
+                        .limit(50)\
+                        .all()
+    return { 'logs': lst_logs}
+
+#------------------------------------------------------------------------------
+
 @view_config(route_name='project_logs', renderer='json', permission='edit')
 def project_logs(request):
   """
-  create a new project
+  fetch logs linked to a project
   """
   id_project = request.matchdict['id']
-  return { 'logs':DBSession.query(RemoteLog).filter(RemoteLog.id_project==id_project).order_by(RemoteLog.creation_date.desc()).limit(50).all() }
+
+  lst_logs = DBSession.query(RemoteLog)\
+                      .filter(RemoteLog.id_project==id_project)\
+                      .order_by(RemoteLog.creation_date.desc())\
+                      .limit(50)\
+                      .all()
+  
+  return { 'logs': lst_logs}
 
 #------------------------------------------------------------------------------
 
@@ -286,12 +298,21 @@ def who_share_this_id(request):
   """
   id_project = request.matchdict['id']
   rev = request.matchdict['rev']
+
   project = DBSession.query(Project).get(id_project)
   projects_list = []
+
   if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-    projects_list = DBSession.query(Project).order_by(Project.name.desc()).all()
+    projects_list = DBSession.query(Project)\
+                             .order_by(Project.name.desc())\
+                             .all()
   else :
-    projects_list = DBSession.query(Project).join(Acl).join(User).filter(User.id==request.user.id).order_by(Project.name.desc()).all()
+    projects_list = DBSession.query(Project)\
+                             .join(Acl).join(User)\
+                             .filter(User.id==request.user.id)\
+                             .order_by(Project.name.desc())\
+                             .all()
+
   linked_projects = [p for p in projects_list if p.rev_init is not None and p.rev_init == project.rev_init and p.id != project.id]
 
   projects_sharing_that_rev = []
@@ -362,11 +383,11 @@ def push(request):
     else :
       result = True
   
-  return {'new_branch_stop' : new_branch_stop,
-          'new_head_stop' : new_head_stop,
+  return {'new_branch_stop'  : new_branch_stop,
+          'new_head_stop'    : new_head_stop,
           'lst_new_branches' : lst_new_branches,
-          'buffer': data.get('buff'),
-          'result':result}
+          'buffer'           : data.get('buff'),
+          'result'           : result}
 #------------------------------------------------------------------------------
 
 @view_config(route_name='project_pull_from', renderer='json', permission='edit')
@@ -415,8 +436,8 @@ def add_project(request):
         result = False
         explanation = u'This project and this path are already defined (%s %s) ...'%(host, path)
 
-    return { 'result':result,
-             'explanation':explanation }
+    return { 'result'      : result,
+             'explanation' : explanation }
 
 #------------------------------------------------------------------------------
 
@@ -454,9 +475,11 @@ def update_project(request):
         DBSession.rollback()
         result = False
 
-    return { 'result':result,
-             'project':project,
-             'explanation':explanation  }
+    return { 'result'      : result,
+             'project'     : project,
+             'explanation' : explanation  }
+
+#------------------------------------------------------------------------------
 
 @view_config(route_name='view_file_content', permission='edit')
 def get_file_content(request):
@@ -582,23 +605,23 @@ def edit_project(request):
     if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
       allow_to_modify_acls = True
 
-    return { 'project':project,
-             'list_branches':list_branches,
-             'list_tags':list_tags,
-             'limit':limit,
-             'projects_list':projects_list,
-             'filter_tag':tag,
-             'filter_branch':branch,
-             'repository_error':repository_error,
-             'current_node':current_node,
-             'linked_projects':linked_projects,
-             'last_hundred_change_list':last_hundred_change_list,
-             'users':users,
-             'allow_to_modify_acls':allow_to_modify_acls,
-             'project_acls':project_acls,
-             'project_tasks':project_tasks,
-             'knonwn_acl':Acl.known_acls,
-             'delivered_hash':delivered_hash}
+    return { 'project'                  : project,
+             'list_branches'            : list_branches,
+             'list_tags'                : list_tags,
+             'limit'                    : limit,
+             'projects_list'            : projects_list,
+             'filter_tag'               : tag,
+             'filter_branch'            : branch,
+             'repository_error'         : repository_error,
+             'current_node'             : current_node,
+             'linked_projects'          : linked_projects,
+             'last_hundred_change_list' : last_hundred_change_list,
+             'users'                    : users,
+             'allow_to_modify_acls'     : allow_to_modify_acls,
+             'project_acls'             : project_acls,
+             'project_tasks'            : project_tasks,
+             'knonwn_acl'               : Acl.known_acls,
+             'delivered_hash'           : delivered_hash}
 
 #------------------------------------------------------------------------------
 
@@ -758,8 +781,8 @@ def fetch_project(request):
       log.error(e)
       last_hundred_change_list, map_change_sets = [], {}
 
-    return { 'repository_error':repository_error,
-             'last_hundred_change_list':last_hundred_change_list}
+    return { 'repository_error'         : repository_error,
+             'last_hundred_change_list' : last_hundred_change_list}
 
 #------------------------------------------------------------------------------
 
@@ -780,7 +803,9 @@ def fetch_revision(request):
     diff = ssh_node.get_revision_diff(revision)
     revision_description = ssh_node.get_revision_description(revision)
 
-  return {'diff':diff, 'project':project,'revision':revision_description}
+  return {'diff'     : diff,
+          'project'  : project,
+          'revision' : revision_description}
 
 #------------------------------------------------------------------------------
 
