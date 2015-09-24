@@ -158,6 +158,12 @@ class NodeSsh(object):
 
     self.__state_locked = False
 
+
+  def add_to_log(self, command) :
+    """
+    """
+    self.__class__.logs.append((self.project_id, self.host, self.path, re.sub(u"^cd[^;]*;",'',command)))
+
   def lock_it(self):
     """
     """
@@ -321,7 +327,7 @@ class NodeSsh(object):
     self.release_lock()
 
     if log_it :
-      self.__class__.logs.append((self.project_id, self.host, self.path, re.sub(u"^cd[^;]*;",'',command)))
+      self.add_to_log(command)
 
     return {u'out':    full_log,
             u'err':    [],
@@ -345,7 +351,8 @@ class NodeSsh(object):
         elif ret:
 
           if log :
-            self.__class__.logs.append((self.project_id, self.host, self.path, re.sub(u"^cd[^;]*;",'',command)))
+            self.add_to_log(command)
+
           if(type(ret)==bytes):
             ret = self.decode_raw_bytes(ret)
           return ret
