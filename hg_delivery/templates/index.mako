@@ -12,20 +12,21 @@
         % endif
   </h2>
   %for project in dashboard_list :
-    <div class="panel panel-default">
+    <div class="panel panel-default node_description" data-id="${project.id}" data-update_url="${url(route_name='description',id=project.id)}">
       <div class="panel-heading">
         <h3 class="panel-title">
           <a href="${url(route_name='project_edit',id=project.id)}"><b>${project.name}</b></a>
-          <i> (revision : ${nodes_description[project.id].get('rev','UNKNOWN')})</i>
+          <i>(revision : <span class='node_description_rev'></span>)</i>
+          
         </h3>
       </div>
       <div class="panel-body">
-        current branch : <span class="label label-warning"> ${nodes_description[project.id].get('branch','UNKNOWN')}</span
+        current branch : <span class="label label-warning node_description_branch"></span
         <br>
         <br>
-        current hash : <i>${nodes_description[project.id].get('node','UNKNOWN')}</i>
+        current hash : <i><span class='node_description_node'></span></i>
         <br>
-        current comment : <i>${nodes_description[project.id].get('desc','UNKNOWN')}</i>
+        current comment : <i><span class='node_description_desc'></span></i>
       </div>
     </div>
   %endfor
@@ -52,6 +53,7 @@
 % endif
 
 <%block name="local_js">
+  <script>init_page_overview();</script>
 </%block>
 
 

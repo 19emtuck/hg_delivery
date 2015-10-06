@@ -12,6 +12,7 @@ import logging
 from pyramid.security import (
     Allow,
     Everyone,
+    Authenticated,
     authenticated_userid,
     )
 
@@ -301,7 +302,9 @@ class RootFactory(object):
   """
   
   __acl__ = [ (Allow, Everyone, 'view'),
-              (Allow, 'group:editors', 'edit') ]
+              (Allow, 'group:editors', 'edit'),
+              (Allow, 'group:editors', 'authenticated'),
+              (Allow, Authenticated, 'authenticated')]
 
   def __init__(self, request):
     """

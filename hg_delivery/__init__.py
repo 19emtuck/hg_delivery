@@ -61,6 +61,7 @@ def projects_include(config):
   config.add_route('project_run_task',                '/tasks/run/{id:\d+}', custom_predicates=(to_int('id'),), factory = TaskFactory)
   config.add_route('project_delete_task',             '/tasks/delete/{id:\d+}', custom_predicates=(to_int('id'),), factory = TaskFactory)
   config.add_route('tasks',                           '/tasks')
+  config.add_route('description',                     '/description/{id:\d+}')
 
 #------------------------------------------------------------------------------
 

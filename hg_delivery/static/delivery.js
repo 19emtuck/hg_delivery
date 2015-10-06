@@ -952,7 +952,37 @@ function save_project_acls(){
 }
 
 /**
+ * refresh a node in dashboard
+ */
+function refresh_dashboard_node($html_node){
+  $.ajax({url:$html_node.data('update_url'),
+         beforeSend:function(){
+           $('<div style="display:inline-block" class="has-spinner active text-right"><span class="spinner"><i class="icon-spin glyphicon glyphicon-refresh"></i></span></div>').appendTo($html_node.find('.panel-heading h3'));
+         },
+         complete:function(){
+           $html_node.find('.has-spinner.active').remove();
+         },
+         error:function(){
+          var _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+          var project_title = $html_node.find('h3').find('a').text();
+          _alert_html += '<strong>Project (' + project_title + '): seems to be unavailable. Please fix network errors before to continue</strong></div>';
+           $('#container_alert').append(_alert_html);
+         },
+         success:function(json_response){
+           ['branch', 'node', 'desc', 'rev'].forEach(function(attribute, _id){
+             if(attribute in json_response.node_description && json_response.node_description[attribute]){
+               $html_node.find('.node_description_'+attribute).text(json_response.node_description[attribute]);
+             }
+           });
+         }
+  });
+}
+
+/**
  * Init js component for project overview page
  */
 function init_page_overview(){
+  $('.node_description').each(function(_id,_item){
+    refresh_dashboard_node($(_item));
+  });
 }

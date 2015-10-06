@@ -176,6 +176,31 @@ def contact(request):
 
 #------------------------------------------------------------------------------
 
+@view_config(route_name='description', renderer='json', permission='authenticated')
+def node_description(request):
+  """
+  return node description
+  """
+  id_project = request.matchdict['id']
+  project = DBSession.query(Project).get(id_project)
+
+  if not project.is_initial_revision_init() :
+    project.init_initial_revision()
+
+  node_description = {}
+
+  with NodeController(project) as ssh_node :
+    repository_node = ssh_node.get_current_revision_description()
+
+    current_rev = None 
+    if repository_node and 'node' in repository_node :
+      current_rev = repository_node['node']
+    node_description = repository_node
+
+  return { 'node_description':node_description }
+
+#------------------------------------------------------------------------------
+
 @view_config(route_name='home', renderer='templates/index.mako')
 def default_view(request):
     """
@@ -199,21 +224,11 @@ def default_view(request):
       for project in projects_list :
         ssh_node = None
         try :
-          if not project.is_initial_revision_init() :
-            project.init_initial_revision()
-
           if project.dashboard!=1 :
             continue
 
           dashboard_list.append(project)
-
-          with NodeController(project) as ssh_node :
-            repository_node = ssh_node.get_current_revision_description()
-
-            current_rev = None 
-            if repository_node and 'node' in repository_node :
-              current_rev = repository_node['node']
-            nodes_description[project.id] = repository_node
+          nodes_description[project.id] = {}
 
         except NodeException as e:
           nodes_description[project.id] = {}
@@ -537,6 +552,15 @@ def edit_project(request):
     projects_map = {p.id:p for p in projects_list}
     project = projects_map.get(id_project)
 
+    if not project.is_initial_revision_init() :
+      project.init_initial_revision()
+
+    # while editing this project, we also check non inited projects
+    # shall we ?
+    # for p in projects_list :
+    #   if not p.is_initial_revision_init() :
+    #     p.init_initial_revision()
+
     delivered_hash = {}
     for l in DBSession.query(RemoteLog.command, RemoteLog.creation_date)\
                       .order_by(RemoteLog.creation_date.desc())\
@@ -552,7 +576,7 @@ def edit_project(request):
 
     if project is None :
       return HTTPFound(location=request.route_url(route_name='home'))
-    linked_projects = [p for p in projects_list if p.rev_init is not None and p.rev_init == project.rev_init and p.id != project.id]
+    linked_projects = [p for p in projects_list if p.rev_init is not None and p.rev_init == project.rev_init and p.id != project.id and p.is_initial_revision_init()]
 
     branch = None
     if 'branch' in request.params :

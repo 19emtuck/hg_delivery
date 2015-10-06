@@ -8,7 +8,12 @@
     % if current_node is not UNDEFINED and current_node is not None :
       <div class="panel panel-default col-md-6" style="padding-left:0px;padding-right:0px;">
         <div class="panel-heading">
-          <h3 class="panel-title">project <b>${project.name}</b> position @revision : <i>${current_node.get('rev','UNKNOWN')}</i></h3>
+          <h3 class="panel-title">
+             project <b>${project.name}</b> position @revision : <i>${current_node.get('rev','UNKNOWN')}</i>
+             %if len(linked_projects)==0 :
+               <i style="color:red;display:block-inline;padding-left:2em;">This project is not linked</i>
+             %endif
+          </h3>
         </div>
         <div class="panel-body">
             <span class="label label-warning"> ${current_node.get('branch','UNKNOWN')}</span>
