@@ -103,6 +103,20 @@ casper.then(function(){
   this.hg("init", "./repositories/d1");
 });
 
+casper.then(function(){
+  var f = fs.open('./repositories/d1/README.txt','w');
+  f.write('PROJECT DESCRIPTION FILE\nHELLO WORLD !');
+  f.close();
+});
+
+casper.then(function(){
+  this.hg("add", "./repositories/d1/README.txt", "-R", "./repositories/d1/");
+});
+
+casper.then(function(){
+  this.hg("ci", "-m", 'initial_commit', "-R", "./repositories/d1/", "-u", "stephane.bard@gmail.com");
+});
+
 // we clone the empty repo
 casper.then(function(){
   this.hg("clone", "./repositories/d1", "./repositories/d2");
@@ -124,13 +138,16 @@ casper.then(function(response){
 
 // loop over projects to remove them ...
 casper.then(function(){
+  var full_lst_projects_labels = lst_projects_labels.slice(0);
+  full_lst_projects_labels.push('d4');
+
   var projects_urls = this.evaluate(function(lst_projects_labels) {
       return $('#projects_list .project_link').map(function(id,item){
         if(lst_projects_labels.indexOf($(item).text())!==-1){
           return $(item).attr('href');
         }
       }).toArray();
-  }, lst_projects_labels );
+  }, full_lst_projects_labels);
  //require('utils').dump(projects_urls);
  this.each(projects_urls, function(self, next_link){
     self.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, 'form[name="view_project"] button.dropdown-toggle');
@@ -195,12 +212,9 @@ casper.then(function(){
 
 casper.then(function(){
   var f = fs.open('./repositories/d1/README.txt','w');
-  f.write('PROJECT DESCRIPTION FILE\nHELLO WORLD !');
+  f.write('PROJECT DESCRIPTION FILE\nAFTER INIT');
   f.close();
-});
-
-casper.then(function(){
-  this.hg("add", "./repositories/d1/README.txt", "-R", "./repositories/d1/");
+  this.wait(100);
 });
 
 casper.then(function(){
@@ -247,11 +261,11 @@ casper.then(function(){
 casper.waitForResource('project\/edit\/[0-9]+');
 casper.wait(1000);
 casper.waitUntilVisible('#project_home', function(){
-  this.test.assertDoesntExist('.glyphicon-ok');
+  this.test.assertExists('.glyphicon-ok');
   this.test.assertTextExists('my_first_commit');
 });
-casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#revision_table tbody tr td:nth-child(2) a');
-casper.thenClick('#revision_table tbody tr td:nth-child(2) a');
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#revision_table tbody tr:nth-child(1) td:nth-child(2) a');
+casper.thenClick('#revision_table tbody tr:nth-child(1) td:nth-child(2) a');
 casper.waitUntilVisible('#confirm_move_dialog');
 casper.thenClick('#move_to');
 
@@ -261,13 +275,13 @@ casper.wait(1000);
 casper.waitUntilVisible('.glyphicon-ok', function(){
   this.test.assertExists('.glyphicon-ok');
   this.test.assertTextExists('my_first_commit');
-  var link_str = this.evaluate(function(){ return $('#revision_table > tbody > tr > td:nth-child(7) > a').text(); });
+  var link_str = this.evaluate(function(){ return $('#revision_table > tbody > tr:nth-child(1) > td:nth-child(7) > a').text(); });
   this.test.assertEquals(link_str, 'my_first_commit');
 });
 
 // click on revision link
-casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#revision_table > tbody > tr > td:nth-child(7) > a');
-casper.thenClick('#revision_table > tbody > tr > td:nth-child(7) > a');
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#revision_table > tbody > tr:nth-child(1) > td:nth-child(7) > a');
+casper.thenClick('#revision_table > tbody > tr:nth-child(1) > td:nth-child(7) > a');
 casper.waitUntilVisible('#files_panel');
 
 casper.then(function(){
@@ -347,7 +361,7 @@ casper.then(function(){
 casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#revision_table tbody tr:nth-child(1) td:nth-child(2) a');
 casper.thenClick('#revision_table tbody tr:nth-child(1) td:nth-child(2) a');
 casper.waitUntilVisible('#confirm_move_dialog', function(){
-  this.test.assertTextExists('from 0 to 1 revision');
+  this.test.assertTextExists('from 1 to 2 revision');
 });
 casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#move_to');
 casper.thenClick('#move_to');
@@ -365,7 +379,7 @@ casper.then(function(){
 casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#revision_table tbody tr:nth-child(1) td:nth-child(2) a');
 casper.thenClick('#revision_table tbody tr:nth-child(1) td:nth-child(2) a');
 casper.waitUntilVisible('#confirm_move_dialog', function(){
-  this.test.assertTextExists('from 0 to 1 revision');
+  this.test.assertTextExists('from 1 to 2 revision');
 });
 casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#move_to');
 casper.thenClick('#move_to');
@@ -399,6 +413,60 @@ casper.then(function(){
   this.hg("ci", "-m", 'third_commit_d2', "-R", "./repositories/d2/", "-u", "stephane.bard@gmail.com");
 });
 
+casper.thenOpen('http://127.0.0.1:6543');
+// create an non linked repositories to check he correctly linked to nowhere
+casper.then(function(){
+  this.spawn("mkdir","./repositories");
+  this.hg("init", "./repositories/d4");
+});
+casper.then(function(){
+  var f = fs.open('./repositories/d4/README.txt','w');
+  f.write('PROJECT DESCRIPTION FILE\nHELLO WORLD !');
+  f.close();
+});
+casper.then(function(){
+  this.hg("add", "./repositories/d4/README.txt", "-R", "./repositories/d4/");
+});
+casper.then(function(){
+  this.hg("ci", "-m", 'initial_commit', "-R", "./repositories/d4/", "-u", "stephane.bard@gmail.com");
+});
+
+// add a new project
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, 'span[class="glyphicon glyphicon-plus"]');
+casper.thenClick('span[class="glyphicon glyphicon-plus"]');
+casper.then(function(response){ this.test.assertExists('#add_my_project'); });
+casper.then(function(response){
+  this.fill('form[name="project_add"]', { 'name'     : 'd4',
+                                          'host'     : '127.0.0.1',
+                                          'path'     : local_path + '/repositories/d4',
+                                          'user'     : login,
+                                          'password' : password });
+});
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#add_my_project');
+casper.thenClick('#add_my_project');
+casper.waitWhileVisible('#new_project_dialog');
+casper.waitUntilVisible('.alert-success');
+casper.waitWhileVisible('.alert-success');
+
+casper.then(function(){
+  var projects_urls = this.evaluate(function() {
+      return $('#projects_list .project_link').map(function(id,item){return [[$(item).text(),$(item).attr('href')]];}).toArray();
+  });
+
+  for (var i = 0; i < projects_urls.length; i++) {
+    map_project_to_url[projects_urls[i][0]] = projects_urls[i][1];
+  }
+});
+
+casper.then(function(){
+  this.open(map_project_to_url.d4);
+});
+
+casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, 'a[href="#related"]');
+casper.thenClick('a[href="#related"]');
+casper.then(function(){
+  this.test.assertTextExists('No linked project detected');
+});
 
 // finish by logout
 casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#sign_out');
