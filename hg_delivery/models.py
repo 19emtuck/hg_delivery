@@ -295,21 +295,6 @@ class Task(Base):
              'execute_url' : request.route_url(route_name='project_run_task', id=self.id),
              'delete_url'  : request.route_url(route_name='project_delete_task', id=self.id),
            }
-#------------------------------------------------------------------------------
-
-class RootFactory(object):
-  """
-  """
-  
-  __acl__ = [ (Allow, Everyone, 'view'),
-              (Allow, 'group:editors', 'edit'),
-              (Allow, 'group:editors', 'authenticated'),
-              (Allow, Authenticated, 'authenticated')]
-
-  def __init__(self, request):
-    """
-    """
-    pass
 
 #------------------------------------------------------------------------------
 

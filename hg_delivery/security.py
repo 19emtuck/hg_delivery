@@ -62,6 +62,23 @@ def groupfinder(userid, request):
 
 #------------------------------------------------------------------------------
 
+class RootFactory(object):
+  """
+  The default root factory.
+  """
+  
+  __acl__ = [ (Allow, Everyone, 'view'),
+              (Allow, 'group:editors', 'edit'),
+              (Allow, 'group:editors', 'authenticated'),
+              (Allow, Authenticated, 'authenticated')]
+
+  def __init__(self, request):
+    """
+    """
+    pass
+
+#------------------------------------------------------------------------------
+
 class ProjectFactory(object):
   """
     Specific factory for all Project object

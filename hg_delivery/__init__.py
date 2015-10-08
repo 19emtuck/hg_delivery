@@ -101,7 +101,7 @@ def main(global_config, **settings):
     DEFAULT_USER[__login] = __pwd
 
   config = Configurator(settings=settings,
-                        root_factory='hg_delivery.models.RootFactory')
+                        root_factory='hg_delivery.security.RootFactory')
 
   config.set_authentication_policy(authn_policy)
   config.set_authorization_policy(authz_policy)
