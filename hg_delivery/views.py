@@ -624,8 +624,8 @@ def edit_project(request):
       list_tags = []
       last_hundred_change_list, map_change_sets = [], {}
     except OSError as e:
-      repository_error = "Host seems not available. Fix this network issue" 
-      log.error(e.value)
+      repository_error = "Host seems not available. Fix this network issue"
+      log.error("Host seems not available. Fix this network issue")
       current_node = None
       list_branches = []
       list_tags = []
