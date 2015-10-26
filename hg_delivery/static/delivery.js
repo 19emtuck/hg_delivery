@@ -260,6 +260,19 @@ function change_project_to_this_release(active_a, target_url, target_refresh_url
 function fetch_this_other_project(active_a){
   var $active_a = $(active_a);
 
+  // whatever push or pull thread finish.
+  // we do any modifications
+  var finish_push_pull_evaluation = function(){
+    if($('#button_pull.active, #button_push.active').size()===0){
+      if(typeof($('#button_push').attr('disabled'))!=='undefined' && typeof($('#button_pull').attr('disabled'))!=='undefined') {
+        $('#nosync').show();
+        $('#pushpull_buttons').hide();
+      } else {
+        $('#pushpull').show();
+      }
+    }
+  };
+
   if($active_a.hasClass('active')){
     if(!($('#button_pull').hasClass('active') || $('#button_push').hasClass('active'))){
       $active_a.removeClass('active');
@@ -289,31 +302,36 @@ function fetch_this_other_project(active_a){
             complete:function(){
               $('#button_push').removeClass('active');
             },
+            error:function(){
+              // to be fixed  
+            },
             success:function(json_response){
+              $('#button_push').removeClass('active');
               if(json_response.result){
                 $('#p_name_remote').text(remote_project_name);
                 $('#p_name_local').text(local_project_name);
                 $('#button_push').removeAttr('disabled');
               }
-              $.ajax({url:target_url_pull,
-                      dataType:'json',
-                      complete:function(){
-                        $('#button_pull').removeClass('active');
-                      },
-                      success:function(json_response){
-                        if(json_response.result){
-                          $('#pushpull').show();
-                          $('#p_name_remote').text(remote_project_name);
-                          $('#p_name_local').text(local_project_name);
-                          $('#button_pull').removeAttr('disabled');
-                        } else {
-                          if(typeof($('#button_push').attr('disabled'))!=='undefined') {
-                            $('#nosync').show();
-                            $('#pushpull_buttons').hide();
-                          }
-                        }
-                      },
-              });
+              finish_push_pull_evaluation();
+            },
+    });
+
+    $.ajax({url:target_url_pull,
+            dataType:'json',
+            complete:function(){
+              $('#button_pull').removeClass('active');
+            },
+            error:function(){
+              // to be fixed  
+            },
+            success:function(json_response){
+              $('#button_pull').removeClass('active');
+              if(json_response.result){
+                $('#p_name_remote').text(remote_project_name);
+                $('#p_name_local').text(local_project_name);
+                $('#button_pull').removeAttr('disabled');
+              }
+              finish_push_pull_evaluation();
             },
     });
 
