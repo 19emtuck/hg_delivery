@@ -75,6 +75,8 @@ Getting Started
     $VENV/bin/initialize_hg_delivery_db development.ini
     $VENV/bin/pserve development.ini
 
+.. note:: please use production.ini file for production purpose :)
+
 Sample usage
 ------------
 
