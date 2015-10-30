@@ -17,6 +17,37 @@ from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.orm import joinedload
 from collections import OrderedDict
 
+from threading import Thread, Event
+
+class SpeedCrawler(Thread):
+  """
+    a simple way to divide node jobs
+  """
+
+  def __init__(self, project, rev):
+    """
+    we're looking for a project and targeting a specific revision
+    """
+    self.project = project
+    self.rev = rev
+    self.linked   = False
+    self.__is_stopped = Event()
+    Thread.__init__(self)
+
+  def start(self) :
+    """
+    Unleashed the dogs
+    """
+    # we check if this rev in it ...
+    with NodeController(self.project, silent=True) as ssh_node :
+      if ssh_node.get_revision_description(self.rev) :
+        self.linked   = True 
+    self.__is_stopped.set()
+
+  def is_stopped(self):
+    return self.__is_stopped.is_set()
+
+
 from .models import (
     DBSession,
     Project,
@@ -306,6 +337,32 @@ def shall_we_pull(request):
 
 #------------------------------------------------------------------------------
 
+@view_config(route_name='project_brothers', renderer='json')
+def project_brothers(request):
+  """
+    check who is sharing this project
+  """
+  id_project = request.matchdict['id']
+
+  project = DBSession.query(Project).get(id_project)
+  projects_list = []
+
+  if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
+    projects_list = DBSession.query(Project)\
+                             .order_by(Project.name.desc())\
+                             .all()
+  else :
+    projects_list = DBSession.query(Project)\
+                             .join(Acl).join(User)\
+                             .filter(User.id==request.user.id)\
+                             .order_by(Project.name.desc())\
+                             .all()
+
+  linked_projects = [p for p in projects_list if p.rev_init is not None and p.rev_init == project.rev_init and p.id != project.id]
+  return {'brothers':linked_projects}
+
+#------------------------------------------------------------------------------
+
 @view_config(route_name='project_brothers_update_check', renderer='json')
 def who_share_this_id(request):
   """
@@ -331,11 +388,22 @@ def who_share_this_id(request):
   linked_projects = [p for p in projects_list if p.rev_init is not None and p.rev_init == project.rev_init and p.id != project.id]
 
   projects_sharing_that_rev = []
+  thread_stack              = []
+
   for __p in linked_projects:
-    # we check if this rev in it ...
-    with NodeController(__p, silent=True) as ssh_node :
-      if ssh_node.get_revision_description(rev) :
-        projects_sharing_that_rev.append(__p)
+    new_thread = SpeedCrawler(__p, rev)
+    thread_stack.append(new_thread)
+    new_thread.start()
+    
+  while sum([e.is_stopped() for e in thread_stack])!=len(linked_projects) :
+    time.sleep(0.005)
+
+  # when threads finished their job
+  # we check which of them we shall keep
+  for _speed_crawler in thread_stack :
+    if _speed_crawler.linked :
+      projects_sharing_that_rev.append(_speed_crawler.project)
+
   # found linked projects
   return {'projects_sharing_that_rev':projects_sharing_that_rev}
 
