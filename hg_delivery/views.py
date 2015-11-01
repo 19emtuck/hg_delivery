@@ -19,35 +19,6 @@ from collections import OrderedDict
 
 from threading import Thread, Event
 
-class SpeedCrawler(Thread):
-  """
-    a simple way to divide node jobs
-  """
-
-  def __init__(self, project, rev):
-    """
-    we're looking for a project and targeting a specific revision
-    """
-    self.project = project
-    self.rev = rev
-    self.linked   = False
-    self.__is_stopped = Event()
-    Thread.__init__(self)
-
-  def start(self) :
-    """
-    Unleashed the dogs
-    """
-    # we check if this rev in it ...
-    with NodeController(self.project, silent=True) as ssh_node :
-      if ssh_node.get_revision_description(self.rev) :
-        self.linked   = True 
-    self.__is_stopped.set()
-
-  def is_stopped(self):
-    return self.__is_stopped.is_set()
-
-
 from .models import (
     DBSession,
     Project,
@@ -57,6 +28,7 @@ from .models import (
     Task,
     Group,
     )
+
 from hg_delivery.nodes import (
     NodeException,
     HgNewBranchForbidden,
@@ -74,6 +46,42 @@ import logging
 import re 
 
 log = logging.getLogger(__name__)
+
+class SpeedCrawler(Thread):
+  """
+    a simple way to divide node jobs
+  """
+
+  def __init__(self, project, rev):
+    """
+    we're looking for a project and targeting a specific revision
+    """
+    self.project      = project
+    self.rev          = rev
+    self.__linked     = False
+    self.__is_stopped = Event()
+
+    Thread.__init__(self)
+
+  def start(self) :
+    """
+    Unleashed the dogs
+    """
+    try :
+      # we check if this project has got this revision ...
+      with NodeController(self.project) as ssh_node :
+        if ssh_node.get_revision_description(self.rev) :
+          self.__linked   = True 
+    except Exception as e:
+      self.__linked = False
+
+    self.__is_stopped.set()
+
+  def is_stopped(self):
+    return self.__is_stopped.is_set()
+
+  def is_linked(self):
+    return self.__linked
 
 #------------------------------------------------------------------------------
 
@@ -386,9 +394,7 @@ def who_share_this_id(request):
                              .all()
 
   linked_projects = [p for p in projects_list if p.rev_init is not None and p.rev_init == project.rev_init and p.id != project.id]
-
-  projects_sharing_that_rev = []
-  thread_stack              = []
+  thread_stack    = []
 
   for __p in linked_projects:
     new_thread = SpeedCrawler(__p, rev)
@@ -399,10 +405,8 @@ def who_share_this_id(request):
     time.sleep(0.005)
 
   # when threads finished their job
-  # we check which of them we shall keep
-  for _speed_crawler in thread_stack :
-    if _speed_crawler.linked :
-      projects_sharing_that_rev.append(_speed_crawler.project)
+  # we filter linked projects
+  projects_sharing_that_rev = [c.project for c in thread_stack if c.is_linked]
 
   # found linked projects
   return {'projects_sharing_that_rev':projects_sharing_that_rev}
