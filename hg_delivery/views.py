@@ -70,8 +70,9 @@ class SpeedCrawler(Thread):
     try :
       # we check if this project has got this revision ...
       with NodeController(self.project) as ssh_node :
-        if ssh_node.get_revision_description(self.rev) :
-          self.__linked   = True 
+        node = ssh_node.get_revision_description(self.rev)
+        if node is not None and 'rev' in node :
+          self.__linked = True 
     except Exception as e:
       self.__linked = False
 
@@ -400,13 +401,14 @@ def who_share_this_id(request):
     new_thread = SpeedCrawler(__p, rev)
     thread_stack.append(new_thread)
     new_thread.start()
-    
-  while sum([e.is_stopped() for e in thread_stack])!=len(linked_projects) :
+
+  t0 = time.time()
+  while sum([e.is_stopped() for e in thread_stack])!=len(linked_projects) or time.time()>(t0+10*60):
     time.sleep(0.005)
 
   # when threads finished their job
   # we filter linked projects
-  projects_sharing_that_rev = [c.project for c in thread_stack if c.is_linked]
+  projects_sharing_that_rev = [c.project for c in thread_stack if c.is_linked()]
 
   # found linked projects
   return {'projects_sharing_that_rev':projects_sharing_that_rev}
