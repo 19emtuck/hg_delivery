@@ -47,7 +47,24 @@ import re
 
 log = logging.getLogger(__name__)
 
-class SpeedCrawler(Thread):
+#------------------------------------------------------------------------------
+
+class SpeedThread(Thread):
+
+  def __init__(self, project, rev):
+    """
+    we're looking for a project and targeting a specific revision
+    """
+    self.project     = project
+    self.rev         = rev
+    self._is_stopped = Event()
+
+  def is_stopped(self):
+    return self._is_stopped.is_set()
+
+#------------------------------------------------------------------------------
+
+class SpeedCrawler(SpeedThread):
   """
     a simple way to divide node jobs
   """
@@ -56,12 +73,8 @@ class SpeedCrawler(Thread):
     """
     we're looking for a project and targeting a specific revision
     """
-    self.project      = project
-    self.rev          = rev
     self.__linked     = False
-    self.__is_stopped = Event()
-
-    Thread.__init__(self)
+    SpeedThread.__init__(self, project, rev)
 
   def start(self) :
     """
@@ -76,14 +89,52 @@ class SpeedCrawler(Thread):
     except Exception as e:
       self.__linked = False
 
-    self.__is_stopped.set()
-
-  def is_stopped(self):
-    return self.__is_stopped.is_set()
+    self._is_stopped.set()
 
   def is_linked(self):
     return self.__linked
 
+#------------------------------------------------------------------------------
+
+class SpeedUpdater(SpeedThread):
+  """
+    a simple way to divide node jobs
+  """
+
+  def __init__(self, project, rev):
+    """
+    we're looking for a project and targeting a specific revision
+    """
+    self.__updated     = False
+    SpeedThread.__init__(self, project, rev)
+
+  def start(self) :
+    """
+      update a project to a specific revision (a hash)
+    """
+    try :
+      with NodeController(self.project, silent=False) as ssh_node:
+        ssh_node.update_to(self.rev)
+        current_rev = ssh_node.get_current_rev_hash()
+        stop_at = 0
+        while current_rev!=self.rev and stop_at<10 :
+          # sleep 100 ms
+          time.sleep(0.100)
+          current_rev = ssh_node.get_current_rev_hash()
+          stop_at += 1
+
+        if current_rev == self.rev :
+          self.__updated = True
+
+        for task in self.project.tasks :
+          ssh_node.run_command(task.content, log=True)
+    except Exception as e:
+      pass
+
+    self._is_stopped.set()
+
+  def project_updated(self):
+    return self.__updated
 #------------------------------------------------------------------------------
 
 @view_config(route_name='user_update', renderer='json', permission='edit')
@@ -927,40 +978,24 @@ def update_project_to(request):
   """
   id_project = request.matchdict['id']
 
-  brothers_id_project = request.matchdict['brother_id']
+  brothers_id_project = list(request.matchdict['brother_id'])
+  brothers_id_project.append(id_project)
+
   revision = request.matchdict['rev']
-  result = {}
+  projects_to_update = [DBSession.query(Project).options(joinedload(Project.tasks)).get(_id_project) for _id_project in brothers_id_project]
 
-  def move_it(project, revision, result) :
-    """
-      update a project to a specific revision (a hash)
-    """
-    with NodeController(project, silent=True) as ssh_node:
+  thread_stack       = []
 
-      ssh_node.update_to(revision)
-      current_rev = ssh_node.get_current_rev_hash()
-      stop_at = 0
-      while current_rev!=revision and stop_at<10 :
-        # sleep 100 ms
-        time.sleep(0.100)
-        current_rev = ssh_node.get_current_rev_hash()
-        stop_at += 1
-      if current_rev == revision :
-        result[project.id] = True
-      for task in project.tasks :
-        ssh_node.run_command(task.content, log=True)
+  for __p in projects_to_update:
+    new_thread = SpeedUpdater(__p, revision)
+    thread_stack.append(new_thread)
+    new_thread.start()
 
-  project = DBSession.query(Project).get(id_project)
-  if project :
-    result[project.id] = False
-    move_it(project, revision, result)
+  t0 = time.time()
+  while sum([e.is_stopped() for e in thread_stack])!=len(projects_to_update) or time.time()>(t0+10*60):
+    time.sleep(0.005)
 
-  for _id_project in brothers_id_project :
-    project_brother = DBSession.query(Project).get(_id_project)
-    if project_brother :
-      result[project_brother.id] = False
-      move_it(project_brother, revision, result)
-
+  result = {t.project.id:t.project_updated() for t in thread_stack}
   return {'result':result}
 
 #------------------------------------------------------------------------------
