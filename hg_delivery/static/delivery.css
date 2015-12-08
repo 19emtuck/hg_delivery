@@ -125,6 +125,10 @@ input[name="task_content"] {
   border-right:none;
 }
 
+#projects_list {
+  overflow-y: auto;
+  max-height: 600px;
+}
 
 #filter {
   margin-left:20px;
