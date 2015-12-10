@@ -11,7 +11,7 @@
           <h3 class="panel-title">
              project <b>${project.name}</b> position @revision : <i>${current_node.get('rev','UNKNOWN')}</i>
              %if len(linked_projects)==0 :
-               <i style="color:red;display:block-inline;padding-left:2em;">This project is not linked</i>
+               <i style="color:red;display:block-inline;padding-left:2em;">This project has no sibling</i>
              %endif
           </h3>
         </div>
@@ -75,6 +75,12 @@
         <!-- weird css ?? can some one explain me why below table is shifted to the right on firefox ??? -->
         <br>
         <!-- node tables -->
+        <table>
+        <tr>
+          <td valign="top">
+              <div style="width:${(len({n['branch'] for n in last_hundred_change_list})*20)+20}px;position:relative;top:52px;" id="d3_container"></div>
+          </td>
+          <td valign="top">
         <table id="revision_table" class="table table-condensed">
            <colgroup><col>
              <col>
@@ -133,6 +139,9 @@
             %endfor
            </tbody>
         </table>
+          </td>
+         </tr>
+         </table>
      </div>
 </%def>
 
@@ -485,20 +494,22 @@
 
 <%block name="local_js">
   <script>
-  if(localStorage['logs_enabled']==='1'){
-    $button = $('#button_log');
-    display_logs($button.get(0));
-  }
+    var local_project_name             = "${project.name}";
+    var local_project_last_change_list = ${json.dumps(last_hundred_change_list)|n}
+    var current_node                   = ${json.dumps(current_node)|n}
+    var list_branches                  = ${json.dumps(list_branches)|n}
 
-  var local_project_name = "${project.name}";
-  var local_project_last_change_list = ${json.dumps(last_hundred_change_list)|n}
-  var current_node = ${json.dumps(current_node)|n}
-
-  $('#project_tab a').click(function (e) {
-    e.preventDefault()
-    $(this).tab('show')
-  });
-
+    $(function(){
+      if(localStorage['logs_enabled']==='1'){
+        $button = $('#button_log');
+        display_logs($button.get(0));
+      }
+      $('#project_tab a').click(function (e) {
+        e.preventDefault()
+        $(this).tab('show')
+      });
+      init_my_d3(local_project_last_change_list);
+    })
   </script>
 </%block>
 

@@ -141,6 +141,7 @@
     <script src="${request.static_url('hg_delivery:static/codemirror.min.js')}"></script>
     <script src="${request.static_url('hg_delivery:static/searchcursor.js')}"></script>
     <script src="${request.static_url('hg_delivery:static/mergely.min.js')}"></script>
+    <script src="${request.static_url('hg_delivery:static/d3.v3.min.js')}" charset="utf-8"></script>
     <!-- ENDING/ GLOBAL SCRIPT -->
     
     <%block name="local_js">

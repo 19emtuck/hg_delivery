@@ -253,6 +253,57 @@ input[name="task_content"] {
   }
 }
 
+
+/**
+ * SVG styles
+ */
+
+p.table_row {
+  margin-bottom:4px;
+  margin-top:2px;
+}
+
+ul.revision_row {
+  border-bottom:solid 1px #ADACAC;
+  padding-top:0px;
+  padding-bottom:2px;
+  line-height:20px;
+  margin:0;
+} 
+
+ul.revision_row li {
+  display:inline-block;
+  text-align:left
+}
+
+ul.revision_row li:nth-child(1) {
+  min-width:40px;
+}
+
+ul.revision_row li:nth-child(2) {
+  min-width:40px;
+}
+ul.revision_row li:nth-child(3) {
+  min-width:30%;
+}
+
+ul.revision_row li:nth-child(4) {
+  min-width:50px;
+  margin-right:2em;
+}
+
+ul.revision_row li:nth-child(5) {
+  min-width:200px;
+  margin-right:2em;
+}
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}
+
+
 /**
  * All the pygment style
  *

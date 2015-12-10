@@ -1,11 +1,36 @@
 /*
- * Copyright (C) 2014  Stéphane Bard <stephane.bard@gmail.com>
+ * Copyright (C) 2015  Stéphane Bard <stephane.bard@gmail.com>
  * This file is part of hg_delivery
- * 
+ *
  * hg_delivery is free software; you can redistribute it and/or modify it under the
  * terms of the M.I.T License.
  *
  */
+
+/*
+* memoize.js
+* by @philogb and @addyosmani
+* with further optimizations by @mathias
+* and @DmitryBaranovsk
+* perf tests: http://bit.ly/q3zpG3
+* Released under an MIT license.
+*/
+function memoize( fn ) {
+    return function () {
+        var args = Array.prototype.slice.call(arguments),
+            hash = "",
+            i = args.length;
+        currentArg = null;
+        while (i--) {
+            currentArg = args[i];
+            hash += (currentArg === Object(currentArg)) ?
+            JSON.stringify(currentArg) : currentArg;
+            fn.memoize || (fn.memoize = {});
+        }
+        return (hash in fn.memoize) ? fn.memoize[hash] :
+        fn.memoize[hash] = fn.apply(this, args);
+    };
+}
 
 
 /**
@@ -303,7 +328,7 @@ function fetch_this_other_project(active_a){
               $('#button_push').removeClass('active');
             },
             error:function(){
-              // to be fixed  
+              // to be fixed
             },
             success:function(json_response){
               $('#button_push').removeClass('active');
@@ -322,7 +347,7 @@ function fetch_this_other_project(active_a){
               $('#button_pull').removeClass('active');
             },
             error:function(){
-              // to be fixed  
+              // to be fixed
             },
             success:function(json_response){
               $('#button_pull').removeClass('active');
@@ -751,7 +776,7 @@ function delete_this_project(){
         go_to('/');
         return true;
       }
-    } 
+    }
   });
 }
 
@@ -805,7 +830,7 @@ function view_diff_revision(target_url){
       $('#files_panel').show();
       $('#revision_description').data('node',json_response.revision.node).data('p1node',json_response.revision.p1node);
       $('#project_tab a[href="#revision"]').tab('show');
-    } 
+    }
   });
 }
 
@@ -859,7 +884,7 @@ function delete_this_task(button) {
       $button.text('deleting ...');
     },
     complete:function(){
-      setTimeout(function() { 
+      setTimeout(function() {
         $button.prop('disabled',false);
         $button.text(label_button);
       }, 600);
@@ -885,7 +910,7 @@ function run_this_task(button){
       $button.text('runing ...');
     },
     complete:function(json_response){
-      setTimeout(function() { 
+      setTimeout(function() {
         $button.text(label_button);
         $button.prop('disabled',false);
       }, 600);
@@ -937,7 +962,7 @@ function save_project_tasks(){
 
     },
     complete:function(){
-      setTimeout(function() { 
+      setTimeout(function() {
         $button.text(label_button);
         $button.prop('disabled',false);
       }, 600);
@@ -959,7 +984,7 @@ function save_project_acls(){
       $('#project_acls button').text('saving ...');
     },
     complete:function(){
-      setTimeout(function() { 
+      setTimeout(function() {
         $('#project_acls button').text(label_button);
         $button.prop('disabled',false);
       }, 600);
@@ -1003,4 +1028,232 @@ function init_page_overview(){
   $('.node_description').each(function(_id,_item){
     refresh_dashboard_node($(_item));
   });
+}
+
+function _pick_a_color(branch_index){
+  var letters = '0123456789ABCDEF'.split('');
+  var color = '#';
+  for (var i = 0; i < 6; i++ ) {
+      color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
+pick_a_color = memoize(_pick_a_color);
+
+/**
+ *
+ *
+ *
+ */
+function init_my_d3(data){
+  var svg, html_container, ul_container, svg_container;
+  var list_branches_displayed = [];
+  var node;
+
+  var rows_height = $('#revision_table tr').map(function(_i,_item){
+    if(_i>0){
+      return $(_item).height();
+    }
+  }).toArray();
+
+  for(var i=0;i<data.length;i++){
+    node = data[i];
+    if(list_branches_displayed.indexOf(node.branch)==-1){
+      list_branches_displayed.push(node.branch);
+    }
+  }
+
+  // one color per branch
+  // link nodes
+  var line = d3.svg.line()
+      .x(function(d, i) {
+        return d.x;
+      })
+      .y(function(d) {
+        return d.y;
+      })
+      .interpolate('linear');
+
+  var map_color_per_branch = {};
+
+  var _map_node = {};
+  for(var _i=0, _max_i=data.length; _i<_max_i ; _i++){
+    _revision = data[_i];
+    _map_node[_revision.node] = _revision;
+  }
+
+  svg_container = d3.select("#d3_container")
+              .append('svg')
+              .attr('height',$('#revision_table').height())
+              .attr('width','100%')
+              .selectAll('g')
+              .data(data)
+              .enter();
+
+  svg_container.append('circle')
+     .attr("cx", function(d,i){
+       var branch_index = list_branches_displayed.indexOf(d.branch);
+       var x = 20*branch_index+20;
+       d.node_pos_x = x;
+       return x;
+     })
+     .attr("cy", function(d,i){
+       var branch_index = list_branches_displayed.indexOf(d.branch);
+       // var y = (i*40)+10;
+       var y = 0;
+       for(var j=i; j-- ;){
+         y += rows_height[j];
+       }
+       if(i===0){
+         y+=5;
+       }
+       d.node_pos_y = y;
+       return y;
+     })
+     .attr("r", 5)
+     .attr('r', function(d,i){
+       if(d.node === current_node.node){
+         return 9;
+       } else {
+         return 5;
+       }
+     })
+     .attr('stroke', function(d,i){
+       if(d.node === current_node.node){
+         return '#ADACAC';
+       } else {
+         return '#000';
+       }
+     })
+     .attr("class", "node")
+     .attr('fill', function(d,i){
+       if(d.node === current_node.node){
+         return '#F0AD4E';
+       } else {
+         return '#ADACAC';
+       }
+     });
+
+  // add a line for each user using your SVG grouping 
+  svg_container
+      .append('svg:path')
+      .attr('d', function(d, i) {
+        var _line;
+        same_branch=false;
+
+        j=i+1;
+        _node = data[i];
+
+        while(!same_branch && j<data.length){
+          next_node = data[j];
+          if (next_node.branch===_node.branch) {
+             same_branch=true;
+          }
+          j++;
+        }
+
+        var parent_node;
+
+        if(j<data.length){
+          if(_node.p1node in _map_node){
+            parent_node = _map_node[_node.p1node];
+            // straight a head
+            _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y+5}, {'x':parent_node.node_pos_x, 'y':next_node.node_pos_y-5}]);
+          } else {
+            // straight a head
+            _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y+5}, {'x':next_node.node_pos_x, 'y':next_node.node_pos_y-5}]);
+          }
+        } else if(_node.node!==data[data.length-1].node){
+            if(_node.p1node in _map_node && _map_node[_node.p1node].branch!==_node.branch){
+              parent_node = _map_node[_node.p1node];
+              if(parent_node.node_pos_y-_node.node_pos_y>15){
+                var left_right_shift = 0;
+                if(parent_node.node_pos_x < _node.node_pos_x){
+                 // it came from the right
+                 left_right_shift = 4;
+                } else {
+                 // it came from the left 
+                 left_right_shift = -4;
+                }
+
+                var fix_position_x = 0;
+                var fix_position_y = 0;
+                if(parent_node.node===current_node.node) {
+                  fix_position_x = -5;
+                  fix_position_y = -2;
+                }
+               _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y+5}, {'x':_node.node_pos_x, 'y':parent_node.node_pos_y-20}, {'x':parent_node.node_pos_x+left_right_shift+fix_position_x, 'y':parent_node.node_pos_y-2+fix_position_y}]);
+              } else {
+               // straight a head
+               _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y+5}, {'x':parent_node.node_pos_x, 'y':parent_node.node_pos_y-5}]);
+              }
+            } else {
+             // straight a head
+             _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y+4}, {'x':_node.node_pos_x, 'y':next_node.node_pos_y-5}]);
+            }
+        }
+        return _line;
+      })
+      .attr('class',function(d){
+        return 'line';
+      })
+      .attr("stroke", function(d,i){
+        return pick_a_color(d.branch);
+      })
+      .attr("stroke-width", 4)
+      .attr("fill", "none");
+
+  //          groupe_container.append('svg:path')
+  //              .attr('d', function(d) {
+  //                  return line(d.groupe_pos);
+  //              })
+  //              .attr('class','line');
+
+  // html_container = groupe_container.append("foreignObject")
+  //     .attr("width", "100%")
+  //     .attr("height", 30)
+  //     .attr('x','10')
+  //     .attr('y','0');
+
+  // ul_container = html_container.append("xhtml:ul").attr('class','revision_row');
+
+  // ul_container.append("xhtml:li").append('xhtml:a')
+  //     .html(function(d){
+  //       return d.rev;
+  //     }).attr('onclick',function(d){return "change_project_to_this_release('"+d.url_change_to+"')";})
+  //     .attr('style',"hover:hand");
+
+  // ul_container.append("xhtml:li")
+  //     .append('xhtml:span').attr('data-current_rev',function(d){
+  //       return d.rev;
+  //     }).attr('class',function(d){
+  //       var cls = "";
+  //       if(d.tags){
+  //         cls = "glyphicon glyphicon-star";
+  //       }
+  //       return cls;
+  //     }).attr('style','font-size:17px');
+
+  // ul_container.append("xhtml:li").html(function(d){
+  //       return d.author;
+  //     });
+
+  // ul_container.append("xhtml:li")
+  //     .attr("class", function(d){
+  //       var cls = "label";
+  //       if(d.node === current_node.node){
+  //         cls = "label label-warning";
+  //       } else {
+  //         cls = "label label-success";
+  //       }
+  //       return cls;
+  //     })
+  //     .html(function(d){ return d.branch; });
+
+  // ul_container.append("xhtml:li").append('xhtml:a')
+  //     .html(function(d){
+  //       return d.desc;
+  //     }).attr('onclick',function(d){return "view_diff_revision(this, '"+d.url_detail+"', '"+d.url_refresh+"', '"+d.url_brothers_update_check+"')";});
+
 }

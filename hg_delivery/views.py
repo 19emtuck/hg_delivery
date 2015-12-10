@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014  Stéphane Bard <stephane.bard@gmail.com>
+# Copyright (C) 2015  Stéphane Bard <stephane.bard@gmail.com>
 #
 # This file is part of hg_delivery
 #
@@ -767,6 +767,12 @@ def edit_project(request):
     allow_to_modify_acls = False
     if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
       allow_to_modify_acls = True
+
+    for node in last_hundred_change_list :
+      node['url_detail']                = request.route_url(route_name='project_revision_details_json',id=project.id, rev=node['node'])
+      node['url_change_to']             = request.route_url('project_change_to',id=project.id, rev=node['node'], brother_id =[])
+      node['url_refresh']               = request.route_url('project_refresh_state',id=project.id)
+      node['url_brothers_update_check'] = request.route_url('project_brothers_update_check',id=project.id, rev=node['node'])
 
     return { 'project'                  : project,
              'list_branches'            : list_branches,

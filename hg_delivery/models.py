@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2003-2007  Stéphane Bard <stephane.bard@gmail.com>
+# Copyright (C) 2015  Stéphane Bard <stephane.bard@gmail.com>
 #
 # This file is part of hg_delivery
 #
