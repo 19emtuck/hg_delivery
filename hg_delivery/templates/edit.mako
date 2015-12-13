@@ -426,6 +426,7 @@
     var local_project_last_change_list = ${json.dumps(last_hundred_change_list)|n}
     var current_node                   = ${json.dumps(current_node)|n}
     var list_branches                  = ${json.dumps(list_branches)|n}
+    var delivered_hash                 = ${json.dumps(delivered_hash)|n}
 
     $(function(){
       if(localStorage['logs_enabled']==='1'){

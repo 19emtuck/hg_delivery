@@ -1105,6 +1105,8 @@ function init_my_d3(data){
   head_ul_container.append("xhtml:li")
               .append('xhtml:span').html('Tag');
   head_ul_container.append("xhtml:li")
+              .append('xhtml:span').html('Author');
+  head_ul_container.append("xhtml:li")
               .append('xhtml:span').html('Branch');
   head_ul_container.append("xhtml:li")
               .append('xhtml:span').html('Date');
@@ -1284,7 +1286,12 @@ function init_my_d3(data){
   ul_container.insert("xhtml:li").append('xhtml:a')
       .html(function(d){
         return d.rev;
-      }).attr('onclick',function(d){return "change_project_to_this_release('"+d.url_change_to+"')";})
+      }).on('click',function(d){
+        change_project_to_this_release(this,
+                                       d.url_change_to,
+                                       d.url_refresh,
+                                       d.url_brothers_update_check);
+      })
       .attr('style',"hover:hand");
 
   ul_container.append("xhtml:li")
@@ -1324,6 +1331,19 @@ function init_my_d3(data){
   ul_container.insert("xhtml:li").append('xhtml:a')
       .html(function(d){
         return d.desc;
-      }).attr('onclick',function(d){return "view_diff_revision(this, '"+d.url_detail+"', '"+d.url_refresh+"', '"+d.url_brothers_update_check+"')";});
+      }).on('click',function(d){view_diff_revision( d.url_detail);});
 
+  ul_container.insert("xhtml:li")
+      .html(function(d){
+        var _lst_date = "";
+        var _html     = "";
+        if(d.node in delivered_hash){
+          delivered_hash[d.node].forEach(function(item,i){
+            _lst_date += item+'\n';
+          });
+          _html = '<i class="glyphicon glyphicon-pushpin" title="'+ _lst_date +'"></i>';
+        }
+        return _html;
+      })
+      .attr('style','font-size:17px');
 }
