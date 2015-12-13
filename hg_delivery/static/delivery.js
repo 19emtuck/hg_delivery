@@ -1048,8 +1048,9 @@ pick_a_color = memoize(_pick_a_color);
  */
 function init_my_d3(data){
   var svg, html_container, ul_container, svg_container, node;
-  var row_size = 35;
+  var row_size = 40;
   var col_size = 20;
+  var table_padding = row_size;
 
   var list_branches_displayed = [];
   var map_color_per_branch    = {};
@@ -1082,28 +1083,24 @@ function init_my_d3(data){
               .append('svg')
               .attr('height',function(){
                 // add 2% to increase size
-                return data.length*row_size + (2/100*(data.length*row_size));
+                return data.length*row_size + (2/100*(data.length*row_size)) + table_padding;
                })
-              .attr('width',1200)
-              .selectAll('g')
-              .data(data)
-              .enter();
+              .attr('width',1200);
 
-
-  /*head_ul_container = svg_container
+  head_ul_container = svg_container
     .append("foreignObject")
     .attr("width", "100%")
     .attr("height", 20)
+    .attr('x',function(d,i){
+      return (list_branches_displayed.length*col_size)+col_size;
+    })
+    .attr('y',function(d,i){
+      return 0;
+    })
     .append("xhtml:ul")
     .attr('class','revision_row');
 
   head_ul_container.append("xhtml:li")
-              .attr('x',function(d,i){
-                return 500;
-              })
-              .attr('y',function(d,i){
-                return 800;
-              })
               .append('xhtml:span').html('Rev.');
   head_ul_container.append("xhtml:li")
               .append('xhtml:span').html('Tag');
@@ -1114,7 +1111,11 @@ function init_my_d3(data){
   head_ul_container.append("xhtml:li")
               .append('xhtml:span').html('Description');
   head_ul_container.append("xhtml:li")
-              .append('xhtml:span').html('Delivered');*/
+              .append('xhtml:span').html('Delivered');
+
+  svg_container =  svg_container.selectAll('circle')
+                                .data(data)
+                                .enter();
 
   svg_container.append('circle')
      .attr("cx", function(d,i){
@@ -1125,7 +1126,7 @@ function init_my_d3(data){
      })
      .attr("cy", function(d,i){
        var branch_index = list_branches_displayed.indexOf(d.branch);
-       var y = (i*row_size)+10;
+       var y = (i*row_size)+10+table_padding;
        d.node_pos_y = y;
        return y;
      })
@@ -1264,16 +1265,23 @@ function init_my_d3(data){
   html_container = svg_container.append("foreignObject")
       .attr("width", "100%")
       .attr("height", row_size)
+      .attr('class',function(d,i){
+        var cls ="";
+        if(i===0){
+          cls = "first_html";
+        }
+        return cls;
+      })
       .attr('x',function(d,i){
         return (list_branches_displayed.length*col_size)+col_size;
       })
       .attr('y',function(d,i){
-        return d.node_pos_y-10;
+        return d.node_pos_y-14;
       });
 
   ul_container = html_container.append("xhtml:ul").attr('class','revision_row');
 
-  ul_container.append("xhtml:li").append('xhtml:a')
+  ul_container.insert("xhtml:li").append('xhtml:a')
       .html(function(d){
         return d.rev;
       }).attr('onclick',function(d){return "change_project_to_this_release('"+d.url_change_to+"')";})
@@ -1295,7 +1303,8 @@ function init_my_d3(data){
   ul_container.append("xhtml:li").html(function(d){
     return d.author;
   });
-  li_content = ul_container.append("xhtml:li");
+
+  li_content   = ul_container.append("xhtml:li");
   span_content = li_content.append("xhtml:span")
       .attr("class", function(d){
         var cls = "label";
@@ -1312,7 +1321,7 @@ function init_my_d3(data){
     return d.date;
   });
 
-  ul_container.append("xhtml:li").append('xhtml:a')
+  ul_container.insert("xhtml:li").append('xhtml:a')
       .html(function(d){
         return d.desc;
       }).attr('onclick',function(d){return "view_diff_revision(this, '"+d.url_detail+"', '"+d.url_refresh+"', '"+d.url_brothers_update_check+"')";});
