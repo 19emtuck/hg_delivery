@@ -1085,7 +1085,7 @@ function init_my_d3(data){
                 // add 2% to increase size
                 return data.length*row_size + (2/100*(data.length*row_size)) + table_padding;
                })
-              .attr('width',1200);
+              .attr('width',1400);
 
   head_ul_container = svg_container
     .append("foreignObject")
@@ -1202,15 +1202,24 @@ function init_my_d3(data){
         if(j<data.length){
           if(_node.p1node in _map_node){
             // straight a head
-            _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y+5}, {'x':parent_node.node_pos_x, 'y':parent_node.node_pos_y-5}]);
+            if(_node.node===current_node.node) {
+            fix_position_y = 9;
+            _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y+fix_position_y},
+                          {'x':parent_node.node_pos_x, 'y':parent_node.node_pos_y-5}]);
+            } else {
+            _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y+5},
+                          {'x':parent_node.node_pos_x, 'y':parent_node.node_pos_y-5}]);
+            }
           } else {
             // straight a head
-            _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y+5}, {'x':next_node.node_pos_x, 'y':next_node.node_pos_y-5}]);
+            _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y+5},
+                          {'x':next_node.node_pos_x, 'y':next_node.node_pos_y-5}]);
           }
         } else if(_node.node!==_last_node.node){
             if(_node.p1node in _map_node && _map_node[_node.p1node].branch!==_node.branch){
               parent_node = _map_node[_node.p1node];
-              if(parent_node.node_pos_y-_node.node_pos_y>15){
+              if(parent_node.node_pos_y - _node.node_pos_y>40){
+
                 var left_right_shift = 0;
                 if(parent_node.node_pos_x < _node.node_pos_x){
                  // it came from the right
@@ -1222,35 +1231,31 @@ function init_my_d3(data){
 
                 fix_position_x = 0;
                 fix_position_y = 0;
-
-                if(_node.node===current_node.node) {
+                if(_node.node === current_node.node) {
                   fix_position_x = -5;
                   fix_position_y = -2;
                 }
-               _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y+5}, {'x':_node.node_pos_x, 'y':parent_node.node_pos_y-row_size}, {'x':parent_node.node_pos_x+left_right_shift+fix_position_x, 'y':parent_node.node_pos_y-2+fix_position_y}]);
+
+               _line = line([{'x':_node.node_pos_x+fix_position_x, 'y':_node.node_pos_y+5},
+                             {'x':_node.node_pos_x, 'y':parent_node.node_pos_y-row_size},
+                             {'x':parent_node.node_pos_x+left_right_shift, 'y':parent_node.node_pos_y-2+fix_position_y}]);
               } else {
-
                 fix_position_x = 0;
-                fix_position_y = 0;
-
                 if(_node.node===current_node.node) {
-                  fix_position_x = 0;
-                  fix_position_y = 9;
+                  fix_position_x = 4;
                 }
-
                // straight a head
-               _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y+5+fix_position_y}, {'x':parent_node.node_pos_x+fix_position_x, 'y':parent_node.node_pos_y-5+fix_position_y}]);
+               _line = line([{'x':_node.node_pos_x+fix_position_x, 'y':_node.node_pos_y+5},
+                             {'x':parent_node.node_pos_x, 'y':parent_node.node_pos_y-5}]);
               }
             } else {
-             fix_position_x = 0;
              fix_position_y = 0;
-
              if(typeof(_node)!=="undefined" && _node.node===current_node.node) {
-               fix_position_x = 0;
                fix_position_y = -9;
              }
              // straight a head
-             _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y+4}, {'x':_node.node_pos_x, 'y':next_node.node_pos_y-5}]);
+             _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y+4},
+                           {'x':_node.node_pos_x, 'y':next_node.node_pos_y-5}]);
             }
         }
         return _line;
