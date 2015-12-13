@@ -660,7 +660,7 @@ def delete_project(request):
 
 #------------------------------------------------------------------------------
 
-@view_config(route_name='project_refresh_state', renderer='edit#publish_project_html.mako', permission='edit')
+@view_config(route_name='project_refresh_state', renderer='json', permission='edit')
 @view_config(route_name='project_edit', renderer='edit.mako', permission='read')
 def edit_project(request):
     """
@@ -722,7 +722,7 @@ def edit_project(request):
 
     repository_error = None
 
-    users = DBSession.query(User)
+    users = DBSession.query(User).all()
     project_acls = {_acl.id_user:_acl.acl for _acl in DBSession.query(Acl).filter(Acl.id_project == id_project)}
     project_tasks = DBSession.query(Task).filter(Task.id_project == id_project).all()
 

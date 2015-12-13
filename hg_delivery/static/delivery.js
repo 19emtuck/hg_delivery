@@ -193,8 +193,12 @@ function pull_from(target_project_id, target_url){
 
 function refresh_project_view(target_refresh_url) {
   $.ajax({url:target_refresh_url,
-          success:function(html_response){
-           $('#project_home').html(html_response);
+          success:function(json_response){
+            local_project_last_change_list = json_response.last_hundred_change_list;
+            current_node                   = json_response.current_node;
+            list_branches                  = json_response.list_branches;
+            delivered_hash                 = json_response.delivered_hash;
+            init_my_d3(local_project_last_change_list);
           }
         });
 }
@@ -1048,6 +1052,7 @@ pick_a_color = memoize(_pick_a_color);
  */
 function init_my_d3(data){
   var svg, html_container, ul_container, svg_container, node;
+  $('#d3_container').html('');
   var row_size = 40;
   var col_size = 20;
   var table_padding = row_size;
