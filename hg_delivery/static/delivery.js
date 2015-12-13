@@ -1296,13 +1296,17 @@ function init_my_d3(data){
   ul_container.insert("xhtml:li").append('xhtml:a')
       .html(function(d){
         return d.rev;
-      }).on('click',function(d){
+      })
+      .attr('class', 'hlink')
+      .attr('title',function(d){
+        return "revert to the node "+d.node;
+      })
+      .on('click',function(d){
         change_project_to_this_release(this,
                                        d.url_change_to,
                                        d.url_refresh,
                                        d.url_brothers_update_check);
-      })
-      .attr('style',"hover:hand");
+      });
 
   ul_container.append("xhtml:li")
       .append('xhtml:span').attr('data-current_rev',function(d){
@@ -1339,6 +1343,7 @@ function init_my_d3(data){
   });
 
   ul_container.insert("xhtml:li").append('xhtml:a')
+      .attr('class', 'hlink')
       .html(function(d){
         return d.desc;
       }).on('click',function(d){view_diff_revision( d.url_detail);});
