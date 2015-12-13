@@ -1346,7 +1346,8 @@ function init_my_d3(data){
           delivered_hash[d.node].forEach(function(item,i){
             _lst_date += item+'\n';
           });
-          _html = '<i class="glyphicon glyphicon-pushpin" title="'+ _lst_date +'"></i>';
+          _html = delivered_hash[d.node].length.toString();
+          _html += '<i class="glyphicon glyphicon-pushpin" title="'+ _lst_date +'"></i>';
         }
         return _html;
       })
