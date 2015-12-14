@@ -122,10 +122,6 @@ function merge(){
   $('#merge').show();
 }
 
-
-
-
-
 /**
  * update from this project
  */
@@ -433,7 +429,7 @@ function find_last_common_node(local_last_change_list, remote_last_change_list){
             'remote_list_pos'                  : remote_list_pos,
             'nb_nodes_unknown_nodes_in_remote' : nb_nodes_unknown_nodes_in_remote,
             'nb_nodes_unknown_nodes_in_local'  : nb_nodes_unknown_nodes_in_local,
-  };
+        };
 
 }
 
@@ -525,10 +521,10 @@ function merging_list(local_last_change_list, remote_last_change_list, current_n
     }
   };
 
-  row = [];
   local_last_change_list.reverse();
   remote_last_change_list.reverse();
-  set_published = {};
+  row            = [];
+  set_published  = {};
   rows_container = [];
 
   for (i = 0 ; i < max_size_list ; i++) {
@@ -1042,7 +1038,6 @@ function _pick_a_color(branch_index){
   }
   return color;
 }
-
 pick_a_color = memoize(_pick_a_color);
 
 /**
@@ -1082,13 +1077,11 @@ function init_my_d3(data){
       })
       .interpolate('linear');
 
-
   d3_container = d3.select("#d3_container");
   svg_container = d3_container 
               .append('svg')
               .attr('height',function(){
-                // add 2% to increase size
-                return data.length*row_size + (2/100*(data.length*row_size)) + table_padding;
+                return data.length*row_size + 2*table_padding;
                })
               .attr('width',1400);
 
@@ -1106,6 +1099,8 @@ function init_my_d3(data){
     .attr('class','revision_row');
 
   head_ul_container.append("xhtml:li")
+              .append('xhtml:span').html('Delivered');
+  head_ul_container.append("xhtml:li")
               .append('xhtml:span').html('Rev.');
   head_ul_container.append("xhtml:li")
               .append('xhtml:span').html('Tag');
@@ -1117,8 +1112,6 @@ function init_my_d3(data){
               .append('xhtml:span').html('Date');
   head_ul_container.append("xhtml:li")
               .append('xhtml:span').html('Description');
-  head_ul_container.append("xhtml:li")
-              .append('xhtml:span').html('Delivered');
 
   svg_container =  svg_container.selectAll('circle')
                                 .data(data)
@@ -1129,18 +1122,23 @@ function init_my_d3(data){
        var branch_index = list_branches_displayed.indexOf(d.branch);
        var x = col_size*branch_index+col_size;
        d.node_pos_x = x;
+       if(d.node===current_node.node) {
+         current_node.node_pos_x = x;
+       }
        return x;
      })
      .attr("cy", function(d,i){
        var branch_index = list_branches_displayed.indexOf(d.branch);
        var y = (i*row_size)+10+table_padding;
        d.node_pos_y = y;
+       if(d.node===current_node.node) {
+         current_node.node_pos_y = y;
+       }
        return y;
      })
-     .attr("r", 5)
      .attr('r', function(d,i){
        if(d.node === current_node.node){
-         return 9;
+         return 8;
        } else {
          return 5;
        }
@@ -1148,30 +1146,29 @@ function init_my_d3(data){
      .attr('stroke', function(d,i){
        if(d.node === current_node.node){
          return '#F0AD4E';
-         //return '#ADACAC';
-         //return pick_a_color(d.branch);
        } else {
          return pick_a_color(d.branch);
-         //return '#000';
        }
      })
      .attr('stroke-width', function(d,i){
        if(d.node === current_node.node){
-         return '3';
+         return '4';
        } else {
          return '1';
        }
      })
-     .attr("class", "node")
+     .attr("class", function(d,i){
+        if(d.node===current_node.node){
+          return "selected_node";
+        } else {
+          return "node";
+        }
+      })
      .attr('fill', function(d,i){
        if(d.node === current_node.node){
-         // return '#F0AD4E';
          return 'white';
-         //return '#F0AD4E';
-         //return pick_a_color(d.branch);
        } else {
          return pick_a_color(d.branch);
-         //return '#ADACAC';
        }
      });
 
@@ -1185,6 +1182,7 @@ function init_my_d3(data){
         j           = i+1;
         _node       = data[i];
         _next_node  = undefined;
+        parent_node = undefined;
 
         if(j<data.length){
           _next_node = data[j];
@@ -1205,6 +1203,8 @@ function init_my_d3(data){
         }
 
         if(j<data.length){
+
+          // parent exist and is displayed
           if(_node.p1node in _map_node){
             // straight a head
             if(_node.node===current_node.node) {
@@ -1218,8 +1218,9 @@ function init_my_d3(data){
           } else {
             // straight a head
             _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y+5},
-                          {'x':next_node.node_pos_x, 'y':next_node.node_pos_y-5}]);
+                          {'x':_last_node.node_pos_x, 'y':_last_node.node_pos_y-5}]);
           }
+
         } else if(_node.node!==_last_node.node){
             if(_node.p1node in _map_node && _map_node[_node.p1node].branch!==_node.branch){
               parent_node = _map_node[_node.p1node];
@@ -1246,12 +1247,14 @@ function init_my_d3(data){
                              {'x':parent_node.node_pos_x+left_right_shift, 'y':parent_node.node_pos_y-2+fix_position_y}]);
               } else {
                 fix_position_x = 0;
+                fix_position_y = 0;
                 if(_node.node===current_node.node) {
                   fix_position_x = 4;
+                  fix_position_y = -2;
                 }
                // straight a head
                _line = line([{'x':_node.node_pos_x+fix_position_x, 'y':_node.node_pos_y+5},
-                             {'x':parent_node.node_pos_x, 'y':parent_node.node_pos_y-5}]);
+                             {'x':parent_node.node_pos_x, 'y':parent_node.node_pos_y-5+fix_position_y}]);
               }
             } else {
              fix_position_y = 0;
@@ -1260,7 +1263,7 @@ function init_my_d3(data){
              }
              // straight a head
              _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y+4},
-                           {'x':_node.node_pos_x, 'y':next_node.node_pos_y-5}]);
+                           {'x':_node.node_pos_x, 'y':_last_node.node_pos_y-5}]);
             }
         }
         return _line;
@@ -1293,6 +1296,21 @@ function init_my_d3(data){
 
   ul_container = html_container.append("xhtml:ul").attr('class','revision_row');
 
+  ul_container.insert("xhtml:li")
+      .html(function(d){
+        var _lst_date = "";
+        var _html     = "";
+        if(d.node in delivered_hash){
+          delivered_hash[d.node].forEach(function(item,i){
+            _lst_date += item+'\n';
+          });
+          _html = delivered_hash[d.node].length.toString();
+          _html += '<i class="glyphicon glyphicon-pushpin" title="'+ _lst_date +'"></i>';
+        }
+        return _html;
+      })
+      .attr('style','font-size:17px');
+
   ul_container.insert("xhtml:li").append('xhtml:a')
       .html(function(d){
         return d.rev;
@@ -1311,6 +1329,8 @@ function init_my_d3(data){
   ul_container.append("xhtml:li")
       .append('xhtml:span').attr('data-current_rev',function(d){
         return d.rev;
+      }).attr('title',function(d){
+        return d.tags;
       }).attr('class',function(d){
         var cls = "";
         if(d.node===current_node.node){
@@ -1348,18 +1368,22 @@ function init_my_d3(data){
         return d.desc;
       }).on('click',function(d){view_diff_revision( d.url_detail);});
 
-  ul_container.insert("xhtml:li")
-      .html(function(d){
-        var _lst_date = "";
-        var _html     = "";
-        if(d.node in delivered_hash){
-          delivered_hash[d.node].forEach(function(item,i){
-            _lst_date += item+'\n';
-          });
-          _html = delivered_hash[d.node].length.toString();
-          _html += '<i class="glyphicon glyphicon-pushpin" title="'+ _lst_date +'"></i>';
-        }
-        return _html;
+  /*d3.selectAll('.selected_node')
+      .data([current_node])
+      .enter()
+      .append('svg:path')
+      .attr('d', function(d, i) {
+        console.log(current_node.node_pos_x);
+        console.log(current_node.node_pos_y);
+       _line = line([{'x':current_node.node_pos_x, 'y':current_node.node_pos_y},
+                     {'x':current_node.node_pos_x+100, 'y':current_node.node_pos_y}]);
       })
-      .attr('style','font-size:17px');
+      .attr('class',function(d){
+        return 'line';
+      })
+      .attr("stroke", function(d,i){
+        return pick_a_color(d.branch);
+      })
+      .attr("stroke-width", 4)
+      .attr("fill", "none");*/
 }
