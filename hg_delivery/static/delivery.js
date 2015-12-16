@@ -1170,6 +1170,13 @@ function init_my_d3(data){
        } else {
          return pick_a_color(d.branch);
        }
+     })
+     .attr('class', 'hlink')
+     .on('click',function(d,i){
+       change_project_to_this_release($('a[data-node="'+d.node+'"]').get(0),
+                                      d.url_change_to,
+                                      d.url_refresh,
+                                      d.url_brothers_update_check);
      });
 
   // add a line for each user using your SVG grouping 
@@ -1316,6 +1323,9 @@ function init_my_d3(data){
         return d.rev;
       })
       .attr('class', 'hlink')
+      .attr('data-node',function(d,i){
+        return d.node;
+      })
       .attr('title',function(d){
         return "revert to the node "+d.node;
       })
