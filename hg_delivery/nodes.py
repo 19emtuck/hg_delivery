@@ -395,7 +395,7 @@ class HgNode(NodeSsh):
     Some node to manipulate remote hg repository
   """
 
-  _template = u"{node}|#|{p1node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{date|isodate}|#|{desc|jsonescape}|#|{tags}\n" 
+  _template = u"{node}|#|{p1node}|#|{p2node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{date|isodate}|#|{desc|jsonescape}|#|{tags}\n" 
 
 
   def get_content(self, revision, file_name):
@@ -556,10 +556,12 @@ class HgNode(NodeSsh):
     if data :
       data = (line for line in data.splitlines())
       for line in reversed(tuple(data)) :
-        node, parent_node, author, branch, rev, parents, date, desc, tags = line.split(u'|#|')
+        node, p1node, p2node, author, branch, rev, parents, date, desc, tags = line.split(u'|#|')
         desc = desc.replace(u'\\n','\n')
         if not branch : branch = 'default'
-        list_nodes.append({'node':node, 'p1node':parent_node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date})
+        if len(p2node.strip('0'))==0 :
+          p2node = None
+        list_nodes.append({'node':node, 'p1node':p1node, 'p2node':p2node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date})
         map_nodes[node]=list_nodes[-1]
     return list_nodes, map_nodes
 
@@ -586,10 +588,12 @@ class HgNode(NodeSsh):
       data = (line for line in data.splitlines())
 
       for line in data :
-        node, parent_node, author, branch, rev, parents, date, desc, tags = line.split(u'|#|')
+        node, p1node, p2node, author, branch, rev, parents, date, desc, tags = line.split(u'|#|')
         desc = desc.replace(u'\\n','\n')
         if not branch : branch = 'default'
-        list_nodes.append({'node':node, 'p1node':parent_node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date})
+        if len(p2node.strip('0'))==0 :
+          p2node = None
+        list_nodes.append({'node':node, 'p1node':p1node, 'p2node':p2node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date})
         map_nodes[node]=list_nodes[-1]
 
     return list_nodes, map_nodes
@@ -660,10 +664,12 @@ class HgNode(NodeSsh):
     except NodeException as e :
       node = {}
     else :
-      node, parent_node, author, branch, rev, parents, date, desc, tags = data.split(u'|#|')
+      node, p1node, p2node, author, branch, rev, parents, date, desc, tags = line.split(u'|#|')
       desc = desc.replace(u'\\n','\n')
       if not branch : branch = 'default'
-      node = {'node':node, 'p1node':parent_node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date}
+      if len(p2node.strip('0'))==0 :
+        p2node = None
+      node = {'node':node, 'p1node':p1node, 'p2node':p2node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date}
     return node 
 
   def get_revision_diff(self, revision):

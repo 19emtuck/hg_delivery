@@ -756,8 +756,12 @@ def edit_project(request):
       list_tags = []
       last_hundred_change_list, map_change_sets = [], {}
     except Exception as e:
-      repository_error = e.value
-      log.error(e.value)
+      if hasattr(e,'value') :
+        repository_error = e.value
+        log.error(e.value)
+      else :
+        log.error(e)
+
       current_node = None
       list_branches = []
       list_tags = []
