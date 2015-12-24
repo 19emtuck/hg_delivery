@@ -1048,14 +1048,19 @@ pick_a_color = memoize(_pick_a_color);
 function init_my_d3(data){
   var svg, html_container, ul_container, svg_container, node;
   $('#d3_container').html('');
-  var row_size = 40;
-  var col_size = 20;
-  var shift_inner_branch = 8;
-  var table_padding = row_size;
+
+  var row_size                  = 40;
+  var col_size                  = 20;
+
+  var shift_height_before_merge = 10;
+  var shift_inner_branch        = 10;
+
+  var table_padding             = row_size;
 
   var list_branches_displayed = [];
   var map_color_per_branch    = {};
   var _map_node               = {};
+  var _parent_to_child        = {};
 
   var shift_per_branch = {};
 
@@ -1063,6 +1068,13 @@ function init_my_d3(data){
     _revision = data[_i];
     _revision.pos = _i;
     _map_node[_revision.node] = _revision;
+
+    _parent_node = _revision.p1node;
+    if(_parent_node in _parent_to_child){
+      _parent_to_child[_parent_node].push(_revision.node);
+    } else {
+      _parent_to_child[_parent_node] = [_revision.node];
+    }
 
     node = data[_i];
     if(list_branches_displayed.indexOf(node.branch)==-1){
@@ -1125,16 +1137,23 @@ function init_my_d3(data){
   svg_container.append('circle')
      .attr("cx", function(d,i){
        var branch_index = list_branches_displayed.indexOf(d.branch);
+
        var sum_shift = 0;
        for(var b in shift_per_branch){
          sum_shift+=shift_per_branch[b];
        }
+
        var x = col_size*branch_index + col_size;
 
        if(d.p2node!==null && d.p2node in _map_node){
          parent_node = _map_node[d.p2node];
          parent_node.shift_x = shift_per_branch[d.branch] + shift_inner_branch;
          shift_per_branch[d.branch] += shift_inner_branch;
+       } else if(d.node in _parent_to_child && _parent_to_child[d.node].length>1) {
+         shift_per_branch[d.branch] -= shift_inner_branch;
+         if(shift_per_branch[d.branch]<0){
+           shift_per_branch[d.branch] = 0;
+         }
        }
 
        if(typeof(d.shift_x)!=="undefined"){
@@ -1205,10 +1224,10 @@ function init_my_d3(data){
       .attr('d', function(d, i) {
         var _line, j, _node, _n, _p, parent_node, fix_position_x, fix_position_y, _parents;
 
-        same_branch = false;
         j           = i+1;
         _node       = data[i];
         _next_node  = undefined;
+        _last_node  = data[data.length-1];
         parent_node = undefined;
 
         if(j<data.length){
@@ -1218,6 +1237,7 @@ function init_my_d3(data){
         _n         = _node;
 
         if(_node.p1node in _map_node){
+          // a parent exist in the current list
           parent_node = _map_node[_node.p1node];
 
           // it may happend that parent_node is not the direct
@@ -1226,27 +1246,21 @@ function init_my_d3(data){
           // same branch ...
           if (parent_node.node_pos_x > _node.node_pos_x){
             // coming from the left 
-            _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y},
-                          {'x':_node.node_pos_x, 'y':parent_node.node_pos_y-10},
-                          {'x':parent_node.node_pos_x, 'y':parent_node.node_pos_y}]);
-           shift_per_branch[_node.branch] -= shift_inner_branch;
-           if(shift_per_branch[_node.branch]<0){
-             shift_per_branch[_node.branch] = 0;
-           }
+            _line = line([{'x':_node.node_pos_x,        'y':_node.node_pos_y},
+                          {'x':_node.node_pos_x,        'y':parent_node.node_pos_y - shift_height_before_merge},
+                          {'x':parent_node.node_pos_x,  'y':parent_node.node_pos_y}]);
           } else if (parent_node.node_pos_x < _node.node_pos_x){
             // coming from the right 
-            _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y},
-                          {'x':_node.node_pos_x, 'y':parent_node.node_pos_y-10},
-                          {'x':parent_node.node_pos_x, 'y':parent_node.node_pos_y}]);
-           shift_per_branch[_node.branch] -= shift_inner_branch;
-           if(shift_per_branch[_node.branch]<0){
-             shift_per_branch[_node.branch] = 0;
-           }
+            _line = line([{'x':_node.node_pos_x,        'y':_node.node_pos_y},
+                          {'x':_node.node_pos_x,        'y':parent_node.node_pos_y - shift_height_before_merge},
+                          {'x':parent_node.node_pos_x,  'y':parent_node.node_pos_y}]);
           } else {
-            _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y},
-                          {'x':parent_node.node_pos_x, 'y':parent_node.node_pos_y-5}]);
+            _line = line([{'x':_node.node_pos_x,        'y':_node.node_pos_y},
+                          {'x':parent_node.node_pos_x,  'y':parent_node.node_pos_y-5}]);
           }
-
+        } else {
+          _line = line([{'x':_node.node_pos_x,        'y':_node.node_pos_y},
+                        {'x':_node.node_pos_x,        'y':_last_node.node_pos_y}]);
         }
 
         return _line;
@@ -1267,7 +1281,6 @@ function init_my_d3(data){
       .attr('d', function(d, i) {
         var _line, j, _node, _n, _p, parent_node, fix_position_x, fix_position_y, _parents;
 
-        same_branch = false;
         j           = i+1;
         _node       = data[i];
         _next_node  = undefined;
@@ -1287,9 +1300,8 @@ function init_my_d3(data){
           // that mean we have a little non linear cycle in the
           // same branch ...
           _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y},
-                        {'x':parent_node.node_pos_x, 'y':_node.node_pos_y+10},
+                        {'x':parent_node.node_pos_x, 'y':_node.node_pos_y + shift_height_before_merge},
                         {'x':parent_node.node_pos_x, 'y':parent_node.node_pos_y-5}]);
-
         }
 
         return _line;
