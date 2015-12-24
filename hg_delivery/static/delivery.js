@@ -1136,21 +1136,26 @@ function init_my_d3(data){
 
   svg_container.append('circle')
      .attr("cx", function(d,i){
-       var branch_index = list_branches_displayed.indexOf(d.branch);
 
-       var sum_shift = 0;
+       var branch_index, x, sum_shift;
+       branch_index = list_branches_displayed.indexOf(d.branch);
+
+       sum_shift = 0;
        for(var b in shift_per_branch){
-         sum_shift+=shift_per_branch[b];
+         if(list_branches_displayed.indexOf(b) < branch_index && shift_per_branch[b] > col_size){
+           sum_shift+=shift_per_branch[b];
+         }
        }
 
-       var x = col_size*branch_index + col_size;
+       x = col_size*branch_index + col_size + sum_shift;
 
        if(d.p2node!==null && d.p2node in _map_node){
          parent_node = _map_node[d.p2node];
-         parent_node.shift_x = shift_per_branch[d.branch] + shift_inner_branch;
          shift_per_branch[d.branch] += shift_inner_branch;
+         parent_node.shift_x = shift_per_branch[d.branch];
        } else if(d.node in _parent_to_child && _parent_to_child[d.node].length>1) {
          shift_per_branch[d.branch] -= shift_inner_branch;
+         parent_node.shift_x = shift_per_branch[d.branch];
          if(shift_per_branch[d.branch]<0){
            shift_per_branch[d.branch] = 0;
          }
