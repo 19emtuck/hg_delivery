@@ -7,6 +7,15 @@
  *
  */
 
+var colors = [
+	[ 1.0, 0.0, 0.0 ],
+	[ 1.0, 1.0, 0.0 ],
+	[ 0.0, 1.0, 0.0 ],
+	[ 0.0, 1.0, 1.0 ],
+	[ 0.0, 0.0, 1.0 ],
+	[ 1.0, 0.0, 1.0 ]
+];
+ 
 /*
 * memoize.js
 * by @philogb and @addyosmani
@@ -1030,7 +1039,7 @@ function init_page_overview(){
   });
 }
 
-function _pick_a_color(branch_index){
+function _pick_a_color_random(branch_index){
   var letters = '0123456789ABCDEF'.split('');
   var color = '#';
   for (var i = 0; i < 6; i++ ) {
@@ -1038,6 +1047,30 @@ function _pick_a_color(branch_index){
   }
   return color;
 }
+
+/**
+ *
+ *
+ */
+function _pick_a_color(color){
+  var bg, fg, red, green, blue, s;
+  bg = 0.0;
+  fg = 0.65;
+
+  color  %= colors.length;
+
+  red     = (colors[color][0] * fg) || bg;
+  green   = (colors[color][1] * fg) || bg;
+  blue    = (colors[color][2] * fg) || bg;
+
+  red     = Math.round(red   * 255);
+  green   = Math.round(green * 255);
+  blue    = Math.round(blue  * 255);
+
+  s = 'rgb(' + red + ', ' + green + ', ' + blue + ')';
+  return s;
+}
+
 pick_a_color = memoize(_pick_a_color);
 
 /**
@@ -1050,7 +1083,7 @@ function init_my_d3(data){
   $('#d3_container').html('');
 
   var row_size                  = 40;
-  var col_size                  = 20;
+  var col_size                  = 15;
 
   var shift_height_before_merge = 10;
   var shift_inner_branch        = 10;
@@ -1063,6 +1096,12 @@ function init_my_d3(data){
   var _parent_to_child        = {};
 
   var shift_per_branch = {};
+
+  var fix_position = { 'left':{'big':{'x':-3,'y':-5},
+                            'normal':{'x':4,'y':-2}},
+                       'right':{'big':{'x':-6,'y':-5},
+                             'normal':{'x':-4,'y':-3}}
+                     };
 
   for(var _i=0, _max_i=data.length; _i<_max_i ; _i++){
     _revision = data[_i];
@@ -1140,30 +1179,7 @@ function init_my_d3(data){
        var branch_index, x, sum_shift;
        branch_index = list_branches_displayed.indexOf(d.branch);
 
-       sum_shift = 0;
-       for(var b in shift_per_branch){
-         if(list_branches_displayed.indexOf(b) < branch_index && shift_per_branch[b] > col_size){
-           sum_shift+=shift_per_branch[b];
-         }
-       }
-
-       x = col_size*branch_index + col_size + sum_shift;
-
-       if(d.p2node!==null && d.p2node in _map_node){
-         parent_node = _map_node[d.p2node];
-         shift_per_branch[d.branch] += shift_inner_branch;
-         parent_node.shift_x = shift_per_branch[d.branch];
-       } else if(d.node in _parent_to_child && _parent_to_child[d.node].length>1) {
-         shift_per_branch[d.branch] -= shift_inner_branch;
-         parent_node.shift_x = shift_per_branch[d.branch];
-         if(shift_per_branch[d.branch]<0){
-           shift_per_branch[d.branch] = 0;
-         }
-       }
-
-       if(typeof(d.shift_x)!=="undefined"){
-         x += d.shift_x;
-       }
+       x = col_size*branch_index + col_size;
        d.node_pos_x = x;
 
        if(d.node===current_node.node) {
@@ -1191,7 +1207,7 @@ function init_my_d3(data){
        if(d.node === current_node.node){
          return '#F0AD4E';
        } else {
-         return pick_a_color(d.branch);
+         return pick_a_color(list_branches_displayed.indexOf(d.branch));
        }
      })
      .attr('stroke-width', function(d,i){
@@ -1212,7 +1228,7 @@ function init_my_d3(data){
        if(d.node === current_node.node){
          return 'white';
        } else {
-         return pick_a_color(d.branch);
+         return pick_a_color(list_branches_displayed.indexOf(d.branch));
        }
      })
      .attr('class', 'hlink')
@@ -1227,86 +1243,59 @@ function init_my_d3(data){
   svg_container
       .append('svg:path')
       .attr('d', function(d, i) {
-        var _line, j, _node, _n, _p, parent_node, fix_position_x, fix_position_y, _parents;
+        var _line, j, _node,  _next_node,  _starting_point, circle_size;
 
         j           = i+1;
         _node       = data[i];
         _next_node  = undefined;
         _last_node  = data[data.length-1];
-        parent_node = undefined;
-
-        if(j<data.length){
-          _next_node = data[j];
-        }
-        _last_node = data[data.length-1];
-        _n         = _node;
 
         if(_node.p1node in _map_node){
-          // a parent exist in the current list
-          parent_node = _map_node[_node.p1node];
+          _next_node = _map_node[_node.p1node];
+        }
 
-          // it may happend that parent_node is not the direct
-          // parent :(
-          // that mean we have a little non linear cycle in the
-          // same branch ...
-          if (parent_node.node_pos_x > _node.node_pos_x){
-            // coming from the left 
-            _line = line([{'x':_node.node_pos_x,        'y':_node.node_pos_y},
-                          {'x':_node.node_pos_x,        'y':parent_node.node_pos_y - shift_height_before_merge},
-                          {'x':parent_node.node_pos_x,  'y':parent_node.node_pos_y}]);
-          } else if (parent_node.node_pos_x < _node.node_pos_x){
-            // coming from the right 
-            _line = line([{'x':_node.node_pos_x,        'y':_node.node_pos_y},
-                          {'x':_node.node_pos_x,        'y':parent_node.node_pos_y - shift_height_before_merge},
-                          {'x':parent_node.node_pos_x,  'y':parent_node.node_pos_y}]);
-          } else {
-            _line = line([{'x':_node.node_pos_x,        'y':_node.node_pos_y},
-                          {'x':parent_node.node_pos_x,  'y':parent_node.node_pos_y-5}]);
+        for(__j = j;__j<data.length;__j++){
+          if(data[__j].branch===_node.branch){
+            _next_node = data[__j];
+            break;
           }
+        }
+
+        if(_node.node===current_node.node){
+          _starting_point = {'x':_node.node_pos_x, 'y':_node.node_pos_y+7};
         } else {
-          _line = line([{'x':_node.node_pos_x,        'y':_node.node_pos_y},
-                        {'x':_node.node_pos_x,        'y':_last_node.node_pos_y}]);
+          _starting_point = {'x':_node.node_pos_x, 'y':_node.node_pos_y+5};
         }
 
-        return _line;
-      })
-      .attr('class',function(d){
-        return 'line';
-      })
-      .attr("stroke", function(d,i){
-        return pick_a_color(d.branch);
-      })
-      .attr("stroke-width", 4)
-      .attr("fill", "none");
+        if(typeof(_next_node)!=="undefined"){
+          _target_pos_node = {'x':_next_node.node_pos_x,   'y':_next_node.node_pos_y};
+          // a parent exist in the current list
 
-
-  // add a line for each user using your SVG grouping 
-  svg_container
-      .append('svg:path')
-      .attr('d', function(d, i) {
-        var _line, j, _node, _n, _p, parent_node, fix_position_x, fix_position_y, _parents;
-
-        j           = i+1;
-        _node       = data[i];
-        _next_node  = undefined;
-        parent_node = undefined;
-
-        if(j<data.length){
-          _next_node = data[j];
-        }
-        _last_node = data[data.length-1];
-        _n         = _node;
-
-        if(_node.p2node!==null && _node.p2node in _map_node){
-          parent_node = _map_node[_node.p2node];
-
-          // it may happend that parent_node is not the direct
-          // parent :(
-          // that mean we have a little non linear cycle in the
           // same branch ...
-          _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y},
-                        {'x':parent_node.node_pos_x, 'y':_node.node_pos_y + shift_height_before_merge},
-                        {'x':parent_node.node_pos_x, 'y':parent_node.node_pos_y-5}]);
+          if (_next_node.node_pos_x > _node.node_pos_x){
+            // coming from the right
+            circle_size = _next_node.node===current_node.node ? 'big' : 'normal';
+            _target_pos_node.x += fix_position.right[circle_size].x;
+            _target_pos_node.y += fix_position.right[circle_size].y;
+            _line = line([_starting_point,
+                          {'x':_node.node_pos_x, 'y':_next_node.node_pos_y - shift_height_before_merge},
+                          _target_pos_node]);
+          } else if (_next_node.node_pos_x < _node.node_pos_x){
+            // coming from the left 
+            circle_size = _next_node.node===current_node.node ? 'big' : 'normal';
+            _target_pos_node.x += fix_position.left[circle_size].x;
+            _target_pos_node.y += fix_position.left[circle_size].y;
+
+            _line = line([_starting_point,
+                          {'x':_node.node_pos_x, 'y':_next_node.node_pos_y - shift_height_before_merge},
+                          _target_pos_node]);
+          } else {
+            _line = line([ _starting_point,
+                          _target_pos_node]);
+          }
+        } else if(data.length>1) {
+          _line = line([_starting_point,
+                        {'x':_node.node_pos_x, 'y':_last_node.node_pos_y}]);
         }
 
         return _line;
@@ -1315,7 +1304,7 @@ function init_my_d3(data){
         return 'line';
       })
       .attr("stroke", function(d,i){
-        return pick_a_color(d.branch);
+        return pick_a_color(list_branches_displayed.indexOf(d.branch));
       })
       .attr("stroke-width", 4)
       .attr("fill", "none");
@@ -1359,6 +1348,10 @@ function init_my_d3(data){
         return d.rev;
       })
       .attr('class', 'hlink')
+      .attr('style', function(d,i){
+        var style = 'color:' + pick_a_color(list_branches_displayed.indexOf(d.branch));
+        return style; 
+      })
       .attr('data-node',function(d,i){
         return d.node;
       })
@@ -1393,6 +1386,13 @@ function init_my_d3(data){
 
   li_content   = ul_container.append("xhtml:li");
   span_content = li_content.append("xhtml:span")
+      .attr('style', function(d,i){
+        var style = '';
+        if(d.node!==current_node.node){
+          style ='background-color:' + pick_a_color(list_branches_displayed.indexOf(d.branch));
+        }
+        return style; 
+      })
       .attr("class", function(d){
         var cls = "label";
         if(d.node === current_node.node){
@@ -1410,6 +1410,10 @@ function init_my_d3(data){
 
   ul_container.insert("xhtml:li").append('xhtml:a')
       .attr('class', 'hlink')
+      /*.attr('style', function(d,i){
+        var style = 'color:' + pick_a_color(d.branch);
+        return style; 
+      })*/
       .html(function(d){
         return d.desc;
       }).on('click',function(d){view_diff_revision( d.url_detail);});
