@@ -1104,7 +1104,7 @@ function init_my_d3(data){
   var fix_position_tail = function(_next_node, current_node, _target_pos_node, direction){
     var circle_size = _next_node.node===current_node.node ? 'big' : 'normal';
 
-    var _fixes = { 'left':{   'big':   {'x':-3, 'y':-5},
+    var _fixes = { 'left':{   'big':   {'x': 8, 'y':-5},
                              'normal': {'x': 4, 'y':-2}},
                   'right':{    'big':  {'x':-6, 'y':-5},
                              'normal': {'x':-4, 'y':-3}},
@@ -1165,7 +1165,7 @@ function init_my_d3(data){
               .attr('height',function(){
                 return data.length*row_size + 2*table_padding;
                })
-              .attr('width',1400);
+              .attr('width',Math.floor($('#global_container').width()));
 
   head_ul_container = svg_container
     .append("foreignObject")
@@ -1177,6 +1177,7 @@ function init_my_d3(data){
     .attr('y',function(d,i){
       return 0;
     })
+    .attr('class','titre')
     .append("xhtml:ul")
     .attr('class','revision_head');
 
@@ -1312,7 +1313,7 @@ function init_my_d3(data){
             _line = line([ _starting_point,
                           _target_pos_node]);
           }
-        } else if(data.length>1) {
+        } else if(data.length>1 && i<data.length-1) {
           _line = line([_starting_point,
                         {'x':_node.node_pos_x, 'y':_last_node.node_pos_y}]);
         }

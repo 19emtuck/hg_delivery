@@ -17,7 +17,7 @@
         </div>
         <div class="panel-body">
             <span class="label label-warning"> ${current_node.get('branch','UNKNOWN')}</span>
-            ${current_node.get('node','UNKNOWN')} (using mercurial : ${project.dvcs_release})
+            <span class="overflow">${current_node.get('node','UNKNOWN')} (using mercurial : ${project.dvcs_release})</span>
             <br><i>(${current_node.get('desc','UNKNOWN')})</i>
         </div>
       </div>
@@ -438,6 +438,10 @@
         $(this).tab('show')
       });
       init_my_d3(local_project_last_change_list);
+
+     $(window).resize(function() {
+        $("#d3_container > svg").attr('width',Math.floor($('#global_container').width()));
+     });
     })
   </script>
 </%block>
