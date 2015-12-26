@@ -1425,7 +1425,7 @@ function init_my_d3(data){
       .html(function(d){ return d.branch; });
 
   ul_container.append("xhtml:li").html(function(d){
-    return d.date;
+    return d.date.substr(0,d.date.length-2);
   });
 
   ul_container.insert("xhtml:li").append('xhtml:a')
