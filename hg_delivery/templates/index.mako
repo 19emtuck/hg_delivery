@@ -41,10 +41,19 @@
    <p class="lead">The purpose of HgDelivery webapp is to allow people to deliver or manage new release easily</p>
    <br>
    <br>
-   <br>
-   <br>
    <p class="lead"><b>Please login before proceeding</b></p>
+   <br>
+   % if logged_in is None :
+   <div>
+       <form id="login_form_responsive" action="${url('login')}" method='POST'>
+         <input class="span2" id="login" name="login" type="text" placeholder="your mail address">
+         <input class="span2" id="password" name="password" type="password" placeholder="your password">
+         <button type="submit" id="log_me" class="btn btn-primary" onclick="$('#login_form').submit()">Sign in</button>
+       </form>
+   </div>
  </div>
+
+ %endif
 
 % endif
 

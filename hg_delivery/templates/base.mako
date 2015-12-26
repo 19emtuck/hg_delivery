@@ -50,7 +50,14 @@
                 <li><a href="#" onclick="$('#new_project_dialog').modal('show');">Add a new project</a></li>
               % endif
              % endif
-             <li><a id="sign_out" href="${url('logout')}">Sign out</a></li>
+
+             % if logged_in is not None :
+               <li><a id="sign_out" href="${url('logout')}">Sign out</a></li>
+             % endif
+
+             % for __project in projects_list :
+               <li><a class="project_link responsive_link" href="${url(route_name='project_edit',id=__project.id)}">${__project.name}</a></li>
+             % endfor
           </ul>
           % if logged_in is not None :
             <form name="view_project" class="navbar-form pull-right">
