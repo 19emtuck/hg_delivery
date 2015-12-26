@@ -86,8 +86,15 @@ function go_to(url) {
   window.location.href = url;
 }
 
+function close_merge(){
+  $('#merge').remove();
+  $('div.source > pre').height('100%').css('overflow-y','');
+}
+
 function merge(){
   var full_path, node, p1node;
+  $('div.source > pre').height(350).css('overflow-y','auto').css('overflow-x','none');
+
   orig1_url = $('#diffs_container').data('orig1');
   orig2_url = $('#diffs_container').data('orig2');
 
@@ -100,7 +107,7 @@ function merge(){
 
   // clean merge ...
   $('#merge').remove();
-  $('#merge_container').html('<div id="merge"></div>').show();
+  $('#merge_container').html('<div id="merge" style="position:relative"><button type="button" style="position: absolute; display: block; top: -21px; right: 5px; z-index: 100; font-size: 1.2em;" class="merge_trigger" onclick="close_merge()"><i class="glyphicon glyphicon-folder-close"></i></button></div>').show();
 
   // create the object
   $('#merge').mergely({
@@ -837,6 +844,9 @@ function view_diff_revision(target_url){
       $('#files').html(lst_links.join('\n'));
       $('#diffs_container').show().html(diffs_content.join('\n'));
       $('#files_panel').show();
+
+      $('#merge').remove();
+
       $('#revision_description').data('node',json_response.revision.node).data('p1node',json_response.revision.p1node);
       $('#project_tab a[href="#revision"]').tab('show');
     }
