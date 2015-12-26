@@ -284,7 +284,7 @@ ul.revision_row li, ul.revision_head li {
 }
 
 ul.revision_row li:nth-child(1), ul.revision_head li:nth-child(1) {
-  min-width:70px;
+  min-width:50px;
 }
 
 ul.revision_row li:nth-child(2), ul.revision_head li:nth-child(2) {

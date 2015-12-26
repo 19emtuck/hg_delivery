@@ -1182,7 +1182,7 @@ function init_my_d3(data){
     .attr('class','revision_head');
 
   head_ul_container.append("xhtml:li")
-              .append('xhtml:span').html('Delivered');
+              .append('xhtml:span').html('Deliv.');
   head_ul_container.append("xhtml:li")
               .append('xhtml:span').html('Rev.');
   head_ul_container.append("xhtml:li")
