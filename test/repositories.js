@@ -70,6 +70,15 @@ casper.hg = function(){
   this.wait(300);
 };
 
+var click_on_row_col = function(row, col){
+  var e = document.createEvent('UIEvents');
+  e.initUIEvent('click', true, true);
+  $($('#d3_container ul').get(row)).find('li:nth-child('+col+') a').get(0).dispatchEvent(e);
+};
+var css_on_row_col = function(row, col, css_attr, css_value){
+  $($('#d3_container ul').get(row)).find('li:nth-child('+col+')').css(css_attr, css_value);
+};
+
 casper.userAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X)');
 casper.start();
 
@@ -264,8 +273,9 @@ casper.waitUntilVisible('#project_home', function(){
   this.test.assertExists('.glyphicon-ok');
   this.test.assertTextExists('my_first_commit');
 });
-casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#revision_table tbody tr:nth-child(1) td:nth-child(2) a');
-casper.thenClick('#revision_table tbody tr:nth-child(1) td:nth-child(2) a');
+casper.thenEvaluate(css_on_row_col, 1, 2, 'border', 'solid red 1px');
+casper.thenEvaluate(css_on_row_col, 1, 2, 'color', 'green');
+casper.thenEvaluate(click_on_row_col, 1, 2);
 casper.waitUntilVisible('#confirm_move_dialog');
 casper.thenClick('#move_to');
 
@@ -275,13 +285,14 @@ casper.wait(1000);
 casper.waitUntilVisible('.glyphicon-ok', function(){
   this.test.assertExists('.glyphicon-ok');
   this.test.assertTextExists('my_first_commit');
-  var link_str = this.evaluate(function(){ return $('#revision_table > tbody > tr:nth-child(1) > td:nth-child(7) > a').text(); });
+  var link_str = this.evaluate(function(){ return $($('#d3_container ul').get(1)).find('li:nth-child(7) a').text();});
   this.test.assertEquals(link_str, 'my_first_commit');
 });
 
 // click on revision link
-casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#revision_table > tbody > tr:nth-child(1) > td:nth-child(7) > a');
-casper.thenClick('#revision_table > tbody > tr:nth-child(1) > td:nth-child(7) > a');
+casper.thenEvaluate(css_on_row_col, 1, 7, 'border', 'solid red 1px');
+casper.thenEvaluate(css_on_row_col, 1, 7, 'color', 'green');
+casper.thenEvaluate(click_on_row_col, 1, 7);
 casper.waitUntilVisible('#files_panel');
 
 casper.then(function(){
@@ -358,8 +369,9 @@ casper.then(function(){
 });
 // we click on the first release line to update repo to
 // the last release
-casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#revision_table tbody tr:nth-child(1) td:nth-child(2) a');
-casper.thenClick('#revision_table tbody tr:nth-child(1) td:nth-child(2) a');
+casper.thenEvaluate(css_on_row_col, 1, 2, 'border-color', 'red');
+casper.thenEvaluate(css_on_row_col, 1, 2, 'color', 'green');
+casper.thenEvaluate(click_on_row_col, 1, 2);
 casper.waitUntilVisible('#confirm_move_dialog', function(){
   this.test.assertTextExists('from 1 to 2 revision');
 });
@@ -376,8 +388,9 @@ casper.then(function(){
 
 // we click on the first release line to update repo to
 // the last release
-casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#revision_table tbody tr:nth-child(1) td:nth-child(2) a');
-casper.thenClick('#revision_table tbody tr:nth-child(1) td:nth-child(2) a');
+casper.thenEvaluate(css_on_row_col, 1, 2, 'border-color', 'red');
+casper.thenEvaluate(css_on_row_col, 1, 2, 'color', 'green');
+casper.thenEvaluate(click_on_row_col, 1, 2);
 casper.waitUntilVisible('#confirm_move_dialog', function(){
   this.test.assertTextExists('from 1 to 2 revision');
 });
