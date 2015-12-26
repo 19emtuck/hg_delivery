@@ -1097,11 +1097,37 @@ function init_my_d3(data){
 
   var shift_per_branch = {};
 
-  var fix_position = { 'left':{'big':{'x':-3,'y':-5},
-                            'normal':{'x':4,'y':-2}},
-                       'right':{'big':{'x':-6,'y':-5},
-                             'normal':{'x':-4,'y':-3}}
-                     };
+  /*
+   * because nodes don't have the same size, we shall fix their position
+   * to avoid crapy join
+   */
+  var fix_position_tail = function(_next_node, current_node, _target_pos_node, direction){
+    var circle_size = _next_node.node===current_node.node ? 'big' : 'normal';
+
+    var _fixes = { 'left':{   'big':   {'x':-3, 'y':-5},
+                             'normal': {'x': 4, 'y':-2}},
+                  'right':{    'big':  {'x':-6, 'y':-5},
+                             'normal': {'x':-4, 'y':-3}},
+                'straight':{ 'big':    {'x': 0, 'y':-6},
+                             'normal': {'x': 0, 'y':-3}}
+                 };
+    _target_pos_node.x += _fixes[direction][circle_size].x;
+    _target_pos_node.y += _fixes[direction][circle_size].y;
+  };
+
+  /*
+   * because nodes don't have the same size, we shall fix their position
+   * to avoid crapy join
+   */
+  var fix_position_head = function(_node, current_node, _starting_point){
+    var circle_size = _node.node===current_node.node ? 'big' : 'normal';
+
+    var _fixes = {'big'   : {'x': 0,'y': 7},
+                  'normal': {'x': 0,'y': 5}
+                 };
+    _starting_point.x += _fixes[circle_size].x;
+    _starting_point.y += _fixes[circle_size].y;
+  };
 
   for(var _i=0, _max_i=data.length; _i<_max_i ; _i++){
     _revision = data[_i];
@@ -1261,11 +1287,8 @@ function init_my_d3(data){
           }
         }
 
-        if(_node.node===current_node.node){
-          _starting_point = {'x':_node.node_pos_x, 'y':_node.node_pos_y+7};
-        } else {
-          _starting_point = {'x':_node.node_pos_x, 'y':_node.node_pos_y+5};
-        }
+        _starting_point = {'x':_node.node_pos_x, 'y':_node.node_pos_y};
+        fix_position_head(_node, current_node, _starting_point);
 
         if(typeof(_next_node)!=="undefined"){
           _target_pos_node = {'x':_next_node.node_pos_x,   'y':_next_node.node_pos_y};
@@ -1274,22 +1297,18 @@ function init_my_d3(data){
           // same branch ...
           if (_next_node.node_pos_x > _node.node_pos_x){
             // coming from the right
-            circle_size = _next_node.node===current_node.node ? 'big' : 'normal';
-            _target_pos_node.x += fix_position.right[circle_size].x;
-            _target_pos_node.y += fix_position.right[circle_size].y;
+            fix_position_tail(_next_node, current_node, _target_pos_node, 'right');
             _line = line([_starting_point,
                           {'x':_node.node_pos_x, 'y':_next_node.node_pos_y - shift_height_before_merge},
                           _target_pos_node]);
           } else if (_next_node.node_pos_x < _node.node_pos_x){
             // coming from the left 
-            circle_size = _next_node.node===current_node.node ? 'big' : 'normal';
-            _target_pos_node.x += fix_position.left[circle_size].x;
-            _target_pos_node.y += fix_position.left[circle_size].y;
-
+            fix_position_tail(_next_node, current_node, _target_pos_node, 'left');
             _line = line([_starting_point,
                           {'x':_node.node_pos_x, 'y':_next_node.node_pos_y - shift_height_before_merge},
                           _target_pos_node]);
           } else {
+            fix_position_tail(_next_node, current_node, _target_pos_node, 'straight');
             _line = line([ _starting_point,
                           _target_pos_node]);
           }
