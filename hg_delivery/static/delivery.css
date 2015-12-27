@@ -134,11 +134,6 @@ input[name="task_content"] {
   border-right:none;
 }
 
-#projects_list {
-  overflow-y: auto;
-  max-height: 600px;
-}
-
 #filter {
   margin-left:20px;
   padding-right:0px;
@@ -221,6 +216,10 @@ input[name="task_content"] {
   .btn .icon-spin.icon-large{height:.75em}
 }
 
+ul.dropdown-menu {
+  overflow-y: auto;
+  max-height: 600px;
+}
 /**
  * SVG styles
  */
@@ -334,6 +333,36 @@ ul.revision_row li:nth-child(7), ul.revision_head li:nth-child(7) {
 * some responsive design fix
 *
 */
+
+@media screen and (max-height: 1500px) {
+  ul.dropdown-menu {
+    max-height: 600px;
+  }
+}
+
+@media screen and (max-height: 1000px) {
+  ul.dropdown-menu {
+    max-height: 500px;
+  }
+}
+
+@media screen and (max-height: 700px) {
+  ul.dropdown-menu {
+    max-height: 300px;
+  }
+}
+
+@media screen and (max-height: 500px) {
+  ul.dropdown-menu {
+    max-height: 200px;
+  }
+}
+
+@media screen and (max-height: 300px) {
+  ul.dropdown-menu {
+    max-height: 100px;
+  }
+}
 
 @media screen and (min-width: 768px) {
   .responsive_link {
