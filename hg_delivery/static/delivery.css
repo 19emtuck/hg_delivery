@@ -423,6 +423,11 @@ ul.revision_row li:nth-child(7), ul.revision_head li:nth-child(7) {
   #login_form_responsive {
     display:block; 
   }
+  #login_form_responsive input, #login_form_responsive button {
+    display:block; 
+    margin-left:2em;
+    margin-bottom:0.5em;
+  }
   #login_form {
     display:none; 
   }
