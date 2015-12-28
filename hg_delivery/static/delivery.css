@@ -275,6 +275,7 @@ ul.revision_head {
   padding-left:3px;
   line-height:20px;
   margin:0;
+  font-weight:bold;
 } 
 
 ul.revision_row li, ul.revision_head li {
