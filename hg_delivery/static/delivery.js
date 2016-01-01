@@ -1073,9 +1073,11 @@ function _pick_a_color(color){
   green   = (colors[color][1] * fg) || bg;
   blue    = (colors[color][2] * fg) || bg;
 
-  red     = Math.round(red   * 255);
-  green   = Math.round(green * 255);
-  blue    = Math.round(blue  * 255);
+  // remove 50% of light
+  // to get a color less shiny
+  red     = Math.round(Math.round(red   * 255) - 20*Math.round(red   * 255)/100);
+  green   = Math.round(Math.round(green * 255) - 20*Math.round(green * 255)/100);
+  blue    = Math.round(Math.round(blue  * 255) - 20*Math.round(blue  * 255)/100);
 
   s = 'rgb(' + red + ', ' + green + ', ' + blue + ')';
   return s;
