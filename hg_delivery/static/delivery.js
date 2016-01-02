@@ -1107,7 +1107,8 @@ function init_my_d3(data){
   var _map_node               = {};
   var _parent_to_child        = {};
 
-  var shift_per_branch = {};
+  var shift_per_branch        = {};
+  var max_shift_per_branch    = {};
 
   /*
    * because nodes don't have the same size, we shall fix their position
@@ -1141,22 +1142,70 @@ function init_my_d3(data){
     _starting_point.y += _fixes[circle_size].y;
   };
 
+  var _parent_node_1, _parent_node_2, _revision;
+
   for(var _i=0, _max_i=data.length; _i<_max_i ; _i++){
     _revision = data[_i];
+    node = data[_i];
     _revision.pos = _i;
     _map_node[_revision.node] = _revision;
 
-    _parent_node = _revision.p1node;
-    if(_parent_node in _parent_to_child){
-      _parent_to_child[_parent_node].push(_revision.node);
+    // first parent
+    _parent_node_1 = _revision.p1node;
+    if(_parent_node_1!==null && _parent_node_1 in _parent_to_child){
+      _parent_to_child[_parent_node_1].push(_revision.node);
     } else {
-      _parent_to_child[_parent_node] = [_revision.node];
+      _parent_to_child[_parent_node_1] = [_revision.node];
     }
 
-    node = data[_i];
+    // second parent
+    if(_revision.p2node!==null){
+      _parent_node_2 = _revision.p2node;
+      if(_parent_node_2 in _parent_to_child){
+        _parent_to_child[_parent_node_2].push(_revision.node);
+      } else {
+        _parent_to_child[_parent_node_2] = [_revision.node];
+      }
+    }
+
     if(list_branches_displayed.indexOf(node.branch)==-1){
       list_branches_displayed.push(node.branch);
       shift_per_branch[node.branch] = 0;
+    }
+  }
+  // reverse
+  var _local_shift = 0;
+  for(var __i=data.length-1; __i>=0 ; __i--){
+    node = data[__i];
+
+    // this revision got two parents ...
+    if(node.p1node!==null && node.p2node!==null){
+      _local_shift = shift_per_branch[node.branch];
+
+      // we shift both parent
+      if(node.p1node in _map_node){
+        _local_shift += shift_inner_branch;
+        _map_node[node.p1node].lonly_branch_shift_x = _local_shift;
+      }
+
+      if(node.p2node in _map_node){
+        _local_shift += shift_inner_branch;
+        _map_node[node.p1node].lonly_branch_shift_x = _local_shift;
+      }
+      shift_per_branch[node.branch] = _local_shift;
+    }
+
+    // two revision got this node as parent 
+    // a merge ...
+    if(node.node in _parent_to_child && _parent_to_child[node.node].length>1){
+      shift_per_branch[node.branch] -= shift_inner_branch;
+      _map_node[node.node].lonly_branch_shift_x = shift_per_branch[node.branch];
+    }
+
+    if(node.branch in max_shift_per_branch && max_shift_per_branch[node.branch] < shift_per_branch[node.branch]){
+     max_shift_per_branch[node.branch] = shift_per_branch[node.branch];
+    } else if(!(node.branch in max_shift_per_branch)) {
+     max_shift_per_branch[node.branch] = shift_per_branch[node.branch];
     }
   }
 
@@ -1169,7 +1218,7 @@ function init_my_d3(data){
       .y(function(d) {
         return d.y;
       })
-      .interpolate('linear');
+      .interpolate('step-before');
 
   d3_container = d3.select("#d3_container");
   svg_container = d3_container 
@@ -1218,12 +1267,61 @@ function init_my_d3(data){
        var branch_index, x, sum_shift;
        branch_index = list_branches_displayed.indexOf(d.branch);
 
-       x = col_size*branch_index + col_size;
-       d.node_pos_x = x;
+       if(list_branches_displayed.length>1){
+         x = col_size*branch_index + col_size;
+       } else {
+         /*sum_shift = shift_per_branch[d.branch];
+         x = col_size*branch_index + col_size;
 
-       if(d.node===current_node.node) {
-         current_node.node_pos_x = x;
+         var j = i +1;
+         var _p1_node, _next_node;
+         if(d.p1node in _map_node){
+           _p1_node = _map_node[d.p1node];
+         }
+         for(__j = j;__j<data.length;__j++){
+           if(data[__j].branch===d.branch){
+             _next_node = data[__j];
+             break;
+           }
+         }
+
+         if(d.p2node!==null && d.p2node in _map_node){
+           parent_node = _map_node[d.p2node];
+           shift_per_branch[d.branch] += shift_inner_branch;
+           if(d.branch in max_shift_per_branch && max_shift_per_branch[d.branch] < shift_per_branch[d.branch]){
+             max_shift_per_branch[d.branch] = shift_per_branch[d.branch];
+           } else if(!(d.branch in max_shift_per_branch)) {
+             max_shift_per_branch[d.branch] = shift_per_branch[d.branch];
+           }
+           parent_node.shift_x = shift_per_branch[d.branch];
+         } else if(typeof(_p1_node)!=="undefined" && _p1_node.node!==_next_node.node ){
+           shift_per_branch[d.branch] += shift_inner_branch;
+           if(d.branch in max_shift_per_branch && max_shift_per_branch[d.branch] < shift_per_branch[d.branch]){
+             max_shift_per_branch[d.branch] = shift_per_branch[d.branch];
+           } else if(!(d.branch in max_shift_per_branch)) {
+             max_shift_per_branch[d.branch] = shift_per_branch[d.branch];
+           }
+           //console.log("also shift p1 :"+_p1_node.rev);
+           _p1_node.shift_x = shift_per_branch[d.branch];
+         } else if(d.node in _parent_to_child && _parent_to_child[d.node].length>1) {
+           shift_per_branch[d.branch] -= 2*shift_inner_branch;
+           if(shift_per_branch[d.branch]<0){
+             shift_per_branch[d.branch] = 0;
+           }
+         }
+         if(typeof(d.shift_x)!=="undefined"){
+           x += d.shift_x;
+         }*/
+         x = col_size;
+         /*if(typeof(d.lonly_branch_shift_x)!=="undefined"){
+           console.log(d.lonly_branch_shift_x);
+         }*/
        }
+
+       if(typeof(d.lonly_branch_shift_x)!=="undefined"){
+         x += d.lonly_branch_shift_x;
+       }
+       d.node_pos_x = x;
        return x;
      })
      .attr("cy", function(d,i){
@@ -1300,34 +1398,64 @@ function init_my_d3(data){
           }
         }
 
-        _starting_point = {'x':_node.node_pos_x, 'y':_node.node_pos_y};
-        fix_position_head(_node, current_node, _starting_point);
+        if(list_branches_displayed.length>1){
+          _starting_point = {'x':_node.node_pos_x, 'y':_node.node_pos_y};
+          fix_position_head(_node, current_node, _starting_point);
 
-        if(typeof(_next_node)!=="undefined"){
-          _target_pos_node = {'x':_next_node.node_pos_x,   'y':_next_node.node_pos_y};
-          // a parent exist in the current list
+          if(typeof(_next_node)!=="undefined"){
+            _target_pos_node = {'x':_next_node.node_pos_x,   'y':_next_node.node_pos_y};
+            // a parent exist in the current list
 
-          // same branch ...
-          if (_next_node.node_pos_x > _node.node_pos_x){
-            // coming from the right
-            fix_position_tail(_next_node, current_node, _target_pos_node, 'right');
+            // same branch ...
+            if (_next_node.node_pos_x > _node.node_pos_x){
+              // coming from the right
+              fix_position_tail(_next_node, current_node, _target_pos_node, 'right');
+              _line = line([_starting_point,
+                            {'x':_node.node_pos_x, 'y':_next_node.node_pos_y - shift_height_before_merge},
+                            _target_pos_node]);
+            } else if (_next_node.node_pos_x < _node.node_pos_x){
+              // coming from the left 
+              fix_position_tail(_next_node, current_node, _target_pos_node, 'left');
+              _line = line([_starting_point,
+                            {'x':_node.node_pos_x, 'y':_next_node.node_pos_y - shift_height_before_merge},
+                            _target_pos_node]);
+            } else {
+              fix_position_tail(_next_node, current_node, _target_pos_node, 'straight');
+              _line = line([ _starting_point,
+                            _target_pos_node]);
+            }
+          } else if(data.length>1 && i<data.length-1) {
             _line = line([_starting_point,
-                          {'x':_node.node_pos_x, 'y':_next_node.node_pos_y - shift_height_before_merge},
-                          _target_pos_node]);
-          } else if (_next_node.node_pos_x < _node.node_pos_x){
-            // coming from the left 
-            fix_position_tail(_next_node, current_node, _target_pos_node, 'left');
-            _line = line([_starting_point,
-                          {'x':_node.node_pos_x, 'y':_next_node.node_pos_y - shift_height_before_merge},
-                          _target_pos_node]);
-          } else {
-            fix_position_tail(_next_node, current_node, _target_pos_node, 'straight');
-            _line = line([ _starting_point,
-                          _target_pos_node]);
+                          {'x':_node.node_pos_x, 'y':_last_node.node_pos_y}]);
           }
-        } else if(data.length>1 && i<data.length-1) {
-          _line = line([_starting_point,
-                        {'x':_node.node_pos_x, 'y':_last_node.node_pos_y}]);
+        } else {
+         if(_node.p1node in _map_node){
+           // a parent exist in the current list
+           parent_node = _map_node[_node.p1node];
+
+           // it may happend that parent_node is not the direct
+           // parent :(
+           // that mean we have a little non linear cycle in the
+           // same branch ...
+           if (parent_node.node_pos_x > _node.node_pos_x){
+             // coming from the left 
+             _line = line([{'x':_node.node_pos_x,        'y':_node.node_pos_y},
+                           {'x':_node.node_pos_x+10,        'y':parent_node.node_pos_y - shift_height_before_merge},
+                           {'x':parent_node.node_pos_x,  'y':parent_node.node_pos_y}]);
+           } else if (parent_node.node_pos_x < _node.node_pos_x){
+             // coming from the right 
+             _line = line([{'x':_node.node_pos_x,        'y':_node.node_pos_y},
+                           {'x':_node.node_pos_x,        'y':parent_node.node_pos_y - shift_height_before_merge},
+                           {'x':parent_node.node_pos_x,  'y':parent_node.node_pos_y}]);
+           } else {
+             _line = line([{'x':_node.node_pos_x,        'y':_node.node_pos_y},
+                           {'x':parent_node.node_pos_x,  'y':parent_node.node_pos_y-5}]);
+           }
+
+          } else {
+            _line = line([{'x':_node.node_pos_x,        'y':_node.node_pos_y},
+                          {'x':_node.node_pos_x,        'y':_last_node.node_pos_y}]);
+          }       
         }
 
         return _line;
@@ -1341,6 +1469,52 @@ function init_my_d3(data){
       .attr("stroke-width", 4)
       .attr("fill", "none");
 
+  
+
+  if(list_branches_displayed.length<=1){
+
+    // add a line for each user using your SVG grouping 
+    svg_container
+        .append('svg:path')
+        .attr('d', function(d, i) {
+          var _line, j, _node, _n, _p, parent_node, fix_position_x, fix_position_y, _parents;
+
+          j           = i+1;
+          _node       = data[i];
+          _next_node  = undefined;
+          parent_node = undefined;
+
+
+          if(j<data.length){
+            _next_node = data[j];
+          }
+          _last_node = data[data.length-1];
+          _n         = _node;
+
+          if(_node.p2node!==null && _node.p2node in _map_node){
+            parent_node = _map_node[_node.p2node];
+
+            // it may happend that parent_node is not the direct
+            // parent :(
+            // that mean we have a little non linear cycle in the
+            // same branch ...
+            _line = line([{'x':_node.node_pos_x, 'y':_node.node_pos_y},
+                          {'x':parent_node.node_pos_x+30, 'y':_node.node_pos_y + shift_height_before_merge},
+                          {'x':parent_node.node_pos_x, 'y':parent_node.node_pos_y-5}]);
+          }
+
+          return _line;
+        })
+        .attr('class',function(d){
+          return 'line';
+        })
+        .attr("stroke", function(d,i){
+          return pick_a_color(list_branches_displayed.indexOf(d.branch)+2);
+        })
+        .attr("stroke-width", 4)
+        .attr("fill", "none");
+  }
+
   html_container = svg_container.append("foreignObject")
       .attr("width", "100%")
       .attr("height", row_size)
@@ -1352,7 +1526,13 @@ function init_my_d3(data){
         return cls;
       })
       .attr('x',function(d,i){
-        return (list_branches_displayed.length*col_size)+col_size;
+        var result;
+        if(list_branches_displayed.length>1){
+          result = (list_branches_displayed.length*col_size)+col_size;
+        } else {
+          result = (list_branches_displayed.length*col_size) + max_shift_per_branch[d.branch];
+        }
+        return result;
       })
       .attr('y',function(d,i){
         return d.node_pos_y-14;
