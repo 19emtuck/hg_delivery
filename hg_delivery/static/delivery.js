@@ -34,7 +34,9 @@ function memoize( fn ) {
             currentArg = args[i];
             hash += (currentArg === Object(currentArg)) ?
             JSON.stringify(currentArg) : currentArg;
-            fn.memoize || (fn.memoize = {});
+            if(typeof(fn.memoize)==='undefined' || fn.memoize === null){
+              fn.memoize = {};
+            }
         }
         return (hash in fn.memoize) ? fn.memoize[hash] :
         fn.memoize[hash] = fn.apply(this, args);
