@@ -664,7 +664,7 @@ class HgNode(NodeSsh):
     except NodeException as e :
       node = {}
     else :
-      node, p1node, p2node, author, branch, rev, parents, date, desc, tags = line.split(u'|#|')
+      node, p1node, p2node, author, branch, rev, parents, date, desc, tags = data.split(u'|#|')
       desc = desc.replace(u'\\n','\n')
       if not branch : branch = 'default'
       if len(p2node.strip('0'))==0 :
