@@ -1091,7 +1091,7 @@ pick_a_color = memoize(_pick_a_color);
  *
  */
 function init_my_d3(data){
-  var svg, html_container, ul_container, svg_container, node;
+  var svg, html_container, ul_container, svg_container, node, _local_shift;
   $('#d3_container').html('');
 
   var row_size                  = 40;
@@ -1173,39 +1173,41 @@ function init_my_d3(data){
       shift_per_branch[node.branch] = 0;
     }
   }
-  // reverse
-  var _local_shift = 0;
-  for(var __i=data.length-1; __i>=0 ; __i--){
-    node = data[__i];
 
-    // this revision got two parents ...
-    if(node.p1node!==null && node.p2node!==null){
-      _local_shift = shift_per_branch[node.branch];
+  if(list_branches_displayed.length===1){
+    // reverse
+    for(var __i=data.length-1; __i>=0 ; __i--){
+      node = data[__i];
 
-      // we shift both parent
-      if(node.p1node in _map_node){
-        _local_shift += shift_inner_branch;
-        _map_node[node.p1node].lonly_branch_shift_x = _local_shift;
+      // this revision got two parents ...
+      if(node.p1node!==null && node.p2node!==null){
+        _local_shift = shift_per_branch[node.branch];
+
+        // we shift both parent
+        if(node.p1node in _map_node){
+          _local_shift += shift_inner_branch;
+          _map_node[node.p1node].lonly_branch_shift_x = _local_shift;
+        }
+
+        if(node.p2node in _map_node){
+          _local_shift += shift_inner_branch;
+          _map_node[node.p2node].lonly_branch_shift_x = _local_shift;
+        }
+        shift_per_branch[node.branch] = _local_shift;
       }
 
-      if(node.p2node in _map_node){
-        _local_shift += shift_inner_branch;
-        _map_node[node.p1node].lonly_branch_shift_x = _local_shift;
+      // two revision got this node as parent 
+      // a merge ...
+      if(node.node in _parent_to_child && _parent_to_child[node.node].length>1){
+        shift_per_branch[node.branch] -= shift_inner_branch;
+        _map_node[node.node].lonly_branch_shift_x = shift_per_branch[node.branch];
       }
-      shift_per_branch[node.branch] = _local_shift;
-    }
 
-    // two revision got this node as parent 
-    // a merge ...
-    if(node.node in _parent_to_child && _parent_to_child[node.node].length>1){
-      shift_per_branch[node.branch] -= shift_inner_branch;
-      _map_node[node.node].lonly_branch_shift_x = shift_per_branch[node.branch];
-    }
-
-    if(node.branch in max_shift_per_branch && max_shift_per_branch[node.branch] < shift_per_branch[node.branch]){
-     max_shift_per_branch[node.branch] = shift_per_branch[node.branch];
-    } else if(!(node.branch in max_shift_per_branch)) {
-     max_shift_per_branch[node.branch] = shift_per_branch[node.branch];
+      if(node.branch in max_shift_per_branch && max_shift_per_branch[node.branch] < shift_per_branch[node.branch]){
+       max_shift_per_branch[node.branch] = shift_per_branch[node.branch];
+      } else if(!(node.branch in max_shift_per_branch)) {
+       max_shift_per_branch[node.branch] = shift_per_branch[node.branch];
+      }
     }
   }
 
@@ -1270,52 +1272,7 @@ function init_my_d3(data){
        if(list_branches_displayed.length>1){
          x = col_size*branch_index + col_size;
        } else {
-         /*sum_shift = shift_per_branch[d.branch];
-         x = col_size*branch_index + col_size;
-
-         var j = i +1;
-         var _p1_node, _next_node;
-         if(d.p1node in _map_node){
-           _p1_node = _map_node[d.p1node];
-         }
-         for(__j = j;__j<data.length;__j++){
-           if(data[__j].branch===d.branch){
-             _next_node = data[__j];
-             break;
-           }
-         }
-
-         if(d.p2node!==null && d.p2node in _map_node){
-           parent_node = _map_node[d.p2node];
-           shift_per_branch[d.branch] += shift_inner_branch;
-           if(d.branch in max_shift_per_branch && max_shift_per_branch[d.branch] < shift_per_branch[d.branch]){
-             max_shift_per_branch[d.branch] = shift_per_branch[d.branch];
-           } else if(!(d.branch in max_shift_per_branch)) {
-             max_shift_per_branch[d.branch] = shift_per_branch[d.branch];
-           }
-           parent_node.shift_x = shift_per_branch[d.branch];
-         } else if(typeof(_p1_node)!=="undefined" && _p1_node.node!==_next_node.node ){
-           shift_per_branch[d.branch] += shift_inner_branch;
-           if(d.branch in max_shift_per_branch && max_shift_per_branch[d.branch] < shift_per_branch[d.branch]){
-             max_shift_per_branch[d.branch] = shift_per_branch[d.branch];
-           } else if(!(d.branch in max_shift_per_branch)) {
-             max_shift_per_branch[d.branch] = shift_per_branch[d.branch];
-           }
-           //console.log("also shift p1 :"+_p1_node.rev);
-           _p1_node.shift_x = shift_per_branch[d.branch];
-         } else if(d.node in _parent_to_child && _parent_to_child[d.node].length>1) {
-           shift_per_branch[d.branch] -= 2*shift_inner_branch;
-           if(shift_per_branch[d.branch]<0){
-             shift_per_branch[d.branch] = 0;
-           }
-         }
-         if(typeof(d.shift_x)!=="undefined"){
-           x += d.shift_x;
-         }*/
          x = col_size;
-         /*if(typeof(d.lonly_branch_shift_x)!=="undefined"){
-           console.log(d.lonly_branch_shift_x);
-         }*/
        }
 
        if(typeof(d.lonly_branch_shift_x)!=="undefined"){
@@ -1530,7 +1487,7 @@ function init_my_d3(data){
         if(list_branches_displayed.length>1){
           result = (list_branches_displayed.length*col_size)+col_size;
         } else {
-          result = (list_branches_displayed.length*col_size) + max_shift_per_branch[d.branch];
+          result = col_size + max_shift_per_branch[d.branch];
         }
         return result;
       })
