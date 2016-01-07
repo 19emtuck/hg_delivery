@@ -316,9 +316,11 @@ ul.revision_row li:nth-child(7), ul.revision_head li:nth-child(7) {
   min-width:400px;
   max-width:450px;
   overflow-wrap:break-word;
-  overflow:hidden
+  overflow:hidden;
   text-wrap:normal;
   margin-right:2em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .link {
