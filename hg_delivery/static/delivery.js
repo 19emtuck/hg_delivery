@@ -838,7 +838,7 @@ function view_diff_revision(target_url){
       var revision_description = "<ul style='list-style:none;padding-left:0'>";
       Object.keys(json_response.revision).forEach(function(attr_item){
 	      if(json_response.revision[attr_item]){
-		      revision_description+="<li><b>"+attr_item + "</b><span> : "+json_response.revision[attr_item]+"</span></li>";
+		      revision_description+="<li class='revision_item_"+attr_item+"'><b>"+attr_item + "</b><span> : "+json_response.revision[attr_item]+"</span></li>";
 	      }
       });
       revision_description += "</ul>";

@@ -20,6 +20,14 @@ span.overflow {
   font-size:2em;
 }
 
+.revision_item_desc {
+  background-color: #C5B7B7;
+  border: solid 1px #fff;
+  border-radius: 5px;
+  padding: 7px;
+}
+
+
 .starter-template {
   padding: 40px 15px;
 }
