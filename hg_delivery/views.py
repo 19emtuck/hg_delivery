@@ -695,9 +695,9 @@ def edit_project(request):
       if l.command.count('hg update -C -r') :
         hash_rev = l.command.split('hg update -C -r ')[1].strip()
         if hash_rev in delivered_hash :
-          delivered_hash[hash_rev].append(l.creation_date.strftime('%d/%M/%Y %H:%M:%s'))
+          delivered_hash[hash_rev].append(l.creation_date.strftime('%d/%m/%Y %H:%M:%S'))
         else :
-          delivered_hash[hash_rev] = [l.creation_date.strftime('%d/%M/%Y %H:%M:%s')]
+          delivered_hash[hash_rev] = [l.creation_date.strftime('%d/%m/%Y %H:%M:%S')]
 
     if project is None :
       return HTTPFound(location=request.route_url(route_name='home'))
