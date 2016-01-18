@@ -677,6 +677,9 @@ def edit_project(request):
     projects_map = {p.id:p for p in projects_list}
     project = projects_map.get(id_project)
 
+    if project is None :
+      return HTTPFound(location=request.route_url(route_name='home'))
+
     if not project.is_initial_revision_init() :
       project.init_initial_revision()
 
@@ -699,8 +702,6 @@ def edit_project(request):
         else :
           delivered_hash[hash_rev] = [l.creation_date.strftime('%d/%m/%Y %H:%M:%S')]
 
-    if project is None :
-      return HTTPFound(location=request.route_url(route_name='home'))
     linked_projects = [p for p in projects_list if p.rev_init is not None and p.rev_init == project.rev_init and p.id != project.id and p.is_initial_revision_init()]
 
     branch = None
