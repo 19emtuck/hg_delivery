@@ -873,7 +873,7 @@ function display_logs(active_button) {
         var log_resume = [];
         json_response.logs.forEach(function(item){
           var _id = item.id.toString().rjust(4,'0');
-          log_resume.push("<ul class='row_log'><li>" + _id + "</li><li><i>"+item.creation_date +"</i></li><li>" + item.host + "</li><li>" + item.path + "</li><li>" + item.command+"</li></ul>");
+          log_resume.push("<ul class='row_log'><li>" + _id + "</li><li><i>"+item.user +"</i><li><i>"+item.creation_date +"</i></li><li>" + item.host + "</li><li>" + item.path + "</li><li>" + item.command+"</li></ul>");
         });
         var __loc_html = '<ul class="log"><li>'+log_resume.join('</li><li>')+'</li></ul>';
         $('#logs').html(__loc_html);

@@ -24,7 +24,8 @@ from .models import (
     DBSession,
     Project,
     RemoteLog,
-    Acl
+    Acl,
+    User
     )
 
 from .nodes import NodeSsh, PoolSsh
@@ -53,9 +54,15 @@ def mysubscriber(event):
 
   # before any render we look if we need to
   # log data and flush them into database
-  if NodeSsh.logs :
+  if NodeSsh.logs:
+    if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
+      webapp_user_id = 666 
+    else :
+      webapp_user_id = DBSession.query(User.id)\
+                                .filter(User.email==request.authenticated_userid)\
+                                .scalar()
     for (__id, __host, __path, __command) in NodeSsh.logs :
-      DBSession.add(RemoteLog(id_project = __id, host = __host, path = __path, command = __command))
+      DBSession.add(RemoteLog(id_project = __id, id_user = webapp_user_id, host = __host, path = __path, command = __command))
     # also empty the list container
     del NodeSsh.logs[0:]
 

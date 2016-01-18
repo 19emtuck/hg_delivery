@@ -141,15 +141,18 @@ class RemoteLog(Base):
 
   id            = Column(Integer, primary_key=True)
   id_project    = Column(Integer, ForeignKey(Project.id))
+  id_user       = Column(Integer, ForeignKey('user.id'))
+  user          = relationship('User', backref='logs')
   host          = Column(String(100))
   path          = Column(Text)
   command       = Column(Text)
   creation_date = Column(DateTime)
 
-  def __init__(self, id_project, host, path, command):
+  def __init__(self, id_project, id_user, host, path, command):
     """
     """
     self.id_project    = id_project
+    self.id_user       = id_user
     self.creation_date = datetime.now()
     self.host          = host
     self.path          = path
@@ -158,7 +161,12 @@ class RemoteLog(Base):
   def __json__(self, request):
     """
     """
+    user_label = 'unknown'
+    if self.user :
+      user_label = self.user.email
+
     return { 'id'            : self.id,
+             'user'          : user_label,
              'host'          : self.host,
              'path'          : self.path,
              'command'       : self.command,
