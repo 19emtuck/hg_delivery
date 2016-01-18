@@ -164,4 +164,13 @@ casper.waitWhileVisible('#new_project_dialog');
 casper.waitUntilVisible('.alert-success');
 casper.thenEvaluate(function(selector){ $(selector).css('border','').css('color',''); }, '#add_my_project');
 
+// check we can't reach an unknown project
+// this shall redirect you to welcome page
+casper.thenOpen('http://127.0.0.1:6543/project/edit/666');
+casper.then(function(response){
+  this.test.assertTitle('Hg Delivery 1.0 welcome :)');
+  this.test.assertTextExists('Dashboard');
+  this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
+});
+
 casper.run();
