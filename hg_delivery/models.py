@@ -164,6 +164,8 @@ class RemoteLog(Base):
     user_label = 'unknown'
     if self.user :
       user_label = self.user.email
+    elif self.id_user == User.default_administrator_id :
+      user_label = 'Administrator'
 
     return { 'id'            : self.id,
              'user'          : user_label,
@@ -204,6 +206,8 @@ class User(Base):
   """
   __tablename__ = 'user'
 
+  default_administrator_id = 666
+
   id            = Column(Integer, primary_key=True)
 
   id_group      = Column(Integer, ForeignKey(Group.id))
@@ -237,7 +241,7 @@ class User(Base):
              'name'          : self.name,
              'email'         : self.email,
              'pwd'           : self.pwd,
-             'get_url'       : request.route_url(route_name='user_get',id=self.id),
+             'get_url'       : request.route_url(route_name='user_get',   id=self.id),
              'delete_url'    : request.route_url(route_name='user_delete',id=self.id),
              'update_url'    : request.route_url(route_name='user_update',id=self.id),
              'group'         : self.group,

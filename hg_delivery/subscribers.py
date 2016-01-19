@@ -56,7 +56,7 @@ def mysubscriber(event):
   # log data and flush them into database
   if NodeSsh.logs:
     if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-      webapp_user_id = 666 
+      webapp_user_id = User.default_administrator_id
     else :
       webapp_user_id = DBSession.query(User.id)\
                                 .filter(User.email==request.authenticated_userid)\
