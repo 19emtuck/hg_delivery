@@ -104,15 +104,17 @@ casper.waitForText('runing ...');
 casper.waitForText('run it ..');
 
 casper.thenClick('#button_log');
+casper.waitUntilVisible('#container_logs button.close');
 casper.then(function(){
-  this.test.assertExist('#button_log.btn-success');
+  this.test.assertExist('#button_log');
+  this.test.assertExist('#container_logs button.close');
   this.test.assertEquals('ls -al',this.evaluate(function(){return $('.row_log:first li:last').text();}));
 });
 casper.thenClick('#container_logs button.close');
 casper.waitWhileVisible('#container_logs button.close');
 
 casper.then(function(){
-  this.test.assertDoesntExist('#button_log.btn-success');
+  this.test.assertNotVisible('#container_logs button.close');
 });
 
 casper.then(function(){

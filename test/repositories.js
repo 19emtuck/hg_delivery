@@ -34,7 +34,7 @@ if(casper.cli.has('verbose')){
 
 casper.options.logLevel = 'debug';
 casper.options.verbose = verbose;
-casper.options.waitTimeout = 5000;
+casper.options.waitTimeout = 9000;
 
 casper.spawn = function(){
   var command = arguments[0];
@@ -96,9 +96,7 @@ casper.on('step.complete', function(){
 });
 
 casper.on('step.error', function(error){
-  if(!casper.cli.has('fast')){
-    this.capture('images/repositories_hg_'+casper.step+'.jpg', undefined,{ format:'jpg', quality:100});
-  }
+  this.capture('images/repositories_hg_'+casper.step+'.jpg', undefined,{ format:'jpg', quality:100});
 });
 
 casper.on('remote.message',function(message){this.echo(message);});
@@ -263,12 +261,9 @@ casper.waitWhileVisible('#container_alert .progress-bar', function(){
 casper.then(function(){
   var project_pushed_name = this.evaluate(function(){return $('#other_projects a[data-name="d2"]').data('name');});
   // get project where I pushed ...
-  this.open(map_project_to_url[project_pushed_name]);
+  this.thenOpen(map_project_to_url[project_pushed_name]);
 });
 
-// wait refresh has been done ...
-casper.waitForResource('project\/edit\/[0-9]+');
-casper.wait(1000);
 casper.waitUntilVisible('#project_home', function(){
   this.test.assertExists('.glyphicon-ok');
   this.test.assertTextExists('my_first_commit');
@@ -278,9 +273,9 @@ casper.thenEvaluate(css_on_row_col, 1, 2, 'color', 'green');
 casper.thenEvaluate(click_on_row_col, 1, 2);
 casper.waitUntilVisible('#confirm_move_dialog');
 casper.thenClick('#move_to');
+casper.waitForResource('project\/update');
 
 casper.waitUntilVisible('#project_home');
-casper.waitForResource('project\/edit\/[0-9]+');
 casper.wait(1000);
 casper.waitUntilVisible('.glyphicon-ok', function(){
   this.test.assertExists('.glyphicon-ok');
@@ -353,7 +348,6 @@ casper.waitUntilVisible('#container_alert .progress-bar', function(){
 
 casper.waitWhileVisible('#container_alert .progress-bar', function(){
   this.test.assertDoesntExist('#container_alert .progress-bar');
-  this.test.assertNotVisible('#button_push');
 });
 
 casper.waitUntilVisible('#project_home', function(){

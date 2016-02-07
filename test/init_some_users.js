@@ -70,19 +70,13 @@ casper.then(function(){
                     {'name':'tata', 'email':'tata@free.fr', 'pwd':'dudule'} ];
 
   this.each(list_users, function(casp, user_info){
-    casp.thenClick('span[class="glyphicon glyphicon-plus"]', function(){
-      this.wait(200);
-      this.waitForSelector('#add_my_user');
-      this.fill('form[name="user"]', user_info);
-
-      this.thenClick('#add_my_user', function(){
-        this.wait(200);
-        this.waitWhileVisible('#add_my_user');
-        this.waitForText(user_info.email);
-        this.waitWhileVisible('div.alert-success');
-        this.wait(200);
-      });
-    });
+    casp.thenClick('span[class="glyphicon glyphicon-plus"]');
+    casp.waitForSelector('#add_my_user');
+    casp.then(function(){this.fill('form[name="user"]', user_info);});
+    casp.thenClick('#add_my_user');
+    casp.waitForResource('users/add');
+    casp.waitForText(user_info.email);
+    casp.waitWhileVisible('div.alert-success');
   });
 
 });
