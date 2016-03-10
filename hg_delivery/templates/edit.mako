@@ -245,12 +245,13 @@
                      <li>
                           <input type="text" name="task_content" value="${task.content}">
                           <button data-id="${task.id}" data-url="${url(route_name='project_delete_task', id=task.id)}" onclick="delete_this_task(this)" type="button" class="btn">delete it ..</button>
-                          <button data-id="${task.id}" data-url="${url(route_name='project_run_task', id=task.id)}" onclick="run_this_task(this)" type="button" class="btn">run it ..</button>
+                          <button data-id="${task.id}" data-url="${url(route_name='project_run_task', id=task.id)}" onclick="run_this_task(this)" type="button" class="btn run_task">run it ..</button>
                      </li>
                    %endfor
                </ul>
                <button type="button" onclick="add_new_task()" class="btn btn-primary">add a task</button>
                <button id="save_tasks" type="button" onclick="save_project_tasks()" class="btn btn-primary">save modifications</button>
+               <button type="button" onclick="run_project_tasks()" class="btn btn-primary">run them all</button>
              </form>
           </div>
         </div>

@@ -937,7 +937,17 @@ function run_this_task(button){
       }, 600);
     },
   });
+}
 
+
+/**
+ * run all project tasks if all task are finished
+ * based on button disable or not check
+ */
+function run_project_tasks(){
+  if(!$('button.run_task').is(':disabled')){
+    $('button.run_task').click();
+  }
 }
 
 /**
