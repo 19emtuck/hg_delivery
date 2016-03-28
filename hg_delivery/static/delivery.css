@@ -337,6 +337,22 @@ ul.revision_row li:nth-child(7), ul.revision_head li:nth-child(7) {
   stroke-width: 1.5px;
 }
 
+#users_overview tbody tr:nth-child(even) td{
+  background-color:white;
+}
+#users_overview tbody tr:nth-child(odd) td{
+  background-color:#DEDEDE;
+}
+
+#acls_overview tbody tr:nth-child(even) td{
+  background-color:white;
+}
+#acls_overview tbody tr:nth-child(odd) td{
+  background-color:#DEDEDE;
+}
+
+
+
 #login_form_responsive {
   display:none; 
 }
