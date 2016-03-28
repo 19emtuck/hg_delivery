@@ -70,12 +70,14 @@ def users_include(config):
   """
     Users routes definitions
   """
-  config.add_route('users',        '/view')
-  config.add_route('users_json',   '/json')
-  config.add_route('user_add',     '/add')
-  config.add_route('user_delete',  '/{id:\d+}/delete')
-  config.add_route('user_update',  '/{id:\d+}/update')
-  config.add_route('user_get',     '/{id:\d+}/get')
+  config.add_route('users'           , '/view')
+  config.add_route('users_save_acls' , '/acls/save')
+  config.add_route('users_json'      , '/json')
+  config.add_route('user_add'        , '/add')
+  config.add_route('user_delete'     , '/{id:\d+}/delete')
+  config.add_route('user_update'     , '/{id:\d+}/update')
+  config.add_route('user_get'        , '/{id:\d+}/get')
+  config.add_route('user_acls'       , '/{id:\d+}/acls/get' , custom_predicates=(to_int('id') , ))
 
 #------------------------------------------------------------------------------
 

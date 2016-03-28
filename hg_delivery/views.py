@@ -254,7 +254,13 @@ def manage_users(request):
     retrieve and publish user list and project list
     """
     lst_users = DBSession.query(User).all()
-    return {'lst_users':lst_users}
+    project_acls = {}
+    for _p in DBSession.query(Project) :
+      project_acls[_p.id] = {_acl.id_user:_acl.acl for _acl in DBSession.query(Acl).filter(Acl.id_project == _p.id)}
+
+    return {'lst_users':lst_users,
+            'known_acls':Acl.known_acls,
+            'project_acls':project_acls}
 
 #------------------------------------------------------------------------------
 
@@ -889,6 +895,61 @@ def save_project_tasks(request):
 
   return {'result':result, 'tasks':project.tasks}
 
+#------------------------------------------------------------------------------
+
+@view_config(route_name='user_acls', renderer='json', permission='edit')
+def get_user_acls(request):
+  """
+  """
+  id_user = request.matchdict['id']
+  user = DBSession.query(User).get(id_user)
+
+  result = False
+  acls   = []
+
+  if user :
+    result = True
+    acls = user.acls
+  return {'result':result, 'acls':acls, 'known_acls':Acl.known_acls}
+
+#------------------------------------------------------------------------------
+
+@view_config(route_name='users_save_acls', renderer='json', permission='edit')
+def save_users_acls(request):
+  """
+  """
+
+  result = False
+
+  map_project_users_ace = {}
+
+  try :
+    for ele, _acl_label in request.params.iteritems() :
+      id_project, id_user = (int(_e) for _e in ele.split('__'))
+      if id_project in map_project_users_ace :
+        map_project_users_ace[id_project][id_user]=_acl_label
+      else :
+        map_project_users_ace[id_project] = {id_user:_acl_label}
+
+    for id_project in map_project_users_ace :
+      project = DBSession.query(Project).get(id_project)
+      if project is not None:
+        project.acls[0:] = []
+        for id_user in map_project_users_ace[id_project] :
+          _acl_label = map_project_users_ace[id_project][id_user]
+          if _acl_label in Acl.known_acls:
+             acl = Acl(id_user, id_project, _acl_label)
+             DBSession.add(acl)
+             project.acls.append(acl)
+    DBSession.flush()
+    result = True
+
+  except IntegrityError as e:
+    DBSession.rollback()
+    result = False
+    explanation = u"wtf ?"
+
+  return HTTPFound(location=request.route_url(route_name='users'))
 #------------------------------------------------------------------------------
 
 @view_config(route_name='project_save_acls', renderer='json', permission='edit')
