@@ -341,17 +341,15 @@ ul.revision_row li:nth-child(7), ul.revision_head li:nth-child(7) {
   background-color:white;
 }
 #users_overview tbody tr:nth-child(odd) td{
-  background-color:#DEDEDE;
+  background-color:#E2E2E2;
 }
 
 #acls_overview tbody tr:nth-child(even) td{
   background-color:white;
 }
 #acls_overview tbody tr:nth-child(odd) td{
-  background-color:#DEDEDE;
+  background-color:#E2E2E2;
 }
-
-
 
 #login_form_responsive {
   display:none; 
