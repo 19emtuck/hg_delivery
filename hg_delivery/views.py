@@ -181,12 +181,10 @@ def delete_user(request):
                     .filter(User.id==user_id)\
                     .scalar()
 
-    result = False
     if user :
       DBSession.delete(user)
-      result = True
 
-    return {'result':result}
+    return HTTPFound(location=request.route_url(route_name='users'))
 
 #------------------------------------------------------------------------------
 
@@ -979,6 +977,7 @@ def save_project_acls(request):
       DBSession.flush()
       result = True
     except IntegrityError as e:
+      log.error(e)
       DBSession.rollback()
       result = False
       explanation = u"wtf ?"

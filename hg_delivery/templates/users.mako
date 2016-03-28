@@ -34,7 +34,7 @@
                   <td>${user.email}</td>
                   <td>${user.creation_date.strftime('%d/%m/%Y %H:%M')}</td>
                   <td><button class="btn btn-default" onclick="edit_user('${url('user_update', id=user.id)}', '${url('user_get', id=user.id)}', '${user.id}')">edit</button></td>
-                  <td><button class="btn btn-default" onclick="delete_user(this,'${url('user_delete', id=user.id)}')">delete</button></td>
+                  <td><button class="btn btn-default" onclick="go_to('${url('user_delete', id=user.id)}')">delete</button></td>
                </tr>
             % endfor
             % if not lst_users :
@@ -66,7 +66,7 @@
          _chunks_users = [lst_users[x:x+6] for x in range(0,len(lst_users),6)]
        %>
        % for _chunk_users in _chunks_users :
-         <table id="users_overview" class="table table-condensed" data-update_url="${url('users_json')}">
+         <table id="acls_overview" class="table table-condensed" data-update_url="${url('users_json')}">
             <thead>
               <th>Projects</th>
               % for user in _chunk_users :
