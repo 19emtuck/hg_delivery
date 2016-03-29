@@ -284,13 +284,21 @@ def node_description(request):
 
   node_description = {}
 
-  with NodeController(project) as ssh_node :
-    repository_node = ssh_node.get_current_revision_description()
+  try :
+    with NodeController(project, silent=True) as ssh_node :
+      repository_node = ssh_node.get_current_revision_description()
 
-    current_rev = None 
-    if repository_node and 'node' in repository_node :
-      current_rev = repository_node['node']
-    node_description = repository_node
+      current_rev = None
+      if repository_node and 'node' in repository_node :
+        current_rev = repository_node['node']
+      node_description = repository_node
+  except NodeException :
+    # a paramiko error
+    # linked to network error
+    # File "....   venv/lib/python3.4/site-packages/paramiko-1.16.0-py3.4.egg/paramiko/ssh_exception.py", line 168, in __init__
+    #   body = ', '.join([x[0] for x in addrs[:-1]])
+    # TypeError: 'dict_keys' object is not subscriptable
+    pass
 
   return { 'node_description':node_description }
 

@@ -216,6 +216,8 @@ class NodeSsh(object):
       raise NodeException(u"The host key given by the SSH server did not match what we were expecting.")
     except paramiko.ssh_exception.PasswordRequiredException :
       raise NodeException(u"Exception raised when a password is needed to unlock a private key file.")
+    except TypeError :
+      raise NodeException(u"host unavailable")
     return ssh
 
   def close_connection(self):
