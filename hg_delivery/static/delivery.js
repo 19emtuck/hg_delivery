@@ -1002,6 +1002,45 @@ function save_project_tasks(){
 }
 
 /**
+ * the function used to filter other users acl and help administrator to focus
+ * on a particular user.
+ *
+ *:param triggered_button: the button user pushed
+ *:param user_id: the user id
+ */
+function edit_user_acl(triggered_button, user_id){
+  $button = $(triggered_button);
+  $('button.user_filter_selected').not($button).removeClass('user_filter_selected').css('background-color', '');
+  // renew situation
+  $('.acls_overview').show().find('td').show().end().find('th').show();
+
+  if(!$button.hasClass('user_filter_selected')){
+    $button.addClass('user_filter_selected');
+    var $user_head_col = $('.acls_overview th[data-user_id="'+user_id+'"]');
+    var $top_table     = $user_head_col.closest('table');
+    var col_index      = $user_head_col.parent().children().index($user_head_col);
+
+    var lst_indexed_to_hide = $top_table.find('th.user_head_class').each(function(_id, _item){
+      var $_item = $(_item);
+      var _col_index = $_item.parent().children().index($_item);
+      if(_col_index!==col_index){
+        var shifted_item = _col_index+1;
+        $top_table .find('td:nth-child('+shifted_item+')')
+              .hide()
+              .end()
+              .find('th:nth-child('+shifted_item+')')
+              .hide();
+      }
+    });
+    $top_table.find('.extra_col_project').hide();
+    $('.acls_overview').not($top_table).hide();
+    $button.css('background-color', '#4AA04A');
+  } else {
+    $button.removeClass('user_filter_selected').css('background-color', '');
+  }
+}
+
+/**
  * Save all project ACLS
  */
 function save_project_acls(){

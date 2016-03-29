@@ -24,8 +24,9 @@
             <th>Name</th>
             <th>Email (a.k.a. login)</th>
             <th>Creation date</th>
-            <th>Action</th>
-            <th>Action</th>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
           </thead>
           <tbody>
             % for user in lst_users :
@@ -33,7 +34,8 @@
                   <td>${user.name}</td>
                   <td>${user.email}</td>
                   <td>${user.creation_date.strftime('%d/%m/%Y %H:%M')}</td>
-                  <td><button class="btn btn-default" onclick="edit_user('${url('user_update', id=user.id)}', '${url('user_get', id=user.id)}', '${user.id}')">edit</button></td>
+                  <td><button class="btn btn-default" onclick="edit_user_acl(this, ${user.id})">edit user acl</button></td>
+                  <td><button class="btn btn-default" onclick="edit_user('${url('user_update', id=user.id)}', '${url('user_get', id=user.id)}', '${user.id}')">edit user properties</button></td>
                   <td><button class="btn btn-default" onclick="go_to('${url('user_delete', id=user.id)}')">delete</button></td>
                </tr>
             % endfor
@@ -66,18 +68,21 @@
          _chunks_users = [lst_users[x:x+6] for x in range(0,len(lst_users),6)]
        %>
        % for _chunk_users in _chunks_users :
-         <table id="acls_overview" class="table table-condensed" data-update_url="${url('users_json')}">
+         <table class="acls_overview table table-condensed" data-update_url="${url('users_json')}">
             <thead>
               <th>Projects</th>
-              % for user in _chunk_users :
-                 <th> ${user.name} </th>
+              % for i, user in enumerate(_chunk_users) :
+                 <th data-user_id="${user.id}" class="user_head_class"> ${user.name} </th>
+                 % if i==2:
+                  <th class="extra_col_project">Projects</th>
+                 % endif
               % endfor
             </thead>
             <tbody>
                % for __project in projects_list :
                  <tr>
                     <td>${__project.name}</td>
-                    % for user in _chunk_users :
+                    % for i, user in enumerate(_chunk_users) :
                       <td>
                        <select name="${__project.id}__${user.id}" class="ace" data-project_id="${__project.id}" data-user_id="${user.id}">
                          <option value=""> ----- </option>
@@ -90,7 +95,9 @@
                          % endfor
                        </select>
                       </td>
-
+                      % if i==2:
+                        <td class="extra_col_project">${__project.name}</td>
+                      % endif
                     % endfor
                  </tr>
                % endfor
