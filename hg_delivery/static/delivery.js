@@ -986,7 +986,7 @@ function save_project_tasks(){
       json_response.tasks.forEach(function(item, i){
         var html = '<li>';
         html = html + ' <input type="text" name="task_content" size="150" value="' + item.content + '">';
-        html = html + ' <button data-id="' + item.id + '" data-url="' + item.execute_url + '" onclick="run_this_task(this)" type="button" class="btn">run it ..</button>';
+        html = html + ' <button data-id="' + item.id + '" data-url="' + item.execute_url + '" onclick="run_this_task(this)" type="button" class="btn run_task">run it ..</button>';
         html = html + ' <button data-id="' + item.id + '" data-url="' + item.delete_url + '" onclick="delete_this_task(this)" type="button" class="btn">delete it ..</button>';
         html = html + ' </li>';
         $(html).appendTo('#tasks_list');
