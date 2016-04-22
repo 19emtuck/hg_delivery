@@ -25,6 +25,7 @@ from sqlalchemy import (
     String,
     Boolean,
     ForeignKey,
+    Enum,
     )
 from sqlalchemy.orm import relationship, backref
 
@@ -65,6 +66,7 @@ class Project(Base):
   logs         = relationship('RemoteLog', cascade='delete, delete-orphan')
   acls         = relationship('Acl', backref='project', cascade='delete, delete-orphan')
   tasks        = relationship('Task', backref='project', cascade='delete, delete-orphan')
+  macros       = relationship('Macro', backref='project', cascade='delete, delete-orphan')
 
   def __init__(self, name, user, password, host, path, rev_init, dashboard, dvcs_release):
     """
@@ -198,6 +200,7 @@ class Group(Base):
     return { 'id'            : self.id,
              'label'         : self.label,
              'creation_date' : self.creation_date.strftime('%d/%m/%Y %H : %M')}
+
 #------------------------------------------------------------------------------
 
 class User(Base):
@@ -309,4 +312,71 @@ class Task(Base):
            }
 
 #------------------------------------------------------------------------------
+
+class Macro(Base):
+  """
+  """
+  __tablename__ = 'macro'
+
+  id               = Column(Integer, primary_key=True)
+  id_project       = Column(Integer, ForeignKey(Project.id))
+  label            = Column(String(100))
+  relations        = relationship('MacroRelations', backref='macro', cascade = 'delete, delete-orphan')
+
+  def __init__(self, id_project, label):
+    """
+    """
+    self.id_project = id_project
+    self.label      = label 
+
+  def get_description(self):
+    """
+     return a string description of the current macro
+     This description shall be related to macro relations
+     so usee could understood what this macro does ...
+    """
+    lst_relations_label = []
+    for relation in self.relations :
+      if relation.aim_project is not None :
+        lst_relations_label.append("%s %s"%(relation.direction, relation.aim_project.name))
+
+    return "%s that imply : %s"%(self.label, " then ".join(lst_relations_label))
+
+  def __json__(self, request):
+    """
+    """
+    return { 'id'        : self.id,
+             'id_macros' : self.id_project,
+             'label'     : self.label,
+           }
+
+#------------------------------------------------------------------------------
+
+class MacroRelations(Base):
+  """
+  """
+  __tablename__ = 'macro_relations'
+
+  id               = Column(Integer, primary_key=True)
+  id_macros        = Column(Integer, ForeignKey(Macro.id))
+  id_third_project = Column(Integer, ForeignKey(Project.id))
+  aim_project      = relationship(Project)
+
+  # relation between main project and others ...
+  direction        = Column(Enum('push','pull'))
+
+  def __init__(self, id_third_project, direction) :
+    """
+    """
+    self.id_third_project = id_third_project
+    self.direction = direction
+
+  def __json__(self, request):
+    """
+    """
+    return { 'id'               : self.id,
+             'id_macros'        : self.id_project,
+             'id_third_project' : self.id_third_project,
+             'direction'        : self.direction,
+           }
 

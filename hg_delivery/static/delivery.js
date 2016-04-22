@@ -940,6 +940,124 @@ function run_this_task(button){
   });
 }
 
+/**
+ * Add a macro, regarding to current project
+ *
+ */
+function add_a_macro(){
+  var data = $('form[name="macro_creator"]').serialize();
+  var add_url = $('form[name="macro_creator"]').attr('action');
+
+  $.ajax({url:add_url,
+          method:'POST',
+          data:data,
+          beforeSend:function(){
+            $('#container_alert').html('');
+          },
+          success:function(json_response){
+            if(json_response.result){
+              // reset the form ...
+              $('form[name="macro_creator"] input').val('');
+              $('form[name="macro_creator"] select').val('');
+              var _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+              _alert_html += 'Your macro has been recorded</div>';
+               $('#container_alert').append(_alert_html);
+               $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
+
+               // refresh macros list ...
+               $.ajax({url:$('#macros').data('refresh_url'),
+                       method:'GET',
+                       success:function(html_response){
+                         $('#macros').html(html_response);
+                       }
+                     })
+               
+            } else {
+              var _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+              _alert_html += '<strong>Your macro has not been recorded. Please retry later or fix your entries</strong></div>';
+               $('#container_alert').append(_alert_html);
+            }
+          },
+         })
+}
+
+/**
+ * remove a macro from a project
+ */
+function delete_this_macro(button, macro_delete_url){
+  var $button      = $(button);
+  var label_button = $button.text();
+  $button.prop('disabled',true);
+
+  $.ajax({url:macro_delete_url,
+          beforeSend:function(){
+            $button.text('deleting ...');
+          },
+          success:function(json_response){
+            if(json_response.result){
+              $button.closest('li').remove();
+            }
+          },
+          complete:function(){
+            setTimeout(function() {
+              $button.text(label_button);
+              $button.prop('disabled',false);
+            }, 600);
+          },
+        });
+
+}
+
+/**
+ * run the macro, regarding to attached url ...
+ *
+ *
+ * :param button: the button who gets the event
+ * :param macro_run_url: the url targeting macro execution
+ * :param force_branch: a boolean, a flag forcing execution if
+ *                      necessary
+ */
+function run_this_macro(button, macro_name, macro_run_url, force_branch){
+  var $button      = $(button);
+  var label_button = $button.text();
+  $('#macros_list button').prop('disabled',true);
+
+  if(typeof(force_branch)==="undefined"){
+    force_branch = false; 
+  }
+
+  $.ajax({url:macro_run_url,
+          data:{'force_branch':force_branch},
+          beforeSend:function(){
+            $button.text('runing ...');
+          },
+          success:function(json_response){
+            if(json_response.result){
+              _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+              _alert_html += '<strong>the macro ('+macro_name+') has been executed successfully</strong></div>';
+              $('#container_alert').html(_alert_html);
+              $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
+            } else if(json_response.new_branch_stop){
+              // dialog : should we force ?
+              $('#confirm_force_push_dialog .modal-body').html("Should we push them ?<br><br>"+json_response.lst_new_branches.join(','));
+              $('#abort_new_branch').off().on('click',function(){$('#container_alert').delay(1000).html('');});
+              $('#new_branch').off().on('click',function(){ $('#confirm_force_push_dialog').modal('hide');$('#container_alert').html(''); run_this_macro(button, macro_name, macro_run_url, true);});
+              $('#confirm_force_push_dialog').modal('show');
+            } else if(json_response.new_head_stop){
+              $('#dismiss_force_push_dialog').modal('show');
+              $('#container_alert').delay(1000).html('');
+            } else {
+              console.log('WTF !!!');
+            }
+          },
+          complete:function(){
+            setTimeout(function() {
+              $button.text(label_button);
+              $('#macros_list button').prop('disabled',false);
+            }, 600);
+          },
+        });
+}
 
 /**
  * run all project tasks if all task are finished

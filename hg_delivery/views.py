@@ -27,6 +27,8 @@ from .models import (
     Acl,
     Task,
     Group,
+    Macro,
+    MacroRelations,
     )
 
 from hg_delivery.nodes import (
@@ -478,6 +480,200 @@ def who_share_this_id(request):
 
 #------------------------------------------------------------------------------
 
+@view_config(route_name='macros', renderer='templates/macros.mako', permission='edit')
+def view_all_macros(request):
+  """
+  """
+  if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
+    macros = DBSession.query(Macro).join(Project).options(joinedload(Macro.relations)).order_by(Project.name.desc()).all()
+  else :
+    macros = DBSession.query(Macro).join(Project).join(Acl).join(User).filter(User.id==request.user.id).options(joinedload(Macro.relations)).order_by(Project.name.desc()).all()
+
+  dict_project_to_macros = OrderedDict()
+
+  for macro in macros :
+    project = macro.project
+    if project in dict_project_to_macros :
+      dict_project_to_macros[project].append(macro)
+    else :
+      dict_project_to_macros[project] = [macro]
+  return {'dict_project_to_macros':dict_project_to_macros}
+
+#------------------------------------------------------------------------------
+
+@view_config(route_name='macro_refresh', renderer='templates/edit#publish_project_macros.mako', permission='edit')
+def refresh_macros(request):
+  """
+    re-publish the list of macros ....
+  """
+  id_project = request.matchdict['id']
+  project    = DBSession.query(Project).get(id_project)
+
+  project_macros = DBSession.query(Macro).filter(Macro.id_project == id_project).all()
+
+  if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
+    projects_list = DBSession.query(Project)\
+                             .order_by(Project.name.desc())\
+                             .all()
+  else :
+    projects_list = DBSession.query(Project)\
+                             .join(Acl).join(User)\
+                             .filter(User.id==request.user.id)\
+                             .order_by(Project.name.desc())\
+                             .all()
+
+  linked_projects = [p for p in projects_list if p.rev_init is not None and p.rev_init == project.rev_init and p.id != project.id]
+
+  return {'project_macros'  : project_macros,
+          'project'         : project,
+          'linked_projects' : linked_projects}
+
+#------------------------------------------------------------------------------
+
+@view_config(route_name='macro_delete', renderer='json')
+def delete_a_macro(request):
+  """
+    create a macro on a specific project.
+    A macro is a list of bind project that shall be push or pull
+  """
+  result = False
+  try :
+    macro_id = request.matchdict['macro_id']
+    macro = DBSession.query(Macro).get(macro_id)
+    DBSession.delete(macro)
+    DBSession.flush()
+    result = True
+  except :
+    DBSession.rollback()
+    result = False
+
+  return {'result':result}
+
+#------------------------------------------------------------------------------
+@view_config(route_name='macro_add', renderer='json')
+def create_a_macro(request):
+  """
+    create a macro on a specific project.
+    A macro is a list of bind project that shall be push or pull
+  """
+  id_project = request.matchdict['id']
+  result     = False
+
+  # a name is mandatory for the macro ...
+  macro_name    = None
+  if 'macro_name' in request.params :
+    macro_name    = request.params['macro_name']
+
+    macro_content = {}
+
+    for _param in request.params :
+      if re.match('^direction_[0-9]{1,}',_param) and request.params[_param] in {'push','pull'}:
+        aim_id_project = _param.split('_')[1]
+        aim_value      = request.params[_param]
+        macro_content[aim_id_project] = aim_value
+
+    if macro_name and len(macro_name)>1 and len(macro_content)>0 :
+
+      macro = Macro(id_project, macro_name)
+      DBSession.add(macro)
+
+      for _p_id in macro_content :
+        macro_relation = MacroRelations(_p_id, macro_content[_p_id])
+        DBSession.add(macro_relation)
+        macro.relations.append(macro_relation)
+
+      DBSession.flush()
+      result = True
+
+  return {'result':result}
+
+#------------------------------------------------------------------------------
+
+@view_config(route_name='macro_run', renderer='json')
+def run_a_macro(request):
+  """
+    Run a macro
+
+    hum ... if push, could we push with thread ?
+    shall we check to whom we need to push
+
+    first ... : pull
+    then  ....: all the push execution ...
+
+  """
+  result           = False
+  new_branch_stop  = False
+  new_head_stop    = False
+  force_branch     = False
+  lst_new_branches = []
+  project_errors   = []
+
+  if 'force_branch' in request.params and request.params['force_branch']=='true':
+    force_branch = True 
+
+  id_project = request.matchdict['id']
+  project    = DBSession.query(Project).get(id_project)
+
+  macro_id = request.matchdict['macro_id']
+  macro    = DBSession.query(Macro).options(joinedload(Macro.relations)).get(macro_id)
+
+  for relation in macro.relations :
+
+    aim_project = relation.aim_project
+    direction   = relation.direction
+
+    if project and aim_project and direction == 'push' :
+
+      ssh_node        = None
+      ssh_node_remote = None
+
+      try :
+        with NodeController(project) as ssh_node :
+          data = ssh_node.push_to(project, aim_project, force_branch)
+      except HgNewBranchForbidden as e:
+        # we may inform user that he cannot push ...
+        # maybe add a configuration parameter to fix this
+        # and send --new-branch directly on the first time
+        new_branch_stop = True
+        result          = False
+
+        set_local_branches = set()
+        with NodeController(project, silent=True) as ssh_node :
+          set_local_branches = set(ssh_node.get_branches())
+
+        try :
+          with NodeController(aim_project) as ssh_node_remote :
+            set_remote_branches = set(ssh_node_remote.get_branches())
+            lst_new_branches = list(set_local_branches - set_remote_branches)
+            data = e.value
+        except :
+          data = {}
+      except HgNewHeadsForbidden as e:
+        # we may inform user that he cannot push ...
+        # maybe add a configuration parameter to fix this
+        # and send --new-branch directly on the first time
+        new_head_stop    = True
+        result           = False
+        lst_new_branches = []
+        data             = e.value
+        project_errors.append(aim_project.name)
+      else :
+        result = True
+
+    elif project and aim_project and direction == 'pull':
+
+      with NodeController(project, silent=True) as ssh_node :
+        ssh_node.pull_from(project, aim_project)
+
+  return {'new_branch_stop'  : new_branch_stop,
+          'new_head_stop'    : new_head_stop,
+          'lst_new_branches' : lst_new_branches,
+          'project_errors'   : project_errors,
+          'buffer'           : data.get('buff'),
+          'result'           : result}
+
+#------------------------------------------------------------------------------
+
 @view_config(route_name='project_push_to', renderer='json', permission='edit')
 def push(request):
   """
@@ -660,6 +856,7 @@ def delete_project(request):
       id_project = request.matchdict['id']
       project = DBSession.query(Project).get(id_project)
       project.delete_nodes()
+      # also delete macros or relation that target that project
 
       DBSession.delete(project)
       DBSession.flush()
@@ -736,8 +933,10 @@ def edit_project(request):
     repository_error = None
 
     users = DBSession.query(User).all()
-    project_acls = {_acl.id_user:_acl.acl for _acl in DBSession.query(Acl).filter(Acl.id_project == id_project)}
-    project_tasks = DBSession.query(Task).filter(Task.id_project == id_project).all()
+
+    project_acls   = {_acl.id_user:_acl.acl for _acl in DBSession.query(Acl).filter(Acl.id_project == id_project)}
+    project_tasks  = DBSession.query(Task).filter(Task.id_project == id_project).all()
+    project_macros = DBSession.query(Macro).filter(Macro.id_project == id_project).all()
 
     try :
       with NodeController(project) as ssh_node :
@@ -806,6 +1005,7 @@ def edit_project(request):
              'allow_to_modify_acls'     : allow_to_modify_acls,
              'project_acls'             : project_acls,
              'project_tasks'            : project_tasks,
+             'project_macros'           : project_macros,
              'knonwn_acl'               : Acl.known_acls,
              'delivered_hash'           : delivered_hash}
 

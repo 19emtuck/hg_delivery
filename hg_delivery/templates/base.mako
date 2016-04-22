@@ -46,6 +46,7 @@
              % if logged_in is not None and request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid:
               <li><a href="${url('users')}">Users</a></li>
               <li><a href="${url('tasks')}">Tasks</a></li>
+              <li><a href="${url('macros')}">Macros</a></li>
               % if project is UNDEFINED and request.url == request.route_url('home'):
                 <li><a href="#" onclick="$('#new_project_dialog').modal('show');">Add a new project</a></li>
               % endif

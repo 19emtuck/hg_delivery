@@ -27,6 +27,16 @@ span.overflow {
   padding: 7px;
 }
 
+.macro_label {
+  display:inline-block;
+  min-width:30em;
+  max-width:30em;
+  margin-right:3em;
+}
+
+#macros_list button:last-child{
+  margin-left:2em;
+}
 
 .starter-template {
   padding: 40px 15px;

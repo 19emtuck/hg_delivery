@@ -50,6 +50,13 @@ def projects_include(config):
   config.add_route('project_brothers',                '/brothers/{id:\d+}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
   config.add_route('project_brothers_update_check',   '/check/{id:\d+}/{rev}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
 
+  # macros linked to this project
+  config.add_route('macro_add',   '/macros/{id:\d+}/add', custom_predicates=(to_int('id'),), factory = ProjectFactory)
+  config.add_route('macro_refresh','/macros/{id:\d+}/refresh', custom_predicates=(to_int('id'),), factory = ProjectFactory)
+
+  config.add_route('macro_run',   '/macros/{id:\d+}/run/{macro_id:\d+}', custom_predicates=(to_int('id'),to_int('macro_id'),), factory = ProjectFactory)
+  config.add_route('macro_delete','/macros/{id:\d+}/delete/{macro_id:\d+}', custom_predicates=(to_int('id'),to_int('macro_id'),), factory = ProjectFactory)
+
   # move project to another revision
   # add a fizzle to get projects list target by the action
   config.add_route('project_change_to',               '/update/{rev}/in/{id:\d+}/and/*brother_id', custom_predicates=(to_int('id'), to_int('brother_id'),), factory = ProjectFactory)
@@ -62,6 +69,7 @@ def projects_include(config):
   config.add_route('project_run_task',                '/tasks/run/{id:\d+}', custom_predicates=(to_int('id'),), factory = TaskFactory)
   config.add_route('project_delete_task',             '/tasks/delete/{id:\d+}', custom_predicates=(to_int('id'),), factory = TaskFactory)
   config.add_route('tasks',                           '/tasks')
+  config.add_route('macros',                          '/macros')
   config.add_route('description',                     '/description/{id:\d+}')
 
 #------------------------------------------------------------------------------
@@ -110,8 +118,7 @@ def main(global_config, **settings):
   config.set_authorization_policy(authz_policy)
   config.add_request_method(get_user, 'user', reify=True)
 
-  # config.add_static_view('static', 'static', cache_max_age=3600)
-  config.add_static_view('static', 'static')
+  config.add_static_view('static', 'static', cache_max_age=3600)
   
   config.add_route('home',         '/')
   config.add_route('login',        '/login')

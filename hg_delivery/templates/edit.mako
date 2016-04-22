@@ -4,6 +4,50 @@
 <%inherit file="base.mako"/>
 <%namespace name="lib" file="lib.mako"/>
 
+## function or method that publish macros list regarding to arguments :
+##
+##          - project (the current one)
+##          - linked projects
+##          - project_macros
+<%def name="publish_project_macros(project_macros, project, linked_projects)">
+     <h3>Macros list</h3>
+
+     <ul id="macros_list">
+       % for macro in project_macros :
+         <li style="list-style:none;margin-bottom:0.2em;">
+            <span class="macro_label">${macro.get_description()}</span>
+            <button class="btn btn-primary" onclick="run_this_macro(this, '${macro.label}','${url(route_name='macro_run', id=project.id, macro_id=macro.id)}');">run it</button>
+            <button class="btn btn-primary" onclick="delete_this_macro(this, '${url(route_name='macro_delete', id=project.id, macro_id=macro.id)}');">delete it</button>
+         </li>
+       % endfor
+     </ul>
+
+     <h3>Define a macro</h3>
+     <form id="macro_creator" name="macro_creator" action="${url(route_name='macro_add', id=project.id)}" method="POST">
+       %if len(linked_projects)>0 :
+           First : name it : <input name="macro_name" type="text" maxlength="90" size="60">
+           <br>
+           <br>
+           Second : define the project you aim and the direction 
+         <ul style="padding:0; list-style:none;">
+         %for link in linked_projects :
+           <li>
+             <select name="direction_${link.id}">
+               <option selected="selected" value=""></option>
+               <option value="push">push</option>
+               <option value="pull">pull</option>
+             </select>
+             <span>${link.name}</span>
+           </li>
+         %endfor
+         </ul>
+       %else :
+          No linked project detected
+       %endif
+     <button type="button" onclick="add_a_macro()" class="btn btn-primary">create this macro</button>
+     </form>
+</%def>
+
 <%def name="publish_project_html(current_node, filter_branch, filter_tag, last_hundred_change_list)">
     % if current_node is not UNDEFINED and current_node is not None :
       <div class="panel panel-default col-md-6" style="padding-left:0px;padding-right:0px;">
@@ -75,6 +119,7 @@
 
 <ul id="project_tab" class="nav nav-tabs" style="margin-top:4px;margin-bottom:6px">
   <li class="active"> <a href="#project_home">project <b>${project.name}</b></a> </li>
+  <li> <a href="#macros">Macros</a> </li>
   <li> <a href="#related">Related projects</a> </li>
   <li> <a href="#revision">Revision</a> </li>
   % if allow_to_modify_acls :
@@ -154,6 +199,11 @@
        </table>
      </div>
 
+  </div>
+
+  <!-- project macros tab pane -->
+  <div class="tab-pane" id="macros" data-refresh_url="${url('macro_refresh',id=project.id)}">
+    ${publish_project_macros(project_macros, project, linked_projects)}
   </div>
 
   <!-- project revision tab pane -->
