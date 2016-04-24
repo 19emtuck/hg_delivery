@@ -956,6 +956,8 @@ function add_a_macro(){
           },
           success:function(json_response){
             if(json_response.result){
+              $('#new_macro_dialog').modal('hide');
+
               // reset the form ...
               $('form[name="macro_creator"] input').val('');
               $('form[name="macro_creator"] select').val('');
@@ -970,7 +972,7 @@ function add_a_macro(){
                        success:function(html_response){
                          $('#macros').html(html_response);
                        }
-                     })
+               });
                
             } else {
               var _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
