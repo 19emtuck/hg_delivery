@@ -1,3 +1,23 @@
+<%def name="publish_new_branch_dialog()">
+  <div id="confirm_force_push_dialog" class="modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">It seems you are trying to push a new branch.</h4>
+        </div>
+        <div class="modal-body">
+          Should we push also it ?
+        </div>
+        <div class="modal-footer">
+          <button id="abort_new_branch" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button id="new_branch" type="button" class="btn btn-primary">Push this new branch</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+</%def>
+
 <%def name="publish_project_dialog()">
   <div id="new_project_dialog" class="modal">
     <div class="modal-dialog">
