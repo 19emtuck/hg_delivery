@@ -977,7 +977,8 @@ function add_a_macro(){
             } else {
               var _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
               _alert_html += '<strong>Your macro has not been recorded. Please retry later or fix your entries</strong></div>';
-               $('#container_alert').append(_alert_html);
+              $('#new_macro_dialog .modal-body').after(_alert_html)
+              $('#new_macro_dialog .alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
             }
           },
          })
