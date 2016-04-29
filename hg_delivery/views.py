@@ -56,6 +56,9 @@ class SpeedThread(Thread):
   def __init__(self, project, rev):
     """
     we're looking for a project and targeting a specific revision
+
+    :param project: an sqlalchemy models.Project instance
+    :param rev: a string hash revision
     """
     self.project     = project
     self.rev         = rev
@@ -74,6 +77,9 @@ class SpeedCrawler(SpeedThread):
   def __init__(self, project, rev):
     """
     we're looking for a project and targeting a specific revision
+
+    :param project: an sqlalchemy models.Project instance
+    :param rev: a string hash revision
     """
     self.__linked     = False
     SpeedThread.__init__(self, project, rev)
@@ -106,6 +112,9 @@ class SpeedUpdater(SpeedThread):
   def __init__(self, project, rev):
     """
     we're looking for a project and targeting a specific revision
+
+    :param project: an sqlalchemy models.Project instance
+    :param rev: a string hash revision
     """
     self.__updated     = False
     SpeedThread.__init__(self, project, rev)
