@@ -984,6 +984,70 @@ function add_a_macro(){
          })
 }
 
+
+function edit_a_macro(button, macro_edit_url, macro_update_url){
+  var $button      = $(button);
+  var label_button = $button.text();
+  $button.prop('disabled',true);
+
+  $.ajax({url:macro_edit_url,
+          beforeSend:function(){
+            $button.text('editing ...');
+          },
+          success:function(json_response){
+            if(json_response.result){
+              $('#update_macro_dialog').modal('show');
+
+              // fullfill form
+              $('#update_macro_dialog input[name="macro_name"]').val(json_response.label);
+              $('#update_macro_dialog select').each(function(__i,__item){
+                var $__item = $(__item);
+                var project_id = $__item.data('project_id');
+                if (project_id in json_response.map_relations){
+                  $__item.val(json_response.map_relations[project_id]);
+                }
+              });
+
+              $('#update_macro_dialog button').off().click(function(){
+                $button.prop('disabled',false).text('edit');
+              });
+              $('#button_update_macro').click(function(){
+                var data = $('form[name="macro_update"]').serialize();
+                $.ajax({url : macro_update_url,
+                        data:data,
+                        success:function(json_response){
+                          if(json_response.result){
+
+                            $button.prop('disabled',false).text('edit');
+                            $('#update_macro_dialog').modal('hide');
+
+                            // refresh macros list ...
+                            $.ajax({url:$('#macros').data('refresh_url'),
+                                    method:'GET',
+                                    success:function(html_response){
+                                      $('#macros').html(html_response);
+                                    }
+                            });
+                          } else {
+                            var _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                            _alert_html += '<strong>Your macro has not been recorded. Please retry later or fix your entries</strong></div>';
+                            $('#update_macro_dialog .modal-body').after(_alert_html)
+                            $('#update_macro_dialog .alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
+                          }
+                        }
+                       });
+              });
+            } else {
+              $button.prop('disabled',false).text('edit');
+            }
+          },
+          error:function(){
+            $button.prop('disabled',false).text('edit');
+          }
+        });
+}
+
+
 /**
  * remove a macro from a project
  */

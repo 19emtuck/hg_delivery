@@ -480,6 +480,31 @@ def who_share_this_id(request):
 
 #------------------------------------------------------------------------------
 
+@view_config(route_name='macro_fetch', renderer='json', permission='edit')
+def edit_a_macro(request):
+  """
+  """
+  result = False
+  project_id = request.matchdict['id']
+  macro_id   = request.matchdict['macro_id']
+
+  macro = DBSession.query(Macro).options(joinedload(Macro.relations)).get(macro_id)
+  macro_relations = macro.relations
+
+  map_relations = {}
+
+  if macro_relations is not None and len(macro_relations)>0:
+    for relation in macro_relations :
+      direction                       = relation.direction
+      id_third_project                = relation.id_third_project
+      map_relations[id_third_project] = direction
+    result = True
+  else :
+    result = False
+  return {'result':result, 'map_relations':map_relations, 'label':macro.label}
+
+#------------------------------------------------------------------------------
+
 @view_config(route_name='macros', renderer='templates/macros.mako', permission='edit')
 def view_all_macros(request):
   """
@@ -550,7 +575,52 @@ def delete_a_macro(request):
   return {'result':result}
 
 #------------------------------------------------------------------------------
-@view_config(route_name='macro_add', renderer='json')
+
+@view_config(route_name='macro_update', renderer='json', permission='edit')
+def update_a_macro(request):
+  """
+    update a specific macro on a specific project.
+    A macro is a list of bind project that shall be push or pull
+  """
+  result      = False
+  explanation = None
+  id_project  = request.matchdict['id']
+  macro_id    = request.matchdict['macro_id']
+  macro       = DBSession.query(Macro).options(joinedload(Macro.relations)).get(macro_id)
+
+  # a name is mandatory for the macro ...
+  macro_name    = None
+  if macro is not None and 'macro_name' in request.params :
+    try :
+      macro_name    = request.params['macro_name']
+      macro_content = {}
+
+      for _param in request.params :
+        if re.match('^direction_[0-9]{1,}',_param) and request.params[_param] in {'push','pull'}:
+          aim_id_project = _param.split('_')[1]
+          aim_value      = request.params[_param]
+          macro_content[aim_id_project] = aim_value
+
+      if macro_name and len(macro_name)>1 and len(macro_content)>0 :
+        macro.label = macro_name
+        macro.relations[0:]=[]
+
+        for _p_id in macro_content :
+          macro_relation = MacroRelations(_p_id, macro_content[_p_id])
+          DBSession.add(macro_relation)
+          macro.relations.append(macro_relation)
+
+        DBSession.flush()
+        result = True
+    except IntegrityError as e:
+      DBSession.rollback()
+      result = False
+      explanation = u'This project and this path are already defined (%s %s) ...'%(host, path)
+
+  return {'result':result, 'explanation':explanation}
+
+#------------------------------------------------------------------------------
+@view_config(route_name='macro_add', renderer='json', permission='edit')
 def create_a_macro(request):
   """
     create a macro on a specific project.

@@ -4,16 +4,16 @@
 <%inherit file="base.mako"/>
 <%namespace name="lib" file="lib.mako"/>
 
-
-
-
+## new macro dialog
+##
+##
 <div id="new_macro_dialog" class="modal">
   <h3>Define a macro</h3>
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title">Add a new project</h4>
+        <h4 class="modal-title">Add a new macro</h4>
       </div>
       <div class="modal-body">
         <form id="macro_creator" name="macro_creator" action="${url(route_name='macro_add', id=project.id)}" method="post" class="form-horizontal" role="form">
@@ -26,7 +26,7 @@
                <ul style="padding:0; list-style:none;">
                %for link in linked_projects :
                  <li>
-                   <select name="direction_${link.id}">
+                   <select name="direction_${link.id}" data-project_id=${link.id}>
                      <option selected="selected" value=""></option>
                      <option value="push">push</option>
                      <option value="pull">pull</option>
@@ -42,19 +42,64 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button id="cancel_add_project" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" onclick="add_a_macro()" class="btn btn-primary">Create this macro</button>
+        <button id="cancel_add_macro" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button id="button_add_macro" add type="button" onclick="add_a_macro()" class="btn btn-primary">Create this macro</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div>
 
+## update a macro dialog
+##
+##
+<div id="update_macro_dialog" class="modal">
+  <h3>Define a macro</h3>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Add a new project</h4>
+      </div>
+      <div class="modal-body">
+        <form id="macro_update" name="macro_update" action="${url(route_name='macro_add', id=project.id)}" method="post" class="form-horizontal" role="form">
+          <div id="update_macro">
+             %if len(linked_projects)>0 :
+                 name :  <input name="macro_name" type="text" maxlength="90" size="60">
+                 <br>
+                 <br>
+                 Second : define the projects you aim and the directions
+               <ul style="padding:0; list-style:none;">
+               %for link in linked_projects :
+                 <li>
+                   <select name="direction_${link.id}" data-project_id=${link.id}>
+                     <option selected="selected" value=""></option>
+                     <option value="push">push</option>
+                     <option value="pull">pull</option>
+                   </select>
+                   <span>${link.name}</span>
+                 </li>
+               %endfor
+               </ul>
+             %else :
+                No linked project detected
+             %endif
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button id="cancel_update_macro" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button id="button_update_macro" add type="button" class="btn btn-primary">Update this macro</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
 
 ## function or method that publish macros list regarding to arguments :
 ##
 ##          - project (the current one)
 ##          - linked projects
 ##          - project_macros
+##
 <%def name="publish_project_macros(project_macros, project, linked_projects)">
      % if len(project_macros)>0 :
        <h3>Macros that has been defined</h3>
@@ -63,13 +108,15 @@
          % for macro in project_macros :
            <li style="list-style:none;margin-bottom:0.2em;">
               <span class="macro_label">${macro.get_description()}</span>
-              <button class="btn btn-primary" onclick="run_this_macro(this, '${macro.label}','${url(route_name='macro_run', id=project.id, macro_id=macro.id)}');">run it</button>
-              <button class="btn btn-primary" onclick="delete_this_macro(this, '${url(route_name='macro_delete', id=project.id, macro_id=macro.id)}');">delete it</button>
+              <button class="btn run_task" onclick="delete_this_macro(this, '${url(route_name='macro_delete', id=project.id, macro_id=macro.id)}');">delete</button>
+              <button class="btn run_task" onclick="edit_a_macro(this, '${url(route_name='macro_fetch', id=project.id, macro_id=macro.id)}', '${url(route_name='macro_update', id=project.id, macro_id=macro.id)}');">edit</button>
+              <button class="btn run_task" onclick="run_this_macro(this, '${macro.label}','${url(route_name='macro_run', id=project.id, macro_id=macro.id)}');">run it</button>
            </li>
          % endfor
        </ul>
      % endif
-
+     <br>
+     <br>
      <a href="#" onclick="$('#new_macro_dialog').modal('show');">Add a new macro</a>
 </%def>
 

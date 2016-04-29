@@ -51,11 +51,14 @@ def projects_include(config):
   config.add_route('project_brothers_update_check',   '/check/{id:\d+}/{rev}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
 
   # macros linked to this project
-  config.add_route('macro_add',   '/macros/{id:\d+}/add', custom_predicates=(to_int('id'),), factory = ProjectFactory)
-  config.add_route('macro_refresh','/macros/{id:\d+}/refresh', custom_predicates=(to_int('id'),), factory = ProjectFactory)
-
-  config.add_route('macro_run',   '/macros/{id:\d+}/run/{macro_id:\d+}', custom_predicates=(to_int('id'),to_int('macro_id'),), factory = ProjectFactory)
-  config.add_route('macro_delete','/macros/{id:\d+}/delete/{macro_id:\d+}', custom_predicates=(to_int('id'),to_int('macro_id'),), factory = ProjectFactory)
+  # project is mandatory to keep right management
+  # on macro management ...
+  config.add_route('macro_fetch',                     '/macros/{id:\d+}/fetch/{macro_id:\d+}', custom_predicates=(to_int('id'),to_int('macro_id')), factory = ProjectFactory)
+  config.add_route('macro_add',                       '/macros/{id:\d+}/add', custom_predicates=(to_int('id'),), factory = ProjectFactory)
+  config.add_route('macro_refresh',                   '/macros/{id:\d+}/refresh', custom_predicates=(to_int('id'),), factory = ProjectFactory)
+  config.add_route('macro_update',                    '/macros/{id:\d+}/update/{macro_id:\d+}', custom_predicates=(to_int('id'),to_int('macro_id'),), factory = ProjectFactory)
+  config.add_route('macro_run',                       '/macros/{id:\d+}/run/{macro_id:\d+}', custom_predicates=(to_int('id'),to_int('macro_id'),), factory = ProjectFactory)
+  config.add_route('macro_delete',                    '/macros/{id:\d+}/delete/{macro_id:\d+}', custom_predicates=(to_int('id'),to_int('macro_id'),), factory = ProjectFactory)
 
   # move project to another revision
   # add a fizzle to get projects list target by the action
