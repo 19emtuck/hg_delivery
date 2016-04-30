@@ -22,7 +22,7 @@ var execFile            = child_process.execFile;
 var fs                  = require('fs');
 var local_path          = fs.workingDirectory;
 var map_project_to_url  = {};
-var lst_projects_labels = ['d1', 'd2', 'd3'];
+var lst_projects_labels = ['d1', 'd2', 'd3','d5','d6'];
 
 var login               = casper.cli.get("login");
 var password            = casper.cli.get("password");
@@ -44,13 +44,19 @@ casper.spawn = function(){
   }
   var child = spawn(command, _arguments, null);
   child.stdout.on("data", function (data) {
-    console.log("spawn STDOUT:", JSON.stringify(data));
+    if(data){
+      console.log("spawn STDOUT:", JSON.stringify(data));
+    }
   });
   child.stderr.on("data", function (data) {
-    console.log("spawn STDERR:", JSON.stringify(data));
+    if(data){
+      console.log("spawn STDERR:", JSON.stringify(data));
+    }
   });
   child.on("exit", function (code) {
-    console.log("spawn EXIT:", code);
+    if(code){
+      console.log("spawn EXIT:", code);
+    }
   });
   this.wait(600);
 };
@@ -61,9 +67,15 @@ casper.hg = function(){
       _arguments.push(arguments[i]);
   }
   var child = execFile("./wrap_mercurial.sh", _arguments, null, function (err, stdout, stderr) {
-    console.log("hg ERR    :", JSON.stringify(err));
-    console.log("hg STDOUT :", JSON.stringify(stdout));
-    console.log("hg STDERR :", JSON.stringify(stderr));
+    if(err){
+      console.log("hg ERR    :", JSON.stringify(err));
+    }
+    if(stdout){
+      console.log("hg STDOUT :", JSON.stringify(stdout));
+    }
+    if(stderr){
+      console.log("hg STDERR :", JSON.stringify(stderr));
+    }
   });
   // If you need to log child ...
   // require('utils').dump(child);
@@ -128,6 +140,8 @@ casper.then(function(){
 casper.then(function(){
   this.hg("clone", "./repositories/d1", "./repositories/d2");
   this.hg("clone", "./repositories/d1", "./repositories/d3");
+  this.hg("clone", "./repositories/d1", "./repositories/d5");
+  this.hg("clone", "./repositories/d1", "./repositories/d6");
 });
 
 casper.thenOpen('http://127.0.0.1:6543');
