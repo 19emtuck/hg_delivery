@@ -58,7 +58,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title">Add a new project</h4>
+        <h4 class="modal-title">Edit this macro</h4>
       </div>
       <div class="modal-body">
         <form id="macro_update" name="macro_update" action="${url(route_name='macro_add', id=project.id)}" method="post" class="form-horizontal" role="form">
