@@ -43,6 +43,10 @@ features list :
 
   - a diff viewer or merge style *thx to mergely* 
 
+  - you can also create macros, and create in one single button a simple way to push to all. That way
+    you can push to all acceptance platform or simply push all your commits to all your nodes.
+
+
 Made for what ?
 ---------------
 
