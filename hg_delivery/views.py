@@ -36,6 +36,8 @@ from hg_delivery.nodes import (
     HgNewBranchForbidden,
     HgNewHeadsForbidden,
     NodeController,
+    OutputErrorCode,
+    OutputError,
     )
 
 import paramiko
@@ -680,12 +682,13 @@ def run_a_macro(request):
     then  ....: all the push execution ...
 
   """
-  result           = False
+  result           = True
   new_branch_stop  = False
   new_head_stop    = False
   force_branch     = False
   lst_new_branches = []
   project_errors   = []
+  buffers_output   = {}
 
   if 'force_branch' in request.params and request.params['force_branch']=='true':
     force_branch = True 
@@ -700,6 +703,7 @@ def run_a_macro(request):
 
     aim_project = relation.aim_project
     direction   = relation.direction
+    __result    = True
 
     if project and aim_project and direction == 'push' :
 
@@ -714,7 +718,7 @@ def run_a_macro(request):
         # maybe add a configuration parameter to fix this
         # and send --new-branch directly on the first time
         new_branch_stop = True
-        result          = False
+        __result        = False
 
         set_local_branches = set()
         with NodeController(project, silent=True) as ssh_node :
@@ -727,28 +731,38 @@ def run_a_macro(request):
             data = e.value
         except :
           data = {}
+
+        project_errors.append(aim_project.name)
       except HgNewHeadsForbidden as e:
         # we may inform user that he cannot push ...
         # maybe add a configuration parameter to fix this
         # and send --new-branch directly on the first time
         new_head_stop    = True
-        result           = False
+        __result         = False
         lst_new_branches = []
-        data             = e.value
+        buffers_output[aim_project.name] = e.value.get('buff')
         project_errors.append(aim_project.name)
+      except (OutputErrorCode, OutputError) as e:
+        # we may inform user that push has not finished correctly :/
+        __result  = False
+        project_errors.append(aim_project.name)
+        buffers_output[aim_project.name] = e.value.get('buff')
       else :
-        result = True
+        __result = True
 
     elif project and aim_project and direction == 'pull':
 
       with NodeController(project, silent=True) as ssh_node :
         ssh_node.pull_from(project, aim_project)
+        __result = True
+
+    result &= __result
 
   return {'new_branch_stop'  : new_branch_stop,
           'new_head_stop'    : new_head_stop,
           'lst_new_branches' : lst_new_branches,
           'project_errors'   : project_errors,
-          'buffer'           : data.get('buff'),
+          'buffers'          : buffers_output,
           'result'           : result}
 
 #------------------------------------------------------------------------------
@@ -807,6 +821,10 @@ def push(request):
       result = False
       lst_new_branches = [] 
       data = e.value
+    except (OutputErrorCode, OutputError) as e:
+      # we may inform user that push has not finished correctly :/
+      result = False
+      data   = e.value
     else :
       result = True
   

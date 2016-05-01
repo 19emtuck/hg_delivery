@@ -67,6 +67,24 @@ class HgNewHeadsForbidden(Exception):
 
 #------------------------------------------------------------------------------
 
+class OutputErrorCode(Exception):
+  """
+  """
+
+  def __init__(self, value):
+      self.value = value
+
+#------------------------------------------------------------------------------
+
+class OutputError(Exception):
+  """
+  """
+
+  def __init__(self, value):
+      self.value = value
+
+#------------------------------------------------------------------------------
+
 def check_connections(function):
   """
     A decorator to check SSH connections.
@@ -331,10 +349,13 @@ class NodeSsh(object):
     if log_it :
       self.add_to_log(command)
 
-    return {u'out':    full_log,
-            u'err':    [],
-            u'retval': [],
-            u'buff':global_buff_content}
+    exit_status = channel.recv_exit_status()
+
+    return {u'out'         : full_log,
+            u'err'         : [],
+            u'retval'      : [],
+            u'exit_status' : exit_status,
+            u'buff'        : global_buff_content}
 
   @check_connections
   def run_command(self, command, log=False):
@@ -522,6 +543,13 @@ class HgNode(NodeSsh):
       raise HgNewBranchForbidden(data)
     elif not force_branch and data['buff'].count('details about pushing new heads') :
       raise HgNewHeadsForbidden(data)
+    elif data['buff'].count('remote: abort:') :
+      # might be related to unknown node
+      raise OutputError(data)
+    elif data['exit_status']==255:
+      # regarding to documentation hg
+      # have a look to `hg st &> /dev/null  ; echo $?`
+      raise OutputErrorCode(data)
     return data
 
   def pull_from(self, local_project, source_project):

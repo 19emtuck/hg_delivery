@@ -1093,6 +1093,9 @@ function run_this_macro(button, macro_name, macro_run_url, force_branch){
     force_branch = false; 
   }
 
+  // reset any alert ...
+  $('#container_alert').html('');
+
   $.ajax({url:macro_run_url,
           data:{'force_branch':force_branch},
           beforeSend:function(){
@@ -1114,7 +1117,9 @@ function run_this_macro(button, macro_name, macro_run_url, force_branch){
               $('#dismiss_force_push_dialog').modal('show');
               $('#container_alert').delay(1000).html('');
             } else {
-              console.log('WTF !!!');
+              _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+              _alert_html += '<strong>the macro ('+macro_name+') has not been executed successfully on ('+json_response.project_errors.join(', ')+')</strong></div>';
+              $('#container_alert').html(_alert_html);
             }
           },
           complete:function(){
