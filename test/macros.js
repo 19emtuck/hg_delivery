@@ -76,9 +76,6 @@ casper.then(function(){
    return $('span[data-macro_id]').map(function(id,item){return $(item).data('macro_id');}).toArray();
  });
  this.each(lst_macro_id, function(self, macro_id){
-    self.then(function(){
-      self.echo("deleting : "+macro_id);
-    })
     self.thenClick('button[data-macro_id="'+macro_id+'"][onclick^="delete"]');
     self.then(function(){
       this.waitWhileVisible('button[data-macro_id="'+macro_id+'"][onclick^="delete"]');
@@ -96,9 +93,11 @@ casper.waitUntilVisible('#new_macro_dialog', function(){
 casper.thenEvaluate(function(){ $('input[name="macro_name"]').val('TEST MACRO'); });
 casper.thenEvaluate(function(){ $('select[name^="direction_"]').val('push'); });
 casper.thenClick('#button_add_macro');
-casper.waitWhileVisible('#new_macro_dialog', function(){
+casper.waitWhileVisible('#new_macro_dialog');
+casper.wait(100)
+casper.then(function(){
   this.test.assertTextExists('Your macro has been recorded');
-  this.test.assertTextExists('TEST MACRO that imply : push d5 then push d6');
+  this.test.assertTextExists('TEST MACRO that imply : push');
   this.test.assertExists('.alert-success');
 });
 casper.waitWhileVisible('.alert-success');
