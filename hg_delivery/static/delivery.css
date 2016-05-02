@@ -27,15 +27,29 @@ span.overflow {
   padding: 7px;
 }
 
-.macro_label {
+.macro_label, .macro_content {
   display:inline-block;
   min-width:30em;
   max-width:30em;
-  margin-right:3em;
+  margin-right:3.2em;
 }
+.macro_label {
+  font-weight:bold;
+}
+
 
 #macros_list button:last-child{
   margin-left:4em;
+}
+
+#macros_list li{
+  list-style:none;
+  margin-bottom:0.2em;
+  background-color:#EAE4D1;
+  padding: 0.8em;
+  border-radius: 5px;
+  margin-top: 1em;
+  max-width:52em;
 }
 
 .starter-template {

@@ -340,7 +340,7 @@ class Macro(Base):
       if relation.aim_project is not None :
         lst_relations_label.append("%s %s"%(relation.direction, relation.aim_project.name))
 
-    return "%s that imply : %s"%(self.label, " then ".join(lst_relations_label))
+    return "that imply : %s"%(" then ".join(lst_relations_label))
 
   def __json__(self, request):
     """

@@ -106,8 +106,8 @@
 
        <ul id="macros_list">
          % for macro in project_macros :
-           <li style="list-style:none;margin-bottom:0.2em;">
-              <span class="macro_label" data-macro_id="${macro.id}">${macro.get_description()}</span>
+           <li>
+              <span class="macro_label" data-macro_id="${macro.id}">${macro.label}</span><br><span class="macro_content">${macro.get_description()}</span>
               <button class="btn run_task" data-macro_id="${macro.id}" onclick="delete_this_macro(this, '${url(route_name='macro_delete', id=project.id, macro_id=macro.id)}');">delete</button>
               <button class="btn run_task" data-macro_id="${macro.id}" onclick="edit_a_macro(this, '${url(route_name='macro_fetch', id=project.id, macro_id=macro.id)}', '${url(route_name='macro_update', id=project.id, macro_id=macro.id)}');">edit</button>
               <button class="btn run_task" data-macro_id="${macro.id}" onclick="run_this_macro(this, '${macro.label}','${url(route_name='macro_run', id=project.id, macro_id=macro.id)}');">run it</button>
