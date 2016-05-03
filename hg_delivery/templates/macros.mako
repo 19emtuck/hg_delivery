@@ -13,7 +13,7 @@ ${lib.publish_new_branch_dialog()}
   <ul id="macros_list">
     %for macro in dict_project_to_macros[project] :
      <li style="list-style:none;margin-bottom:0.4em;">
-      <span class="macro_label">${macro.get_description()}</span>
+      <span class="macro_label" data-macro_id="${macro.id}">${macro.label}</span><br><span class="macro_content">${macro.get_description()}</span>
       <button class="btn btn-primary" onclick="run_this_macro(this, '${macro.label}','${url(route_name='macro_run', id=project.id, macro_id=macro.id)}');">run it</button>
       <button class="btn btn-primary" onclick="delete_this_macro(this, '${url(route_name='macro_delete', id=project.id, macro_id=macro.id)}');">delete it</button>
      </li>
