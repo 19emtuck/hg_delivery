@@ -418,8 +418,7 @@ class HgNode(NodeSsh):
     Some node to manipulate remote hg repository
   """
 
-  _template = u"{node}|#|{p1node}|#|{p2node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{date|isodate}|#|{desc|jsonescape}|#|{tags}\n" 
-
+  _template = u"{node}|#|{p1node}|#|{p2node}|#|{author}|#|{branches}|#|{rev}|#|{parents}|#|{date|isodate}|#|{desc|json}|#|{tags}\n" 
 
   def get_content(self, revision, file_name):
     """
@@ -587,7 +586,7 @@ class HgNode(NodeSsh):
       data = (line for line in data.splitlines())
       for line in reversed(tuple(data)) :
         node, p1node, p2node, author, branch, rev, parents, date, desc, tags = line.split(u'|#|')
-        desc = desc.replace(u'\\n','\n')
+        desc = desc.replace(u'\\n','\n').strip('"')
         if not branch : branch = 'default'
         if len(p2node.strip('0'))==0 :
           p2node = None
@@ -619,7 +618,7 @@ class HgNode(NodeSsh):
 
       for line in data :
         node, p1node, p2node, author, branch, rev, parents, date, desc, tags = line.split(u'|#|')
-        desc = desc.replace(u'\\n','\n')
+        desc = desc.replace(u'\\n','\n').strip('"')
         if not branch : branch = 'default'
         if len(p2node.strip('0'))==0 :
           p2node = None
@@ -695,7 +694,7 @@ class HgNode(NodeSsh):
       node = {}
     else :
       node, p1node, p2node, author, branch, rev, parents, date, desc, tags = data.split(u'|#|')
-      desc = desc.replace(u'\\n','\n')
+      desc = desc.replace(u'\\n','\n').strip('"')
       if not branch : branch = 'default'
       if len(p2node.strip('0'))==0 :
         p2node = None
@@ -819,7 +818,7 @@ class GitNode(NodeSsh):
       data = (line for line in data.splitlines())
       for line in data :
         node, author, branch, rev, parents, desc, tags = line.split(u'|#|')
-        desc = desc.replace(u'\\n','\n')
+        desc = desc.replace(u'\\n','\n').strip('"')
         if not branch : branch = 'default'
         list_nodes.append({'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date})
         map_nodes[node]=list_nodes[-1]
@@ -871,7 +870,7 @@ class GitNode(NodeSsh):
       node = {}
     else :
       node, author, branch, rev, parents, date, desc, tags = data.split(u'|#|')
-      desc = desc.replace(u'\\n','\n')
+      desc = desc.replace(u'\\n','\n').strip('"')
       if not branch : branch = 'default'
       node = {'node':node, 'branch':branch, 'author':author, 'rev':rev, 'parents':parents, 'desc':desc, 'tags':tags, 'date':date}
     return node 
