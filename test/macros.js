@@ -97,7 +97,8 @@ casper.waitWhileVisible('#new_macro_dialog');
 casper.wait(100)
 casper.then(function(){
   this.test.assertTextExists('Your macro has been recorded');
-  this.test.assertTextExists('TEST MACRO that imply : push');
+  this.test.assertTextExists('TEST MACRO');
+  this.test.assertTextExists('that imply : push');
   this.test.assertExists('.alert-success');
 });
 casper.waitWhileVisible('.alert-success');
@@ -130,7 +131,7 @@ casper.waitForText('Edit this macro');
 casper.thenEvaluate(function(){ $('#update_macro_dialog select[name^="direction_"]').first().val(''); });
 casper.wait(100);
 casper.thenClick('#button_update_macro');
-casper.waitForSelectorTextChange('#macros_list li span');
+casper.waitForSelectorTextChange('#macros_list li span.macro_content');
 casper.wait(100);
 
 // delete last macros ...
