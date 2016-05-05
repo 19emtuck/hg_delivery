@@ -1,0 +1,6 @@
+-- change sql log ...
+-- missing id_user column on logs table
+alter table logs add column id_user INTEGER default NULL REFERENCES user(id);
+
+-- missing projects column on projects table
+alter table projects add column no_scan BOOLEAN default 0;
