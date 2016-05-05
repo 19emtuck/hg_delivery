@@ -439,6 +439,20 @@
                   </div>
                 </div>
               </div>
+              <div class="form-group">
+                <label for="project_scan" class="col-sm-4 control-label">Don't scan for delivery</label>
+                <div class="col-sm-7">
+                  <div class="checkbox">
+                    <label>
+                      % if project.no_scan :
+                        <input id="project_scan" name="no_scan" type="checkbox" value="1" checked>
+                      % else :
+                        <input id="project_scan" name="no_scan" type="checkbox" value="1">
+                      % endif
+                    </label>
+                  </div>
+                </div>
+              </div>
            </form>
         </div>
       </div>

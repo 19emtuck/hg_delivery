@@ -62,13 +62,14 @@ class Project(Base):
   rev_init     = Column(String(100))
   dvcs_release = Column(String(20))
   dashboard    = Column(Boolean)
+  no_scan      = Column(Boolean)
 
   logs         = relationship('RemoteLog', cascade='delete, delete-orphan')
   acls         = relationship('Acl', backref='project', cascade='delete, delete-orphan')
   tasks        = relationship('Task', backref='project', cascade='delete, delete-orphan')
   macros       = relationship('Macro', backref='project', cascade='delete, delete-orphan')
 
-  def __init__(self, name, user, password, host, path, rev_init, dashboard, dvcs_release):
+  def __init__(self, name, user, password, host, path, rev_init, dashboard, dvcs_release, no_scan):
     """
     """
     self.name         = name
@@ -78,6 +79,7 @@ class Project(Base):
     self.path         = path
     self.rev_init     = rev_init
     self.dashboard    = dashboard
+    self.no_scan      = no_scan 
     self.dvcs_release = dvcs_release
 
   def __json__(self, request):
@@ -90,6 +92,7 @@ class Project(Base):
              'user'         : self.user,
              'password'     : '*'*len(self.password),
              'dashboard'    : self.dashboard,
+             'no_scan'      : self.no_scan,
              'dvcs_release' : self.dvcs_release }
 
   def get_uri(self):

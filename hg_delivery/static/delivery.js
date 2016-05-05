@@ -583,9 +583,13 @@ function show_difference_between_changeset_stacks(active_a, remote_project_name,
  * update this project
  */
 function update_project(target_url){
+  var _data = $('#project')
+                 .serializeArray()
+                 .concat($('#project input[type=checkbox]:not(:checked)').map( function() { return {"name": this.name, "value": 0} }).get());
+
   $.ajax({url: target_url,
     method:'POST',
-  data:$('#project').serialize(),
+  data:$.param(_data),
   dataType:'json',
   success:function(json_response){
     var default_url, $sel, _alert_html;

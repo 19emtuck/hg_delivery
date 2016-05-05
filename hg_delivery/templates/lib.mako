@@ -58,6 +58,7 @@
                   <div class="col-sm-8">
                     <input id="new_project_password" class="form-control" name="password" type="password" placeholder="password">
                     <input name="dashboard" type="hidden" value="0">
+                    <input name="no_scan" type="hidden" value="0">
                     <input name="rev_init" type="hidden" value="0">
                     <input name="dvcs_release" type="hidden" value="">
                   </div>

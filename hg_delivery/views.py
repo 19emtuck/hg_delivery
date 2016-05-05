@@ -470,7 +470,7 @@ def who_share_this_id(request):
                              .order_by(Project.name.desc())\
                              .all()
 
-  linked_projects = [p for p in projects_list if p.rev_init is not None and p.rev_init == project.rev_init and p.id != project.id]
+  linked_projects = [p for p in projects_list if p.rev_init is not None and p.rev_init == project.rev_init and p.id != project.id and not p.no_scan]
   thread_stack    = []
 
   for __p in linked_projects:
