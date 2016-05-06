@@ -191,7 +191,9 @@
 
 <ul id="project_tab" class="nav nav-tabs" style="margin-top:4px;margin-bottom:6px">
   <li class="active"> <a href="#project_home">project <b>${project.name}</b></a> </li>
-  <li> <a href="#macros">Macros</a> </li>
+  % if request.acl_container.contains('edit') :
+    <li> <a href="#macros">Macros</a> </li>
+  % endif
   <li> <a href="#related">Related projects</a> </li>
   <li> <a href="#revision">Revision</a> </li>
   % if allow_to_modify_acls :

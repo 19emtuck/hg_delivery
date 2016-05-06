@@ -438,7 +438,8 @@ def project_brothers(request):
                              .all()
   else :
     projects_list = DBSession.query(Project)\
-                             .join(Acl).join(User)\
+                             .join(Acl)\
+                             .join(User)\
                              .filter(User.id==request.user.id)\
                              .order_by(Project.name.desc())\
                              .all()
@@ -465,7 +466,9 @@ def who_share_this_id(request):
                              .all()
   else :
     projects_list = DBSession.query(Project)\
-                             .join(Acl).join(User)\
+                             .join(Acl)\
+                             .filter(Acl.acl=='edit')\
+                             .join(User)\
                              .filter(User.id==request.user.id)\
                              .order_by(Project.name.desc())\
                              .all()
@@ -523,7 +526,7 @@ def view_all_macros(request):
   if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
     macros = DBSession.query(Macro).join(Project).options(joinedload(Macro.relations)).order_by(Project.name.desc()).all()
   else :
-    macros = DBSession.query(Macro).join(Project).join(Acl).join(User).filter(User.id==request.user.id).options(joinedload(Macro.relations)).order_by(Project.name.desc()).all()
+    macros = DBSession.query(Macro).join(Project).join(Acl).filter(Acl.acl=='edit').join(User).filter(User.id==request.user.id).options(joinedload(Macro.relations)).order_by(Project.name.desc()).all()
 
   dict_project_to_macros = OrderedDict()
 
@@ -553,7 +556,9 @@ def refresh_macros(request):
                              .all()
   else :
     projects_list = DBSession.query(Project)\
-                             .join(Acl).join(User)\
+                             .join(Acl)\
+                             .filter(Acl.acl=='edit')\
+                             .join(User)\
                              .filter(User.id==request.user.id)\
                              .order_by(Project.name.desc())\
                              .all()
@@ -670,7 +675,7 @@ def create_a_macro(request):
 
 #------------------------------------------------------------------------------
 
-@view_config(route_name='macro_run', renderer='json')
+@view_config(route_name='macro_run', renderer='json', permission='edit')
 def run_a_macro(request):
   """
     Run a macro
@@ -699,9 +704,32 @@ def run_a_macro(request):
   macro_id = request.matchdict['macro_id']
   macro    = DBSession.query(Macro).options(joinedload(Macro.relations)).get(macro_id)
 
+
+  projects_id_set = set()
+  if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
+    projects_id_set = {p.id for p in DBSession.query(Project).order_by(Project.name.desc())}
+  else :
+    projects_id_set = {p.id for p in DBSession.query(Project).join(Acl).filter(Acl.acl=='edit').join(User).filter(User.id==request.user.id).order_by(Project.name.desc())}
+
   for relation in macro.relations :
 
     aim_project = relation.aim_project
+
+    # user must have an access to this project
+    if aim_project.id not in projects_id_set :
+      result = False 
+      project_errors.append(aim_project.name)
+      buffers_output[aim_project.name] = u"user don't have access to %s"%aim_project.name
+      continue
+
+    # if user don't have access to this project we just pass
+    # because a macros is across several projects
+    # it's meanless 
+
+    # shall we display a macro if user has access to all projects
+    # included the source project ...
+
+
     direction   = relation.direction
     __result    = True
 
@@ -974,11 +1002,15 @@ def edit_project(request):
     result = False
     id_project = request.matchdict['id']
 
-    projects_list = []
+    projects_list           = []
+    projects_list_protected = []
+
     if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
       projects_list = DBSession.query(Project).order_by(Project.name.desc()).all()
+      projects_list_protected = projects_list
     else :
       projects_list = DBSession.query(Project).join(Acl).join(User).filter(User.id==request.user.id).order_by(Project.name.desc()).all()
+      projects_list_protected = DBSession.query(Project).join(Acl).filter(Acl.acl=='edit').join(User).filter(User.id==request.user.id).order_by(Project.name.desc()).all()
 
     projects_map = {p.id:p for p in projects_list}
     project = projects_map.get(id_project)
@@ -1008,7 +1040,7 @@ def edit_project(request):
         else :
           delivered_hash[hash_rev] = [l.creation_date.strftime('%d/%m/%Y %H:%M:%S')]
 
-    linked_projects = [p for p in projects_list if p.rev_init is not None and p.rev_init == project.rev_init and p.id != project.id and p.is_initial_revision_init()]
+    linked_projects = [p for p in projects_list_protected if p.rev_init is not None and p.rev_init == project.rev_init and p.id != project.id and p.is_initial_revision_init()]
 
     branch = None
     if 'branch' in request.params :
@@ -1136,7 +1168,7 @@ def view_all_tasks(request):
   if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
     tasks = DBSession.query(Task).join(Project).options(joinedload(Task.project)).order_by(Project.name.desc()).all()
   else :
-    tasks = DBSession.query(Task).join(Project).join(Acl).join(User).filter(User.id==request.user.id).options(joinedload(Task.project)).order_by(Project.name.desc()).all()
+    tasks = DBSession.query(Task).join(Project).join(Acl).filter(Acl.acl=='edit').join(User).filter(User.id==request.user.id).options(joinedload(Task.project)).order_by(Project.name.desc()).all()
 
   dict_project_to_tasks = OrderedDict()
 
