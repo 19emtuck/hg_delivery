@@ -117,13 +117,20 @@ Changelog
     - various bugfixes
 
   - v_0_9 :
+
     - macros system (raw way to define them)
+
     - user can also filter repository he didn't want to scan
+
     - administrator may finely define ACL per user
+
     - logs will now inherit from user and give better precision
+
     - mercurial 3.8 template syntax fix (jsonescape vs json)
+
     - bugfix : ACL might be uncorrectly used on previous release
+
     - test evolve as usual
-    - add an sql_log_change.txt file to explain change from 0.8 to 0.9
-      (don't have any better mecanism actually (comparing models.py version could
-       be a good start))
+
+    - add an sql_log_change.txt file to explain change from 0.8 to 0.9 (don't have any better mecanism actually
+      (comparing models.py version could be a good start))
