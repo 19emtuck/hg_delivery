@@ -111,3 +111,19 @@ Changelog
   - v_0_7 :
     - reuse logs to display delivery date
     - pypi delivery
+
+  - v_0_8 :
+    - add thread to handle multiple push or update in a single request
+    - various bugfixes
+
+  - v_0_9 :
+    - macros system (raw way to define them)
+    - user can also filter repository he didn't want to scan
+    - administrator may finely define ACL per user
+    - logs will now inherit from user and give better precision
+    - mercurial 3.8 template syntax fix (jsonescape vs json)
+    - bugfix : ACL might be uncorrectly used on previous release
+    - test evolve as usual
+    - add an sql_log_change.txt file to explain change from 0.8 to 0.9
+      (don't have any better mecanism actually (comparing models.py version could
+       be a good start))
