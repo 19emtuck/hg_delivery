@@ -92,28 +92,39 @@ Changelog
 ---------
 
   - v_0_1 :
+
     - first True release
+
     - known bug : cannot push/pull with another password than current node
 
   - v_0_2 :
+
     - casperjs use
+
     - known bug : cannot push/pull with another password than current node
 
   - v_0_3 :
+
     - fix bug with node password when push or pull
 
   - v_0_4 :
+
     - bug and typo fixes
 
   - v_0_5 :
+
     - add task feature with acl control
 
   - v_0_7 :
+
     - reuse logs to display delivery date
+
     - pypi delivery
 
   - v_0_8 :
+
     - add thread to handle multiple push or update in a single request
+
     - various bugfixes
 
   - v_0_9 :
