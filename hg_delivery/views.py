@@ -127,7 +127,6 @@ class SpeedUpdater(SpeedThread):
     """
       update a project to a specific revision (a hash)
     """
-    print("STARTING A PROJECT ...................")
     try :
       with NodeController(self.project, silent=False) as ssh_node:
         ssh_node.update_to(self.rev)
