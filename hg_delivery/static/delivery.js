@@ -275,9 +275,12 @@ function change_project_to_this_release(active_a, target_url, target_refresh_url
                          $('#container_alert').html('');
                          lst_projects_id.forEach(function(_id) {
                            var _c, _h, _alert_html;
-                           if(json_response.result[_id]){
+                           if(json_response.result[_id] && !(_id in json_response.task_abnormal)){
                              _c = 'alert-success';
                              _h = '<strong>Project ' + map_project[_id].name + ' has been updated successfully</strong>';
+                           } else if(json_response.result[_id]){
+                             _c = 'alert-warning';
+                             _h = 'Project ' + map_project[_id].name + ' has been updated successfully but some tasks didn\'t finished or have not been executed correctly :<strong><br>' + json_response.task_abnormal[_id].join('<br>')+ '</strong>';
                            } else {
                              _c = 'alert-danger';
                              _h = '<strong>Project ' + map_project[_id].name + ' has not been updated :( please check permission and or check local update with hg command</strong>';
@@ -931,11 +934,20 @@ function run_this_task(button){
   $button.prop('disabled',true);
   var url = $button.data('url');
   var label_button = $button.text();
+
   $.ajax({url:url,
     beforeSend:function(){
       $button.text('runing ...');
     },
     complete:function(json_response){
+      json_response = json_response.responseJSON;
+      if(!json_response.result){
+       _c = 'alert-danger';
+       _h = 'but some tasks didn\'t finished or have not been executed correctly :<strong><br>' + json_response.explanation +'</strong>';
+       _alert_html = '<div class="alert '+_c+'"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+       _alert_html += _h + '</div>';
+       $('#container_alert').append(_alert_html);
+      }
       setTimeout(function() {
         $button.text(label_button);
         $button.prop('disabled',false);

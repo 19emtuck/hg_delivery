@@ -118,13 +118,16 @@ class SpeedUpdater(SpeedThread):
     :param project: an sqlalchemy models.Project instance
     :param rev: a string hash revision
     """
-    self.__updated     = False
+    self.__updated          = False
+    self.__tasks_exceptions = []
+
     SpeedThread.__init__(self, project, rev)
 
   def start(self) :
     """
       update a project to a specific revision (a hash)
     """
+    print("STARTING A PROJECT ...................")
     try :
       with NodeController(self.project, silent=False) as ssh_node:
         ssh_node.update_to(self.rev)
@@ -139,12 +142,19 @@ class SpeedUpdater(SpeedThread):
         if current_rev == self.rev :
           self.__updated = True
 
-        for task in self.project.tasks :
-          ssh_node.run_command(task.content, log=True)
+          for task in self.project.tasks :
+            try :
+              ssh_node.run_command(task.content, log=True)
+            except NodeException as e :
+              self.__tasks_exceptions.append(e.value)
+          
     except Exception as e:
       pass
 
     self._is_stopped.set()
+
+  def get_tasks_exceptions(self):
+    return self.__tasks_exceptions
 
   def project_updated(self):
     return self.__updated
@@ -1144,20 +1154,25 @@ def edit_project(request):
 def run_task(request):
   """
   """
-  id_task = request.matchdict['id']
-  task = DBSession.query(Task).get(id_task)
-  result = False
+  id_task     = request.matchdict['id']
+  task        = DBSession.query(Task).get(id_task)
+  result      = False
+  explanation = u""
+
   if task :
     try :
       with NodeController(task.project) as ssh_node :
         ssh_node.run_command(task.content, log=True)
+    except NodeException as e:
+      result = False
+      explanation = e.value
     except IntegrityError as e:
       result = False
       explanation = u"wtf ?"
     else :
       result = True 
 
-  return {'result':result}
+  return {'result':result, 'explanation':explanation}
 
 #------------------------------------------------------------------------------
 
@@ -1403,8 +1418,17 @@ def update_project_to(request):
   while sum([e.is_stopped() for e in thread_stack])!=len(projects_to_update) or time.time()>(t0+10*60):
     time.sleep(0.005)
 
+  # harvest additional tasks exceptions
+  task_abnormal = {}
+  for thread in thread_stack :
+    side_exceptions = thread.get_tasks_exceptions()
+    if len(side_exceptions)>0 :
+      task_abnormal[thread.project.id] = []
+    for task_exception_value in side_exceptions :
+      task_abnormal[thread.project.id].append(task_exception_value)
+
   result = {t.project.id:t.project_updated() for t in thread_stack}
-  return {'result':result}
+  return {'result':result, 'task_abnormal':task_abnormal}
 
 #------------------------------------------------------------------------------
 

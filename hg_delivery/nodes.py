@@ -368,9 +368,10 @@ class NodeSsh(object):
         stdin.channel.shutdown_write()
         ret = stdout.read()
         err = stderr.read()
+        # exit_status = stdin.channel.recv_exit_status()
 
         if err:
-          raise NodeException(err)
+          raise NodeException(self.decode_raw_bytes(err))
         elif ret:
 
           if log :
