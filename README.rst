@@ -3,7 +3,7 @@ hg_delivery README
 
 A one-click deployment tool written in python with `pyramid <http://www.pylonsproject.org>`_ web framework
 
-**current release : v_0_8**
+**current release : v_0_9**
 
 Global overview
 ---------------
@@ -35,7 +35,7 @@ features list :
 
   - pushing or pulling on/from a remote repository
 
-  - add additional task when updating a repository (*usefull for flushing the cache* or *for gracefull apache*)
+  - add additional task when updating a repository (*useful for flushing the cache* or *for gracefull apache*)
 
   - responsive design (thanks to bootstrap)
 
@@ -46,13 +46,15 @@ features list :
   - you can also create macros, and create in one single button a simple way to push to all. That way
     you can push to all acceptance platform or simply push all your commits to all your nodes.
 
+  - some project may be removed from scope automation. This can be defined in project project configuration 
+    (useful if some nodes are declared but stage as draft)
 
 Made for what ?
 ---------------
 
 hg_delivery has been designed to simplify developper daily work.
 
- - If you developp php application, this can be usefull to deliver your project (no reload expected)
+ - If you developp php application, this can be useful to deliver your project (no reload expected)
 
  - In fact any other webapps made with other languages is suitable too.
 
