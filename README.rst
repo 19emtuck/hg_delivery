@@ -86,11 +86,7 @@ Getting Started
 Sample usage
 ------------
 
-
 .. image:: documentation/repoistories_illustration.jpg
-
-
-.. image:: documentation/repositories_hg.gif
 
 
 Changelog
