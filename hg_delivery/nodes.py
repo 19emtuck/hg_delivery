@@ -366,14 +366,16 @@ class NodeSsh(object):
         stdin, stdout, stderr = self.ssh.exec_command(command)
         stdin.flush()
         stdin.channel.shutdown_write()
-        ret = stdout.read()
-        err = stderr.read()
-        # exit_status = stdin.channel.recv_exit_status()
+
+        exit_status = stdin.channel.recv_exit_status()
+        ret         = stdout.read()
+        err         = stderr.read()
 
         if err:
           raise NodeException(self.decode_raw_bytes(err))
+        elif exit_status != 0 :
+          raise OutputErrorCode(exit_status)
         elif ret:
-
           if log :
             self.add_to_log(command)
 

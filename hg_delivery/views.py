@@ -146,6 +146,8 @@ class SpeedUpdater(SpeedThread):
               ssh_node.run_command(task.content, log=True)
             except NodeException as e :
               self.__tasks_exceptions.append(e.value)
+            except OutputErrorCode as e :
+              self.__tasks_exceptions.append(u"Task return an error code : %s (different than 0)"%e.value)
           
     except Exception as e:
       pass
@@ -1165,6 +1167,9 @@ def run_task(request):
     except NodeException as e:
       result = False
       explanation = e.value
+    except OutputErrorCode as e :
+      result = False
+      explanation = u"Task return an error code : %s (different than 0)"%e.value
     except IntegrityError as e:
       result = False
       explanation = u"wtf ?"
