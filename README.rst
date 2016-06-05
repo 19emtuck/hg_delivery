@@ -46,7 +46,7 @@ features list :
   - you can also create macros, and create in one single button a simple way to push to all. That way
     you can push to all acceptance platform or simply push all your commits to all your nodes.
 
-  - some project may be removed from scope automation. This can be defined in project project configuration 
+  - some project may be removed from scope automation. This can be defined in project configuration 
     (useful if some nodes are declared but stage as draft)
 
 Made for what ?
