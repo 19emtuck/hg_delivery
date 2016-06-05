@@ -7,6 +7,10 @@
  *
  */
 
+/* global $, local_project_name, local_project_last_change_list, current_node, list_branches, delivered_hash*/
+/* global localStorage, d3, window, setTimeout */
+// "use strict";
+
 var colors = [
 	[ 1.0, 0.0, 0.0 ],
 	[ 1.0, 1.0, 0.0 ],
@@ -29,7 +33,7 @@ function memoize( fn ) {
         var args = Array.prototype.slice.call(arguments),
             hash = "",
             i = args.length;
-        currentArg = null;
+        var currentArg = null;
         while (i--) {
             currentArg = args[i];
             hash += (currentArg === Object(currentArg)) ?
@@ -97,8 +101,8 @@ function merge(){
   var full_path, node, p1node;
   $('div.source > pre').height(350).css('overflow-y','auto').css('overflow-x','none');
 
-  orig1_url = $('#diffs_container').data('orig1');
-  orig2_url = $('#diffs_container').data('orig2');
+  var orig1_url = $('#diffs_container').data('orig1');
+  var orig2_url = $('#diffs_container').data('orig2');
 
   full_path = $('#files a.active').data('full_path');
   node      = $('#revision_description').data('node');
@@ -269,7 +273,7 @@ function change_project_to_this_release(active_a, target_url, target_refresh_url
                        },
                        success:function(json_response){
                          refresh_project_view(target_refresh_url);
-                         lst_projects_id = Object.keys(json_response.result);
+                         var lst_projects_id = Object.keys(json_response.result);
                          var map_project = {};
                          json_response.projects_list.forEach(function(proj) {map_project[proj.id]=proj;});
                          $('#container_alert').html('');
@@ -456,7 +460,7 @@ function find_last_common_node(local_last_change_list, remote_last_change_list){
 
 function merging_list(local_last_change_list, remote_last_change_list, current_node, $tbody_comparison){
   // we should start from the back and get on, then reverse
-  var row, rows_container, i, max_size_list;
+  var row, rows_container, i, max_size_list, set_published;
   max_size_list = local_last_change_list.length >= remote_last_change_list.length  ? local_last_change_list.length  : remote_last_change_list.length;
 
   var __feed_row = function(row, node, current_node){
@@ -588,7 +592,7 @@ function show_difference_between_changeset_stacks(active_a, remote_project_name,
 function update_project(target_url){
   var _data = $('#project')
                  .serializeArray()
-                 .concat($('#project input[type=checkbox]:not(:checked)').map( function() { return {"name": this.name, "value": 0} }).get());
+                 .concat($('#project input[type=checkbox]:not(:checked)').map( function() { return {"name": this.name, "value": 0}; }).get());
 
   $.ajax({url: target_url,
     method:'POST',
@@ -867,7 +871,7 @@ function view_diff_revision(target_url){
  * Display log content
  */
 function display_logs(active_button) {
-  $button = $(active_button);
+  var $button = $(active_button);
 
   if(!$button.hasClass('btn-success')){
 
@@ -930,10 +934,12 @@ function delete_this_task(button) {
  * Run the task attached to this button
  */
 function run_this_task(button){
-  var $button = $(button);
+  var $button, url, label_button;
+
+  $button = $(button);
   $button.prop('disabled',true);
-  var url = $button.data('url');
-  var label_button = $button.text();
+  url = $button.data('url');
+  label_button = $button.text();
 
   $.ajax({url:url,
     beforeSend:function(){
@@ -942,9 +948,9 @@ function run_this_task(button){
     complete:function(json_response){
       json_response = json_response.responseJSON;
       if(!json_response.result){
-       _c = 'alert-danger';
-       _h = 'but some tasks didn\'t finished or have not been executed correctly :<strong><br>' + json_response.explanation +'</strong>';
-       _alert_html = '<div class="alert '+_c+'"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+       var _c = 'alert-danger';
+       var _h = 'but some tasks didn\'t finished or have not been executed correctly :<strong><br>' + json_response.explanation +'</strong>';
+       var _alert_html = '<div class="alert '+_c+'"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
        _alert_html += _h + '</div>';
        $('#container_alert').append(_alert_html);
       }
@@ -971,13 +977,14 @@ function add_a_macro(){
             $('#container_alert').html('');
           },
           success:function(json_response){
+            var _alert_html;
             if(json_response.result){
               $('#new_macro_dialog').modal('hide');
 
               // reset the form ...
               $('form[name="macro_creator"] input').val('');
               $('form[name="macro_creator"] select').val('');
-              var _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+              _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
               _alert_html += 'Your macro has been recorded</div>';
                $('#container_alert').append(_alert_html);
                $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
@@ -991,13 +998,13 @@ function add_a_macro(){
                });
                
             } else {
-              var _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+              _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
               _alert_html += '<strong>Your macro has not been recorded. Please retry later or fix your entries</strong></div>';
-              $('#new_macro_dialog .modal-body').after(_alert_html)
+              $('#new_macro_dialog .modal-body').after(_alert_html);
               $('#new_macro_dialog .alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
             }
           },
-         })
+         });
 }
 
 
@@ -1047,7 +1054,7 @@ function edit_a_macro(button, macro_edit_url, macro_update_url){
                           } else {
                             var _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
                             _alert_html += '<strong>Your macro has not been recorded. Please retry later or fix your entries</strong></div>';
-                            $('#update_macro_dialog .modal-body').after(_alert_html)
+                            $('#update_macro_dialog .modal-body').after(_alert_html);
                             $('#update_macro_dialog .alert-danger').delay(3000).fadeOut(500,function(){$(this).remove();});
                           }
                         }
@@ -1118,6 +1125,7 @@ function run_this_macro(button, macro_name, macro_run_url, force_branch){
             $button.text('runing ...');
           },
           success:function(json_response){
+            var _alert_html;
             if(json_response.result){
               _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
               _alert_html += '<strong>the macro ('+macro_name+') has been executed successfully</strong></div>';
@@ -1186,7 +1194,7 @@ function save_project_tasks(){
       $('#save_tasks').text('saving ...');
     },
     success:function(json_response){
-      $tasks_list = $('#tasks_list');
+      var $tasks_list = $('#tasks_list');
       $tasks_list.find('li').remove();
 
       json_response.tasks.forEach(function(item, i){
@@ -1216,7 +1224,7 @@ function save_project_tasks(){
  *:param user_id: the user id
  */
 function edit_user_acl(triggered_button, user_id){
-  $button = $(triggered_button);
+  var $button = $(triggered_button);
   $('button.user_filter_selected').not($button).removeClass('user_filter_selected').css('background-color', '');
   // renew situation
   $('.acls_overview').show().find('td').show().end().find('th').show();
@@ -1341,7 +1349,7 @@ function _pick_a_color(color){
   return s;
 }
 
-pick_a_color = memoize(_pick_a_color);
+var pick_a_color = memoize(_pick_a_color);
 
 /**
  *
@@ -1349,23 +1357,23 @@ pick_a_color = memoize(_pick_a_color);
  *
  */
 function init_my_d3(data){
-  var svg, html_container, ul_container, svg_container, node;
+  var svg, html_container, ul_container, svg_container, node, _parent_node, _parent_to_child, _map_node,
+    map_color_per_branch, list_branches_displayed, table_padding, row_size, col_size, shift_height_before_merge,
+    shift_inner_branch, shift_per_branch, _revision, head_ul_container, li_content, span_content, d3_container;
+
   $('#d3_container').html('');
 
-  var row_size                  = 40;
-  var col_size                  = 15;
+  row_size                  = 40;
+  col_size                  = 15;
+  shift_height_before_merge = 10;
+  shift_inner_branch        = 10;
+  table_padding             = row_size;
+  list_branches_displayed   = [];
+  map_color_per_branch      = {};
+  _map_node                 = {};
+  _parent_to_child          = {};
 
-  var shift_height_before_merge = 10;
-  var shift_inner_branch        = 10;
-
-  var table_padding             = row_size;
-
-  var list_branches_displayed = [];
-  var map_color_per_branch    = {};
-  var _map_node               = {};
-  var _parent_to_child        = {};
-
-  var shift_per_branch = {};
+  shift_per_branch = {};
 
   /*
    * because nodes don't have the same size, we shall fix their position
@@ -1540,7 +1548,7 @@ function init_my_d3(data){
   svg_container
       .append('svg:path')
       .attr('d', function(d, i) {
-        var _line, j, _node,  _next_node,  _starting_point, circle_size;
+        var _line, j, _node,  _next_node,  _starting_point, circle_size, _last_node, __j, __max_j, _target_pos_node;
 
         j           = i+1;
         _node       = data[i];
@@ -1551,7 +1559,7 @@ function init_my_d3(data){
           _next_node = _map_node[_node.p1node];
         }
 
-        for(__j = j;__j<data.length;__j++){
+        for(__j = j, __max_j=data.length;__j<__max_j;__j++){
           if(data[__j].branch===_node.branch){
             _next_node = data[__j];
             break;
