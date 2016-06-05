@@ -4,6 +4,8 @@ var local_path         = fs.workingDirectory;
 var login              = casper.cli.get("login");
 var password           = casper.cli.get("password");
 var new_task_id        = null;
+var bad_task_id        = null;
+var bad_return_task_id = null;
 
 casper.userAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X)');
 casper.start();
@@ -77,19 +79,86 @@ casper.then(function(){
  });
 });
 
-casper.then(function(){
-  this.clickLabel('add a task');
-});
-
+// now we will ad tasks that will provide error code or just errors
+// to check if we get back errors as well
+// sh grumpycommande
+casper.then(function(){ this.clickLabel('add a task'); });
 casper.then(function(){
   this.test.assertExist('input[name="task_content"]');
   this.test.assertVisible('input[name="task_content"]');
 });
+casper.then(function(){
+  this.fill('form[name="project_tasks"]',{'task_content':'sh grumpycommande'});
+});
+casper.thenClick('#save_tasks');
+casper.waitForSelectorTextChange('#save_tasks');
+casper.waitForSelectorTextChange('#save_tasks');
+casper.wait(500);
+casper.waitForText('run it ..');
+casper.then(function(){ 
+  bad_task_id = this.evaluate(function(){return $('button:contains("run it ..")').last().data('id');});
+});
+casper.then(function(){
+  this.click('button[data-id="'+bad_task_id+'"].run_task');
+});
+casper.waitForText('runing ...');
+casper.waitForText('run it ..');
+casper.waitForSelector('.alert.alert-danger');
+casper.thenClick('div.alert button.close');
+casper.waitWhileVisible('.alert.alert-danger');
+casper.then(function(){
+  this.test.assertExists('button[data-id="'+bad_task_id+'"].delete');
+  this.click('button[data-id="'+bad_task_id+'"].delete');
+});
+casper.wait(500);
+casper.then(function(){
+  this.test.assertDoesntExist('button[data-id="'+bad_task_id+'"].delete');
+});
 
+// add a simple exit 2 task to check error command
+casper.then(function(){ this.clickLabel('add a task'); });
+casper.then(function(){
+  this.test.assertExist('input[name="task_content"]');
+  this.test.assertVisible('input[name="task_content"]');
+});
+casper.then(function(){
+  this.fill('form[name="project_tasks"]',{'task_content':'exit 2'});
+});
+casper.thenClick('#save_tasks');
+casper.waitForSelectorTextChange('#save_tasks');
+casper.waitForSelectorTextChange('#save_tasks');
+casper.wait(500);
+casper.waitForText('run it ..');
+casper.then(function(){ 
+  bad_return_task_id = this.evaluate(function(){return $('button:contains("run it ..")').last().data('id');});
+});
+casper.then(function(){
+  this.click('button[data-id="'+bad_return_task_id+'"].run_task');
+});
+casper.waitForText('runing ...');
+casper.waitForText('run it ..');
+casper.waitUntilVisible('div.alert', function(){
+  this.test.assertExist('div.alert-danger');
+});
+casper.thenClick('div.alert button.close');
+casper.waitWhileVisible('.alert.alert-danger');
+casper.then(function(){
+  this.click('button[data-id="'+bad_return_task_id+'"].delete');
+});
+casper.waitWhileVisible('button[data-id="'+bad_return_task_id+'"]');
+casper.wait(500);
+
+// add a simple ls -al task
+casper.then(function(){
+  this.clickLabel('add a task');
+});
+casper.then(function(){
+  this.test.assertExist('input[name="task_content"]');
+  this.test.assertVisible('input[name="task_content"]');
+});
 casper.then(function(){
   this.fill('form[name="project_tasks"]',{'task_content':'ls -al'});
 });
-
 casper.thenClick('#save_tasks');
 casper.waitForSelectorTextChange('#save_tasks');
 casper.waitForSelectorTextChange('#save_tasks');
@@ -117,19 +186,16 @@ casper.then(function(){
   this.test.assertNotVisible('#container_logs button.close');
 });
 
-casper.then(function(){
-  this.clickLabel('Tasks');
-});
 
+
+
+casper.then(function(){ this.clickLabel('Tasks'); });
 casper.wait(200);
-
 casper.then(function(){
   this.test.assertTextExists("Project : d1");
   this.test.assertExists('button[data-id="'+new_task_id+'"]');
 });
-
 casper.back();
-
 casper.thenClick('a[href="#tasks"]');
 
 casper.then(function(){
