@@ -1028,6 +1028,8 @@ function edit_a_macro(button, macro_edit_url, macro_update_url){
                 var project_id = $__item.data('project_id');
                 if (project_id in json_response.map_relations){
                   $__item.val(json_response.map_relations[project_id]);
+                } else {
+                  $__item.val('');
                 }
               });
 
