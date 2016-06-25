@@ -391,7 +391,7 @@
 
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title">Add a new project</h4>
+        <h4 class="modal-title">Edit your project</h4>
       </div>
 
       <div class="modal-body">
