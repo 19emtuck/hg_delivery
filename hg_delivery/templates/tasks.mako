@@ -9,7 +9,6 @@
     %for task in dict_project_to_tasks[project] :
      <li>
           <input type="text" name="task_content" value="${task.content}">
-          <button data-id="${task.id}" data-url="${url(route_name='project_delete_task', id=task.id)}" onclick="delete_this_task(this)" type="button" class="btn">delete it ..</button>
           <button data-id="${task.id}" data-url="${url(route_name='project_run_task', id=task.id)}" onclick="run_this_task(this)" type="button" class="btn">run it ..</button>
      </li>
     %endfor

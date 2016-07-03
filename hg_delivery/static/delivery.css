@@ -37,7 +37,6 @@ span.overflow {
   font-weight:bold;
 }
 
-
 #macros_list button:last-child{
   margin-left:4em;
 }
@@ -377,6 +376,14 @@ ul.revision_row li:nth-child(7), ul.revision_head li:nth-child(7) {
 
 #login_form_responsive {
   display:none; 
+}
+
+#projects_list {
+  padding-left:3px;
+}
+
+.drop_group_projects {
+  vertical-align:bottom;
 }
 
 /**

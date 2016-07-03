@@ -21,6 +21,15 @@ from .models import (
   DBSession,
   Base,
   )
+#------------------------------------------------------------------------------
+
+def groups_include(config):
+  """
+    Add all routes about projects group management
+    (crud way ...)
+  """
+  config.add_route('project_group_delete',            '/delete/{id:\d+}', custom_predicates=(to_int('id'),))
+  config.add_route('project_group_view',              '/view/{id:\d+}', custom_predicates=(to_int('id'),))
 
 #------------------------------------------------------------------------------
 
@@ -130,6 +139,8 @@ def main(global_config, **settings):
   config.add_route('contact',      '/contact')
 
   config.include(projects_include, '/project')
+  config.include(groups_include,   '/group')
+
   config.include(users_include,    '/users')
 
   config.scan()

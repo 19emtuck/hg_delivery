@@ -189,6 +189,26 @@
      <div id="d3_container"></div>
 </%def>
 
+% if project.groups :
+  <h2>
+    <a class="project_link" href="${url(route_name='project_group_view', id=project.groups[0].id)}">${project.groups[0].name}</a>
+    <div class="dropdown drop_group_projects" style="display:inline-block">
+      <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+       other projects from this group 
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+        % for __project in project.groups[0].projects :
+         % if __project.id != project.id :
+           <li><a class="project_link" href="${url(route_name='project_edit',id=__project.id)}">${__project.name}</a></li>
+         % endif
+        % endfor
+      </ul>
+    </div>
+  </h2>
+
+% endif
+
 <ul id="project_tab" class="nav nav-tabs" style="margin-top:4px;margin-bottom:6px">
   <li class="active"> <a href="#project_home">project <b>${project.name}</b></a> </li>
   % if request.acl_container.contains('edit') :
@@ -425,6 +445,16 @@
                 <label for="project_password" class="col-sm-4 control-label">Passwd</label>
                 <div class="col-sm-7">
                   <input id="project_password" class="form-control" name="password" type="password" placeholder="password" value="${project.password}">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="project_group" class="col-sm-4 control-label">Group</label>
+                <div class="col-sm-7">
+                  % if len(project.groups)>0 :
+                  <input id="group_label" class="form-control" name="group_label" type="text" placeholder="add your project into a group" value="${project.groups[0].name}">
+                  % else :
+                  <input id="group_label" class="form-control" name="group_label" type="text" placeholder="add your project into a group" value="">
+                  % endif
                 </div>
               </div>
               <div class="form-group">

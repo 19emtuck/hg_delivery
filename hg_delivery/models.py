@@ -26,6 +26,7 @@ from sqlalchemy import (
     Boolean,
     ForeignKey,
     Enum,
+    Table,
     )
 from sqlalchemy.orm import relationship, backref
 
@@ -44,6 +45,13 @@ from datetime import datetime
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
+
+#------------------------------------------------------------------------------
+
+groups_projects_association  = Table('project_group_links', Base.metadata,
+    Column('project_id', Integer, ForeignKey('projects.id')),
+    Column('project_group_id', Integer, ForeignKey('project_group.id'))
+)
 
 #------------------------------------------------------------------------------
 
@@ -68,6 +76,7 @@ class Project(Base):
   acls         = relationship('Acl', backref='project', cascade='delete, delete-orphan')
   tasks        = relationship('Task', backref='project', cascade='delete, delete-orphan')
   macros       = relationship('Macro', backref='project', cascade='delete, delete-orphan')
+  groups       = relationship("ProjectGroup", secondary=groups_projects_association, back_populates="projects")
 
   def __init__(self, name, user, password, host, path, rev_init, dashboard, dvcs_release, no_scan):
     """
@@ -313,6 +322,37 @@ class Task(Base):
              'execute_url' : request.route_url(route_name='project_run_task', id=self.id),
              'delete_url'  : request.route_url(route_name='project_delete_task', id=self.id),
            }
+
+#------------------------------------------------------------------------------
+
+class ProjectGroup(Base):
+  """
+  all groups user can define and associate a project.
+  also a group can have a parent, then groups can be
+  gathered under a unique group. So you'll get a pretty
+  hierarchy
+  """
+  __tablename__ = 'project_group'
+
+  id        = Column(Integer, primary_key=True)
+  id_parent = Column(Integer, ForeignKey('project_group.id'))
+  parent    = relationship('ProjectGroup', remote_side=[id], backref='children')
+  name      = Column(String(100))
+  projects = relationship("Project", secondary=groups_projects_association, back_populates="groups")
+
+  def __init__(self, name) :
+    """
+    """
+    self.name     = name 
+
+  def __json__(self, request):
+    """
+    """
+    return { 'id'   : self.id,
+             'name' : self.name,
+           }
+
+Index('groupe_name_unique', ProjectGroup.name, unique=True)
 
 #------------------------------------------------------------------------------
 

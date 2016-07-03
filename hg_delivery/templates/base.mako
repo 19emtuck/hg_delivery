@@ -73,7 +73,23 @@
                      % endif
                    </button>
                    <ul id="projects_list" class="dropdown-menu" role="menu" data-url="${url(route_name='project_edit',id='')}">
-                   % for __project in projects_list :
+                   <%
+                     groups_list={_p.groups[0] for _p in projects_list if len(_p.groups)!=0}
+                     none_affected_projects = [_p for _p in projects_list if len(_p.groups)==0]
+                   %>
+                   % if len(groups_list)>0 :
+                     ## check there's at least one group
+                     <li>Groups</li>
+                     % for __group in groups_list :
+                     <li><a class="project_link" href="${url(route_name='project_group_view', id=__group.id)}">${__group.name}</a></li>
+                     % endfor
+                     <li class="divider"></li>
+                   % endif
+                   % if len(none_affected_projects)>0 :
+                     ## check there's at least one project :/
+                     <li>Projects</li>
+                   % endif
+                   % for __project in none_affected_projects :
                      <li><a class="project_link" href="${url(route_name='project_edit',id=__project.id)}">${__project.name}</a></li>
                    % endfor
                    % if (project is UNDEFINED and request.url == request.route_url('home')) or project is not UNDEFINED:
