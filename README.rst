@@ -88,6 +88,28 @@ Sample usage
 
 .. image:: documentation/repoistories_illustration.jpg
 
+Howto Install
+-------------
+
+- on linux take care that libffi and libffi-dev is installed other why paramiko installer will just crash
+  without a clear understanding
+
+first install python 3.5 or above on your system
+
+sudo apt-get install python
+
+then make a virtual env
+
+pyvenv3.5 venv_delivery
+
+on debian or ubuntu system
+sudo apt-get install libffi libffi-dev
+
+on redhat system
+yum install libffi libffi-devel
+
+source ./venv_delivery/bin/activate
+python setup.py develop
 
 Changelog
 ---------
