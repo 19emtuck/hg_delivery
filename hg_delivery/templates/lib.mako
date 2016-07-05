@@ -1,3 +1,52 @@
+<%def name="publish_projects_list(projects_list)">
+  % if projects_list :
+    <!-- Single button for project management-->
+    <div class="btn-group">
+      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+        % if project is not UNDEFINED:
+          <span id="project_name">${project.name}</span> <span class="caret"></span>
+        % else :
+          Projects (<span id="project_number">${len(projects_list)}</span>)<span class="caret"></span>
+        % endif
+      </button>
+      <ul id="projects_list" class="dropdown-menu" role="menu" data-url="${url(route_name='project_edit',id='')}">
+      <%
+        groups_list={_p.groups[0] for _p in projects_list if len(_p.groups)!=0}
+        none_affected_projects = [_p for _p in projects_list if len(_p.groups)==0]
+      %>
+      % if len(groups_list)>0 :
+        ## check there's at least one group
+        <li>Groups</li>
+        % for __group in groups_list :
+        <li><a class="project_link" href="${url(route_name='project_group_view', id=__group.id)}">${__group.name}</a></li>
+        % endfor
+        <li class="divider"></li>
+      % endif
+      % if len(none_affected_projects)>0 :
+        ## check there's at least one project :/
+        <li>Projects</li>
+      % endif
+      % for __project in none_affected_projects :
+        <li><a class="project_link" href="${url(route_name='project_edit',id=__project.id)}">${__project.name}</a></li>
+      % endfor
+      % if (project is UNDEFINED and request.url == request.route_url('home')) or project is not UNDEFINED:
+        <li class="divider"></li>
+        <li><a href="#" onclick="$('#new_project_dialog').modal('show');">Add a new project</a></li>
+       % endif
+      </ul>
+    </div>
+  % else :
+    <!-- Single button for project management-->
+    <div class="btn-group" style="display:none">
+      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+          Projects (<span id="project_number">0</span>) <span class="caret"></span>
+      </button>
+      <ul id="projects_list" class="dropdown-menu" role="menu" data-url="${url(route_name='project_edit',id='')}">
+      </ul>
+    </div>
+  % endif
+</%def>
+
 <%def name="publish_new_branch_dialog()">
   <div id="confirm_force_push_dialog" class="modal">
     <div class="modal-dialog">

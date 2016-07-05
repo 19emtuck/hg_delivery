@@ -491,7 +491,7 @@
 
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" onclick="update_project('${url('project_update', id=project.id)}');">Save changes</button>
+        <button type="button" class="btn btn-primary" onclick="update_project('${url('project_update', id=project.id)}', '${url('projects_list', id=project.id)}');">Save changes</button>
       </div>
 
     </div><!-- /.modal-content -->

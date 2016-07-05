@@ -589,7 +589,7 @@ function show_difference_between_changeset_stacks(active_a, remote_project_name,
 /**
  * update this project
  */
-function update_project(target_url){
+function update_project(target_url, refresh_projects_list_url){
   var _data = $('#project')
                  .serializeArray()
                  .concat($('#project input[type=checkbox]:not(:checked)').map( function() { return {"name": this.name, "value": 0}; }).get());
@@ -603,15 +603,11 @@ function update_project(target_url){
     $('.alert').remove();
     if(json_response.result){
       $('#edit_project_dialog').modal('hide');
-      $sel = $('#projects_list');
-      $('#project_name').text(json_response.project.name);
-      if($sel){
-        $sel.find('li').remove();
-        default_url = $sel.data('url');
-        json_response.projects_list.forEach(function(item){
-          $sel.append('<li><a class="project_link" href="'+default_url+item.id+'">'+item.name+'</a></li>');
-        });
-      }
+      $.ajax({url: refresh_projects_list_url,
+              method:'GET',
+              success:function(html_response){
+                $('#projects_list').parent().html(html_response);
+              }});
       if(json_response.explanation){
         _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
         _alert_html += '<strong>'+json_response.explanation+'</strong></div>';

@@ -196,7 +196,7 @@ def update_user(request):
 
 #------------------------------------------------------------------------------
 
-@view_config(route_name='user_delete', renderer='json', permission='edit')
+@view_config(route_name='user_delete', permission='edit')
 def delete_user(request):
     """
     delete user ...
@@ -1023,6 +1023,26 @@ def delete_project(request):
 
 #------------------------------------------------------------------------------
 
+@view_config(route_name='projects_list', renderer='templates/lib#publish_projects_list.mako')
+def view_projects_list(request):
+
+  id_project = request.matchdict['id']
+  project    = DBSession.query(Project).get(id_project)
+
+  projects_list           = []
+  projects_list_protected = []
+
+  if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
+    projects_list = DBSession.query(Project).options(joinedload(Project.groups)).order_by(Project.name.desc()).all()
+    projects_list_protected = projects_list
+  else :
+    projects_list = DBSession.query(Project).options(joinedload(Project.groups)).join(Acl).join(User).filter(User.id==request.user.id).order_by(Project.name.desc()).all()
+    projects_list_protected = DBSession.query(Project).join(Acl).filter(Acl.acl=='edit').join(User).filter(User.id==request.user.id).order_by(Project.name.desc()).all()
+
+  return {'project':project, 'projects_list':projects_list}
+
+#------------------------------------------------------------------------------
+
 @view_config(route_name='project_refresh_state', renderer='json', permission='edit')
 @view_config(route_name='project_edit', renderer='edit.mako', permission='read')
 def edit_project(request):
@@ -1454,15 +1474,22 @@ def update_project_to(request):
 
 #------------------------------------------------------------------------------
 
-@view_config(route_name='project_group_delete', permission='edit', renderer='json')
+@view_config(route_name='project_group_delete', permission='edit')
 def delete_project_group(request):
   """
+    delete a group (remove label and link between project and this group)
   """
-  return {}
+  group_id = request.matchdict[u'id']
+  group = DBSession.query(ProjectGroup).get(group_id)
+  DBSession.delete(group)
+
+  return HTTPFound(location=request.route_url(route_name='home'))
 
 @view_config(route_name='project_group_view', renderer='view_group.mako')
 def view_project_group(request):
   """
+  display a specific page for group content, description
+  and related projects
   """
   group_id = request.matchdict[u'id']
   group = DBSession.query(ProjectGroup)\
