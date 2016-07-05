@@ -8,7 +8,7 @@
  */
 
 /* global $, local_project_name, local_project_last_change_list, current_node, list_branches, delivered_hash*/
-/* global localStorage, d3, window, setTimeout */
+/* global localStorage, d3, window, setTimeout, groups_labels */
 // "use strict";
 
 var colors = [
@@ -91,6 +91,28 @@ $(function() {
 function go_to(url) {
   window.location.href = url;
 }
+
+var substringMatcher = function(strs) {
+  return function findMatches(q, cb) {
+    var matches, substringRegex;
+
+    // an array that will be populated with substring matches
+    matches = [];
+
+    // regex used to determine if a string contains the substring `q`
+    substrRegex = new RegExp(q, 'i');
+
+    // iterate through the pool of strings and for any string that
+    // contains the substring `q`, add it to the `matches` array
+    $.each(strs, function(i, str) {
+      if (substrRegex.test(str)) {
+        matches.push(str);
+      }
+    });
+
+    cb(matches);
+  };
+};
 
 function close_merge(){
   $('#merge').remove();

@@ -451,9 +451,9 @@
                 <label for="project_group" class="col-sm-4 control-label">Group</label>
                 <div class="col-sm-7">
                   % if len(project.groups)>0 :
-                  <input id="group_label" class="form-control" name="group_label" type="text" placeholder="add your project into a group" value="${project.groups[0].name}">
+                  <input id="group_label" class="form-control typeahead" name="group_label" type="text" placeholder="add your project into a group" value="${project.groups[0].name}">
                   % else :
-                  <input id="group_label" class="form-control" name="group_label" type="text" placeholder="add your project into a group" value="">
+                  <input id="group_label" class="form-control typeahead" name="group_label" type="text" placeholder="add your project into a group" value="">
                   % endif
                 </div>
               </div>
@@ -580,6 +580,7 @@ ${lib.publish_new_branch_dialog()}
     var current_node                   = ${json.dumps(current_node)|n}
     var list_branches                  = ${json.dumps(list_branches)|n}
     var delivered_hash                 = ${json.dumps(delivered_hash)|n}
+    var groups_labels                  = ${json.dumps(list({_p.groups[0].name for _p in projects_list if len(_p.groups)!=0}))|n}
 
     $(function(){
       if(localStorage['logs_enabled']==='1'){
@@ -594,6 +595,16 @@ ${lib.publish_new_branch_dialog()}
 
      $(window).resize(function() {
         $("#d3_container > svg").attr('width',Math.floor($('#global_container').width()));
+     });
+
+     $('.typeahead').typeahead({
+       hint: true,
+       highlight: true,
+       minLength: 1
+     },
+     {
+       name: 'groups',
+       source: substringMatcher(groups_labels)
      });
     })
   </script>
