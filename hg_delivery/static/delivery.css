@@ -354,6 +354,10 @@ ul.revision_row li:nth-child(7), ul.revision_head li:nth-child(7) {
   text-overflow: ellipsis;
 }
 
+.project_link {
+  text-decoration:underline;
+}
+
 .link {
   fill: none;
   stroke: #ccc;
