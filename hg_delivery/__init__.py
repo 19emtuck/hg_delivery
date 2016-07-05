@@ -41,6 +41,7 @@ def projects_include(config):
   config.add_route('project_add',                     '/add')
   config.add_route('projects_list',                   '/lib/{id:\d+}/projects_list', custom_predicates=(to_int('id'),))
 
+  config.add_route('group_detach',                    '/detach/{id:\d+}/group/{group_id:\d+}', custom_predicates=(to_int('id'), to_int('group_id')), factory = ProjectFactory)
   config.add_route('project_delete',                  '/delete/{id:\d+}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
   config.add_route('project_edit',                    '/edit/{id:\d+}', custom_predicates=(to_int('id'),), factory = ProjectFactory)
   config.add_route('project_refresh_state',           '/refresh/{id:\d+}', custom_predicates=(to_int('id'),), factory = ProjectFactory)

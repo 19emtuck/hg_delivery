@@ -1485,6 +1485,35 @@ def delete_project_group(request):
 
   return HTTPFound(location=request.route_url(route_name='home'))
 
+#------------------------------------------------------------------------------
+
+@view_config(route_name='group_detach', renderer='json')
+def detach_project_from_that_group(request):
+  """
+  detach that group from the requested project
+  """
+  id_project = request.matchdict[u'id']
+  id_group   = request.matchdict[u'group_id']
+
+  project = DBSession.query(Project).options(joinedload(Project.groups)).get(id_project)
+  group   = DBSession.query(ProjectGroup).get(id_group)
+
+  redirect_url = None
+  result       = False
+
+  if id_group in {g.id for g in project.groups} :
+    project.groups[0:] = []
+    result = True
+
+    if group is not None and len(group.projects)==0 :
+      DBSession.delete(group)
+      redirect_url = request.route_url(route_name='users')
+
+  DBSession.flush()
+
+  return {'result':result, 'redirect_url':redirect_url}
+
+#------------------------------------------------------------------------------
 @view_config(route_name='project_group_view', renderer='view_group.mako')
 def view_project_group(request):
   """
@@ -1496,62 +1525,66 @@ def view_project_group(request):
                    .options(joinedload(ProjectGroup.projects))\
                    .get(group_id)
 
-  if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-    macros = DBSession.query(Macro)\
-                      .join(Project)\
-                      .filter(Project.id.in_((p.id for p in group.projects)))\
-                      .options(joinedload(Macro.relations))\
-                      .order_by(Project.name.desc())\
-                      .all()
-  else :
-    macros = DBSession.query(Macro)\
-                      .join(Project)\
-                      .join(Acl)\
-                      .filter(Acl.acl=='edit')\
-                      .filter(Project.id.in_((p.id for p in group.projects)))\
-                      .join(User).filter(User.id==request.user.id)\
-                      .options(joinedload(Macro.relations))\
-                      .order_by(Project.name.desc())\
-                      .all()
-
-  dict_project_to_macros = OrderedDict()
-  for macro in macros :
-    project = macro.project
-    if project in dict_project_to_macros :
-      dict_project_to_macros[project].append(macro)
+  if group is not None :
+    if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
+      macros = DBSession.query(Macro)\
+                        .join(Project)\
+                        .filter(Project.id.in_((p.id for p in group.projects)))\
+                        .options(joinedload(Macro.relations))\
+                        .order_by(Project.name.desc())\
+                        .all()
     else :
-      dict_project_to_macros[project] = [macro]
+      macros = DBSession.query(Macro)\
+                        .join(Project)\
+                        .join(Acl)\
+                        .filter(Acl.acl=='edit')\
+                        .filter(Project.id.in_((p.id for p in group.projects)))\
+                        .join(User).filter(User.id==request.user.id)\
+                        .options(joinedload(Macro.relations))\
+                        .order_by(Project.name.desc())\
+                        .all()
+
+    dict_project_to_macros = OrderedDict()
+    for macro in macros :
+      project = macro.project
+      if project in dict_project_to_macros :
+        dict_project_to_macros[project].append(macro)
+      else :
+        dict_project_to_macros[project] = [macro]
 
 
 
-  if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-    tasks = DBSession.query(Task)\
-                     .join(Project)\
-                      .filter(Project.id.in_((p.id for p in group.projects)))\
-                     .options(joinedload(Task.project))\
-                     .order_by(Project.name.desc())\
-                     .all()
-  else :
-    tasks = DBSession.query(Task)\
-                     .join(Project)\
-                      .filter(Project.id.in_((p.id for p in group.projects)))\
-                     .join(Acl)\
-                     .filter(Acl.acl=='edit')\
-                     .join(User)\
-                     .filter(User.id==request.user.id)\
-                     .options(joinedload(Task.project))\
-                     .order_by(Project.name.desc())\
-                     .all()
-
-  dict_project_to_tasks = OrderedDict()
-  for task in tasks :
-    project = task.project
-    if project in dict_project_to_tasks :
-      dict_project_to_tasks[project].append(task)
+    if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
+      tasks = DBSession.query(Task)\
+                       .join(Project)\
+                        .filter(Project.id.in_((p.id for p in group.projects)))\
+                       .options(joinedload(Task.project))\
+                       .order_by(Project.name.desc())\
+                       .all()
     else :
-      dict_project_to_tasks[project] = [task]
+      tasks = DBSession.query(Task)\
+                       .join(Project)\
+                        .filter(Project.id.in_((p.id for p in group.projects)))\
+                       .join(Acl)\
+                       .filter(Acl.acl=='edit')\
+                       .join(User)\
+                       .filter(User.id==request.user.id)\
+                       .options(joinedload(Task.project))\
+                       .order_by(Project.name.desc())\
+                       .all()
 
-  # also load attached project into this group
-  # also load tasks attached to all projects attached to this group
-  # also load macros attached to all projects attached to this group
-  return {'group':group, 'dict_project_to_macros':dict_project_to_macros, 'dict_project_to_tasks':dict_project_to_tasks}
+    dict_project_to_tasks = OrderedDict()
+    for task in tasks :
+      project = task.project
+      if project in dict_project_to_tasks :
+        dict_project_to_tasks[project].append(task)
+      else :
+        dict_project_to_tasks[project] = [task]
+
+    # also load attached project into this group
+    # also load tasks attached to all projects attached to this group
+    # also load macros attached to all projects attached to this group
+    return {'group':group, 'dict_project_to_macros':dict_project_to_macros, 'dict_project_to_tasks':dict_project_to_tasks}
+
+  else :
+    return HTTPFound(location=request.route_url(route_name='home'))

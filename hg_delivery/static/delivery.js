@@ -221,6 +221,23 @@ function refresh_project_view(target_refresh_url) {
         });
 }
 
+
+/**
+ * remove a project from a group
+ *
+ */
+function remove_that_project_from_that_group(button, target_url_detach){
+  $.ajax({url:target_url_detach,
+          method:'GET',
+          success:function(json_response){
+            if(json_response.redirect_url){
+              go_to(json_response.redirect_url)
+            }
+            $(button).closest('a').remove();
+          }
+        });
+}
+
 /**
  * update local source to a specific release
  */
