@@ -11,6 +11,7 @@
         </button>
   </h2>
 
+  % if len(lst_users)>0 :
   <div id="overview" class="panel panel-default">
     <div>
        <p class="bg-info" style="padding:5px">
@@ -48,6 +49,15 @@
        </table>
     </div>
   </div>
+  % elif len(lst_users)==0 and len(projects_list)>0 :
+    <div>
+        <h3><i>Please define users in order to link them to a project</i></h3>
+    </div>
+  % else :
+    <div>
+        <h3><i>Please create user and project first</i></h3>
+    </div>
+  % endif
 
   <!-- small global overview to manage all your user ACE instead of setting them
      project by project -->
@@ -55,6 +65,7 @@
         <span class="label label-default">Acls management</span>
   </h2>
 
+  % if len(lst_users)>0 and len(projects_list)>0 :
   <div id="overview" class="panel panel-default">
     <div>
        <p class="bg-info" style="padding:5px">
@@ -111,6 +122,15 @@
      </form>
     </div>
   </div>
+  % elif len(lst_users)>0 and len(projects_list)==0 :
+    <div>
+        <h3><i>No ACLs can be defined. Please define a project in order to link a user profile to a project</i></h3>
+    </div>
+  % else :
+    <div>
+        <h3><i>No ACLs can be defined. Please create user and project first</i></h3>
+    </div>
+  % endif
 
 ${lib.publish_user_dialog()}
 ${lib.publish_update_user_dialog()}
