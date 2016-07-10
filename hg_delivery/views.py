@@ -160,6 +160,7 @@ class SpeedUpdater(SpeedThread):
 
   def project_updated(self):
     return self.__updated
+
 #------------------------------------------------------------------------------
 
 @view_config(route_name='user_update', renderer='json', permission='edit')
@@ -281,9 +282,9 @@ def manage_users(request):
     for _p in DBSession.query(Project) :
       project_acls[_p.id] = {_acl.id_user:_acl.acl for _acl in DBSession.query(Acl).filter(Acl.id_project == _p.id)}
 
-    return {'lst_users':lst_users,
-            'known_acls':Acl.known_acls,
-            'project_acls':project_acls}
+    return {'lst_users'    : lst_users,
+            'known_acls'   : Acl.known_acls,
+            'project_acls' : project_acls}
 
 #------------------------------------------------------------------------------
 
@@ -361,9 +362,9 @@ def default_view(request):
         except NodeException as e:
           nodes_description[project.id] = {}
 
-    return { 'projects_list':projects_list,
-             'nodes_description':nodes_description,
-             'dashboard_list':dashboard_list,
+    return { 'projects_list'     : projects_list,
+             'nodes_description' : nodes_description,
+             'dashboard_list'    : dashboard_list,
            }
 
 #------------------------------------------------------------------------------
@@ -377,6 +378,7 @@ def logs(request):
                         .order_by(RemoteLog.creation_date.desc())\
                         .limit(50)\
                         .all()
+
     return { 'logs': lst_logs}
 
 #------------------------------------------------------------------------------
@@ -412,6 +414,7 @@ def shall_we_push(request):
   if project and target_project :
     with NodeController(project, silent=True) as ssh_node :
       result = ssh_node.pushable(project, target_project)
+
   return {'result':result}
 
 #------------------------------------------------------------------------------
@@ -430,6 +433,7 @@ def shall_we_pull(request):
   if project and target_project :
     with NodeController(project, silent=True) as ssh_node :
       result = ssh_node.pullable(project, target_project)
+
   return {'result':result}
 
 #------------------------------------------------------------------------------
@@ -527,7 +531,10 @@ def edit_a_macro(request):
     result = True
   else :
     result = False
-  return {'result':result, 'map_relations':map_relations, 'label':macro.label}
+
+  return {'result'        : result,
+          'map_relations' : map_relations,
+          'label'         : macro.label}
 
 #------------------------------------------------------------------------------
 
@@ -536,9 +543,21 @@ def view_all_macros(request):
   """
   """
   if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-    macros = DBSession.query(Macro).join(Project).options(joinedload(Macro.relations)).order_by(Project.name.desc()).all()
+    macros = DBSession.query(Macro)\
+                      .join(Project)\
+                      .options(joinedload(Macro.relations))\
+                      .order_by(Project.name.desc())\
+                      .all()
   else :
-    macros = DBSession.query(Macro).join(Project).join(Acl).filter(Acl.acl=='edit').join(User).filter(User.id==request.user.id).options(joinedload(Macro.relations)).order_by(Project.name.desc()).all()
+    macros = DBSession.query(Macro)\
+                      .join(Project)\
+                      .join(Acl)\
+                      .filter(Acl.acl=='edit')\
+                      .join(User)\
+                      .filter(User.id==request.user.id)\
+                      .options(joinedload(Macro.relations))\
+                      .order_by(Project.name.desc())\
+                      .all()
 
   dict_project_to_macros = OrderedDict()
 
@@ -548,6 +567,7 @@ def view_all_macros(request):
       dict_project_to_macros[project].append(macro)
     else :
       dict_project_to_macros[project] = [macro]
+
   return {'dict_project_to_macros':dict_project_to_macros}
 
 #------------------------------------------------------------------------------
@@ -721,7 +741,12 @@ def run_a_macro(request):
   if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
     projects_id_set = {p.id for p in DBSession.query(Project).order_by(Project.name.desc())}
   else :
-    projects_id_set = {p.id for p in DBSession.query(Project).join(Acl).filter(Acl.acl=='edit').join(User).filter(User.id==request.user.id).order_by(Project.name.desc())}
+    projects_id_set = {p.id for p in DBSession.query(Project)\
+                                              .join(Acl)\
+                                              .filter(Acl.acl=='edit')\
+                                              .join(User)\
+                                              .filter(User.id==request.user.id)\
+                                              .order_by(Project.name.desc())}
 
   for relation in macro.relations :
 
@@ -873,6 +898,7 @@ def push(request):
           'lst_new_branches' : lst_new_branches,
           'buffer'           : data.get('buff'),
           'result'           : result}
+
 #------------------------------------------------------------------------------
 
 @view_config(route_name='project_pull_from', renderer='json', permission='edit')
@@ -887,6 +913,7 @@ def pull(request):
 
   with NodeController(project, silent=True) as ssh_node :
     ssh_node.pull_from(project, source_project)
+
   return {}
 
 #------------------------------------------------------------------------------
@@ -1033,11 +1060,27 @@ def view_projects_list(request):
   projects_list_protected = []
 
   if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-    projects_list = DBSession.query(Project).options(joinedload(Project.groups)).order_by(Project.name.desc()).all()
+    projects_list = DBSession.query(Project)\
+                             .options(joinedload(Project.groups))\
+                             .order_by(Project.name.desc())\
+                             .all()
     projects_list_protected = projects_list
   else :
-    projects_list = DBSession.query(Project).options(joinedload(Project.groups)).join(Acl).join(User).filter(User.id==request.user.id).order_by(Project.name.desc()).all()
-    projects_list_protected = DBSession.query(Project).join(Acl).filter(Acl.acl=='edit').join(User).filter(User.id==request.user.id).order_by(Project.name.desc()).all()
+    projects_list = DBSession.query(Project)\
+                             .options(joinedload(Project.groups))\
+                             .join(Acl)\
+                             .join(User)\
+                             .filter(User.id==request.user.id)\
+                             .order_by(Project.name.desc())\
+                             .all()
+
+    projects_list_protected = DBSession.query(Project)\
+                                       .join(Acl)\
+                                       .filter(Acl.acl=='edit')\
+                                       .join(User)\
+                                       .filter(User.id==request.user.id)\
+                                       .order_by(Project.name.desc())\
+                                       .all()
 
   return {'project':project, 'projects_list':projects_list}
 
@@ -1058,8 +1101,20 @@ def edit_project(request):
       projects_list = DBSession.query(Project).order_by(Project.name.desc()).all()
       projects_list_protected = projects_list
     else :
-      projects_list = DBSession.query(Project).join(Acl).join(User).filter(User.id==request.user.id).order_by(Project.name.desc()).all()
-      projects_list_protected = DBSession.query(Project).join(Acl).filter(Acl.acl=='edit').join(User).filter(User.id==request.user.id).order_by(Project.name.desc()).all()
+      projects_list = DBSession.query(Project)\
+                               .join(Acl)\
+                               .join(User)\
+                               .filter(User.id==request.user.id)\
+                               .order_by(Project.name.desc())\
+                               .all()
+
+      projects_list_protected = DBSession.query(Project)\
+                                         .join(Acl)\
+                                         .filter(Acl.acl=='edit')\
+                                         .join(User)\
+                                         .filter(User.id==request.user.id)\
+                                         .order_by(Project.name.desc())\
+                                         .all()
 
     projects_map = {p.id:p for p in projects_list}
     project = projects_map.get(id_project)
@@ -1223,9 +1278,21 @@ def view_all_tasks(request):
   """
   """
   if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-    tasks = DBSession.query(Task).join(Project).options(joinedload(Task.project)).order_by(Project.name.desc()).all()
+    tasks = DBSession.query(Task)\
+                     .join(Project)\
+                     .options(joinedload(Task.project))\
+                     .order_by(Project.name.desc())\
+                     .all()
   else :
-    tasks = DBSession.query(Task).join(Project).join(Acl).filter(Acl.acl=='edit').join(User).filter(User.id==request.user.id).options(joinedload(Task.project)).order_by(Project.name.desc()).all()
+    tasks = DBSession.query(Task)\
+                     .join(Project)\
+                     .join(Acl)\
+                     .filter(Acl.acl=='edit')\
+                     .join(User)\
+                     .filter(User.id==request.user.id)\
+                     .options(joinedload(Task.project))\
+                     .order_by(Project.name.desc())\
+                     .all()
 
   dict_project_to_tasks = OrderedDict()
 
@@ -1302,7 +1369,10 @@ def get_user_acls(request):
   if user :
     result = True
     acls = user.acls
-  return {'result':result, 'acls':acls, 'known_acls':Acl.known_acls}
+
+  return {'result'     : result,
+          'acls'       : acls,
+          'known_acls' : Acl.known_acls}
 
 #------------------------------------------------------------------------------
 
@@ -1342,6 +1412,7 @@ def save_users_acls(request):
     explanation = u"wtf ?"
 
   return HTTPFound(location=request.route_url(route_name='users'))
+
 #------------------------------------------------------------------------------
 
 @view_config(route_name='project_save_acls', renderer='json', permission='edit')
@@ -1470,14 +1541,16 @@ def update_project_to(request):
       task_abnormal[thread.project.id].append(task_exception_value)
 
   result = {t.project.id:t.project_updated() for t in thread_stack}
-  return {'result':result, 'task_abnormal':task_abnormal}
+
+  return {'result'        : result,
+          'task_abnormal' : task_abnormal}
 
 #------------------------------------------------------------------------------
 
 @view_config(route_name='project_group_delete', permission='edit')
 def delete_project_group(request):
   """
-    delete a group (remove label and link between project and this group)
+  delete a group (remove label and link between project and this group)
   """
   group_id = request.matchdict[u'id']
   group = DBSession.query(ProjectGroup).get(group_id)
@@ -1514,6 +1587,7 @@ def detach_project_from_that_group(request):
   return {'result':result, 'redirect_url':redirect_url}
 
 #------------------------------------------------------------------------------
+
 @view_config(route_name='project_group_view', renderer='view_group.mako')
 def view_project_group(request):
   """
@@ -1584,7 +1658,11 @@ def view_project_group(request):
     # also load attached project into this group
     # also load tasks attached to all projects attached to this group
     # also load macros attached to all projects attached to this group
-    return {'group':group, 'dict_project_to_macros':dict_project_to_macros, 'dict_project_to_tasks':dict_project_to_tasks}
+
+    return {'group'                  : group,
+            'dict_project_to_macros' : dict_project_to_macros,
+            'dict_project_to_tasks'  : dict_project_to_tasks
+           }
 
   else :
     return HTTPFound(location=request.route_url(route_name='home'))
