@@ -386,7 +386,7 @@ class NodeSsh(object):
           return None
       except socket.gaierror :
         raise NodeException(u"host unavailable")
-      except paramiko.ssh_exception.SSHException, e :
+      except paramiko.ssh_exception.SSHException as e :
         raise NodeException(u"Command execution failed %s"%(self.decode_raw_bytes(e)))
 
       self.release_lock()
