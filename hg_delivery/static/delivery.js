@@ -790,7 +790,7 @@ function update_user_list(){
 /**
  * Add a new project
  */
-function add_project(target_url){
+function add_project(target_url, refresh_projects_list_url){
   $.ajax({url: target_url,
        method:'POST',
          data:$('#project_add').serialize(),
@@ -802,15 +802,13 @@ function add_project(target_url){
     $('.alert').remove();
     if(json_response.result){
       $('#new_project_dialog').modal('hide');
-      $sel = $('#projects_list');
-      if($sel){
-        $sel.parent().show();
-        $sel.find('li').remove();
-        default_url = $sel.data('url');
-        json_response.projects_list.forEach(function(item){
-          $sel.append('<li><a class="project_link" href="'+default_url+item.id+'">'+item.name+'</a></li>');
-        });
-      }
+
+      $.ajax({url: refresh_projects_list_url,
+              method:'GET',
+              success:function(html_response){
+                $('#projects_list').parent().html(html_response);
+              }});
+
       if(json_response.explanation){
         _alert_html = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
         _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
@@ -1347,8 +1345,19 @@ function refresh_dashboard_node($html_node){
  * Init js component for project overview page
  */
 function init_page_overview(){
-  $('.node_description').each(function(_id,_item){
-    refresh_dashboard_node($(_item));
+  $(function(){
+    $('.node_description').each(function(_id,_item){
+      refresh_dashboard_node($(_item));
+    });
+    $('.typeahead').typeahead({
+      hint: true,
+      highlight: true,
+      minLength: 1
+    },
+    {
+      name: 'groups',
+      source: substringMatcher(groups_labels)
+    });
   });
 }
 

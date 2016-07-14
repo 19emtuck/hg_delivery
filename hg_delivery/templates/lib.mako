@@ -3,7 +3,7 @@
     <!-- Single button for project management-->
     <div class="btn-group">
       <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-        % if project is not UNDEFINED:
+        % if project is not UNDEFINED and project is not None:
           <span id="project_name">${project.name}</span> <span class="caret"></span>
         % else :
           Projects (<span id="project_number">${len(projects_list)}</span>)<span class="caret"></span>
@@ -29,7 +29,7 @@
       % for __project in none_affected_projects :
         <li><a class="project_link" href="${url(route_name='project_edit',id=__project.id)}">${__project.name}</a></li>
       % endfor
-      % if (project is UNDEFINED and request.url == request.route_url('home')) or project is not UNDEFINED:
+      % if ((project is UNDEFINED or project is None) and request.url == request.route_url('home')) or project is not UNDEFINED:
         <li class="divider"></li>
         <li><a href="#" onclick="$('#new_project_dialog').modal('show');">Add a new project</a></li>
        % endif
@@ -97,6 +97,12 @@
                   </div>
                 </div>
                 <div class="form-group">
+                  <label for="new_project_group_label" class="col-sm-2 control-label">Group</label>
+                  <div class="col-sm-8">
+                    <input id="group_label" class="form-control typeahead" name="group_label" type="text" placeholder="add your project into a group" value="">
+                  </div>
+                </div>
+                <div class="form-group">
                   <label for="new_project_user" class="col-sm-2 control-label">User</label>
                   <div class="col-sm-8">
                     <input id="new_project_user" class="form-control" name="user" type="text" placeholder="user">
@@ -117,7 +123,7 @@
         </div>
         <div class="modal-footer">
           <button id="cancel_add_project" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button id="add_my_project" type="button" class="btn btn-primary" onclick="add_project('${url('project_add')}');">Save changes</button>
+          <button id="add_my_project" type="button" class="btn btn-primary" onclick="add_project('${url('project_add')}', '${url('projects_list_global')}');">Save changes</button>
         </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->

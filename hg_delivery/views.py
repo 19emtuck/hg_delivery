@@ -926,9 +926,10 @@ def add_project(request):
     result = False
     explanation = None
 
-    host = request.params['host']
-    path = request.params['path']
-    user = request.params['user']
+    host        = request.params['host']
+    path        = request.params['path']
+    user        = request.params['user']
+    group_label = request.params['group_label']
 
     if not host :
       explanation = u'Your project should contain a valid hostname'
@@ -1051,10 +1052,14 @@ def delete_project(request):
 #------------------------------------------------------------------------------
 
 @view_config(route_name='projects_list', renderer='templates/lib#publish_projects_list.mako')
+@view_config(route_name='projects_list_global', renderer='templates/lib#publish_projects_list.mako')
 def view_projects_list(request):
 
-  id_project = request.matchdict['id']
-  project    = DBSession.query(Project).get(id_project)
+  project = None
+
+  if 'id' in request.matchdict :
+    id_project = request.matchdict['id']
+    project    = DBSession.query(Project).get(id_project)
 
   projects_list           = []
   projects_list_protected = []

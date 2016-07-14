@@ -608,7 +608,7 @@ ${lib.publish_new_branch_dialog()}
        name: 'groups',
        source: substringMatcher(groups_labels)
      });
-    })
+    });
   </script>
 </%block>
 

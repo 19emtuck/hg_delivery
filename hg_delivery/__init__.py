@@ -30,6 +30,7 @@ def groups_include(config):
   """
   config.add_route('project_group_delete',            '/delete/{id:\d+}', custom_predicates=(to_int('id'),))
   config.add_route('project_group_view',              '/view/{id:\d+}', custom_predicates=(to_int('id'),))
+  config.add_route('projects_list_global',            '/projects_list')
 
 #------------------------------------------------------------------------------
 

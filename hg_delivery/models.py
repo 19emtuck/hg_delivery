@@ -78,7 +78,7 @@ class Project(Base):
   macros       = relationship('Macro', backref='project', cascade='delete, delete-orphan')
   groups       = relationship("ProjectGroup", secondary=groups_projects_association, back_populates="projects")
 
-  def __init__(self, name, user, password, host, path, rev_init, dashboard, dvcs_release, no_scan):
+  def __init__(self, name, user, password, host, path, rev_init, dashboard, dvcs_release, no_scan, group_label=None):
     """
     """
     self.name         = name
@@ -90,6 +90,16 @@ class Project(Base):
     self.dashboard    = dashboard
     self.no_scan      = no_scan 
     self.dvcs_release = dvcs_release
+
+    if group_label is not None:
+      group = DBSession.query(ProjectGroup)\
+                       .filter(ProjectGroup.name==group_label)\
+                       .scalar()
+      if group is None :
+        group = ProjectGroup(group_label)
+        DBSession.add(group)
+
+      self.groups[0:] = [group]
 
   def __json__(self, request):
     """

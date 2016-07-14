@@ -1,3 +1,6 @@
+<%!
+  import json
+%>
 <%inherit file="base.mako"/>
 <%namespace name="lib" file="lib.mako"/>
 
@@ -62,7 +65,14 @@
 % endif
 
 <%block name="local_js">
-  <script>init_page_overview();</script>
+  <script>
+  % if logged_in is not None :
+     var groups_labels = ${json.dumps(list({_p.groups[0].name for _p in projects_list if len(_p.groups)!= 0}))|n};
+  % else :
+     var groups_labels = [];
+  % endif
+  init_page_overview();
+  </script>
 </%block>
 
 
