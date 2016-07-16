@@ -5,7 +5,7 @@
 <%namespace name="lib" file="lib.mako"/>
 
 <h1>
-  projects into ${group.name}
+  <a class="project_link" href="${url(route_name='project_group_view', id=group.id)}">${group.name}</a>
 </h1>
 ## 
 ## present all projects linked to this group
@@ -14,15 +14,15 @@
 <br>
 <div class="list-group row">
   <div class="list-group col-md-4">
-    <a href="#" class="list-group-item active">
-      ${group.name}  <span class="badge">${len(group.projects)}</span>
-    </a>
+    <a href="#" class="list-group-item active"> ${group.name}<span class="badge">${len(group.projects)}</span></a>
     % for __project in group.projects :
-      <a class="list-group-item" href="${url(route_name='project_edit',id=__project.id)}">${__project.name}</a>
+      <a class="list-group-item" href="${url(route_name='project_edit',id=__project.id)}">-> <i>${__project.name}</i> project
+         <button type="button" class="close" onclick="remove_that_project_from_that_group(this, '${url('group_detach',id=__project.id, group_id=group.id)}'); return false;">×</button>
+      </a>
     % endfor
   </div>
   <div class="list-group col-md-1">
-    <button class="btn" onclick="go_to('${url(route_name='project_group_delete', id=group.id)}')">delete this group</button>
+    <button class="btn btn-danger" onclick="go_to('${url(route_name='project_group_delete', id=group.id)}')">delete this group</button>
   </div>
 </div>
 
