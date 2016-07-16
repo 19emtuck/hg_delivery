@@ -248,10 +248,17 @@ function refresh_project_view(target_refresh_url) {
  * remove a project from a group
  *
  */
-function remove_that_project_from_that_group(button, target_url_detach){
+function remove_that_project_from_that_group(button, target_url_detach, refresh_projects_list_url){
   $.ajax({url:target_url_detach,
           method:'GET',
           success:function(json_response){
+            if(json_response.result && !json_response.redirect_url){
+              $.ajax({url: refresh_projects_list_url,
+                      method:'GET',
+                      success:function(html_response){
+                        $('#projects_list').parent().html(html_response);
+                      }});
+            }
             if(json_response.redirect_url){
               go_to(json_response.redirect_url)
             }

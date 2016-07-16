@@ -1087,7 +1087,7 @@ def view_projects_list(request):
                                        .order_by(Project.name.desc())\
                                        .all()
 
-  return {'project':project, 'projects_list':projects_list}
+  return {'project':project, 'projects_list':projects_list, 'result':True}
 
 #------------------------------------------------------------------------------
 

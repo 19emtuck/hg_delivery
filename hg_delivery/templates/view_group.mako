@@ -17,7 +17,7 @@
     <a href="#" class="list-group-item active"> ${group.name}<span class="badge">${len(group.projects)}</span></a>
     % for __project in group.projects :
       <a class="list-group-item" href="${url(route_name='project_edit',id=__project.id)}">-> <i>${__project.name}</i> project
-         <button type="button" class="close" onclick="remove_that_project_from_that_group(this, '${url('group_detach',id=__project.id, group_id=group.id)}'); return false;">×</button>
+         <button type="button" class="close" onclick="remove_that_project_from_that_group(this, '${url('group_detach',id=__project.id, group_id=group.id)}', '${url('projects_list_global')}'); return false;">×</button>
       </a>
     % endfor
   </div>
