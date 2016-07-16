@@ -1593,6 +1593,23 @@ def detach_project_from_that_group(request):
 
 #------------------------------------------------------------------------------
 
+@view_config(route_name='group_rename')
+def rename_project(request):
+  group_id = request.matchdict[u'id']
+  group = DBSession.query(ProjectGroup)\
+                   .get(group_id)
+  group_name = request.params[u'name']
+
+  response = HTTPFound(location=request.route_url(route_name='home'))
+
+  if group is not None and group_name :
+    response   = HTTPFound(location = request.route_url(route_name = 'project_group_view', id = group.id))
+    group.name = group_name
+
+  return response
+
+#------------------------------------------------------------------------------
+
 @view_config(route_name='project_group_view', renderer='view_group.mako')
 def view_project_group(request):
   """

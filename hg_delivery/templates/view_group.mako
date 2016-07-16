@@ -5,7 +5,10 @@
 <%namespace name="lib" file="lib.mako"/>
 
 <h1>
-  <a class="project_link" href="${url(route_name='project_group_view', id=group.id)}">${group.name}</a>
+  <form name="rename_group" action="${url(route_name='group_rename', id=group.id)}">
+    <input name="name" value="${group.name}">
+    <button class="btn">rename</button>
+  </form>
 </h1>
 ## 
 ## present all projects linked to this group
