@@ -231,6 +231,14 @@ function pull_from(target_project_id, target_url){
   }
 }
 
+/**
+ * refresh the project view. this means retrieving true
+ * project state and last revisions. then display
+ * branches, current repository state.
+ *
+ * :param string target_refresh_url: the url to refresh project
+ *
+ */
 function refresh_project_view(target_refresh_url) {
   $.ajax({url:target_refresh_url,
           success:function(json_response){
@@ -245,8 +253,11 @@ function refresh_project_view(target_refresh_url) {
 
 
 /**
- * remove a project from a group
+ * remove a project from a group and update projects list
  *
+ * :param htmlobject button: an htmlobject at event origin
+ * :param string target_url_detach: the url to detach the group
+ * :param string refresh_projects_list_url: the url to refresh the projects list afterward
  */
 function remove_that_project_from_that_group(button, target_url_detach, refresh_projects_list_url){
   $.ajax({url:target_url_detach,
@@ -269,6 +280,12 @@ function remove_that_project_from_that_group(button, target_url_detach, refresh_
 
 /**
  * update local source to a specific release
+ *
+ * :param htmlobject active_a: an htmlobject at event origin
+ * :param string target_url: the url to move current project to the right revision
+ * :param string target_refresh_url: the url to refresh project content and stage
+ * :param string target_brothers_check: the url to check project's brothers
+ *
  */
 function change_project_to_this_release(active_a, target_url, target_refresh_url, target_brothers_check){
   // check other projects that may be interested by this move
@@ -352,6 +369,8 @@ function change_project_to_this_release(active_a, target_url, target_refresh_url
 /**
  * retrieve json data for a specific repository (set active component)
  * this will allow an comparison between both repositories ...
+ *
+ * :param htmlobject active_a: an htmlobject at event origin
  */
 function fetch_this_other_project(active_a){
   var $active_a = $(active_a);
