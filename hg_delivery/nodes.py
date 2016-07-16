@@ -363,7 +363,7 @@ class NodeSsh(object):
     # we lock threads per resource
     with self.lock :
       try :
-        stdin, stdout, stderr = self.ssh.exec_command(command)
+        stdin, stdout, stderr = self.ssh.exec_command(command, timeout=self.__class__.max_timeout)
         stdin.flush()
         stdin.channel.shutdown_write()
 
@@ -386,6 +386,8 @@ class NodeSsh(object):
           return None
       except socket.gaierror :
         raise NodeException(u"host unavailable")
+      except paramiko.ssh_exception.SSHException, e :
+        raise NodeException(u"Command execution failed %s"%(self.decode_raw_bytes(e)))
 
       self.release_lock()
 

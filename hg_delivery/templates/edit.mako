@@ -192,6 +192,7 @@
 % if project.groups :
   <h2>
     <a class="project_link" href="${url(route_name='project_group_view', id=project.groups[0].id)}">${project.groups[0].name}</a>
+    % if len(project.groups[0].projects)>1 :
     <div class="dropdown drop_group_projects" style="display:inline-block">
       <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
        other projects from this group 
@@ -205,6 +206,7 @@
         % endfor
       </ul>
     </div>
+    % endif
   </h2>
 
 % endif
