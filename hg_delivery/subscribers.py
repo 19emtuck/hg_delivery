@@ -11,6 +11,7 @@
 
 import time
 import logging
+from sqlalchemy.orm import joinedload
 
 from pyramid.events import (
      NewRequest,
@@ -45,9 +46,16 @@ def mysubscriber(event):
   if request.authenticated_userid and 'projects_list' not in event.rendering_val:
     projects_list =  []
     if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-      projects_list =  DBSession.query(Project).order_by(Project.name.desc()).all()
+      projects_list =  DBSession.query(Project)\
+                                .options(joinedload(Project.groups))\
+                                .order_by(Project.name.desc())\
+                                .all()
     else :
-      projects_list =  DBSession.query(Project).join(Acl).order_by(Project.name.desc()).all()
+      projects_list =  DBSession.query(Project)\
+                                .join(Acl)\
+                                .options(joinedload(Project.groups))\
+                                .order_by(Project.name.desc())\
+                                .all()
     event.rendering_val['projects_list'] = projects_list
   elif 'projects_list' not in event.rendering_val :
     event.rendering_val['projects_list'] = [] 

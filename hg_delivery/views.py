@@ -1080,6 +1080,7 @@ def view_projects_list(request):
                              .all()
 
     projects_list_protected = DBSession.query(Project)\
+                                       .options(joinedload(Project.groups))\
                                        .join(Acl)\
                                        .filter(Acl.acl=='edit')\
                                        .join(User)\
