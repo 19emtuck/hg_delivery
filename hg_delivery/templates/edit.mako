@@ -343,6 +343,7 @@
           </div>
           <div class="panel-body">
              <form name="project_acls" id="project_acls" action="${url(route_name='project_save_acls', id=project.id)}">
+               % if len(users)>0 :
                <table style="width:300px" class="table table-condensed">
                    <thead>
                       <th>User</th>
@@ -370,6 +371,9 @@
                </table>
 
                <button type="button" onclick="save_project_acls()" class="btn btn-primary">save modifications</button>
+               % else :
+                 <h3><i>Please define users in order to link them to this project</i></h3>
+               % endif
              </form>
           </div>
         </div>

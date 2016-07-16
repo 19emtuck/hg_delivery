@@ -1596,6 +1596,9 @@ def detach_project_from_that_group(request):
 
 @view_config(route_name='group_rename')
 def rename_project(request):
+  """
+  rename the given group
+  """
   group_id = request.matchdict[u'id']
   group = DBSession.query(ProjectGroup)\
                    .get(group_id)
@@ -1605,7 +1608,16 @@ def rename_project(request):
 
   if group is not None and group_name :
     response   = HTTPFound(location = request.route_url(route_name = 'project_group_view', id = group.id))
-    group.name = group_name
+    try :
+      group.name = group_name
+      DBSession.flush()
+    except IntegrityError as e:
+      # silent is better ?
+      pass
+  elif group :
+    response   = HTTPFound(location = request.route_url(route_name = 'project_group_view', id = group.id))
+  else :
+    response = HTTPFound(location=request.route_url(route_name='home'))
 
   return response
 
