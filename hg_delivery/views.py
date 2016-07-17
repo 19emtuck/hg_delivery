@@ -1104,12 +1104,16 @@ def edit_project(request):
     projects_list_protected = []
 
     if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-      projects_list = DBSession.query(Project).order_by(Project.name.desc()).all()
+      projects_list = DBSession.query(Project)\
+                               .options(joinedload(Project.groups))\
+                               .order_by(Project.name.desc())\
+                               .all()
       projects_list_protected = projects_list
     else :
       projects_list = DBSession.query(Project)\
                                .join(Acl)\
                                .join(User)\
+                               .options(joinedload(Project.groups))\
                                .filter(User.id==request.user.id)\
                                .order_by(Project.name.desc())\
                                .all()
@@ -1119,6 +1123,7 @@ def edit_project(request):
                                          .filter(Acl.acl=='edit')\
                                          .join(User)\
                                          .filter(User.id==request.user.id)\
+                                         .options(joinedload(Project.groups))\
                                          .order_by(Project.name.desc())\
                                          .all()
 
