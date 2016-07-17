@@ -44,7 +44,7 @@ requires = [
     'zope.sqlalchemy',
     'waitress',
     'pygments',
-    'paramiko',
+    'paramiko==2.0.1',
     'alembic',
     'apscheduler==2.1.2',
     'redis',
