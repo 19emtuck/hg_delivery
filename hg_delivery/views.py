@@ -974,8 +974,16 @@ def update_project(request):
     host         = request.params['host']
     path         = request.params['path']
 
-    dashboard    = request.params.get('dashboard',0)
-    no_scan      = request.params.get('no_scan',0)
+    dashboard    = request.params.get('dashboard', False)
+    if dashboard == '1' or dashboard == 1 :
+      dashboard = True
+    else :
+      dashboard = False
+    no_scan      = request.params.get('no_scan', False)
+    if no_scan == '1' or no_scan == 1 :
+      no_scan = True
+    else :
+      no_scan = False
     group_label  = request.params.get('group_label','').strip()
 
     project     = None
