@@ -99,7 +99,7 @@
                 <div class="form-group">
                   <label for="new_project_group_label" class="col-sm-2 control-label">Group</label>
                   <div class="col-sm-8">
-                    <input id="group_label" class="form-control typeahead" name="group_label" type="text" placeholder="add your project into a group" value="">
+                    <input id="group_label" class="form-control typeahead" style="width:20em" name="group_label" type="text" placeholder="add your project into a group" value="">
                   </div>
                 </div>
                 <div class="form-group">

@@ -926,10 +926,16 @@ def add_project(request):
     result = False
     explanation = None
 
-    host        = request.params['host']
-    path        = request.params['path']
-    user        = request.params['user']
-    group_label = request.params['group_label']
+    name         = request.params['name']
+    user         = request.params['user']
+    password     = request.params['password']
+    host         = request.params['host']
+    path         = request.params['path']
+    rev_init     = request.params['rev_init']
+    dashboard    = request.params['dashboard']
+    dvcs_release = request.params['dvcs_release']
+    no_scan      = request.params['no_scan']
+    group_label  = request.params['group_label']
 
     if not host :
       explanation = u'Your project should contain a valid hostname'
@@ -938,7 +944,7 @@ def add_project(request):
     else:
       try :
         # folder should be unique
-        project = Project(**request.params)
+        project = Project(name, user, password, host, path, rev_init, dashboard, dvcs_release, no_scan, group_label)
         DBSession.add(project)
         DBSession.flush()
         project.init_initial_revision()
@@ -962,10 +968,15 @@ def update_project(request):
     result = False
     id_project = request.matchdict['id']
 
-    host        = request.params['host']
-    path        = request.params['path']
-    user        = request.params['user']
-    group_label = request.params['group_label']
+    name         = request.params['name']
+    user         = request.params['user']
+    password     = request.params['password']
+    host         = request.params['host']
+    path         = request.params['path']
+
+    dashboard    = request.params.get('dashboard',0)
+    no_scan      = request.params.get('no_scan',0)
+    group_label  = request.params.get('group_label','').strip()
 
     project     = None
     explanation = None
@@ -977,26 +988,16 @@ def update_project(request):
     else:
       try :
         project = DBSession.query(Project).get(id_project)
-        for key in request.params :
-          setattr(project, key, request.params[key])
 
-        if 'dashboard' not in request.params :
-          project.dashboard = 0
+        project.name         = name
+        project.user         = user
+        project.password     = password
+        project.host         = host
+        project.path         = path
+        project.dashboard    = dashboard
+        project.no_scan      = no_scan
 
-        group = None
-        if group_label :
-
-          group = DBSession.query(ProjectGroup)\
-                           .filter(ProjectGroup.name==group_label)\
-                           .scalar()
-
-          if group is None :
-            group = ProjectGroup(group_label)
-            DBSession.add(group)
-
-          project.groups[0:] = [group]
-        else :
-          project.groups[0:] = []
+        project.set_group(group_label)
 
         DBSession.flush()
         explanation = u'This project : %s@%s/%s has been updated ...'%(user, host, path)

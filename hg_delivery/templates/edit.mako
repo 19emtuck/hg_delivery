@@ -457,9 +457,9 @@
                 <label for="project_group" class="col-sm-4 control-label">Group</label>
                 <div class="col-sm-7">
                   % if len(project.groups)>0 :
-                  <input id="group_label" class="form-control typeahead" name="group_label" type="text" placeholder="add your project into a group" value="${project.groups[0].name}">
+                  <input id="group_label" class="form-control typeahead" style="width:20em" name="group_label" type="text" placeholder="add your project into a group" value="${project.groups[0].name}">
                   % else :
-                  <input id="group_label" class="form-control typeahead" name="group_label" type="text" placeholder="add your project into a group" value="">
+                  <input id="group_label" class="form-control typeahead" style="width:20em" name="group_label" type="text" placeholder="add your project into a group" value="">
                   % endif
                 </div>
               </div>
