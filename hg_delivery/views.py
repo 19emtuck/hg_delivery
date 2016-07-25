@@ -1637,16 +1637,27 @@ def rename_project(request):
 
 #------------------------------------------------------------------------------
 
-@view_config(route_name='project_group_view', renderer='view_group.mako')
+@view_config(route_name='project_group_view', renderer='view_group.mako', permission='authenticated')
 def view_project_group(request):
   """
   display a specific page for group content, description
   and related projects
   """
   group_id = request.matchdict[u'id']
+
   group = DBSession.query(ProjectGroup)\
                    .options(joinedload(ProjectGroup.projects))\
                    .get(group_id)
+
+  if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
+    set_projects_list_id = {p_id for (p_id,) in DBSession.query(Project.id)}
+  else :
+    set_projects_list_id = {p_id for (p_id,) in DBSession.query(Project.id)\
+                                                         .join()
+                                                         .join(Acl)\
+                                                         .join(User)\
+                                                         .filter(User.id==request.user.id)\
+                                                         .order_by(Project.name.desc()) }
 
   if group is not None :
     if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
@@ -1710,7 +1721,8 @@ def view_project_group(request):
 
     return {'group'                  : group,
             'dict_project_to_macros' : dict_project_to_macros,
-            'dict_project_to_tasks'  : dict_project_to_tasks
+            'dict_project_to_tasks'  : dict_project_to_tasks,
+            'set_projects_list_id'   : set_projects_list_id
            }
 
   else :
