@@ -199,7 +199,7 @@
         <span class="caret"></span>
       </button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-        % for __project in project.groups[0].projects :
+        % for __project in sorted(project.groups[0].projects, key=lambda x: x.name) :
          % if __project.id != project.id :
            <li><a class="project_link" href="${url(route_name='project_edit',id=__project.id)}">${__project.name}</a></li>
          % endif
