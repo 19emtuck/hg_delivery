@@ -3,7 +3,7 @@ hg_delivery README
 
 A one-click deployment tool written in python with `pyramid <http://www.pylonsproject.org>`_ web framework
 
-**current release : v_0_9**
+**current release : v_1_0**
 
 Global overview
 ---------------
