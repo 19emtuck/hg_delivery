@@ -23,7 +23,7 @@ description = ('HgDelivery is an easy way to deliver products  '
                'as well as repositories comparison')
 
 classifiers = [
-    'Development Status :: 4 - Beta',
+    'Development Status :: 5 - Production/Stable',
     'Environment :: Web Environment',
     'Framework :: Pyramid',
     'Intended Audience :: Developers',
@@ -52,7 +52,7 @@ requires = [
     ]
 
 setup(name='hg_delivery',
-      version='0.9.3',
+      version='1.0.1',
       description=description,
       long_description=README + '\n\n' + CHANGES,
       classifiers=classifiers,
