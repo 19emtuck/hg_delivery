@@ -1071,14 +1071,12 @@ def view_projects_list(request):
     project    = DBSession.query(Project).get(id_project)
 
   projects_list           = []
-  projects_list_protected = []
 
   if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
     projects_list = DBSession.query(Project)\
                              .options(joinedload(Project.groups))\
                              .order_by(Project.name.desc())\
                              .all()
-    projects_list_protected = projects_list
   else :
     projects_list = DBSession.query(Project)\
                              .options(joinedload(Project.groups))\
@@ -1087,15 +1085,6 @@ def view_projects_list(request):
                              .filter(User.id==request.user.id)\
                              .order_by(Project.name.desc())\
                              .all()
-
-    projects_list_protected = DBSession.query(Project)\
-                                       .options(joinedload(Project.groups))\
-                                       .join(Acl)\
-                                       .filter(Acl.acl=='edit')\
-                                       .join(User)\
-                                       .filter(User.id==request.user.id)\
-                                       .order_by(Project.name.desc())\
-                                       .all()
 
   return {'project':project, 'projects_list':projects_list, 'result':True}
 
@@ -1650,6 +1639,21 @@ def view_project_group(request):
                    .get(group_id)
 
   if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
+    projects_list = DBSession.query(Project)\
+                             .options(joinedload(Project.groups))\
+                             .order_by(Project.name.desc())\
+                             .all()
+  else :
+    projects_list = DBSession.query(Project)\
+                             .join(Acl)\
+                             .join(User)\
+                             .options(joinedload(Project.groups))\
+                             .filter(User.id==request.user.id)\
+                             .order_by(Project.name.desc())\
+                             .all()
+
+
+  if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
     set_projects_list_id = {p_id for (p_id,) in DBSession.query(Project.id)}
   else :
     set_projects_list_id = {p_id for (p_id,) in DBSession.query(Project.id)\
@@ -1722,7 +1726,8 @@ def view_project_group(request):
     return {'group'                  : group,
             'dict_project_to_macros' : dict_project_to_macros,
             'dict_project_to_tasks'  : dict_project_to_tasks,
-            'set_projects_list_id'   : set_projects_list_id
+            'set_projects_list_id'   : set_projects_list_id,
+            'projects_list'          : projects_list
            }
 
   else :
