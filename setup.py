@@ -52,7 +52,7 @@ requires = [
     ]
 
 setup(name='hg_delivery',
-      version='1.0.1',
+      version='1.0.2',
       description=description,
       long_description=README + '\n\n' + CHANGES,
       classifiers=classifiers,

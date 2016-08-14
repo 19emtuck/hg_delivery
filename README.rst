@@ -168,3 +168,8 @@ Changelog
 
     - add an sql_log_change.txt file to explain change from 0.8 to 0.9 (don't have any better mecanism actually
       (comparing models.py version could be a good start))
+
+  - v_1_0 :
+
+    - attach projects to a group. redefine navigation with groups. 
+
