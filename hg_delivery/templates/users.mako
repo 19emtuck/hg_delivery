@@ -116,7 +116,7 @@
          </table>
        % endfor
 
-       <button id="save_users_acl" class="btn btn-primary" onclick="save_project_users_acls()">Save your modifications</button>
+       <button id="save_users_acl" class="btn btn-primary" onclick="save_project_acls()">Save your modifications</button>
        <br>
        <br>
      </form>
