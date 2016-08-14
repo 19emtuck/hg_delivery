@@ -51,11 +51,13 @@ def mysubscriber(event):
                                 .order_by(Project.name.desc())\
                                 .all()
     else :
-      projects_list =  DBSession.query(Project)\
-                                .join(Acl)\
-                                .options(joinedload(Project.groups))\
-                                .order_by(Project.name.desc())\
-                                .all()
+      projects_list = DBSession.query(Project)\
+                               .join(Acl)\
+                               .join(User)\
+                               .options(joinedload(Project.groups))\
+                               .filter(User.email==request.authenticated_userid)\
+                               .order_by(Project.name.desc())\
+                               .all()
     event.rendering_val['projects_list'] = projects_list
   elif 'projects_list' not in event.rendering_val :
     event.rendering_val['projects_list'] = [] 
