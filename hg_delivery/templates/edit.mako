@@ -195,7 +195,7 @@
     % if len(project.groups[0].projects)>1 :
     <div class="dropdown drop_group_projects" style="display:inline-block">
       <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-       other projects from this group 
+        <b>${project.name}</b>  &nbsp;&nbsp;   ( other projects from this group ) &nbsp; &nbsp;
         <span class="caret"></span>
       </button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">

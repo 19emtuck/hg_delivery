@@ -3,7 +3,9 @@
     <!-- Single button for project management-->
     <div class="btn-group">
       <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-        % if project is not UNDEFINED and project is not None:
+        % if project is not UNDEFINED and project is not None and len(project.groups)>0:
+          <span id="project_name">${project.groups[0].name}</span> <span class="caret"></span>
+        % elif project is not UNDEFINED and project is not None:
           <span id="project_name">${project.name}</span> <span class="caret"></span>
         % else :
           Projects (<span id="project_number">${len(projects_list)}</span>)<span class="caret"></span>
