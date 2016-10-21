@@ -957,7 +957,7 @@ def add_project(request):
       except NodeException as e:
         DBSession.rollback()
         result = False
-        explanation = u'Please check password, host, path before adding this project... '%(host, path)
+        explanation = u'Please check password, host, path (%s %s) before adding this project... '%(host, path)
 
     return { 'result'      : result,
              'explanation' : explanation }
