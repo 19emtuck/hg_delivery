@@ -946,8 +946,8 @@ def add_project(request):
         # folder should be unique
         project = Project(name, user, password, host, path, rev_init, dashboard, dvcs_release, no_scan, group_label)
         DBSession.add(project)
-        DBSession.flush()
         project.init_initial_revision()
+        DBSession.flush()
         result = True
         explanation = u'This project : %s@%s/%s has been added ...'%(user, host, path)
       except IntegrityError as e:
