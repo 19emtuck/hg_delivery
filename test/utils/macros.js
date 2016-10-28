@@ -3,6 +3,24 @@
 var require = patchRequire(require);
 
 
+/**
+ * log me ...
+ */
+exports.log_me = function(casper, login, password){
+  casper.thenOpen('http://127.0.0.1:6543');
+  casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
+  casper.then(function(response){
+    this.fill('#login_form', {'login':login,'password':password});
+    this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#log_me');
+    this.thenClick('#log_me');
+  });
+  casper.then(function(response){
+    this.test.assertTitle('Hg Delivery 1.0 welcome :)');
+    this.test.assertTextExists('Dashboard');
+    this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
+  });
+};
+
 exports.detach_all_projects_from_their_group = function(casper){
   casper.wait(200);
   // need to detach all projects from groups

@@ -1,3 +1,5 @@
+var MACROS = require('./utils/macros');
+
 var javascript_errors  = [];
 var map_project_to_url = {};
 var local_path         = fs.workingDirectory;
@@ -37,18 +39,7 @@ casper.on("page.error", function(msg, trace) {
   javascript_errors.push(msg);
 });
 
-casper.thenOpen('http://127.0.0.1:6543');
-casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
-casper.then(function(response){
-  this.fill('#login_form', {'login':'editor','password':'editor'});
-  this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#log_me');
-  this.thenClick('#log_me');
-});
-casper.then(function(response){
-  this.test.assertTitle('Hg Delivery 1.0 welcome :)');
-  this.test.assertTextExists('Dashboard');
-  this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
-});
+MACROS.log_me(casper, 'editor', 'editor');
 
 casper.then(function(){
   var projects_urls = this.evaluate(function() {

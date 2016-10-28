@@ -146,20 +146,7 @@ casper.then(function(){
   this.hg("clone", "./repositories/d1", "./repositories/d6");
 });
 
-casper.thenOpen('http://127.0.0.1:6543');
-casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
-casper.then(function(response){
-  this.fill('#login_form', {'login':'editor','password':'editor'});
-  this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#log_me');
-  this.click('#log_me');
-});
-casper.then(function(response){
-  this.test.assertTitle('Hg Delivery 1.0 welcome :)');
-  this.test.assertTextExists('Dashboard');
-  this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
-});
-
-
+MACROS.log_me(casper, 'editor', 'editor');
 MACROS.detach_all_projects_from_their_group(casper);
 MACROS.remove_all_projects(casper);
 

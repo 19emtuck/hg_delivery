@@ -1,3 +1,5 @@
+var MACROS = require('./utils/macros');
+
 if(!casper.cli.has("login")){
   casper.echo('please provide --login=xxxx argument', "ERROR");
   casper.exit();
@@ -43,18 +45,7 @@ casper.on('step.error', function(error){
 });
 casper.on('remote.message',function(message){this.echo(message);});
 
-casper.thenOpen('http://127.0.0.1:6543');
-casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
-casper.then(function(response){
-  this.fill('#login_form', {'login':'editor','password':'editor'});
-  this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#log_me');
-  this.thenClick('#log_me');
-});
-casper.then(function(response){
-  this.test.assertTitle('Hg Delivery 1.0 welcome :)');
-  this.test.assertTextExists('Dashboard');
-  this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
-});
+MACROS.log_me(casper, 'editor', 'editor');
 
 // then we delete the project if it exists.
 casper.then(function(){
