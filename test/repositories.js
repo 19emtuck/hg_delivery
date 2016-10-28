@@ -1,3 +1,5 @@
+var MACROS = require('./utils/macros');
+
 /**
  * This casperjs/phantomjs test is about
  * repositories relationship.
@@ -157,44 +159,9 @@ casper.then(function(response){
   this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
 });
 
-// loop over projects to remove them ...
-casper.then(function(){
-  var full_lst_projects_labels = lst_projects_labels.slice(0);
-  full_lst_projects_labels.push('d4');
 
-  var projects_urls = this.evaluate(function(lst_projects_labels) {
-      return $('#projects_list .project_link').map(function(id,item){
-        if(lst_projects_labels.indexOf($(item).text())!==-1){
-          return $(item).attr('href');
-        }
-      }).toArray();
-  }, full_lst_projects_labels);
- //require('utils').dump(projects_urls);
- this.each(projects_urls, function(self, next_link){
-    self.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, 'form[name="view_project"] button.dropdown-toggle');
-    self.thenClick('form[name="view_project"] button.dropdown-toggle');
-    self.thenOpen(next_link);
-    self.waitUntilVisible('#project_home');
-    self.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#manage_project');
-    self.thenClick('#manage_project');
-    self.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#view_delete_project');
-    self.thenClick('#view_delete_project');
-    self.waitUntilVisible('form[name="view_project"] button.dropdown-toggle');
-    self.wait(200);
- });
-
-});
-
-casper.then(function(){
-  var projects_urls = this.evaluate(function(lst_projects_labels) {
-      return $('#projects_list .project_link').map(function(id,item){
-        if(lst_projects_labels.indexOf($(item).text())!==-1){
-          return $(item).attr('href');
-        }
-      }).toArray();
-  }, lst_projects_labels );
-  casper.test.assertEquals(projects_urls.length, 0);
-});
+MACROS.detach_all_projects_from_their_group(casper);
+MACROS.remove_all_projects(casper);
 
 casper.waitUntilVisible('span[class="glyphicon glyphicon-plus"]',
     function(){this.test.assertExists('span[class="glyphicon glyphicon-plus"]');

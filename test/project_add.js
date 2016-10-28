@@ -1,3 +1,5 @@
+var MACROS = require('./utils/macros');
+
 if(!casper.cli.has("login")){
   casper.echo('please provide --login=xxxx argument', "ERROR");
   casper.exit();
@@ -55,40 +57,16 @@ casper.then(function(response){
   this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
 });
 
-// loop over projects to remove them ...
-casper.then(function(){
- projects_names = this.evaluate(function() {
-   return $('#projects_list .project_link').map(function(id,item){return $(item).attr('href');}).toArray();
- });
- // require('utils').dump(projects_names);
 
- this.each(projects_names, function(self, next_link){
-    self.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, 'form[name="view_project"] button.dropdown-toggle');
-    self.thenClick('form[name="view_project"] button.dropdown-toggle');
-    self.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, "a[href='"+next_link+"']");
-    self.thenClick("a[href='"+next_link+"']");
-    self.waitUntilVisible('#project_home');
-    self.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#manage_project');
-    self.thenClick('#manage_project');
-    self.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#view_delete_project');
-    self.thenClick('#view_delete_project');
-    self.waitUntilVisible('form[name="view_project"] button.dropdown-toggle');
-    // wait a bit ...
-    self.wait(700);
- });
+MACROS.detach_all_projects_from_their_group(casper);
+MACROS.remove_all_projects(casper);
 
-});
-
-casper.then(function(){
-  var projects_names = this.evaluate(function() {
-      return $('#projects_list .project_link').map(function(id,item){return $(item).attr('href');}).toArray();
-  });
-  casper.test.assertEquals(projects_names.length, 0);
-});
 
 casper.waitUntilVisible('span[class="glyphicon glyphicon-plus"]',
     function(){this.test.assertExists('span[class="glyphicon glyphicon-plus"]');
 });
+
+
 
 casper.then(function(){
  this.each(['d1','d2','d3'], function(self, project_id){
