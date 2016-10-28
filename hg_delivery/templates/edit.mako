@@ -144,7 +144,10 @@
          <h3 class="panel-title">Filter</h3>
        </div>
        <div style="padding:8px 9px">
-         <form id="time" name="time" action="" method="POST" role="form" class="form-inline">
+         <form id="time" name="time" action="" method="GET" role="form" class="form-inline">
+           <div class="btn-group">
+              <label> <input type="checkbox" name="delivered" ${'checked' if delivered else ''}> delivered </label>
+           </div>
            <div class="btn-group">
              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="min-width:80px">
                %if filter_tag :

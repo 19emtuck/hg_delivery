@@ -1159,9 +1159,17 @@ def edit_project(request):
     if 'branch' in request.params :
       branch = request.params['branch']
 
+    delivered = False
+    if 'delivered' in request.params :
+      delivered = request.params['delivered']
+      if delivered=='on' :
+        delivered = True
+
     tag = None
     if 'tag' in request.params :
       tag = request.params['tag']
+      if len(tag)>0 :
+        delivered = False
 
     limit = 200 
     settings = request.registry.settings
@@ -1188,9 +1196,15 @@ def edit_project(request):
 
         current_rev = ssh_node.get_current_rev_hash()
 
-        last_hundred_change_list, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch, revision_filter=tag)
+        if delivered and not tag :
+          last_hundred_change_list, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch,
+              revision_filter=iter(delivered_hash))
+        else :
+          last_hundred_change_list, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch,
+              revision_filter=tag)
+
         list_branches = ssh_node.get_branches()
-        list_tags = ssh_node.get_tags()
+        list_tags     = ssh_node.get_tags()
 
         current_node = map_change_sets.get(current_rev)
         if current_node is None :
@@ -1249,7 +1263,8 @@ def edit_project(request):
              'project_tasks'            : project_tasks,
              'project_macros'           : project_macros,
              'knonwn_acl'               : Acl.known_acls,
-             'delivered_hash'           : delivered_hash}
+             'delivered_hash'           : delivered_hash,
+             'delivered'                : delivered}
 
 #------------------------------------------------------------------------------
 

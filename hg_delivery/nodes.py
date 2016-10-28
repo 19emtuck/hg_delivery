@@ -19,6 +19,7 @@ import os.path
 import logging
 import uuid
 import sys
+import collections
 
 from pygments import highlight
 from pygments.lexers import DiffLexer
@@ -605,11 +606,13 @@ class HgNode(NodeSsh):
 
       :param nb_lines: integer, limit the number of lines
       :param branch_filter: an branch name (string) that can filter result
-      :param revision_filter: an revision hash (string) that can filter result
+      :param revision_filter: an revision hash (string) that can filter result or an iterable collection of string
     """
 
-    if revision_filter :
+    if revision_filter and isinstance(revision_filter, str) :
       data = self.run_command(u'cd %s ; hg log --template "%s" -r %s'%(self.path, self._template, revision_filter))
+    elif revision_filter and isinstance(revision_filter, collections.Iterable):
+      data = self.run_command(u'cd %s ; hg log --template "%s" %s'%(self.path, self._template, " ".join(("-r %s"%_e for _e in revision_filter))))
     elif branch_filter :
       data = self.run_command(u'cd %s ; hg log -l %d --template "%s" -b %s'%(self.path, nb_lines, self._template, branch_filter))
     else :
