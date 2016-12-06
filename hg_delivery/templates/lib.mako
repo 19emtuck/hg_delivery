@@ -13,7 +13,7 @@
       </button>
       <ul id="projects_list" class="dropdown-menu" role="menu" data-url="${url(route_name='project_edit',id='')}">
       <%
-        groups_list={_p.groups[0] for _p in projects_list if len(_p.groups)!=0}
+        groups_list=sorted({_p.groups[0] for _p in projects_list if len(_p.groups)!=0}, key=lambda group: group.name)
         none_affected_projects = [_p for _p in projects_list if len(_p.groups)==0]
       %>
       % if len(groups_list)>0 :
