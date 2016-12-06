@@ -958,6 +958,15 @@ def add_project(request):
         DBSession.rollback()
         result = False
         explanation = u'Please check password, host, path (%s %s) before adding this project... '%(host, path)
+      except Exception as e:
+        if hasattr(e,'value') :
+          repository_error = e.value
+          explanation = e.value
+          log.error(e.value)
+        else :
+          log.error(e)
+          explanation = e
+        result = False
 
     return { 'result'      : result,
              'explanation' : explanation }
