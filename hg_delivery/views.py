@@ -42,6 +42,8 @@ from hg_delivery.nodes import (
     )
 
 import paramiko
+from paramiko.ssh_exception import NoValidConnectionsError
+
 import logging
 
 logging.getLogger("paramiko").setLevel(logging.WARNING)
@@ -305,8 +307,12 @@ def node_description(request):
   id_project = request.matchdict['id']
   project = DBSession.query(Project).get(id_project)
 
-  if not project.is_initial_revision_init() :
-    project.init_initial_revision()
+  try :
+    if not project.is_initial_revision_init() :
+      project.init_initial_revision()
+  except NoValidConnectionsError as e:
+    repository_error = u'No valid connection error to host (%s)... '%(project.host)
+    log.error(u'No valid connection error to host (%s)... '%(project.host))
 
   node_description = {}
 
@@ -325,6 +331,9 @@ def node_description(request):
     #   body = ', '.join([x[0] for x in addrs[:-1]])
     # TypeError: 'dict_keys' object is not subscriptable
     pass
+  except NoValidConnectionsError as e:
+    node_description = u'No valid connection error to host (%s)... '%(project.host)
+    log.error(u'No valid connection error to host (%s)... '%(project.host))
 
   return { 'node_description':node_description }
 
@@ -958,14 +967,24 @@ def add_project(request):
         DBSession.rollback()
         result = False
         explanation = u'Please check password, host, path (%s %s) before adding this project... '%(host, path)
+      except NoValidConnectionsError as e:
+        DBSession.rollback()
+        result = False
+        explanation = u'No valid connection error to host (%s)... '%(host)
       except Exception as e:
+        DBSession.rollback()
+        result = False
         if hasattr(e,'value') :
           repository_error = e.value
           explanation = e.value
           log.error(e.value)
         else :
           log.error(e)
-          explanation = e
+          # try to cast it as a string
+          try :
+            explanation = str(e)
+          except :
+            explanation = u"Project can't be added"
         result = False
 
     return { 'result'      : result,
@@ -1144,8 +1163,12 @@ def edit_project(request):
     if project is None :
       return HTTPFound(location=request.route_url(route_name='home'))
 
-    if not project.is_initial_revision_init() :
-      project.init_initial_revision()
+    try :
+      if not project.is_initial_revision_init() :
+        project.init_initial_revision()
+    except NoValidConnectionsError as e:
+      repository_error = u'No valid connection error to host (%s)... '%(project.host)
+      log.error(u'No valid connection error to host (%s)... '%(project.host))
 
     # while editing this project, we also check non inited projects
     # shall we ?
@@ -1225,6 +1248,13 @@ def edit_project(request):
     except NodeException as e:
       repository_error = e.value
       log.error(e.value)
+      current_node = None
+      list_branches = []
+      list_tags = []
+      last_hundred_change_list, map_change_sets = [], {}
+    except NoValidConnectionsError as e:
+      repository_error = u'No valid connection error to host (%s)... '%(project.host)
+      log.error(u'No valid connection error to host (%s)... '%(project.host))
       current_node = None
       list_branches = []
       list_tags = []
