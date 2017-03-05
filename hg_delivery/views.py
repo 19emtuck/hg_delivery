@@ -941,9 +941,20 @@ def add_project(request):
     host         = request.params['host']
     path         = request.params['path']
     rev_init     = request.params['rev_init']
-    dashboard    = request.params['dashboard']
+
+    dashboard    = request.params.get('dashboard', False)
+    if dashboard == '1' or dashboard == 1 :
+      dashboard = True
+    else :
+      dashboard = False
+
     dvcs_release = request.params['dvcs_release']
-    no_scan      = request.params['no_scan']
+    no_scan      = request.params.get('no_scan', False)
+    if no_scan == '1' or no_scan == 1 :
+      no_scan = True
+    else :
+      no_scan = False
+
     group_label  = request.params['group_label']
 
     if not host :
