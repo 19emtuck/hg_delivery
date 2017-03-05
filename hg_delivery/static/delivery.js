@@ -832,7 +832,7 @@ function add_project(target_url, refresh_projects_list_url){
       $.ajax({url: refresh_projects_list_url,
               method:'GET',
               success:function(html_response){
-                $('#projects_list').parent().html(html_response);
+                $('#projects_list').parent().html(html_response).show();
               }});
 
       if(json_response.explanation){
