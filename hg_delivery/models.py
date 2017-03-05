@@ -131,8 +131,14 @@ class Project(Base):
 
   def get_ssh_node(self):
     """
+    project id can't be None, because he will be pushed into pool and it's id will
+    be required for logs and pool
     """
     uri = self.get_uri()
+
+    if self.id is None :
+      raise Exception("project needs to be serialized and get an id before using it ...")
+
     return PoolSsh.get_node(uri, self.id)
 
   def delete_nodes(self):

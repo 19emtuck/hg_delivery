@@ -966,6 +966,9 @@ def add_project(request):
         # folder should be unique
         project = Project(name, user, password, host, path, rev_init, dashboard, dvcs_release, no_scan, group_label)
         DBSession.add(project)
+        # this first flush ensure an id will be set on project object to prevent
+        # any project's object miss use.
+        DBSession.flush()
         project.init_initial_revision()
         DBSession.flush()
         result = True
