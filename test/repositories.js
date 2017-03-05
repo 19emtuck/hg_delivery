@@ -200,7 +200,9 @@ casper.then(function(){
   this.open(map_project_to_url.d1);
 });
 
-casper.waitUntilVisible('#project_home');
+casper.waitForSelector('#projects_list');
+casper.waitUntilVisible('#project_name');
+
 casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, 'a[href="#related"]');
 casper.thenClick('a[href="#related"]');
 casper.waitForSelector('#other_projects a[data-name="d2"]');
@@ -232,10 +234,12 @@ casper.then(function(){
   this.thenOpen(map_project_to_url[project_pushed_name]);
 });
 
-casper.waitUntilVisible('#project_home', function(){
+casper.waitForSelector('#projects_list', function(){
   this.test.assertExists('.glyphicon-ok');
   this.test.assertTextExists('my_first_commit');
+  this.test.assertVisible('#project_name');
 });
+
 casper.thenEvaluate(css_on_row_col, 1, 2, 'border', 'solid red 1px');
 casper.thenEvaluate(css_on_row_col, 1, 2, 'color', 'green');
 casper.thenEvaluate(click_on_row_col, 1, 2);
@@ -243,7 +247,7 @@ casper.waitUntilVisible('#confirm_move_dialog');
 casper.thenClick('#move_to');
 casper.waitForResource('project\/update');
 
-casper.waitUntilVisible('#project_home');
+casper.waitUntilVisible('#container_alert');
 casper.wait(1000);
 casper.waitUntilVisible('.glyphicon-ok', function(){
   this.test.assertExists('.glyphicon-ok');
@@ -284,14 +288,14 @@ casper.wait(300);
 
 casper.reload();
 casper.waitForText('second_commit_d2');
-casper.waitUntilVisible('#project_home', function(){
+casper.waitForSelector('#projects_list', function(){
   this.test.assertExists('.glyphicon-ok');
   this.test.assertTextExists('second_commit_d2');
 });
 casper.then(function(){
   this.open(map_project_to_url.d1);
 });
-casper.waitUntilVisible('#project_home', function(){
+casper.waitForSelector('#projects_list', function(){
   this.test.assertExists('.glyphicon-ok');
   this.test.assertTextDoesntExist('second_commit_d2');
 });
@@ -318,7 +322,7 @@ casper.waitWhileVisible('#container_alert .progress-bar', function(){
   this.test.assertDoesntExist('#container_alert .progress-bar');
 });
 
-casper.waitUntilVisible('#project_home', function(){
+casper.waitForSelector('#projects_list', function(){
   this.test.assertExists('.glyphicon-ok');
   this.test.assertTextExists('second_commit_d2');
 });
@@ -360,7 +364,7 @@ casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red'
 casper.thenClick('#move_to');
 casper.waitWhileVisible('#confirm_move_dialog');
 casper.waitForText('Project d1 has been updated successfully');
-casper.wait(100);
+casper.wait(500);
 casper.waitWhileVisible('.alert');
 casper.then(function(){
   // after update a new pushpin icon appear which gives update dates to user

@@ -61,7 +61,7 @@ exports.remove_all_projects = function(capser){
       self.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, 'form[name="view_project"] button.dropdown-toggle');
       self.thenClick('form[name="view_project"] button.dropdown-toggle');
       self.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, "a[href='"+next_link+"']");
-      self.thenClick("a[href='"+next_link+"']");
+      self.thenClick("#projects_list a[href='"+next_link+"']");
       self.waitUntilVisible('#project_home');
       self.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#manage_project');
       self.thenClick('#manage_project');

@@ -59,7 +59,7 @@ casper.then(function(){
        return $('#projects_list a:contains("d1")').attr('href');
     });
     this.thenOpen(next_link);
-    this.waitUntilVisible('#project_home');
+    this.waitUntilVisible('#project_name');
     this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#manage_project');
     this.thenClick('#manage_project');
     this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#view_delete_project');
@@ -119,7 +119,7 @@ casper.then(function(){
   });
   this.thenOpen(next_link);
 });
-casper.waitUntilVisible('#project_home');
+casper.waitUntilVisible('#project_name');
 casper.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#manage_project');
 casper.thenClick('#manage_project');
 
