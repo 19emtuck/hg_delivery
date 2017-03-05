@@ -42,7 +42,11 @@ from hg_delivery.nodes import (
     )
 
 import paramiko
-from paramiko.ssh_exception import NoValidConnectionsError
+try :
+  from paramiko.ssh_exception import NoValidConnectionsError
+except :
+  # before paramiko 1.6
+  from paramiko.ssh_exception import SSHException as NoValidConnectionsError
 
 import logging
 
