@@ -1253,6 +1253,7 @@ def edit_project(request):
         if delivered and not tag :
           last_hundred_change_list, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch,
               revision_filter=iter(delivered_hash))
+          last_hundred_change_list = sorted(last_hundred_change_list, key=lambda e: e['rev'], reverse=True)
         else :
           last_hundred_change_list, map_change_sets = ssh_node.get_last_logs(limit, branch_filter=branch,
               revision_filter=tag)
