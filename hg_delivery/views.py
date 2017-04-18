@@ -118,7 +118,7 @@ class SpeedUpdater(SpeedThread):
     a simple way to divide node jobs
   """
 
-  def __init__(self, project, rev):
+  def __init__(self, project, rev, run_task_flag=True):
     """
     we're looking for a project and targeting a specific revision
 
@@ -127,6 +127,7 @@ class SpeedUpdater(SpeedThread):
     """
     self.__updated          = False
     self.__tasks_exceptions = []
+    self.__run_task_flag    = run_task_flag
 
     SpeedThread.__init__(self, project, rev)
 
@@ -148,14 +149,17 @@ class SpeedUpdater(SpeedThread):
         if current_rev == self.rev :
           self.__updated = True
 
-          for task in self.project.tasks :
-            try :
-              ssh_node.run_command(task.content, log=True)
-            except NodeException as e :
-              self.__tasks_exceptions.append(e.value)
-            except OutputErrorCode as e :
-              self.__tasks_exceptions.append(u"Task return an error code : %s (different than 0)"%e.value)
-          
+          # check whereas tasks have to to be triggered or not
+          if self.__run_task_flag :
+
+            for task in self.project.tasks :
+              try :
+                ssh_node.run_command(task.content, log=True)
+              except NodeException as e :
+                self.__tasks_exceptions.append(e.value)
+              except OutputErrorCode as e :
+                self.__tasks_exceptions.append(u"Task return an error code : %s (different than 0)"%e.value)
+
     except Exception as e:
       pass
 
@@ -1599,6 +1603,11 @@ def update_project_to(request):
   """
   """
   id_project = request.matchdict['id']
+  run_task_flag = request.params.get('run_task_flag', False)
+  if run_task_flag == 'true':
+    run_task_flag = True
+  else :
+    run_task_flag = False
 
   brothers_id_project = list(request.matchdict['brother_id'])
   brothers_id_project.append(id_project)
@@ -1609,7 +1618,7 @@ def update_project_to(request):
   thread_stack       = []
 
   for __p in projects_to_update:
-    new_thread = SpeedUpdater(__p, revision)
+    new_thread = SpeedUpdater(__p, revision, run_task_flag = run_task_flag)
     thread_stack.append(new_thread)
     new_thread.start()
 

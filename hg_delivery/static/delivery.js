@@ -325,10 +325,16 @@ function change_project_to_this_release(active_a, target_url, target_refresh_url
              $('#src_revision').text($('.glyphicon-ok').data('current_rev'));
              $('#target_revision').text($(active_a).text());
              $('#confirm_move_dialog').modal('show');
+             // force flag
+             $('input[name="run_task_flag"]').prop('checked', true);
 
              $('#move_to').off().on('click',function(){
-               var lst_brother = $('#possible_update a.active').map(function(_i,_item){return $(_item).data('id');}).toArray();
+               var lst_brother   = $('#possible_update a.active').map(function(_i,_item){return $(_item).data('id');}).toArray();
+               var run_task_flag = $('input[name="run_task_flag"]').prop('checked') === true ? true : false;
+
                $.ajax({url:target_url+lst_brother.join('/'),
+                       data:{'run_task_flag':run_task_flag},
+                       method:'POST',
                        beforeSend:function(){
                          $('#confirm_move_dialog').modal('hide');
                          $(active_a).hide();

@@ -519,6 +519,11 @@
       <div class="modal-body">
         <p>
           from <span id="src_revision"></span> to <span id="target_revision"></span> revision
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" name="run_task_flag" value="on" checked> Execute additional tasks(s)
+            </label>
+          </div>
         </p>
         <div id="possible_update" class="list-group">
           <p>
