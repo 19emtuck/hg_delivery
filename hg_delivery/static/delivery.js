@@ -193,7 +193,7 @@ function push_to(target_project_id, target_url, force_branch){
              fetch_this_other_project(link);}, 10);
         } else if(json_response.new_branch_stop){
           // dialog : should we force ?
-          $('#confirm_force_push_dialog .modal-body').html("Should we push them ?<br><br>"+json_response.lst_new_branches.join(','));
+          $('#confirm_force_push_dialog .modal-body').html("Should we push them ?<br><br>"+json_response.lst_new_branches.join('<br>'));
           $('#abort_new_branch').off().on('click',function(){$('#container_alert').delay(1000).html('');});
           $('#new_branch').off().on('click',function(){ $('#confirm_force_push_dialog').modal('hide');$('#container_alert').html(''); push_to(target_project_id, target_url, true);});
           $('#confirm_force_push_dialog').modal('show');
@@ -432,6 +432,10 @@ function fetch_this_other_project(active_a){
                 $('#p_name_remote').text(remote_project_name);
                 $('#p_name_local').text(local_project_name);
                 $('#button_push').removeAttr('disabled');
+              } else if (!json_response.result && json_response.message){
+                _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                _alert_html += '<strong>'+json_response.message+'</strong></div>';
+                $('#container_alert').html(_alert_html);
               }
               finish_push_pull_evaluation();
             },
@@ -451,6 +455,10 @@ function fetch_this_other_project(active_a){
                 $('#p_name_remote').text(remote_project_name);
                 $('#p_name_local').text(local_project_name);
                 $('#button_pull').removeAttr('disabled');
+              } else if (!json_response.result && json_response.message){
+                _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                _alert_html += '<strong>'+json_response.message+'</strong></div>';
+                $('#container_alert').html(_alert_html);
               }
               finish_push_pull_evaluation();
             },
@@ -1200,7 +1208,7 @@ function run_this_macro(button, macro_name, macro_run_url, force_branch){
               $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
             } else if(json_response.new_branch_stop){
               // dialog : should we force ?
-              $('#confirm_force_push_dialog .modal-body').html("Should we push them ?<br><br>"+json_response.lst_new_branches.join(','));
+              $('#confirm_force_push_dialog .modal-body').html("Should we push them ?<br><br>"+json_response.lst_new_branches.join('<br>'));
               $('#abort_new_branch').off().on('click',function(){$('#container_alert').delay(1000).html('');});
               $('#new_branch').off().on('click',function(){ $('#confirm_force_push_dialog').modal('hide');$('#container_alert').html(''); run_this_macro(button, macro_name, macro_run_url, true);});
               $('#confirm_force_push_dialog').modal('show');
