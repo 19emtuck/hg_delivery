@@ -4,6 +4,10 @@
 <%inherit file="base.mako"/>
 <%namespace name="lib" file="lib.mako"/>
 
+<!-- start force push dialog -->
+${lib.publish_new_branch_dialog()}
+<!-- end new branch to dialog -->
+
 <h1>
   <form name="rename_group" action="${url(route_name='group_rename', id=group.id)}">
     <input name="name" value="${group.name}">
