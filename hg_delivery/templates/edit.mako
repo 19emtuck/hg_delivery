@@ -520,8 +520,11 @@
         <p>
           from <span id="src_revision"></span> to <span id="target_revision"></span> revision
           <div class="checkbox">
-            <label>
-              <input type="checkbox" name="run_task_flag" value="on" checked> Execute additional tasks(s)
+            <label class="additional_task_selector">
+              <input type="checkbox" name="run_task_flag" value="on" checked> Execute additional task(s)
+            </label>
+            <label class="no_task_found">
+              <i>No additional task(s) defined</i>
             </label>
           </div>
         </p>

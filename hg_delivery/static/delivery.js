@@ -325,6 +325,15 @@ function change_project_to_this_release(active_a, target_url, target_refresh_url
              $('#src_revision').text($('.glyphicon-ok').data('current_rev'));
              $('#target_revision').text($(active_a).text());
              $('#confirm_move_dialog').modal('show');
+
+             if($('#tasks_list input[name=task_content]').size()>0){
+               $('label.additional_task_selector').show();
+               $('label.no_task_found').hide();
+             } else {
+               $('label.additional_task_selector').hide();
+               $('label.no_task_found').show();
+             }
+
              // force flag
              $('input[name="run_task_flag"]').prop('checked', true);
 
