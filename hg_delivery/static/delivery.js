@@ -326,7 +326,8 @@ function change_project_to_this_release(active_a, target_url, target_refresh_url
              $('#target_revision').text($(active_a).text());
              $('#confirm_move_dialog').modal('show');
 
-             if($('#tasks_list input[name=task_content]').size()>0){
+             // better to check if task id exist rather than input, because user may not have save it
+             if($('#tasks_list button.btn.delete[data-id]').size()>0){
                $('label.additional_task_selector').show();
                $('label.no_task_found').hide();
              } else {
