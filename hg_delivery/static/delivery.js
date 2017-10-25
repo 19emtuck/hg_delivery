@@ -1245,8 +1245,8 @@ function run_this_macro(button, macro_name, macro_run_url, force_branch){
  * based on button disable or not check
  */
 function run_project_tasks(){
-  if(!$('button.run_task').is(':disabled')){
-    $('button.run_task').click();
+  if(!$('form[name="project_tasks"] button.run_task').is(':disabled')){
+    $('form[name="project_tasks"] button.run_task').click();
   }
 }
 
