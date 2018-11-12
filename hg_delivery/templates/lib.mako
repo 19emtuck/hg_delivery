@@ -31,7 +31,7 @@
       % for __project in none_affected_projects :
         <li><a class="project_link" href="${url(route_name='project_edit',id=__project.id)}">${__project.name}</a></li>
       % endfor
-      % if ((project is UNDEFINED or project is None) and request.url == request.route_url('home')) or project is not UNDEFINED:
+      % if ((project is UNDEFINED or project is None) and request.url == request.route_path('home')) or project is not UNDEFINED:
         <li class="divider"></li>
         <li><a href="#" onclick="$('#new_project_dialog').modal('show');">Add a new project</a></li>
        % endif

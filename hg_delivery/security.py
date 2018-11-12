@@ -156,7 +156,7 @@ class TaskFactory(ProjectFactory):
 
 @view_config(route_name='login')
 def login(request):
-  login_url = request.route_url('login')
+  login_url = request.route_path('login')
   referrer  = request.url
 
   if referrer == login_url:
@@ -177,14 +177,14 @@ def login(request):
                           headers  = headers )
     message = 'Failed login'
 
-  return HTTPFound(location=request.route_url('home'))
+  return HTTPFound(location=request.route_path('home'))
 
 #------------------------------------------------------------------------------
 
 @view_config(route_name='logout')
 def logout(request):
   headers = forget(request)
-  url = request.route_url('home')
+  url = request.route_path('home')
 
   return HTTPFound( location = url,
                     headers  = headers )

@@ -220,7 +220,7 @@ def delete_user(request):
     if user :
       DBSession.delete(user)
 
-    return HTTPFound(location=request.route_url(route_name='users'))
+    return HTTPFound(location=request.route_path(route_name='users'))
 
 #------------------------------------------------------------------------------
 
@@ -1183,7 +1183,7 @@ def edit_project(request):
     project = projects_map.get(id_project)
 
     if project is None :
-      return HTTPFound(location=request.route_url(route_name='home'))
+      return HTTPFound(location=request.route_path(route_name='home'))
 
     try :
       if not project.is_initial_revision_init() :
@@ -1307,10 +1307,10 @@ def edit_project(request):
       allow_to_modify_acls = True
 
     for node in last_hundred_change_list :
-      node['url_detail']                = request.route_url(route_name='project_revision_details_json',id=project.id, rev=node['node'])
-      node['url_change_to']             = request.route_url('project_change_to',id=project.id, rev=node['node'], brother_id =[])
-      node['url_refresh']               = request.route_url('project_refresh_state',id=project.id)
-      node['url_brothers_update_check'] = request.route_url('project_brothers_update_check',id=project.id, rev=node['node'])
+      node['url_detail']                = request.route_path(route_name='project_revision_details_json',id=project.id, rev=node['node'])
+      node['url_change_to']             = request.route_path('project_change_to',id=project.id, rev=node['node'], brother_id =[])
+      node['url_refresh']               = request.route_path('project_refresh_state',id=project.id)
+      node['url_brothers_update_check'] = request.route_path('project_brothers_update_check',id=project.id, rev=node['node'])
 
     return { 'project'                  : project,
              'list_branches'            : list_branches,
@@ -1501,7 +1501,7 @@ def save_users_acls(request):
     result = False
     explanation = u"wtf ?"
 
-  return HTTPFound(location=request.route_url(route_name='users'))
+  return HTTPFound(location=request.route_path(route_name='users'))
 
 #------------------------------------------------------------------------------
 
@@ -1651,7 +1651,7 @@ def delete_project_group(request):
   group = DBSession.query(ProjectGroup).get(group_id)
   DBSession.delete(group)
 
-  return HTTPFound(location=request.route_url(route_name='home'))
+  return HTTPFound(location=request.route_path(route_name='home'))
 
 #------------------------------------------------------------------------------
 
@@ -1675,7 +1675,7 @@ def detach_project_from_that_group(request):
 
     if group is not None and len(group.projects)==0 :
       DBSession.delete(group)
-      redirect_url = request.route_url(route_name='users')
+      redirect_url = request.route_path(route_name='users')
 
   DBSession.flush()
 
@@ -1693,10 +1693,10 @@ def rename_project(request):
                    .get(group_id)
   group_name = request.params[u'name']
 
-  response = HTTPFound(location=request.route_url(route_name='home'))
+  response = HTTPFound(location=request.route_path(route_name='home'))
 
   if group is not None and group_name :
-    response   = HTTPFound(location = request.route_url(route_name = 'project_group_view', id = group.id))
+    response   = HTTPFound(location = request.route_path(route_name = 'project_group_view', id = group.id))
     try :
       group.name = group_name
       DBSession.flush()
@@ -1704,9 +1704,9 @@ def rename_project(request):
       # silent is better ?
       pass
   elif group :
-    response   = HTTPFound(location = request.route_url(route_name = 'project_group_view', id = group.id))
+    response   = HTTPFound(location = request.route_path(route_name = 'project_group_view', id = group.id))
   else :
-    response = HTTPFound(location=request.route_url(route_name='home'))
+    response = HTTPFound(location=request.route_path(route_name='home'))
 
   return response
 
@@ -1817,4 +1817,4 @@ def view_project_group(request):
            }
 
   else :
-    return HTTPFound(location=request.route_url(route_name='home'))
+    return HTTPFound(location=request.route_path(route_name='home'))

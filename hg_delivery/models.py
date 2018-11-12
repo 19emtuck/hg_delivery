@@ -281,9 +281,9 @@ class User(Base):
              'name'          : self.name,
              'email'         : self.email,
              'pwd'           : self.pwd,
-             'get_url'       : request.route_url(route_name='user_get',   id=self.id),
-             'delete_url'    : request.route_url(route_name='user_delete',id=self.id),
-             'update_url'    : request.route_url(route_name='user_update',id=self.id),
+             'get_url'       : request.route_path(route_name='user_get',   id=self.id),
+             'delete_url'    : request.route_path(route_name='user_delete',id=self.id),
+             'update_url'    : request.route_path(route_name='user_update',id=self.id),
              'group'         : self.group,
              'creation_date' : creation_date }
 
@@ -344,8 +344,8 @@ class Task(Base):
     """
     return { 'id'          : self.id,
              'content'     : self.content,
-             'execute_url' : request.route_url(route_name='project_run_task', id=self.id),
-             'delete_url'  : request.route_url(route_name='project_delete_task', id=self.id),
+             'execute_url' : request.route_path(route_name='project_run_task', id=self.id),
+             'delete_url'  : request.route_path(route_name='project_delete_task', id=self.id),
            }
 
 #------------------------------------------------------------------------------
