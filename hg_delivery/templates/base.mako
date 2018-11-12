@@ -13,10 +13,10 @@
     % endif :
 
     <!-- Bootstrap -->
-    <link href="${request.static_url('hg_delivery:static/bootstrap-3.1.1/css/bootstrap.css')}" rel="stylesheet">
-    <link href="${request.static_url('hg_delivery:static/delivery.css')}" rel="stylesheet">
-    <link href="${request.static_url('hg_delivery:static/codemirror.css')}" rel="stylesheet">
-    <link href="${request.static_url('hg_delivery:static/mergely.css')}" rel="stylesheet">
+    <link href="${request.static_path('hg_delivery:static/bootstrap-3.1.1/css/bootstrap.css')}" rel="stylesheet">
+    <link href="${request.static_path('hg_delivery:static/delivery.css')}" rel="stylesheet">
+    <link href="${request.static_path('hg_delivery:static/codemirror.css')}" rel="stylesheet">
+    <link href="${request.static_path('hg_delivery:static/mergely.css')}" rel="stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -87,9 +87,9 @@
           % endif
           % if logged_in is None :
             <form id="login_form" class="navbar-form pull-right" action="${url('login')}" method='POST'>
-              <input class="span2" id="login" name="login" type="text" placeholder="your mail address">
-              <input class="span2" id="password" name="password" type="password" placeholder="your password">
-              <button type="submit" id="log_me" class="btn btn-primary" onclick="$('#login_form').submit()">Sign in</button>
+              <input class="span2" name="login" type="text" placeholder="your mail address">
+              <input class="span2" name="password" type="password" placeholder="your password">
+              <button type="submit" class="btn btn-primary" onclick="$('#login_form').submit()">Sign in</button>
             </form>
           %endif
         </div><!--/.nav-collapse -->
@@ -115,15 +115,15 @@
 
     <!-- STARTING/ GLOBAL SCRIPT -->
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="${request.static_url('hg_delivery:static/jquery-1.11.1.min.js')}"></script>
-    <script src="${request.static_url('hg_delivery:static/delivery.js')}"></script>
+    <script src="${request.static_path('hg_delivery:static/jquery-1.11.1.min.js')}"></script>
+    <script src="${request.static_path('hg_delivery:static/delivery.js')}"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="${request.static_url('hg_delivery:static/bootstrap-3.1.1/js/bootstrap.min.js')}"></script>
-    <script src="${request.static_url('hg_delivery:static/codemirror.min.js')}"></script>
-    <script src="${request.static_url('hg_delivery:static/searchcursor.js')}"></script>
-    <script src="${request.static_url('hg_delivery:static/mergely.min.js')}"></script>
-    <script src="${request.static_url('hg_delivery:static/d3.v3.min.js')}" charset="utf-8"></script>
-    <script src="${request.static_url('hg_delivery:static/typeahead.bundle.js')}" charset="utf-8"></script>
+    <script src="${request.static_path('hg_delivery:static/bootstrap-3.1.1/js/bootstrap.min.js')}"></script>
+    <script src="${request.static_path('hg_delivery:static/codemirror.min.js')}"></script>
+    <script src="${request.static_path('hg_delivery:static/searchcursor.js')}"></script>
+    <script src="${request.static_path('hg_delivery:static/mergely.min.js')}"></script>
+    <script src="${request.static_path('hg_delivery:static/d3.v3.min.js')}" charset="utf-8"></script>
+    <script src="${request.static_path('hg_delivery:static/typeahead.bundle.js')}" charset="utf-8"></script>
     <!-- ENDING/ GLOBAL SCRIPT -->
     
     <%block name="local_js">

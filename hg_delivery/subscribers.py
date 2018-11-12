@@ -39,8 +39,8 @@ def mysubscriber(event):
   request = event['request']
   # request.registry.scheduler.add_interval_job(interval_process, minutes=1)
 
-  event['url'] = request.route_url
-  event['static_url'] = request.static_url
+  event['url'] = request.route_path
+  event['static_url'] = request.static_path
   event['logged_in'] = request.authenticated_userid
 
   if request.authenticated_userid and 'projects_list' not in event.rendering_val:

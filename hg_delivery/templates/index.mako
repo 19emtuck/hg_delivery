@@ -49,9 +49,9 @@
    % if logged_in is None :
    <div>
        <form id="login_form_responsive" action="${url('login')}" method='POST'>
-         <input class="span2" id="login" name="login" type="text" placeholder="your mail address">
-         <input class="span2" id="password" name="password" type="password" placeholder="your password">
-         <button type="submit" id="log_me" class="btn btn-primary" onclick="$('#login_form').submit()">Sign in</button>
+         <input class="span2" name="login" type="text" placeholder="your mail address">
+         <input class="span2" name="password" type="password" placeholder="your password">
+         <button type="submit" class="btn btn-primary" onclick="$('#login_form').submit()">Sign in</button>
        </form>
    </div>
  </div>
