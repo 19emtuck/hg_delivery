@@ -36,8 +36,8 @@ casper.then(function(response){
 });
 casper.then(function(response){
   this.fill('#login_form', {'login':'editor','password':'editor'});
-  this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#log_me');
-  this.thenClick('#log_me')
+  this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#login_form button');
+  this.thenClick('#login_form button');
 });
 casper.then(function(response){
   this.test.assertTitle('Hg Delivery 1.0 welcome :)');

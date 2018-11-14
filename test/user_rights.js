@@ -38,8 +38,8 @@ casper.thenOpen('http://127.0.0.1:6543');
 casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
 casper.then(function(response){
   this.fill('#login_form', {'login':'editor','password':'editor'});
-  this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#log_me');
-  this.thenClick('#log_me');
+  this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#login_form button');
+  this.thenClick('#login_form button');
 });
 
 casper.then(function(response){
@@ -57,7 +57,7 @@ casper.then(function(){
 casper.then(function(response){this.test.assertTextExists('d1');});
 casper.then(function(){
   var next_link = this.evaluate(function(){
-     return $('#projects_list a:contains("d1")').attr('href');
+     return window.location.origin+$('#projects_list a:contains("d1")').attr('href');
   });
   this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#projects_list a:contains("d1")');
   this.thenOpen(next_link);
@@ -77,7 +77,7 @@ casper.thenClick('#save_users_acl');
 
 casper.then(function(){
   var next_link = this.evaluate(function(){
-     return $('#projects_list a:contains("d1")').attr('href');
+     return window.location.origin+$('#projects_list a:contains("d1")').attr('href');
   });
   this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#projects_list a:contains("d1")');
   this.thenOpen(next_link);
@@ -102,7 +102,7 @@ casper.thenEvaluate(function(){
 casper.thenClick('#save_users_acl');
 casper.then(function(){
   var next_link = this.evaluate(function(){
-     return $('#projects_list a:contains("d1")').attr('href');
+     return window.location.origin+$('#projects_list a:contains("d1")').attr('href');
   });
   this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#projects_list a:contains("d1")');
   this.thenOpen(next_link);

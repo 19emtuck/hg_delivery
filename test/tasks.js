@@ -55,7 +55,7 @@ casper.then(function(){
   this.open(map_project_to_url.d1);
 });
 
-casper.thenClick('a[href="#tasks"]');
+casper.thenClick('a[href$="tasks"]');
 
 // loop over tasks to remove them ...
 casper.then(function(){
@@ -187,7 +187,7 @@ casper.then(function(){
   this.test.assertExists('button[data-id="'+new_task_id+'"]');
 });
 casper.back();
-casper.thenClick('a[href="#tasks"]');
+casper.thenClick('a[href$="tasks"]');
 
 casper.then(function(){
   this.clickLabel('delete it ..');

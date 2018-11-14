@@ -177,7 +177,7 @@ casper.then(function(){
 
 casper.then(function(){
   var projects_urls = this.evaluate(function() {
-      return $('#projects_list .project_link').map(function(id,item){return [[$(item).text(),$(item).attr('href')]];}).toArray();
+      return $('#projects_list .project_link').map(function(id,item){return [[$(item).text(),window.location.origin+$(item).attr('href')]];}).toArray();
   });
 
   for (var i = 0; i < projects_urls.length; i++) {
@@ -429,7 +429,7 @@ casper.waitWhileVisible('.alert-success');
 
 casper.then(function(){
   var projects_urls = this.evaluate(function() {
-      return $('#projects_list .project_link').map(function(id,item){return [[$(item).text(),$(item).attr('href')]];}).toArray();
+      return $('#projects_list .project_link').map(function(id,item){return [[$(item).text(), window.location.origin+$(item).attr('href')]];}).toArray();
   });
 
   for (var i = 0; i < projects_urls.length; i++) {

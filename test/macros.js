@@ -37,8 +37,8 @@ casper.thenOpen('http://127.0.0.1:6543');
 casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
 casper.then(function(response){
   this.fill('#login_form', {'login':'editor','password':'editor'});
-  this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#log_me');
-  this.thenClick('#log_me');
+  this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#login_form button');
+  this.thenClick('#login_form button');
 });
 
 casper.then(function(response){
@@ -53,7 +53,7 @@ casper.then(function(){
   var projects_urls = this.evaluate(function(lst_projects_labels) {
       return $('#projects_list .project_link').map(function(id,item){
         if(lst_projects_labels.indexOf($(item).text())!==-1){
-          return $(item).attr('href');
+          return window.location.origin + $(item).attr('href');
         }
       }).toArray();
   }, ['d1']);
@@ -111,7 +111,7 @@ casper.waitFor(function(){
   var outstandingAjaxRequests = casper.evaluate(function(){ return $.active; });
   return (outstandingAjaxRequests == 0);
 }, function(){}, function() {
-  test.fail("Timed out waiting for ajax calls to complete", "ERROR");
+  this.test.fail("Timed out waiting for ajax calls to complete", "ERROR");
 }, 15000);
 
 casper.wait(200);
