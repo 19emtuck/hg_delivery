@@ -72,6 +72,18 @@
      var groups_labels = [];
   % endif
   init_page_overview();
+
+  var url_params = new URLSearchParams(window.location.search);
+  if(url_params.get('error')!==null && url_params.get('error')!==''){
+    _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+    if(url_params.get('message')!==null && url_params.get('message')!==''){
+      _alert_html += url_params.get('message') + ':' + '&nbsp;';
+    }
+    _alert_html += '<strong>'+url_params.get('error')+'</strong></div>';
+    $('#container_alert').html(_alert_html);
+  }
+
+
   </script>
 </%block>
 

@@ -164,6 +164,7 @@ def login(request):
 
   came_from = request.params.get('came_from', referrer)
   message   = ''
+  error     = ''
   login     = ''
   password  = ''
 
@@ -175,9 +176,14 @@ def login(request):
         headers = remember(request, login)
         return HTTPFound( location = came_from,
                           headers  = headers )
-    message = 'Failed login'
+    elif all_known_users.get(login) is None :
+      error = 'Uknown user'
+    elif all_known_users.get(login) != password :
+      error = 'Bad password'
 
-  return HTTPFound(location=request.route_path('home'))
+    message = 'Login fail'
+
+  return HTTPFound(location=request.route_path('home', _query={'message':message, 'error':error}))
 
 #------------------------------------------------------------------------------
 

@@ -351,9 +351,11 @@ def node_description(request):
 def default_view(request):
     """
     """
-    dashboard_list = []
+    error = request.params.get('error','')
+
+    dashboard_list    = []
     nodes_description = {}
-    projects_list = []
+    projects_list     = []
 
     if request.authenticated_userid :
       projects_list = []
@@ -382,6 +384,7 @@ def default_view(request):
     return { 'projects_list'     : projects_list,
              'nodes_description' : nodes_description,
              'dashboard_list'    : dashboard_list,
+             'error'             : error
            }
 
 #------------------------------------------------------------------------------
