@@ -183,7 +183,12 @@ def login(request):
 
     message = 'Login fail'
 
-  return HTTPFound(location=request.route_path('home', _query={'message':message, 'error':error}))
+  if error :
+    response = HTTPFound(location=request.route_path('home', _query={'message':message, 'error':error}))
+  else :
+    response = HTTPFound(location=request.route_path('home'))
+
+  return response
 
 #------------------------------------------------------------------------------
 
