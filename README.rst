@@ -76,10 +76,16 @@ Getting Started
 .. code-bloc::bash
 
     hg clone https://bitbucket.org/tuck/hg_delivery
+
     cd hg_delivery
+
     $VENV/bin/python setup.py develop
+
     $VENV/bin/initialize_hg_delivery_db development.ini
+
     $VENV/bin/pserve development.ini
+
+
 
 .. note:: please use production.ini file for production purpose :)
 
