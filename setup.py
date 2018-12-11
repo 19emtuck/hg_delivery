@@ -48,7 +48,8 @@ requires = [
     'paramiko==2.0.1',
     'alembic',
     'apscheduler==2.1.2',
-    'redis',
+    'redis==2.10.5',
+    'kombu==4.0.0',
     'pyramid-scheduler==0.3.1',
     ]
 
