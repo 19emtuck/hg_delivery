@@ -125,7 +125,7 @@
                   <div class="col-sm-8">
                     <div class="checkbox">
                       <label>
-                          <input name="local_pkey" type="checkbox" value="1">
+                          <input name="local_pkey" type="checkbox" value="1" onclick="$('#project_add input[type=password]').prop('disabled', $(this).is(':checked'))">
                       </label>
                     </div>
                   </div>

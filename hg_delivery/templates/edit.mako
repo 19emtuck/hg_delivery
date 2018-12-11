@@ -454,9 +454,9 @@
                 <label for="project_password" class="col-sm-4 control-label">Passwd</label>
                 <div class="col-sm-7">
                   % if not project.local_pkey :
-                    <input id="project_password" class="form-control" name="password" type="password" placeholder="password" value="${project.password}">
+                    <input id="project_password" class="form-control" name="password" type="password" placeholder="password" value="${project.password}" onclick="$('#edit_project input[type=password]').prop('disabled', $(this).is(':checked'))">
                   % else :
-                    <input id="project_password" class="form-control" name="password" type="password" placeholder="password" value="" disabled>
+                    <input id="project_password" class="form-control" name="password" type="password" placeholder="password" value="" disabled onclick="$('#edit_project input[type=password]').prop('disabled', $(this).is(':checked'))">
                   % endif
                 </div>
               </div>

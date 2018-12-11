@@ -248,8 +248,8 @@ def add_user(request):
     result = False
     explanation = None
 
-    name = request.params['name']
-    email = request.params['email']
+    name     = request.params['name']
+    email    = request.params['email']
     password = request.params['pwd']
 
     # email is the key, and password cannot be empty
@@ -948,12 +948,14 @@ def add_project(request):
 
     name         = request.params['name']
     user         = request.params['user']
-    password     = request.params['password']
+    password     = request.params.get('password', '')
     host         = request.params['host']
     path         = request.params['path']
     local_pkey   = request.params.get('local_pkey',False)
     if local_pkey=='0' :
       local_pkey = False
+    if local_pkey is True or local_pkey=='1' or local_pkey=='1':
+      password = ''
     rev_init     = request.params['rev_init']
 
     dashboard    = request.params.get('dashboard', False)
@@ -1030,10 +1032,13 @@ def update_project(request):
 
     name       = request.params['name']
     user       = request.params['user']
-    password   = request.params['password']
+    password   = request.params.get('password', '')
     local_pkey = request.params.get('local_pkey',False)
     if local_pkey=='0' :
       local_pkey = False
+    if local_pkey is True or local_pkey=='1' or local_pkey=='1':
+      password = ''
+
     host       = request.params['host']
     path       = request.params['path']
 
