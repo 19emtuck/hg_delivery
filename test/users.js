@@ -33,6 +33,28 @@ casper.on('remote.message',function(message){this.echo(message);});
 casper.thenOpen('http://127.0.0.1:6543');
 casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
 casper.then(function(response){
+  this.fill('#login_form', {'login':'editor','password':'bad'});
+  this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#login_form button');
+  this.thenClick('#login_form button');
+});
+casper.waitForSelector('div.alert');
+casper.then(function(response){
+  this.test.assertTextExists('Bad password');
+});
+casper.thenOpen('http://127.0.0.1:6543');
+casper.then(function(response){
+  this.fill('#login_form', {'login':'bad','password':'editor'});
+  this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#login_form button');
+  this.thenClick('#login_form button');
+});
+casper.waitForSelector('div.alert');
+casper.then(function(response){
+  this.test.assertTextExists('Uknown user');
+});
+
+casper.thenOpen('http://127.0.0.1:6543');
+casper.then(function(response){ this.test.assertTitle('Hg Delivery 1.0'); });
+casper.then(function(response){
   this.fill('#login_form', {'login':'editor','password':'editor'});
   this.thenEvaluate(function(selector){ $(selector).css('border','solid 2px red').css('color','red'); }, '#login_form button');
   this.thenClick('#login_form button');
