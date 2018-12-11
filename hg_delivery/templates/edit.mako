@@ -453,7 +453,11 @@
               <div class="form-group">
                 <label for="project_password" class="col-sm-4 control-label">Passwd</label>
                 <div class="col-sm-7">
-                  <input id="project_password" class="form-control" name="password" type="password" placeholder="password" value="${project.password}">
+                  % if not project.local_pkey :
+                    <input id="project_password" class="form-control" name="password" type="password" placeholder="password" value="${project.password}">
+                  % else :
+                    <input id="project_password" class="form-control" name="password" type="password" placeholder="password" value="" disabled>
+                  % endif
                 </div>
               </div>
               <div class="form-group">
@@ -489,6 +493,20 @@
                         <input id="project_scan" name="no_scan" type="checkbox" value="1" checked>
                       % else :
                         <input id="project_scan" name="no_scan" type="checkbox" value="1">
+                      % endif
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="project_scan" class="col-sm-4 control-label">Local PKEY</label>
+                <div class="col-sm-7">
+                  <div class="checkbox">
+                    <label>
+                      % if project.local_pkey :
+                        <input id="project_scan" name="local_pkey" type="checkbox" value="1" checked onclick="$('#edit_project input[type=password]').prop('disabled', $(this).is(':checked'))">
+                      % else :
+                        <input id="project_scan" name="local_pkey" type="checkbox" value="1" nclick="$('#edit_project input[type=password]').prop('disabled', $(this).is(':checked'))">
                       % endif
                     </label>
                   </div>

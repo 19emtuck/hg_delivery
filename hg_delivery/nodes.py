@@ -155,7 +155,7 @@ class NodeSsh(object):
   logs = []
   max_timeout = 60*5
   
-  def __init__(self, uri, project_id):
+  def __init__(self, uri, project_id, local_pkey=False):
     """
       uri should like this
 
@@ -166,6 +166,7 @@ class NodeSsh(object):
     self.uri = uri
     self.project_id = project_id
     user,password_host,path = uri.split(u':')
+    self.local_pkey = local_pkey
 
     self.user = user
     self.path = path
@@ -222,9 +223,16 @@ class NodeSsh(object):
       get the ssh object connection.
     """
     try :
-      ssh = paramiko.SSHClient()
-      ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-      ssh.connect(self.host, username=self.user, password=self.password)
+      if self.local_pkey :
+        private_key_file= os.path.expanduser('~/.ssh/id_rsa')
+        ssh = paramiko.SSHClient()
+        ssh.load_host_keys(os.path.expanduser('~/.ssh/known_hosts'))
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())# no known_hosts error
+        ssh.connect(self.host, username=self.user, key_filename=private_key_file)
+      else :
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(self.host, username=self.user, password=self.password)
     except socket.gaierror :
       raise NodeException(u"host unavailable")
     except paramiko.ssh_exception.AuthenticationException :
@@ -248,7 +256,7 @@ class NodeSsh(object):
       log.info("this connection hasn't been used from long time ago, closing connection to : %s"%self.host)
 
   @check_connections
-  def run_command_and_feed_password_prompt(self, command, password, reg_password ='password: ', reg_shell = '[^\n\r]+@[^\n\r]+\$', log_it=True):
+  def run_command_and_feed_password_prompt(self, command, password, reg_password ='password: ', reg_shell = '[^\n\r]+@[^\n\r]+\$', log_it=True, auth_with_pkey=False):
     '''
       Execute command through SSH and also feed prompt !
 
@@ -291,7 +299,7 @@ class NodeSsh(object):
           break
     full_log.append(u'buff1 %s'%buff)
 
-    if not time_out :
+    if not time_out and not auth_with_pkey :
       # ssh and wait for the password prompt.
       channel.send(command + '\n')
 
@@ -310,8 +318,28 @@ class NodeSsh(object):
             time_out = True
             break
       full_log.append(u'buff2 %s'%buff)
+    elif not time_out :
+      # ssh and wait for the password prompt.
+      channel.send(command + '\n')
 
-    if not time_out :
+      buff = ''
+      t0 = time.time()
+      wait_time = 0.05
+
+      while len(re.findall(reg_shell, buff, re.MULTILINE))==0 :
+          resp = channel.recv(9999)
+          buff += self.decode_raw_bytes(resp)
+          global_buff_content += "\n" + buff
+
+          time.sleep(wait_time)
+          wait_time += 0.05
+
+          if time.time()-t0 > 60 :
+            time_out = True
+            break
+      full_log.append(u'buff2 %s'%buff)
+
+    if not time_out and not auth_with_pkey :
       # Send the password and wait for a prompt.
       channel.send(password + '\n')
  
@@ -479,6 +507,12 @@ class HgNode(NodeSsh):
       # what ever mercurial release, even if its not mandatory
       # we feed that param
       insecure = u" --insecure "
+
+
+    auth_with_pkey = False
+    if target_project.local_pkey :
+      auth_with_pkey = True
+
     data = self.run_command_and_feed_password_prompt(u'cd %s ; hg in -l 1 %sssh://%s@%s/%s'%(
                                                         self.path,
                                                         insecure,
@@ -486,7 +520,8 @@ class HgNode(NodeSsh):
                                                         target_project.host,
                                                         target_project.path),
                                                         target_project.password,
-                                                        log_it=False)
+                                                        log_it=False,
+                                                        auth_with_pkey = auth_with_pkey)
     return data['buff'].count('changeset:')>0
 
   def pushable(self, local_project, target_project):
@@ -500,10 +535,14 @@ class HgNode(NodeSsh):
 
     if (local_project.dvcs_release is not None and self.compare_release_a_sup_equal_b(local_project.dvcs_release, '1.7.4')) :
       insecure = u" --insecure "
-    else:
+    elif not target_project.local_pkey:
       # what ever mercurial release, even if its not mandatory
       # we feed that param
       insecure = u" --insecure "
+
+    auth_with_pkey = False
+    if target_project.local_pkey :
+      auth_with_pkey = True
     data = self.run_command_and_feed_password_prompt(u'cd %s ; hg out -l 1 %sssh://%s@%s/%s'%(
                                                         self.path,
                                                         insecure,
@@ -511,7 +550,8 @@ class HgNode(NodeSsh):
                                                         target_project.host,
                                                         target_project.path),
                                                         target_project.password,
-                                                        log_it=False)
+                                                        log_it=False,
+                                                        auth_with_pkey = auth_with_pkey )
     return data['buff'].count('changeset:')>0
 
   def push_to(self, local_project, target_project, force_branch):
@@ -531,10 +571,14 @@ class HgNode(NodeSsh):
 
     if (local_project.dvcs_release is not None and self.compare_release_a_sup_equal_b(local_project.dvcs_release, '1.7.4')) :
       insecure = u" --insecure "
-    else:
+    elif not target_project.local_pkey:
       # what ever mercurial release, even if its not mandatory
       # we feed that param
       insecure = u" --insecure "
+
+    auth_with_pkey = False
+    if target_project.local_pkey :
+      auth_with_pkey = True
 
     data = self.run_command_and_feed_password_prompt(u'cd %s ; hg push%sssh://%s@%s/%s%s'%(
                                                         self.path,
@@ -543,7 +587,9 @@ class HgNode(NodeSsh):
                                                         target_project.host,
                                                         target_project.path,
                                                         new_branch_arg),
-                                                        target_project.password)
+                                                        target_project.password,
+                                                        auth_with_pkey = auth_with_pkey)
+
     if not force_branch and ( data['buff'].count('--new-branch') or data['buff'].count('creates new remote branches')):
       raise HgNewBranchForbidden(data)
     elif not force_branch and data['buff'].count('details about pushing new heads') :
@@ -566,17 +612,22 @@ class HgNode(NodeSsh):
 
     if (local_project.dvcs_release is not None and self.compare_release_a_sup_equal_b(local_project.dvcs_release, '1.7.4')) :
       insecure = " --insecure "
-    else:
+    elif not target_project.local_pkey:
       # what ever mercurial release, even if its not mandatory
       # we feed that param
       insecure = u" --insecure "
+
+    auth_with_pkey = False
+    if target_project.local_pkey :
+      auth_with_pkey = True
 
     data = self.run_command_and_feed_password_prompt(u'cd %s ; hg pull%sssh://%s@%s/%s'%(self.path,
                                                             insecure,
                                                             source_project.user,
                                                             source_project.host,
                                                             source_project.path),
-                                                            source_project.password)
+                                                            source_project.password,
+                                                            auth_with_pkey = auth_with_pkey)
 
   def get_last_logs_starting_from(self, start_from_this_hash_revision) :
     """
@@ -788,21 +839,31 @@ class GitNode(NodeSsh):
   def push_to(self, local_project, target_project, force_branch):
     """
     """
+    auth_with_pkey = False
+    if target_project.local_pkey :
+      auth_with_pkey = True
+
     data = self.run_command_and_feed_password_prompt(u'cd %s ; git push%sssh://%s@%s/%s'%(
                                                         self.path,
                                                         target_project.user,
                                                         target_project.host,
                                                         target_project.path),
-                                                        target_project.password)
+                                                        target_project.password,
+                                                        auth_with_pkey = auth_with_pkey)
 
   def pull_from(self, local_project, source_project):
     """
     """
+    auth_with_pkey = False
+    if target_project.local_pkey :
+      auth_with_pkey = True
+
     data = self.run_command_and_feed_password_prompt(u'cd %s ; git pull%sssh://%s@%s/%s'%(self.path,
                                                             source_project.user,
                                                             source_project.host,
                                                             source_project.path),
-                                                            source_project.password)
+                                                            source_project.password,
+                                                            auth_with_pkey = auth_with_pkey)
 
   def get_last_logs(self, nb_lines, branch_filter=None, revision_filter=None):
     """
@@ -1025,7 +1086,7 @@ class PoolSsh(object):
     return user+host
 
   @classmethod
-  def get_node(cls, uri, project_id):
+  def get_node(cls, uri, project_id, local_pkey=False):
     """
     try to acquire a free ssh channel or open a new one ...
 
@@ -1036,7 +1097,7 @@ class PoolSsh(object):
     key_uri_node = uri 
 
     if key_uri_node not in cls.nodes :
-      cls.nodes[key_uri_node] = [HgNode(uri, project_id)]
+      cls.nodes[key_uri_node] = [HgNode(uri, project_id, local_pkey=local_pkey)]
       node = cls.nodes[key_uri_node][0]
     else :
       t0 = time.time()

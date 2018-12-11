@@ -120,6 +120,16 @@
                     <input name="dvcs_release" type="hidden" value="">
                   </div>
                 </div>
+                <div class="form-group">
+                  <label for="project_scan" class="col-sm-2 control-label">PKEY</label>
+                  <div class="col-sm-8">
+                    <div class="checkbox">
+                      <label>
+                          <input name="local_pkey" type="checkbox" value="1">
+                      </label>
+                    </div>
+                  </div>
+                </div>
             </div>
           </form>
         </div>

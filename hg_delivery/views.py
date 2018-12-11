@@ -951,6 +951,9 @@ def add_project(request):
     password     = request.params['password']
     host         = request.params['host']
     path         = request.params['path']
+    local_pkey   = request.params.get('local_pkey',False)
+    if local_pkey=='0' :
+      local_pkey = False
     rev_init     = request.params['rev_init']
 
     dashboard    = request.params.get('dashboard', False)
@@ -975,7 +978,7 @@ def add_project(request):
     else:
       try :
         # folder should be unique
-        project = Project(name, user, password, host, path, rev_init, dashboard, dvcs_release, no_scan, group_label)
+        project = Project(name, user, password, host, path, rev_init, dashboard, dvcs_release, no_scan, local_pkey, group_label)
         DBSession.add(project)
         # this first flush ensure an id will be set on project object to prevent
         # any project's object miss use.
@@ -1025,11 +1028,14 @@ def update_project(request):
     result = False
     id_project = request.matchdict['id']
 
-    name         = request.params['name']
-    user         = request.params['user']
-    password     = request.params['password']
-    host         = request.params['host']
-    path         = request.params['path']
+    name       = request.params['name']
+    user       = request.params['user']
+    password   = request.params['password']
+    local_pkey = request.params.get('local_pkey',False)
+    if local_pkey=='0' :
+      local_pkey = False
+    host       = request.params['host']
+    path       = request.params['path']
 
     dashboard    = request.params.get('dashboard', False)
     if dashboard == '1' or dashboard == 1 :
@@ -1061,6 +1067,7 @@ def update_project(request):
         project.path         = path
         project.dashboard    = dashboard
         project.no_scan      = no_scan
+        project.local_pkey   = local_pkey
 
         project.set_group(group_label)
 

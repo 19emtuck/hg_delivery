@@ -67,6 +67,7 @@ class Project(Base):
   password     = Column(String(100))
   host         = Column(String(100))
   path         = Column(Text)
+  local_pkey   = Column(Boolean)
   rev_init     = Column(String(100))
   dvcs_release = Column(String(20))
   dashboard    = Column(Boolean)
@@ -78,7 +79,7 @@ class Project(Base):
   macros       = relationship('Macro', backref='project', cascade='delete, delete-orphan')
   groups       = relationship("ProjectGroup", secondary=groups_projects_association, back_populates="projects")
 
-  def __init__(self, name, user, password, host, path, rev_init, dashboard, dvcs_release, no_scan, group_label):
+  def __init__(self, name, user, password, host, path, rev_init, dashboard, dvcs_release, no_scan, local_pkey, group_label):
     """
     """
     self.name         = name
@@ -86,6 +87,7 @@ class Project(Base):
     self.password     = password
     self.host         = host
     self.path         = path
+    self.local_pkey   = local_pkey
     self.rev_init     = rev_init
     self.dashboard    = dashboard
     self.no_scan      = no_scan 
@@ -118,6 +120,7 @@ class Project(Base):
              'host'         : self.host,
              'path'         : self.path,
              'user'         : self.user,
+             'local_pkey'   : self.local_pkey,
              'password'     : '*'*len(self.password),
              'dashboard'    : self.dashboard,
              'no_scan'      : self.no_scan,
@@ -139,7 +142,7 @@ class Project(Base):
     if self.id is None :
       raise Exception("project needs to be serialized and get an id before using it ...")
 
-    return PoolSsh.get_node(uri, self.id)
+    return PoolSsh.get_node(uri, self.id, local_pkey=self.local_pkey)
 
   def delete_nodes(self):
     """
