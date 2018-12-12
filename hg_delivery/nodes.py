@@ -612,13 +612,13 @@ class HgNode(NodeSsh):
 
     if (local_project.dvcs_release is not None and self.compare_release_a_sup_equal_b(local_project.dvcs_release, '1.7.4')) :
       insecure = " --insecure "
-    elif not target_project.local_pkey:
+    elif not source_project.local_pkey:
       # what ever mercurial release, even if its not mandatory
       # we feed that param
       insecure = u" --insecure "
 
     auth_with_pkey = False
-    if target_project.local_pkey :
+    if source_project.local_pkey :
       auth_with_pkey = True
 
     data = self.run_command_and_feed_password_prompt(u'cd %s ; hg pull%sssh://%s@%s/%s'%(self.path,
@@ -855,7 +855,7 @@ class GitNode(NodeSsh):
     """
     """
     auth_with_pkey = False
-    if target_project.local_pkey :
+    if source_project.local_pkey :
       auth_with_pkey = True
 
     data = self.run_command_and_feed_password_prompt(u'cd %s ; git pull%sssh://%s@%s/%s'%(self.path,
