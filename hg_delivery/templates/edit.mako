@@ -499,14 +499,14 @@
                 </div>
               </div>
               <div class="form-group">
-                <label for="project_scan" class="col-sm-4 control-label">Local PKEY</label>
+                <label for="local_pkey" class="col-sm-4 control-label">Local PKEY</label>
                 <div class="col-sm-7">
                   <div class="checkbox">
                     <label>
                       % if project.local_pkey :
-                        <input id="project_scan" name="local_pkey" type="checkbox" value="1" checked onclick="$('#edit_project input[type=password]').prop('disabled', $(this).is(':checked'))">
+                        <input id="local_pkey" name="local_pkey" type="checkbox" value="1" checked onclick="$('#edit_project input[type=password]').prop('disabled', $(this).is(':checked'))">
                       % else :
-                        <input id="project_scan" name="local_pkey" type="checkbox" value="1" nclick="$('#edit_project input[type=password]').prop('disabled', $(this).is(':checked'))">
+                        <input id="local_pkey" name="local_pkey" type="checkbox" value="1" nclick="$('#edit_project input[type=password]').prop('disabled', $(this).is(':checked'))">
                       % endif
                     </label>
                   </div>
