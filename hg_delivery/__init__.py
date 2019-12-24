@@ -32,7 +32,7 @@ def main(global_config, **settings):
     __login = settings['hg_delivery.default_login']
     __pwd   = settings['hg_delivery.default_pwd']
 
-    GROUPS[__login] = 'group:editors'
+    GROUPS[__login]       = 'group:editors'
     DEFAULT_USER[__login] = __pwd
 
   config = Configurator(settings=settings,
