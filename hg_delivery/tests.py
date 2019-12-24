@@ -34,7 +34,7 @@ class TestMyViewSuccessCondition(unittest.TestCase):
         self.session = get_tm_session(session_factory, transaction.manager)
 
     def tearDown(self):
-        DBSession.remove()
+        transaction.abort()
         testing.tearDown()
 
     def test_passing_view(self):
