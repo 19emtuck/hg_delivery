@@ -20,7 +20,6 @@ from collections import OrderedDict
 from threading import Thread, Event
 
 from .models import (
-    DBSession,
     Project,
     RemoteLog,
     User,
@@ -180,7 +179,7 @@ def update_user(request):
     """
     user_id = request.matchdict['id']
 
-    user = DBSession.query(User)\
+    user = request.dbsession.query(User)\
                     .filter(User.id==user_id)\
                     .scalar()
 
@@ -191,11 +190,11 @@ def update_user(request):
       try :
         for attribute in request.params :
           setattr(user, attribute, request.params[attribute])
-        DBSession.flush()
+        request.dbsession.flush()
         result = True
         explanation = u'This user : %s (%s) has been updated ...'%(request.params['name'], request.params['email'])
       except IntegrityError as e:
-        DBSession.rollback()
+        request.dbsession.rollback()
         result = False
         explanation = u"You can't update this user, this email is already used (%s %s) ..."%(request.params['name'], request.params['email'])
 
@@ -213,12 +212,12 @@ def delete_user(request):
     delete user ...
     """
     user_id = request.matchdict['id']
-    user = DBSession.query(User)\
+    user = request.dbsession.query(User)\
                     .filter(User.id==user_id)\
                     .scalar()
 
     if user :
-      DBSession.delete(user)
+      request.dbsession.delete(user)
 
     return HTTPFound(location=request.route_path(route_name='users'))
 
@@ -230,7 +229,7 @@ def get_user(request):
     delete user ...
     """
     user_id = request.matchdict['id']
-    user = DBSession.query(User)\
+    user = request.dbsession.query(User)\
                     .filter(User.id==user_id)\
                     .scalar()
     result = True
@@ -266,12 +265,12 @@ def add_user(request):
       try :
         # folder should be unique
         user = User(**request.params)
-        DBSession.add(user)
-        DBSession.flush()
+        request.dbsession.add(user)
+        request.dbsession.flush()
         result = True
         explanation = u'This user : %s (%s) has been added ...'%(name, email)
       except IntegrityError as e:
-        DBSession.rollback()
+        request.dbsession.rollback()
         result = False
         explanation = u'This user and this email are already defined (%s %s) ...'%(name, email)
 
@@ -287,10 +286,10 @@ def manage_users(request):
     manage users ...
     retrieve and publish user list and project list
     """
-    lst_users = DBSession.query(User).all()
+    lst_users = request.dbsession.query(User).all()
     project_acls = {}
-    for _p in DBSession.query(Project) :
-      project_acls[_p.id] = {_acl.id_user:_acl.acl for _acl in DBSession.query(Acl).filter(Acl.id_project == _p.id)}
+    for _p in request.dbsession.query(Project) :
+      project_acls[_p.id] = {_acl.id_user:_acl.acl for _acl in request.dbsession.query(Acl).filter(Acl.id_project == _p.id)}
 
     return {'lst_users'    : lst_users,
             'known_acls'   : Acl.known_acls,
@@ -313,7 +312,7 @@ def node_description(request):
   return node description
   """
   id_project = request.matchdict['id']
-  project = DBSession.query(Project).get(id_project)
+  project = request.dbsession.query(Project).get(id_project)
 
   try :
     if not project.is_initial_revision_init() :
@@ -360,9 +359,9 @@ def default_view(request):
     if request.authenticated_userid :
       projects_list = []
       if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-        projects_list = DBSession.query(Project).order_by(Project.name.desc()).all()
+        projects_list = request.dbsession.query(Project).order_by(Project.name.desc()).all()
       else :
-        projects_list = DBSession.query(Project)\
+        projects_list = request.dbsession.query(Project)\
                                  .join(Acl)\
                                  .join(User)\
                                  .filter(User.id==request.user.id)\
@@ -394,7 +393,7 @@ def logs(request):
     """
     fetch all logs
     """
-    lst_logs = DBSession.query(RemoteLog)\
+    lst_logs = request.dbsession.query(RemoteLog)\
                         .order_by(RemoteLog.creation_date.desc())\
                         .limit(50)\
                         .all()
@@ -410,7 +409,7 @@ def project_logs(request):
   """
   id_project = request.matchdict['id']
 
-  lst_logs = DBSession.query(RemoteLog)\
+  lst_logs = request.dbsession.query(RemoteLog)\
                       .filter(RemoteLog.id_project==id_project)\
                       .order_by(RemoteLog.creation_date.desc())\
                       .limit(50)\
@@ -428,8 +427,8 @@ def shall_we_push(request):
   id_project = request.matchdict['id']
   id_target_project = request.matchdict['target']
 
-  project = DBSession.query(Project).get(id_project)
-  target_project = DBSession.query(Project).get(id_target_project)
+  project = request.dbsession.query(Project).get(id_project)
+  target_project = request.dbsession.query(Project).get(id_target_project)
   result = False
   if project and target_project :
     with NodeController(project, silent=True) as ssh_node :
@@ -447,8 +446,8 @@ def shall_we_pull(request):
   id_project = request.matchdict['id']
   id_target_project = request.matchdict['source']
 
-  project = DBSession.query(Project).get(id_project)
-  target_project = DBSession.query(Project).get(id_target_project)
+  project = request.dbsession.query(Project).get(id_project)
+  target_project = request.dbsession.query(Project).get(id_target_project)
   result = False
   if project and target_project :
     with NodeController(project, silent=True) as ssh_node :
@@ -465,15 +464,15 @@ def project_brothers(request):
   """
   id_project = request.matchdict['id']
 
-  project = DBSession.query(Project).get(id_project)
+  project = request.dbsession.query(Project).get(id_project)
   projects_list = []
 
   if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-    projects_list = DBSession.query(Project)\
+    projects_list = request.dbsession.query(Project)\
                              .order_by(Project.name.desc())\
                              .all()
   else :
-    projects_list = DBSession.query(Project)\
+    projects_list = request.dbsession.query(Project)\
                              .join(Acl)\
                              .join(User)\
                              .filter(User.id==request.user.id)\
@@ -493,15 +492,15 @@ def who_share_this_id(request):
   id_project = request.matchdict['id']
   rev = request.matchdict['rev']
 
-  project = DBSession.query(Project).get(id_project)
+  project = request.dbsession.query(Project).get(id_project)
   projects_list = []
 
   if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-    projects_list = DBSession.query(Project)\
+    projects_list = request.dbsession.query(Project)\
                              .order_by(Project.name.desc())\
                              .all()
   else :
-    projects_list = DBSession.query(Project)\
+    projects_list = request.dbsession.query(Project)\
                              .join(Acl)\
                              .filter(Acl.acl=='edit')\
                              .join(User)\
@@ -538,7 +537,7 @@ def edit_a_macro(request):
   project_id = request.matchdict['id']
   macro_id   = request.matchdict['macro_id']
 
-  macro = DBSession.query(Macro).options(joinedload(Macro.relations)).get(macro_id)
+  macro = request.dbsession.query(Macro).options(joinedload(Macro.relations)).get(macro_id)
   macro_relations = macro.relations
 
   map_relations = {}
@@ -563,13 +562,13 @@ def view_all_macros(request):
   """
   """
   if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-    macros = DBSession.query(Macro)\
+    macros = request.dbsession.query(Macro)\
                       .join(Project)\
                       .options(joinedload(Macro.relations))\
                       .order_by(Project.name.desc())\
                       .all()
   else :
-    macros = DBSession.query(Macro)\
+    macros = request.dbsession.query(Macro)\
                       .join(Project)\
                       .join(Acl)\
                       .filter(Acl.acl=='edit')\
@@ -598,16 +597,16 @@ def refresh_macros(request):
     re-publish the list of macros ....
   """
   id_project = request.matchdict['id']
-  project    = DBSession.query(Project).get(id_project)
+  project    = request.dbsession.query(Project).get(id_project)
 
-  project_macros = DBSession.query(Macro).filter(Macro.id_project == id_project).all()
+  project_macros = request.dbsession.query(Macro).filter(Macro.id_project == id_project).all()
 
   if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-    projects_list = DBSession.query(Project)\
+    projects_list = request.dbsession.query(Project)\
                              .order_by(Project.name.desc())\
                              .all()
   else :
-    projects_list = DBSession.query(Project)\
+    projects_list = request.dbsession.query(Project)\
                              .join(Acl)\
                              .filter(Acl.acl=='edit')\
                              .join(User)\
@@ -632,12 +631,12 @@ def delete_a_macro(request):
   result = False
   try :
     macro_id = request.matchdict['macro_id']
-    macro = DBSession.query(Macro).get(macro_id)
-    DBSession.delete(macro)
-    DBSession.flush()
+    macro = request.dbsession.query(Macro).get(macro_id)
+    request.dbsession.delete(macro)
+    request.dbsession.flush()
     result = True
   except :
-    DBSession.rollback()
+    request.dbsession.rollback()
     result = False
 
   return {'result':result}
@@ -654,7 +653,7 @@ def update_a_macro(request):
   explanation = None
   id_project  = request.matchdict['id']
   macro_id    = request.matchdict['macro_id']
-  macro       = DBSession.query(Macro).options(joinedload(Macro.relations)).get(macro_id)
+  macro       = request.dbsession.query(Macro).options(joinedload(Macro.relations)).get(macro_id)
 
   # a name is mandatory for the macro ...
   macro_name    = None
@@ -675,13 +674,13 @@ def update_a_macro(request):
 
         for _p_id in macro_content :
           macro_relation = MacroRelations(_p_id, macro_content[_p_id])
-          DBSession.add(macro_relation)
+          request.dbsession.add(macro_relation)
           macro.relations.append(macro_relation)
 
-        DBSession.flush()
+        request.dbsession.flush()
         result = True
     except IntegrityError as e:
-      DBSession.rollback()
+      request.dbsession.rollback()
       result = False
       explanation = u'This project and this path are already defined (%s %s) ...'%(host, path)
 
@@ -713,14 +712,14 @@ def create_a_macro(request):
     if macro_name and len(macro_name)>1 and len(macro_content)>0 :
 
       macro = Macro(id_project, macro_name)
-      DBSession.add(macro)
+      request.dbsession.add(macro)
 
       for _p_id in macro_content :
         macro_relation = MacroRelations(_p_id, macro_content[_p_id])
-        DBSession.add(macro_relation)
+        request.dbsession.add(macro_relation)
         macro.relations.append(macro_relation)
 
-      DBSession.flush()
+      request.dbsession.flush()
       result = True
 
   return {'result':result}
@@ -751,17 +750,17 @@ def run_a_macro(request):
     force_branch = True 
 
   id_project = request.matchdict['id']
-  project    = DBSession.query(Project).get(id_project)
+  project    = request.dbsession.query(Project).get(id_project)
 
   macro_id = request.matchdict['macro_id']
-  macro    = DBSession.query(Macro).options(joinedload(Macro.relations)).get(macro_id)
+  macro    = request.dbsession.query(Macro).options(joinedload(Macro.relations)).get(macro_id)
 
 
   projects_id_set = set()
   if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-    projects_id_set = {p.id for p in DBSession.query(Project).order_by(Project.name.desc())}
+    projects_id_set = {p.id for p in request.dbsession.query(Project).order_by(Project.name.desc())}
   else :
-    projects_id_set = {p.id for p in DBSession.query(Project)\
+    projects_id_set = {p.id for p in request.dbsession.query(Project)\
                                               .join(Acl)\
                                               .filter(Acl.acl=='edit')\
                                               .join(User)\
@@ -859,8 +858,8 @@ def push(request):
   id_project = request.matchdict['id']
   id_target_project = request.matchdict['target']
 
-  project = DBSession.query(Project).get(id_project)
-  target_project = DBSession.query(Project).get(id_target_project)
+  project = request.dbsession.query(Project).get(id_project)
+  target_project = request.dbsession.query(Project).get(id_target_project)
 
   new_branch_stop = False
   new_head_stop = False
@@ -928,8 +927,8 @@ def pull(request):
   id_project = request.matchdict['id']
   id_source_project = request.matchdict['source']
 
-  project = DBSession.query(Project).get(id_project)
-  source_project = DBSession.query(Project).get(id_source_project)
+  project = request.dbsession.query(Project).get(id_project)
+  source_project = request.dbsession.query(Project).get(id_source_project)
 
   with NodeController(project, silent=True) as ssh_node :
     ssh_node.pull_from(project, source_project)
@@ -981,28 +980,28 @@ def add_project(request):
       try :
         # folder should be unique
         project = Project(name, user, password, host, path, rev_init, dashboard, dvcs_release, no_scan, local_pkey, group_label)
-        DBSession.add(project)
+        request.dbsession.add(project)
         # this first flush ensure an id will be set on project object to prevent
         # any project's object miss use.
-        DBSession.flush()
+        request.dbsession.flush()
         project.init_initial_revision()
-        DBSession.flush()
+        request.dbsession.flush()
         result = True
         explanation = u'This project : %s@%s/%s has been added ...'%(user, host, path)
       except IntegrityError as e:
-        DBSession.rollback()
+        request.dbsession.rollback()
         result = False
         explanation = u'This project and this path are already defined (%s %s) ...'%(host, path)
       except NodeException as e:
-        DBSession.rollback()
+        request.dbsession.rollback()
         result = False
         explanation = u'Please check password, host, path (%s %s) before adding this project... '%(host, path)
       except NoValidConnectionsError as e:
-        DBSession.rollback()
+        request.dbsession.rollback()
         result = False
         explanation = u'No valid connection error to host (%s)... '%(host)
       except Exception as e:
-        DBSession.rollback()
+        request.dbsession.rollback()
         result = False
         if hasattr(e,'value') :
           repository_error = e.value
@@ -1063,7 +1062,7 @@ def update_project(request):
       explanation = u'Your project should contain a valid path'
     else:
       try :
-        project = DBSession.query(Project).get(id_project)
+        project = request.dbsession.query(Project).get(id_project)
 
         project.name         = name
         project.user         = user
@@ -1076,11 +1075,11 @@ def update_project(request):
 
         project.set_group(group_label)
 
-        DBSession.flush()
+        request.dbsession.flush()
         explanation = u'This project : %s@%s/%s has been updated ...'%(user, host, path)
         result = True
       except :
-        DBSession.rollback()
+        request.dbsession.rollback()
         result = False
 
     return { 'result'      : result,
@@ -1097,7 +1096,7 @@ def get_file_content(request):
     id_project = request.matchdict['id']
     revision = request.matchdict['rev']
     file_name = "/".join(request.matchdict['file_name'])
-    project = DBSession.query(Project).get(id_project)
+    project = request.dbsession.query(Project).get(id_project)
     data = ""
     with NodeController(project, silent=True) as ssh_node :
       data = ssh_node.get_content(revision, file_name)
@@ -1114,15 +1113,15 @@ def delete_project(request):
     result = False
     try :
       id_project = request.matchdict['id']
-      project = DBSession.query(Project).get(id_project)
+      project = request.dbsession.query(Project).get(id_project)
       project.delete_nodes()
       # also delete macros or relation that target that project
 
-      DBSession.delete(project)
-      DBSession.flush()
+      request.dbsession.delete(project)
+      request.dbsession.flush()
       result = True
     except :
-      DBSession.rollback()
+      request.dbsession.rollback()
       result = False
 
     return { 'result':result }
@@ -1137,17 +1136,17 @@ def view_projects_list(request):
 
   if 'id' in request.matchdict :
     id_project = request.matchdict['id']
-    project    = DBSession.query(Project).get(id_project)
+    project    = request.dbsession.query(Project).get(id_project)
 
   projects_list           = []
 
   if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-    projects_list = DBSession.query(Project)\
+    projects_list = request.dbsession.query(Project)\
                              .options(joinedload(Project.groups))\
                              .order_by(Project.name.desc())\
                              .all()
   else :
-    projects_list = DBSession.query(Project)\
+    projects_list = request.dbsession.query(Project)\
                              .options(joinedload(Project.groups))\
                              .join(Acl)\
                              .join(User)\
@@ -1171,13 +1170,13 @@ def edit_project(request):
     projects_list_protected = []
 
     if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-      projects_list = DBSession.query(Project)\
+      projects_list = request.dbsession.query(Project)\
                                .options(joinedload(Project.groups))\
                                .order_by(Project.name.desc())\
                                .all()
       projects_list_protected = projects_list
     else :
-      projects_list = DBSession.query(Project)\
+      projects_list = request.dbsession.query(Project)\
                                .join(Acl)\
                                .join(User)\
                                .options(joinedload(Project.groups))\
@@ -1185,7 +1184,7 @@ def edit_project(request):
                                .order_by(Project.name.desc())\
                                .all()
 
-      projects_list_protected = DBSession.query(Project)\
+      projects_list_protected = request.dbsession.query(Project)\
                                          .join(Acl)\
                                          .filter(Acl.acl=='edit')\
                                          .join(User)\
@@ -1214,7 +1213,7 @@ def edit_project(request):
     #     p.init_initial_revision()
 
     delivered_hash = {}
-    for l in DBSession.query(RemoteLog.command, RemoteLog.creation_date)\
+    for l in request.dbsession.query(RemoteLog.command, RemoteLog.creation_date)\
                       .order_by(RemoteLog.creation_date.desc())\
                       .filter(RemoteLog.id_project==id_project)\
                       .filter(RemoteLog.command.like('%hg update -C -r%'))\
@@ -1255,11 +1254,11 @@ def edit_project(request):
 
     repository_error = None
 
-    users = DBSession.query(User).all()
+    users = request.dbsession.query(User).all()
 
-    project_acls   = {_acl.id_user:_acl.acl for _acl in DBSession.query(Acl).filter(Acl.id_project == id_project)}
-    project_tasks  = DBSession.query(Task).filter(Task.id_project == id_project).all()
-    project_macros = DBSession.query(Macro).filter(Macro.id_project == id_project).all()
+    project_acls   = {_acl.id_user:_acl.acl for _acl in request.dbsession.query(Acl).filter(Acl.id_project == id_project)}
+    project_tasks  = request.dbsession.query(Task).filter(Task.id_project == id_project).all()
+    project_macros = request.dbsession.query(Macro).filter(Macro.id_project == id_project).all()
 
     try :
       with NodeController(project) as ssh_node :
@@ -1354,7 +1353,7 @@ def run_task(request):
   """
   """
   id_task     = request.matchdict['id']
-  task        = DBSession.query(Task).get(id_task)
+  task        = request.dbsession.query(Task).get(id_task)
   result      = False
   explanation = u""
 
@@ -1383,13 +1382,13 @@ def view_all_tasks(request):
   """
   """
   if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-    tasks = DBSession.query(Task)\
+    tasks = request.dbsession.query(Task)\
                      .join(Project)\
                      .options(joinedload(Task.project))\
                      .order_by(Project.name.desc())\
                      .all()
   else :
-    tasks = DBSession.query(Task)\
+    tasks = request.dbsession.query(Task)\
                      .join(Project)\
                      .join(Acl)\
                      .filter(Acl.acl=='edit')\
@@ -1420,8 +1419,8 @@ def remove_project_task(request):
   id_task = request.matchdict['id']
   result = False
   try :
-    task = DBSession.query(Task).get(id_task)
-    DBSession.delete(task)
+    task = request.dbsession.query(Task).get(id_task)
+    request.dbsession.delete(task)
   except IntegrityError as e:
     result = False
     explanation = u"wtf ?"
@@ -1437,7 +1436,7 @@ def save_project_tasks(request):
   """
   """
   id_project = request.matchdict['id']
-  project = DBSession.query(Project).get(id_project)
+  project = request.dbsession.query(Project).get(id_project)
   result = False
 
   if project :
@@ -1447,13 +1446,13 @@ def save_project_tasks(request):
       for  _task_content in request.params.getall('task_content') :
         if _task_content :
           task = Task(id_project, _task_content.strip())
-          # make the link with DBSession ...
-          DBSession.add(task)
+          # make the link with request.dbsession ...
+          request.dbsession.add(task)
           project.tasks.append(task)
-      DBSession.flush()
+      request.dbsession.flush()
       result = True
     except IntegrityError as e:
-      DBSession.rollback()
+      request.dbsession.rollback()
       result = False
       explanation = u"wtf ?"
 
@@ -1466,7 +1465,7 @@ def get_user_acls(request):
   """
   """
   id_user = request.matchdict['id']
-  user = DBSession.query(User).get(id_user)
+  user = request.dbsession.query(User).get(id_user)
 
   result = False
   acls   = []
@@ -1499,20 +1498,20 @@ def save_users_acls(request):
         map_project_users_ace[id_project] = {id_user:_acl_label}
 
     for id_project in map_project_users_ace :
-      project = DBSession.query(Project).get(id_project)
+      project = request.dbsession.query(Project).get(id_project)
       if project is not None:
         project.acls[0:] = []
         for id_user in map_project_users_ace[id_project] :
           _acl_label = map_project_users_ace[id_project][id_user]
           if _acl_label in Acl.known_acls:
              acl = Acl(id_user, id_project, _acl_label)
-             DBSession.add(acl)
+             request.dbsession.add(acl)
              project.acls.append(acl)
-    DBSession.flush()
+    request.dbsession.flush()
     result = True
 
   except IntegrityError as e:
-    DBSession.rollback()
+    request.dbsession.rollback()
     result = False
     explanation = u"wtf ?"
 
@@ -1525,7 +1524,7 @@ def save_project_acls(request):
   """
   """
   id_project = request.matchdict['id']
-  project = DBSession.query(Project).get(id_project)
+  project = request.dbsession.query(Project).get(id_project)
 
   result = False
 
@@ -1540,15 +1539,15 @@ def save_project_acls(request):
           id_user = int(ele.split('_')[1])
           acl = Acl(id_user, id_project, _acl_label)
 
-          # make the link with DBSession ...
-          DBSession.add(acl)
+          # make the link with request.dbsession ...
+          request.dbsession.add(acl)
           project.acls.append(acl)
 
-      DBSession.flush()
+      request.dbsession.flush()
       result = True
     except IntegrityError as e:
       log.error(e)
-      DBSession.rollback()
+      request.dbsession.rollback()
       result = False
       explanation = u"wtf ?"
 
@@ -1564,7 +1563,7 @@ def fetch_project(request):
     """
     result = False
     id_project = request.matchdict['id']
-    project = DBSession.query(Project).get(id_project)
+    project = request.dbsession.query(Project).get(id_project)
 
     branch = None
     if 'branch' in request.params :
@@ -1598,7 +1597,7 @@ def fetch_revision(request):
   id_project = request.matchdict['id']
   revision = request.matchdict['rev']
 
-  project = DBSession.query(Project).get(id_project)
+  project = request.dbsession.query(Project).get(id_project)
 
   diff = ""
   revision_description = {}
@@ -1628,7 +1627,7 @@ def update_project_to(request):
   brothers_id_project.append(id_project)
 
   revision = request.matchdict['rev']
-  projects_to_update = [DBSession.query(Project).options(joinedload(Project.tasks)).get(_id_project) for _id_project in brothers_id_project]
+  projects_to_update = [request.dbsession.query(Project).options(joinedload(Project.tasks)).get(_id_project) for _id_project in brothers_id_project]
 
   thread_stack       = []
 
@@ -1663,8 +1662,8 @@ def delete_project_group(request):
   delete a group (remove label and link between project and this group)
   """
   group_id = request.matchdict[u'id']
-  group = DBSession.query(ProjectGroup).get(group_id)
-  DBSession.delete(group)
+  group = request.dbsession.query(ProjectGroup).get(group_id)
+  request.dbsession.delete(group)
 
   return HTTPFound(location=request.route_path(route_name='home'))
 
@@ -1678,8 +1677,8 @@ def detach_project_from_that_group(request):
   id_project = request.matchdict[u'id']
   id_group   = request.matchdict[u'group_id']
 
-  project = DBSession.query(Project).options(joinedload(Project.groups)).get(id_project)
-  group   = DBSession.query(ProjectGroup).get(id_group)
+  project = request.dbsession.query(Project).options(joinedload(Project.groups)).get(id_project)
+  group   = request.dbsession.query(ProjectGroup).get(id_group)
 
   redirect_url = None
   result       = False
@@ -1689,10 +1688,10 @@ def detach_project_from_that_group(request):
     result = True
 
     if group is not None and len(group.projects)==0 :
-      DBSession.delete(group)
+      request.dbsession.delete(group)
       redirect_url = request.route_path(route_name='users')
 
-  DBSession.flush()
+  request.dbsession.flush()
 
   return {'result':result, 'redirect_url':redirect_url}
 
@@ -1704,7 +1703,7 @@ def rename_project(request):
   rename the given group
   """
   group_id = request.matchdict[u'id']
-  group = DBSession.query(ProjectGroup)\
+  group = request.dbsession.query(ProjectGroup)\
                    .get(group_id)
   group_name = request.params[u'name']
 
@@ -1714,7 +1713,7 @@ def rename_project(request):
     response   = HTTPFound(location = request.route_path(route_name = 'project_group_view', id = group.id))
     try :
       group.name = group_name
-      DBSession.flush()
+      request.dbsession.flush()
     except IntegrityError as e:
       # silent is better ?
       pass
@@ -1735,17 +1734,17 @@ def view_project_group(request):
   """
   group_id = request.matchdict[u'id']
 
-  group = DBSession.query(ProjectGroup)\
+  group = request.dbsession.query(ProjectGroup)\
                    .options(joinedload(ProjectGroup.projects))\
                    .get(group_id)
 
   if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-    projects_list = DBSession.query(Project)\
+    projects_list = request.dbsession.query(Project)\
                              .options(joinedload(Project.groups))\
                              .order_by(Project.name.desc())\
                              .all()
   else :
-    projects_list = DBSession.query(Project)\
+    projects_list = request.dbsession.query(Project)\
                              .join(Acl)\
                              .join(User)\
                              .options(joinedload(Project.groups))\
@@ -1755,9 +1754,9 @@ def view_project_group(request):
 
 
   if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-    set_projects_list_id = {p_id for (p_id,) in DBSession.query(Project.id)}
+    set_projects_list_id = {p_id for (p_id,) in request.dbsession.query(Project.id)}
   else :
-    set_projects_list_id = {p_id for (p_id,) in DBSession.query(Project.id)\
+    set_projects_list_id = {p_id for (p_id,) in request.dbsession.query(Project.id)\
                                                          .join()
                                                          .join(Acl)\
                                                          .join(User)\
@@ -1766,14 +1765,14 @@ def view_project_group(request):
 
   if group is not None :
     if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-      macros = DBSession.query(Macro)\
+      macros = request.dbsession.query(Macro)\
                         .join(Project)\
                         .filter(Project.id.in_((p.id for p in group.projects)))\
                         .options(joinedload(Macro.relations))\
                         .order_by(Project.name.desc())\
                         .all()
     else :
-      macros = DBSession.query(Macro)\
+      macros = request.dbsession.query(Macro)\
                         .join(Project)\
                         .join(Acl)\
                         .filter(Acl.acl=='edit')\
@@ -1794,14 +1793,14 @@ def view_project_group(request):
 
 
     if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-      tasks = DBSession.query(Task)\
+      tasks = request.dbsession.query(Task)\
                        .join(Project)\
                         .filter(Project.id.in_((p.id for p in group.projects)))\
                        .options(joinedload(Task.project))\
                        .order_by(Project.name.desc())\
                        .all()
     else :
-      tasks = DBSession.query(Task)\
+      tasks = request.dbsession.query(Task)\
                        .join(Project)\
                         .filter(Project.id.in_((p.id for p in group.projects)))\
                        .join(Acl)\
@@ -1833,3 +1832,6 @@ def view_project_group(request):
 
   else :
     return HTTPFound(location=request.route_path(route_name='home'))
+
+#------------------------------------------------------------------------------
+

@@ -13,23 +13,25 @@ import transaction
 
 from pyramid import testing
 
-from .models import DBSession
-
 
 class TestMyViewSuccessCondition(unittest.TestCase):
     def setUp(self):
-        self.config = testing.setUp()
-        from sqlalchemy import create_engine
-        engine = create_engine('sqlite://')
+        self.config = testing.setUp(settings={
+            'sqlalchemy.url': 'sqlite:///:memory:'
+        })
+        self.config.include('.models')
+        settings = self.config.get_settings()
+
         from .models import (
-            Base,
-            MyModel,
+            get_engine,
+            get_session_factory,
+            get_tm_session,
             )
-        DBSession.configure(bind=engine)
-        Base.metadata.create_all(engine)
-        with transaction.manager:
-            model = MyModel(name='one', value=55)
-            DBSession.add(model)
+
+        self.engine = get_engine(settings)
+        session_factory = get_session_factory(self.engine)
+
+        self.session = get_tm_session(session_factory, transaction.manager)
 
     def tearDown(self):
         DBSession.remove()
@@ -45,18 +47,28 @@ class TestMyViewSuccessCondition(unittest.TestCase):
 
 class TestMyViewFailureCondition(unittest.TestCase):
     def setUp(self):
-        self.config = testing.setUp()
-        from sqlalchemy import create_engine
-        engine = create_engine('sqlite://')
+        self.config = testing.setUp(settings={
+            'sqlalchemy.url': 'sqlite:///:memory:'
+        })
+        self.config.include('.models')
+        settings = self.config.get_settings()
+
         from .models import (
-            Base,
-            MyModel,
+            get_engine,
+            get_session_factory,
+            get_tm_session,
             )
-        DBSession.configure(bind=engine)
+
+        self.engine = get_engine(settings)
+        session_factory = get_session_factory(self.engine)
+
+        self.session = get_tm_session(session_factory, transaction.manager)
 
     def tearDown(self):
-        DBSession.remove()
+        from .models.meta import Base
+
         testing.tearDown()
+        transaction.abort()
 
     def test_failing_view(self):
         from .views import my_view

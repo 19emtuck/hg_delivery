@@ -22,7 +22,6 @@ from pyramid.events import (
      )
 
 from .models import (
-    DBSession,
     Project,
     RemoteLog,
     Acl,
@@ -46,12 +45,12 @@ def mysubscriber(event):
   if request.authenticated_userid and 'projects_list' not in event.rendering_val:
     projects_list =  []
     if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
-      projects_list =  DBSession.query(Project)\
+      projects_list =  request.dbsession.query(Project)\
                                 .options(joinedload(Project.groups))\
                                 .order_by(Project.name.desc())\
                                 .all()
     else :
-      projects_list = DBSession.query(Project)\
+      projects_list = request.dbsession.query(Project)\
                                .join(Acl)\
                                .join(User)\
                                .options(joinedload(Project.groups))\
@@ -68,11 +67,11 @@ def mysubscriber(event):
     if request.registry.settings['hg_delivery.default_login'] == request.authenticated_userid :
       webapp_user_id = User.default_administrator_id
     else :
-      webapp_user_id = DBSession.query(User.id)\
+      webapp_user_id = request.dbsession.query(User.id)\
                                 .filter(User.email==request.authenticated_userid)\
                                 .scalar()
     for (__id, __host, __path, __command) in NodeSsh.logs :
-      DBSession.add(RemoteLog(id_project = __id, id_user = webapp_user_id, host = __host, path = __path, command = __command))
+      request.dbsession.add(RemoteLog(id_project = __id, id_user = webapp_user_id, host = __host, path = __path, command = __command))
     # also empty the list container
     del NodeSsh.logs[0:]
 

@@ -1,21 +1,3 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2015  Stéphane Bard <stephane.bard@gmail.com>
-#
-# This file is part of hg_delivery
-#
-# hg_delivery is free software; you can redistribute it and/or modify it under the
-# terms of the M.I.T License.
-#
-import logging
-
-from pyramid.security import (
-    Allow,
-    Everyone,
-    Authenticated,
-    authenticated_userid,
-    )
-
 from sqlalchemy import (
     Column,
     Index,
@@ -28,23 +10,13 @@ from sqlalchemy import (
     Enum,
     Table,
     )
+
 from sqlalchemy.orm import relationship, backref
 
-from sqlalchemy.ext.declarative import declarative_base
+from .meta import Base
 
-from sqlalchemy.orm import (
-    scoped_session,
-    sessionmaker,
-    )
-
-from zope.sqlalchemy import ZopeTransactionExtension
-
-from .nodes import PoolSsh, NodeController, NodeException
-log = logging.getLogger(__name__)
+from ..nodes import PoolSsh, NodeController, NodeException
 from datetime import datetime
-
-DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
-Base = declarative_base()
 
 #------------------------------------------------------------------------------
 

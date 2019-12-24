@@ -43,7 +43,7 @@ MACROS.log_me(casper, 'editor', 'editor');
 
 casper.then(function(){
   var projects_urls = this.evaluate(function() {
-      return $('#projects_list .project_link').map(function(id,item){return [[$(item).text(),$(item).attr('href')]];}).toArray();
+      return $('#projects_list .project_link').map(function(id,item){return [[$(item).text(),window.document.documentURI+$(item).attr('href')]];}).toArray();
   });
 
   for (var i = 0; i < projects_urls.length; i++) {
@@ -55,7 +55,9 @@ casper.then(function(){
   this.open(map_project_to_url.d1);
 });
 
-casper.thenClick('a[href$="tasks"]');
+casper.waitForSelector('a[href="#tasks"]');
+casper.thenClick('a[href="#tasks"]');
+casper.waitUntilVisible('button[onclick="add_new_task()"]');
 
 // loop over tasks to remove them ...
 casper.then(function(){
@@ -74,6 +76,8 @@ casper.then(function(){
 // to check if we get back errors as well
 // sh grumpycommande
 casper.then(function(){ this.clickLabel('add a task'); });
+casper.waitUntilVisible('input[name="task_content"]');
+
 casper.then(function(){
   this.test.assertExist('input[name="task_content"]');
   this.test.assertVisible('input[name="task_content"]');
@@ -153,6 +157,10 @@ casper.then(function(){
 casper.thenClick('#save_tasks');
 casper.waitForSelectorTextChange('#save_tasks');
 casper.waitForSelectorTextChange('#save_tasks');
+casper.then(function(){
+  this.wait(200);
+  this.capture('test.png');
+});
 
 casper.waitForText('run it ..');
 casper.then(function(){

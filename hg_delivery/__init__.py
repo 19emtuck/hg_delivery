@@ -17,10 +17,6 @@ from pyramid.authorization import ACLAuthorizationPolicy
 from hg_delivery.security import groupfinder, GROUPS, DEFAULT_USER, ProjectFactory, TaskFactory, get_user
 from hg_delivery.predicates import to_int 
 
-from .models import (
-  DBSession,
-  Base,
-  )
 #------------------------------------------------------------------------------
 
 def groups_include(config):
@@ -109,11 +105,6 @@ def users_include(config):
 def main(global_config, **settings):
   """ This function returns a Pyramid WSGI application.
   """
-  engine = engine_from_config(settings, 'sqlalchemy.')
-  DBSession.configure(bind=engine)
-  Base.metadata.bind = engine
-  config = Configurator(settings=settings)
-  
   # Security policies
   authn_policy = AuthTktAuthenticationPolicy(
       settings['hg_delivery.secret'], callback=groupfinder,
@@ -130,6 +121,7 @@ def main(global_config, **settings):
 
   config = Configurator(settings=settings,
                         root_factory='hg_delivery.security.RootFactory')
+  config.include('.models')
 
   config.set_authentication_policy(authn_policy)
   config.set_authorization_policy(authz_policy)

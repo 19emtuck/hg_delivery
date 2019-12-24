@@ -17,7 +17,6 @@ from .models import (
     User,
     Acl, 
     Group,
-    DBSession,
     Project,
     Task,
     )
@@ -33,17 +32,17 @@ def get_user(request):
   userid = unauthenticated_userid(request)
   user = None
   if userid is not None:
-    user = DBSession.query(User).filter(User.email==userid).scalar()
+    user = request.dbsession.query(User).filter(User.email==userid).scalar()
 
   return user
 
 #------------------------------------------------------------------------------
 
-def get_users():
+def get_users(request):
   """
     return all known users from database
   """
-  db_result = {email:password for (email,password) in DBSession.query(User.email,User.pwd)}
+  db_result = {email:password for (email,password) in request.dbsession.query(User.email,User.pwd)}
   # add default user
   db_result.update(DEFAULT_USER)
   return db_result
@@ -53,9 +52,9 @@ def get_users():
 def groupfinder(userid, request):
   result = None
 
-  user = request.user
-  if user is not None :
-    result = GROUPS.get(user.email,['group:editors'])
+  # user = request.user
+  # if user is not None :
+  #   result = GROUPS.get(user.email,['group:editors'])
 
   # whatever every body is an editor
   return ['group:editors']
@@ -171,7 +170,7 @@ def login(request):
   if 'login' in request.params and 'password' in request.params :
     login = request.params['login']
     password = request.params['password']
-    all_known_users =  get_users()
+    all_known_users =  get_users(request)
     if login and password and all_known_users.get(login) == password:
         headers = remember(request, login)
         return HTTPFound( location = came_from,
