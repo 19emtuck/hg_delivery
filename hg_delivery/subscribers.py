@@ -36,7 +36,6 @@ log = logging.getLogger(__name__)
 def mysubscriber(event):
 
   request = event['request']
-  # request.registry.scheduler.add_interval_job(interval_process, minutes=1)
 
   event['url'] = request.route_path
   event['static_url'] = request.static_path

@@ -17,6 +17,22 @@ inspired from :
   - `like banana project <https://github.com/sniku/Likebanana>`_
 
 
+
+Manage Kombu
+------------
+
+In order to close unused SSH connexion by checking them each configured interval, you need to install
+the right broker and setup the right kombu url.
+hg_delivery will check each 15 minutes if there's unused connexion that needs to be closed.
+
+
+.. code::
+  # ensure that processed tasks will be done by the same process
+  scheduler.combined   = true
+  scheduler.broker.url = redis://127.0.0.1:6379/
+
+
+
 features list :
 
   - remote repository access *ssh only*
