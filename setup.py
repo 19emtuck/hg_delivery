@@ -9,6 +9,7 @@
 # terms of the M.I.T License.
 #
 import os
+import sys
 
 from setuptools import setup, find_packages
 
@@ -30,29 +31,48 @@ classifiers = [
     'License :: OSI Approved :: MIT License',
     'Operating System :: OS Independent',
     'Programming Language :: Python',
-    'Programming Language :: Python :: 3.4',
-    'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
     'Topic :: Software Development :: Version Control',
 ]
 
-requires = [
-    'pyramid',
-    'pyramid_mako',
-    'pyramid_tm',
-    'SQLAlchemy',
-    'transaction',
-    'zope.sqlalchemy',
-    'waitress',
-    'pygments',
-    'paramiko==2.0.1',
-    'alembic',
-    'apscheduler==2.1.2',
-    'redis==2.10.5',
-    'kombu==4.0.0',
-    'pyramid-scheduler==0.3.1',
-    ]
+if sys.version_info >= (3,6) and sys.version_info < (3,7):
+  requires = [
+      'pyramid',
+      'pyramid_mako',
+      'pyramid_tm',
+      'SQLAlchemy',
+      'transaction',
+      'zope.sqlalchemy',
+      'waitress',
+      'pygments',
+      'paramiko==2.0.1',
+      'alembic',
+      'apscheduler==2.1.2',
+      'redis==2.10.5',
+      'kombu==4.0.0',
+      'pyramid-scheduler==0.3.1',
+      ]
+elif sys.version_info >= (3,7) :
+  requires = [
+      'pyramid',
+      'pyramid_mako',
+      'pyramid_tm',
+      'SQLAlchemy',
+      'transaction',
+      'zope.sqlalchemy',
+      'waitress',
+      'pygments',
+      'paramiko==2.7.1',
+      'alembic',
+      'apscheduler==2.1.2',
+      'redis==3.3.11',
+      'kombu==4.6.7',
+      'pyramid-scheduler==0.3.4',
+      ]
+else :
+  sys.exit('Sorry, Python < 3.6 is not supported')
 
 setup(name='hg_delivery',
       version='1.1.0',
