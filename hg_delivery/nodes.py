@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014  Stéphane Bard <stephane.bard@gmail.com>
+# Copyright (C) 2019  Stéphane Bard <stephane.bard@gmail.com>
 #
 # This file is part of hg_delivery
 #
@@ -820,7 +820,7 @@ class GitNode(NodeSsh):
     """
       commit 1ea7f6aa3feef3e257e3fe4fde6b6994983c6062
       Author: sbard <toto.free.fr>
-      Date:   Wed Sep 10 10:10:27 2014 +0200
+      Date:   Wed Sep 10 10:10:27 2019 +0200
       
           fix test
       

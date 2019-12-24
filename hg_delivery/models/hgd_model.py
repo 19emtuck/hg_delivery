@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2019  Stéphane Bard <stephane.bard@gmail.com>
+#
+# This file is part of hg_delivery
+#
+# hg_delivery is free software; you can redistribute it and/or modify it under the
+# terms of the M.I.T License.
+#
 from sqlalchemy import (
     Column,
     Index,
