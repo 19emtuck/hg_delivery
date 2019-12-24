@@ -979,8 +979,10 @@ def add_project(request):
     else:
       try :
         # folder should be unique
-        project = Project(name, user, password, host, path, rev_init, dashboard, dvcs_release, no_scan, local_pkey, group_label)
+        project = Project(name, user, password, host, path, rev_init, dashboard, dvcs_release, no_scan, local_pkey)
         request.dbsession.add(project)
+        Project.set_group(request.dbsession, project, group_label)
+
         # this first flush ensure an id will be set on project object to prevent
         # any project's object miss use.
         request.dbsession.flush()
@@ -1073,7 +1075,7 @@ def update_project(request):
         project.no_scan      = no_scan
         project.local_pkey   = local_pkey
 
-        project.set_group(group_label)
+        Project.set_group(request.dbsession, project, group_label)
 
         request.dbsession.flush()
         explanation = u'This project : %s@%s/%s has been updated ...'%(user, host, path)

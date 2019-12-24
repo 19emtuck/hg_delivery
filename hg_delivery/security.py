@@ -21,13 +21,14 @@ from .models import (
     Task,
     )
 
-GROUPS = {}
+GROUPS       = {}
 DEFAULT_USER = {}
 
 #------------------------------------------------------------------------------
 
 def get_user(request):
   """
+  returns user object by querying the db. If user is not found None is return
   """
   userid = unauthenticated_userid(request)
   user = None
@@ -50,6 +51,9 @@ def get_users(request):
 #------------------------------------------------------------------------------
 
 def groupfinder(userid, request):
+  """
+    find the user attached to the current user
+  """
   result = None
 
   # user = request.user
@@ -113,7 +117,7 @@ class ProjectFactory(object):
     # because of predicates id should be an int ...
     id_project = self.request.matchdict.get(u'id')
     if id_project is not None and self.request.user and self.request.user.id is not None :
-      for (_label_acl,) in DBSession.query(Acl.acl).join(User).filter(Acl.id_project==id_project).filter(User.id==self.request.user.id) :
+      for (_label_acl,) in self.request.dbsession.query(Acl.acl).join(User).filter(Acl.id_project==id_project).filter(User.id==self.request.user.id) :
         # shoud I link this to 'group:editors' instead of Authenticated ?
         lst_acl.append((Allow, Authenticated, _label_acl))
         if _label_acl == 'edit' :
@@ -142,9 +146,9 @@ class TaskFactory(ProjectFactory):
     """
     # because of predicates id should be an int ...
     id_task = self.request.matchdict[u'id']
-    id_project = DBSession.query(Project.id).join(Task).filter(Task.id==id_task).scalar()
+    id_project = self.request.dbsession.query(Project.id).join(Task).filter(Task.id==id_task).scalar()
     lst_acl = []
-    for (_label_acl,) in DBSession.query(Acl.acl).join(User).filter(Acl.id_project==id_project).filter(User.id==self.request.user.id) :
+    for (_label_acl,) in self.request.dbsession.query(Acl.acl).join(User).filter(Acl.id_project==id_project).filter(User.id==self.request.user.id) :
       # shoud I link this to 'group:editors' instead of Authenticated ?
       lst_acl.append((Allow, Authenticated, _label_acl))
       if _label_acl == 'edit' :
