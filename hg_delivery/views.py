@@ -773,7 +773,7 @@ def run_a_macro(request):
     aim_project = relation.aim_project
 
     # user must have an access to this project
-    if aim_project.id not in projects_id_set :
+    if aim_project and aim_project.id not in projects_id_set :
       result = False 
       project_errors.append(aim_project.name)
       buffers_output[aim_project.name] = u"user don't have access to %s"%aim_project.name
