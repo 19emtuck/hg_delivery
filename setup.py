@@ -36,22 +36,42 @@ classifiers = [
     'Topic :: Software Development :: Version Control',
 ]
 
-requires = [
-    'pyramid',
-    'pyramid_mako',
-    'pyramid_tm',
-    'SQLAlchemy',
-    'transaction',
-    'zope.sqlalchemy',
-    'waitress',
-    'pygments',
-    'paramiko==2.0.1',
-    'alembic',
-    'apscheduler==2.1.2',
-    'redis==2.10.5',
-    'kombu==4.0.0',
-    'pyramid-scheduler==0.3.1',
-    ]
+if sys.version_info >= (3,6) and sys.version_info < (3,7):
+  requires = [
+      'pyramid==1.5.1',
+      'pyramid_mako==1.0.2',
+      'pyramid_tm==1.0.1',
+      'SQLAlchemy==1.3.12',
+      'transaction==2.0.2',
+      'zope.sqlalchemy==0.7.7',
+      'waitress==1.4.1',
+      'pygments',
+      'paramiko==2.7.1',
+      'alembic',
+      'apscheduler==2.1.2',
+      'redis==3.3.11',
+      'kombu==4.6.7',
+      'pyramid-scheduler==0.3.1',
+      ]
+elif sys.version_info >= (3,7) :
+  requires = [
+      'pyramid==1.5.1',
+      'pyramid_mako==1.0.2',
+      'pyramid_tm==1.0.1',
+      'SQLAlchemy==1.3.12',
+      'transaction==2.0.2',
+      'zope.sqlalchemy==0.7.7',
+      'waitress==1.4.1',
+      'pygments',
+      'paramiko==2.7.1',
+      'alembic',
+      'apscheduler==2.1.2',
+      'redis==3.3.11',
+      'kombu==4.6.7',
+      'pyramid-scheduler==0.3.1',
+      ]
+else :
+  sys.exit('Sorry, Python < 3.6 is not supported')
 
 setup(name='hg_delivery',
       version='1.0.5',
