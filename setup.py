@@ -9,6 +9,7 @@
 # terms of the M.I.T License.
 #
 import os
+import sys
 
 from setuptools import setup, find_packages
 
