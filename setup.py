@@ -55,6 +55,8 @@ if sys.version_info >= (3,6) and sys.version_info < (3,7):
       'pyramid-scheduler==0.3.1',
       ]
 elif sys.version_info >= (3,7) :
+  # 3.7 valid
+  # 3.8 valid
   requires = [
       'pyramid',
       'pyramid_mako',
