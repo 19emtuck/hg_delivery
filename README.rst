@@ -3,7 +3,7 @@ hg_delivery README
 
 A one-click deployment tool written in python with `pyramid <http://www.pylonsproject.org>`_ web framework
 
-**current release : v_1_0**
+**current release : v_1_1_0**
 
 Global overview
 ---------------
@@ -27,6 +27,7 @@ hg_delivery will check each 15 minutes if there's unused connexion that needs to
 
 
 .. code::
+
   # ensure that processed tasks will be done by the same process
   scheduler.combined   = true
   scheduler.broker.url = redis://127.0.0.1:6379/
