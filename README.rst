@@ -26,15 +26,16 @@ the right broker and setup the right kombu url.
 hg_delivery will check each 15 minutes if there's unused connexion that needs to be closed.
 
 
-.. code::
+.. note::
 
   # ensure that processed tasks will be done by the same process
   scheduler.combined   = true
   scheduler.broker.url = redis://127.0.0.1:6379/
 
 
-
 features list :
+---------------
+
 
   - remote repository access *ssh only*
 
