@@ -197,3 +197,7 @@ Changelog
 
     - attach projects to a group. redefine navigation with groups. 
 
+  - v_1_1 :
+
+    - python 3.8 check and last pyramid scafold adoption
+
