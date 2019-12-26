@@ -670,6 +670,11 @@ def update_a_macro(request):
 
       if macro_name and len(macro_name)>1 and len(macro_content)>0 :
         macro.label = macro_name
+
+        # delete previous relationship
+        for macro_relation in macro.relations :
+          request.dbsession.delete(macro_relation)
+
         macro.relations[0:]=[]
 
         for _p_id in macro_content :
