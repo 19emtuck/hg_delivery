@@ -256,7 +256,13 @@ class NodeSsh(object):
       log.info("this connection hasn't been used from long time ago, closing connection to : %s"%self.host)
 
   @check_connections
-  def run_command_and_feed_password_prompt(self, command, password, reg_password ='password: ', reg_shell = '[^\n\r]+@[^\n\r]+\$', log_it=True, auth_with_pkey=False):
+  def run_command_and_feed_password_prompt(self,
+                                           command,
+                                           password,
+                                           reg_password ='password: ',
+                                           reg_shell = '[^\n\r]+@[^\n\r]+\$',
+                                           log_it=True,
+                                           auth_with_pkey=False):
     '''
       Execute command through SSH and also feed prompt !
 
@@ -267,46 +273,27 @@ class NodeSsh(object):
 
     '''
     guid = uuid.uuid1().hex
-    global_buff_content = ""
+
+    global_buff_content = ''
+    buff                = ''
+    exit_status         = None
+    full_log            = []
+    time_out            = False
 
     # add a foot print as a guid
     # so we are sure
     command += u";echo '%s'"%guid
+    try :
+      channel = self.ssh.invoke_shell()
+      channel.settimeout(self.__class__.max_timeout)
 
-    full_log = []
-
-    channel = self.ssh.invoke_shell()
-    channel.settimeout(self.__class__.max_timeout)
-
-    # We received a potential prompt.
-    # something like toto@hostname:~$
-    buff = ''
-    t0 = time.time()
-    time_out = False
-    full_log.append(u'org_command %s'%command)
-
-    wait_time = 0.05
-    while len(re.findall(reg_shell, buff, re.MULTILINE))==0:
-        resp = channel.recv(9999)
-        buff += self.decode_raw_bytes(resp)
-        global_buff_content += "\n" + buff
-
-        time.sleep(wait_time)
-        wait_time += 0.05
-
-        if time.time() - t0 > 60 :
-          time_out = True
-          break
-    full_log.append(u'buff1 %s'%buff)
-
-    if not time_out and not auth_with_pkey :
-      # ssh and wait for the password prompt.
-      channel.send(command + '\n')
-
-      buff = ''
+      # We received a potential prompt.
+      # something like toto@hostname:~$
       t0 = time.time()
+      full_log.append(u'org_command %s'%command)
+
       wait_time = 0.05
-      while not buff.endswith(reg_password):
+      while len(re.findall(reg_shell, buff, re.MULTILINE))==0:
           resp = channel.recv(9999)
           buff += self.decode_raw_bytes(resp)
           global_buff_content += "\n" + buff
@@ -314,71 +301,96 @@ class NodeSsh(object):
           time.sleep(wait_time)
           wait_time += 0.05
 
-          if time.time()-t0 > 60 :
-            time_out = True
-            break
-      full_log.append(u'buff2 %s'%buff)
-    elif not time_out :
-      # ssh and wait for the password prompt.
-      channel.send(command + '\n')
-
-      buff = ''
-      t0 = time.time()
-      wait_time = 0.05
-
-      while len(re.findall(reg_shell, buff, re.MULTILINE))==0 :
-          resp = channel.recv(9999)
-          buff += self.decode_raw_bytes(resp)
-          global_buff_content += "\n" + buff
-
-          time.sleep(wait_time)
-          wait_time += 0.05
-
-          if time.time()-t0 > 60 :
-            time_out = True
-            break
-      full_log.append(u'buff2 %s'%buff)
-
-    if not time_out and not auth_with_pkey :
-      # Send the password and wait for a prompt.
-      channel.send(password + '\n')
- 
-      buff = u''
-      t0 = time.time()
-      # wait : 'added 99 changesets with 243 changes to 27 files'
-      # wait : "(run 'hg update' to get a working copy)"
-      #
-      # sample pushing ...
-      #
-      # searching for changes
-      # remote: adding changesets
-      # remote: adding manifests
-      # remote: adding file changes
-      # remote: added 90 changesets with 102 changes to 68 files
-      wait_time = 0.05
-      while buff.find(u'to get a working copy') < 0 and buff.find(u'changesets with') < 0 and buff.find(u"abort: push creates new remote branches") < 0 and len(re.findall(reg_shell, buff, re.MULTILINE))==0 and buff.find(guid)<0:
-          resp = channel.recv(9999)
-          buff += self.decode_raw_bytes(resp)
-          global_buff_content += "\n" + buff
-
-          time.sleep(wait_time)
-          wait_time += 0.05
           if time.time() - t0 > 60 :
             time_out = True
             break
+      full_log.append(u'buff1 %s'%buff)
 
-      full_log.append(u'buff2 %s'%buff)
-      ret=buff
+      if not time_out and not auth_with_pkey :
+        # ssh and wait for the password prompt.
+        channel.send(command + '\n')
 
-    if channel :
-      channel.close()
+        buff = ''
+        t0 = time.time()
+        wait_time = 0.05
+        while not buff.endswith(reg_password):
+            resp = channel.recv(9999)
+            buff += self.decode_raw_bytes(resp)
+            global_buff_content += "\n" + buff
 
-    self.release_lock()
+            time.sleep(wait_time)
+            wait_time += 0.05
 
-    if log_it :
-      self.add_to_log(command)
+            if time.time()-t0 > 60 :
+              time_out = True
+              break
+        full_log.append(u'buff2 %s'%buff)
+      elif not time_out :
+        # ssh and wait for the password prompt.
+        channel.send(command + '\n')
 
-    exit_status = channel.recv_exit_status()
+        buff = ''
+        t0 = time.time()
+        wait_time = 0.05
+
+        while len(re.findall(reg_shell, buff, re.MULTILINE))==0 :
+            resp = channel.recv(9999)
+            buff += self.decode_raw_bytes(resp)
+            global_buff_content += "\n" + buff
+
+            time.sleep(wait_time)
+            wait_time += 0.05
+
+            if time.time()-t0 > 60 :
+              time_out = True
+              break
+        full_log.append(u'buff2 %s'%buff)
+
+      if not time_out and not auth_with_pkey :
+        # Send the password and wait for a prompt.
+        channel.send(password + '\n')
+ 
+        buff = u''
+        t0 = time.time()
+        # wait : 'added 99 changesets with 243 changes to 27 files'
+        # wait : "(run 'hg update' to get a working copy)"
+        #
+        # sample pushing ...
+        #
+        # searching for changes
+        # remote: adding changesets
+        # remote: adding manifests
+        # remote: adding file changes
+        # remote: added 90 changesets with 102 changes to 68 files
+        wait_time = 0.05
+        while buff.find(u'to get a working copy') < 0 and buff.find(u'changesets with') < 0 and buff.find(u"abort: push creates new remote branches") < 0 and len(re.findall(reg_shell, buff, re.MULTILINE))==0 and buff.find(guid)<0:
+            resp = channel.recv(9999)
+            buff += self.decode_raw_bytes(resp)
+            global_buff_content += "\n" + buff
+
+            time.sleep(wait_time)
+            wait_time += 0.05
+            if time.time() - t0 > 60 :
+              time_out = True
+              break
+
+        full_log.append(u'buff2 %s'%buff)
+        ret=buff
+
+      if channel :
+        channel.close()
+
+      self.release_lock()
+
+      if log_it :
+        self.add_to_log(command)
+
+      exit_status = channel.recv_exit_status()
+
+    except Exception as e :
+      # catch any, release the lock and throw again
+      self.release_lock()
+      raise e
 
     return {u'out'         : full_log,
             u'err'         : [],
@@ -389,36 +401,37 @@ class NodeSsh(object):
   @check_connections
   def run_command(self, command, log=False):
     ''' Executes command through SSH tunnel. '''
-    # we lock threads per resource
-    with self.lock :
-      try :
-        stdin, stdout, stderr = self.ssh.exec_command(command, timeout=self.__class__.max_timeout)
-        stdin.flush()
-        stdin.channel.shutdown_write()
+    result = None
+    try :
+      stdin, stdout, stderr = self.ssh.exec_command(command, timeout=self.__class__.max_timeout)
+      stdin.flush()
+      stdin.channel.shutdown_write()
+      exit_status = stdin.channel.recv_exit_status()
+      ret         = stdout.read()
+      err         = stderr.read()
 
-        exit_status = stdin.channel.recv_exit_status()
-        ret         = stdout.read()
-        err         = stderr.read()
-
-        if err:
-          raise NodeException(self.decode_raw_bytes(err))
-        elif exit_status != 0 :
-          raise OutputErrorCode(exit_status)
-        elif ret:
-          if log :
-            self.add_to_log(command)
-
-          if(type(ret)==bytes):
-            ret = self.decode_raw_bytes(ret)
-          return ret
-        else:
-          return None
-      except socket.gaierror :
-        raise NodeException(u"host unavailable")
-      except paramiko.ssh_exception.SSHException as e :
-        raise NodeException(u"Command execution failed %s"%(self.decode_raw_bytes(e)))
-
+      if err:
+        raise NodeException(self.decode_raw_bytes(err))
+      elif exit_status != 0 :
+        raise OutputErrorCode(exit_status)
+      elif ret:
+        # we consider it's successfull
+        if log :
+          self.add_to_log(command)
+        if(type(ret)==bytes):
+          ret = self.decode_raw_bytes(ret)
+        result = ret
+    except socket.gaierror :
       self.release_lock()
+      raise NodeException(u"host unavailable")
+    except paramiko.ssh_exception.SSHException as e :
+      self.release_lock()
+      raise NodeException(u"Command execution failed %s"%(self.decode_raw_bytes(e)))
+    except Exception as e:
+      # catch any, release the lock and throw again
+      self.release_lock()
+      raise e
+    return result
 
   def compare_release_a_sup_equal_b(self, release_a, release_b):
     """
@@ -488,7 +501,10 @@ class HgNode(NodeSsh):
     else :
       # hg may add '+' to indicate tip release
       # '+' is not part of changeset hash
-      result = data.strip(u'\n').split(u' ')[0].strip(u'+')
+      result = None
+      if data :
+        result = data.strip(u'\n').split(u' ')[0].strip(u'+')
+
     return result
 
   def pullable(self, local_project, target_project):
@@ -709,9 +725,11 @@ class HgNode(NodeSsh):
     else :
       # hg may add '+' to indicate tip release
       # '+' is not part of changeset hash
-      result = data.strip(u'\n').split(u' ')[0].strip(u'+')
-      if not result or len(result)<35:
-        result = None
+      result = None
+      if data :
+        result = data.strip(u'\n').split(u' ')[0].strip(u'+')
+        if not result or len(result)<35:
+          result = None
     return result
      
   def get_tags(self):
@@ -724,7 +742,9 @@ class HgNode(NodeSsh):
     except NodeException as e :
       pass
     else :
-      tags_and_key_revisions = sorted((re.sub(' {2,}',' ',e).split(u' ') for e in data.strip().split(u'\n') if e.split(u' ')[0]))
+      tags_and_key_revisions = []
+      if data :
+        tags_and_key_revisions = sorted((re.sub(' {2,}',' ',e).split(u' ') for e in data.strip().split(u'\n') if e.split(u' ')[0]))
     
     return tags_and_key_revisions
 
@@ -833,7 +853,9 @@ class GitNode(NodeSsh):
     except NodeException as e :
       result = None
     else :
-      result = data.strip(' \n')
+      result = None
+      if data :
+        result = data.strip(' \n')
     return result
 
   def push_to(self, local_project, target_project, force_branch):
@@ -913,7 +935,9 @@ class GitNode(NodeSsh):
     except NodeException as e :
       result = None
     else :
-      result = data.strip(u' \n')
+      result = None
+      if data :
+        result = data.strip(u' \n')
     return result
 
   def get_branches(self):
@@ -926,7 +950,9 @@ class GitNode(NodeSsh):
     except NodeException as e :
       pass
     else :
-      branches = sorted((e.strip() for e in data.strip().split(u'\n') if e.strip()))
+      branches = []
+      if data :
+        branches = sorted((e.strip() for e in data.strip().split(u'\n') if e.strip()))
     return branches
 
   def get_current_revision_description(self):
@@ -1097,8 +1123,10 @@ class PoolSsh(object):
     key_uri_node = uri 
 
     if key_uri_node not in cls.nodes :
-      cls.nodes[key_uri_node] = [HgNode(uri, project_id, local_pkey=local_pkey)]
-      node = cls.nodes[key_uri_node][0]
+      node = HgNode(uri, project_id, local_pkey=local_pkey)
+      node.lock_it()
+      cls.nodes[key_uri_node] = [node]
+      log.info(u"creating additional node in pool")
     else :
       t0 = time.time()
 
