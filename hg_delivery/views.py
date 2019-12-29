@@ -103,7 +103,7 @@ class SpeedCrawler(SpeedThread):
                     self.__linked = True
         except Exception as e:
             self.__linked = False
-            log.error(e)
+            log.debug(e)
 
         self._is_stopped.set()
 
@@ -164,7 +164,7 @@ class SpeedUpdater(SpeedThread):
                                 log.error(e)
 
         except Exception as e:
-            log.error(e)
+            log.debug(e)
 
         self._is_stopped.set()
 
@@ -563,8 +563,9 @@ def who_share_this_id(request):
         new_thread.start()
 
     t0 = time.time()
+    t1 = t0 + 10 * 60
     while sum([e.is_stopped() for e in thread_stack]) != len(
-            linked_projects) or time.time() > (t0 + 10 * 60):
+            linked_projects) or time.time() > t1:
         time.sleep(0.005)
 
     # when threads finished their job
@@ -1425,7 +1426,7 @@ def edit_project(request):
                 current_node = ssh_node.get_revision_description(current_rev)
     except NodeException as e:
         repository_error = e.value
-        log.error(e.value)
+        log.debug(e.value)
         current_node = None
         list_branches = []
         list_tags = []
@@ -1436,7 +1437,7 @@ def edit_project(request):
         log.error(
             u'No valid connection error to host (%s)... ' %
             (project.host))
-        log.error(e)
+        log.debug(e)
         current_node = None
         list_branches = []
         list_tags = []
@@ -1448,13 +1449,13 @@ def edit_project(request):
         list_branches = []
         list_tags = []
         last_hundred_change_list, map_change_sets = [], {}
-        log.error(e)
+        log.debug(e)
     except Exception as e:
         if hasattr(e, 'value'):
             repository_error = e.value
-            log.error(e.value)
+            log.debug(e.value)
         else:
-            log.error(e)
+            log.debug(e)
 
         current_node = None
         list_branches = []
@@ -1517,16 +1518,16 @@ def run_task(request):
         except NodeException as e:
             result = False
             explanation = e.value
-            log.error(e)
+            log.debug(e)
         except OutputErrorCode as e:
             result = False
             _msg = u"Task return an error code : %s (different than 0)"
             explanation = _msg % e.value
-            log.error(e)
+            log.debug(e)
         except IntegrityError as e:
             result = False
             explanation = u"wtf ?"
-            log.error(e)
+            log.debug(e)
         else:
             result = True
 
@@ -1589,7 +1590,7 @@ def remove_project_task(request):
         request.dbsession.delete(task)
     except IntegrityError as e:
         result = False
-        log.error(e)
+        log.debug(e)
     else:
         result = True
 
@@ -1624,7 +1625,7 @@ def save_project_tasks(request):
         except IntegrityError as e:
             result = False
             request.dbsession.rollback()
-            log.error(e)
+            log.debug(e)
 
     return {'result': result, 'tasks': project.tasks}
 
@@ -1680,7 +1681,7 @@ def save_users_acls(request):
 
     except IntegrityError as e:
         request.dbsession.rollback()
-        log.error(e)
+        log.debug(e)
 
     return HTTPFound(location=request.route_path(route_name='users'))
 
@@ -1714,7 +1715,7 @@ def save_project_acls(request):
             request.dbsession.flush()
             result = True
         except IntegrityError as e:
-            log.error(e)
+            log.debug(e)
             request.dbsession.rollback()
             result = False
 
@@ -1749,7 +1750,7 @@ def fetch_project(request):
     except NodeException as e:
         repository_error = e.value
         last_hundred_change_list = []
-        log.error(e)
+        log.debug(e)
 
     return {'repository_error': repository_error,
             'last_hundred_change_list': last_hundred_change_list}
@@ -1899,7 +1900,7 @@ def rename_project(request):
             group.name = group_name
             request.dbsession.flush()
         except IntegrityError as e:
-            log.error(e)
+            log.debug(e)
     elif group:
         response = HTTPFound(
             location=request.route_path(

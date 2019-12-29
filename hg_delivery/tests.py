@@ -5,8 +5,8 @@
 #
 # This file is part of hg_delivery
 #
-# hg_delivery is free software; you can redistribute it and/or modify it under the
-# terms of the M.I.T License.
+# hg_delivery is free software; you can redistribute it and/or modify it under
+# the terms of the M.I.T License.
 #
 import unittest
 import transaction
@@ -16,9 +16,8 @@ from pyramid import testing
 
 class TestMyViewSuccessCondition(unittest.TestCase):
     def setUp(self):
-        self.config = testing.setUp(settings={
-            'sqlalchemy.url': 'sqlite:///:memory:'
-        })
+        self.config = testing.setUp(
+            settings={'sqlalchemy.url': 'sqlite:///:memory:'})
         self.config.include('.models')
         settings = self.config.get_settings()
 
@@ -47,9 +46,8 @@ class TestMyViewSuccessCondition(unittest.TestCase):
 
 class TestMyViewFailureCondition(unittest.TestCase):
     def setUp(self):
-        self.config = testing.setUp(settings={
-            'sqlalchemy.url': 'sqlite:///:memory:'
-        })
+        self.config = testing.setUp(
+            settings={'sqlalchemy.url': 'sqlite:///:memory:'})
         self.config.include('.models')
         settings = self.config.get_settings()
 
@@ -65,7 +63,7 @@ class TestMyViewFailureCondition(unittest.TestCase):
         self.session = get_tm_session(session_factory, transaction.manager)
 
     def tearDown(self):
-        from .models.meta import Base
+        from .models.meta import Base  # noqa F401
 
         testing.tearDown()
         transaction.abort()

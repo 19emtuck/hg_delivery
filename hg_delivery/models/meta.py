@@ -4,8 +4,8 @@
 #
 # This file is part of hg_delivery
 #
-# hg_delivery is free software; you can redistribute it and/or modify it under the
-# terms of the M.I.T License.
+# hg_delivery is free software; you can redistribute it and/or modify it under
+# the terms of the M.I.T License.
 #
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import MetaData

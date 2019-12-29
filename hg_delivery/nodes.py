@@ -9,6 +9,7 @@
 # the terms of the M.I.T License.
 #
 
+
 import paramiko
 import time
 import logging
@@ -231,6 +232,7 @@ class NodeSsh(object):
             try:
                 content = u(bytes_content, codec)
             except Exception as e:
+                log.debug(e)
                 content = ""
             else:
                 break
@@ -289,7 +291,7 @@ class NodeSsh(object):
                                              command,
                                              password,
                                              reg_password='password: ',
-                                             reg_shell='[^\n\r]+@[^\n\r]+\$',
+                                             reg_shell='[^\n\r]+@[^\n\r]+\$',  # noqa: W605,E501
                                              log_it=True,
                                              auth_with_pkey=False):
         '''
@@ -514,7 +516,7 @@ class HgNode(NodeSsh):
                                     (self.path, revision, file_name))
         except Exception as e:
             data = None
-            log.error(e)
+            log.debug(e)
         return data
 
     def get_release(self):
@@ -522,7 +524,7 @@ class HgNode(NodeSsh):
         """
         try:
             data = self.run_command(u"cd %s ; hg --version" % self.path)
-            _regexp = u'\((?:version) (?P<version>[0-9\.]+)\)'
+            _regexp = u'\((?:version) (?P<version>[0-9\.]+)\)'  # noqa: W605,E501
             data = re.findall(_regexp, data)
             if data:
                 data = data[0]
@@ -530,7 +532,7 @@ class HgNode(NodeSsh):
                 data = None
         except Exception as e:
             data = None
-            log.error(e)
+            log.debug(e)
         return data
 
     def get_current_rev_hash(self):
@@ -540,7 +542,7 @@ class HgNode(NodeSsh):
             data = self.run_command(u"cd %s ; hg --debug id -i" % self.path)
         except NodeException as e:
             result = None
-            log.error(e)
+            log.debug(e)
         else:
             # hg may add '+' to indicate tip release
             # '+' is not part of changeset hash
@@ -807,7 +809,7 @@ class HgNode(NodeSsh):
                 u"cd %s ; hg cat %s -r %s" % (self.path, file_name, revision))
         except NodeException as e:
             result = None
-            log.error(e)
+            log.debug(e)
         return result
 
     def get_initial_hash(self):
@@ -820,7 +822,7 @@ class HgNode(NodeSsh):
                 u"cd %s ; hg --debug id -i -r 0" % self.path)
         except NodeException as e:
             result = None
-            log.error(e)
+            log.debug(e)
         else:
             # hg may add '+' to indicate tip release
             # '+' is not part of changeset hash
@@ -839,7 +841,7 @@ class HgNode(NodeSsh):
         try:
             data = self.run_command(u'cd %s ; hg tags' % (self.path))
         except NodeException as e:
-            log.error(e)
+            log.debug(e)
         else:
             tags_and_key_revisions = []
             if data:
@@ -858,7 +860,7 @@ class HgNode(NodeSsh):
         try:
             data = self.run_command(u'cd %s ; hg branches' % (self.path))
         except NodeException as e:
-            log.error(e)
+            log.debug(e)
         else:
             if data:
                 _gb = (e.split(u' ')[0] for e in data.strip().split(u'\n')
@@ -877,7 +879,7 @@ class HgNode(NodeSsh):
             data = self.run_command(_co % (self.path, self._template))
         except NodeException as e:
             node = {}
-            log.error(e)
+            log.debug(e)
         else:
             (node, p1node, p2node, author, branch, rev, parents, date,
              desc, tags) = data.split(u'|#|')
@@ -908,7 +910,7 @@ class HgNode(NodeSsh):
                 u'''cd %s ; hg diff -c %s''' % (self.path, revision))
         except NodeException as e:
             diff_content = ""
-            log.error(e)
+            log.debug(e)
         return DiffWrapper(diff_content)
 
     def get_revision_description(self, revision):
@@ -929,10 +931,10 @@ class HgNode(NodeSsh):
         result = True
         try:
             _co = u'cd %s ; hg update -C -r %s' % (self.path, revision)
-            data = self.run_command(_co, True)
+            self.run_command(_co, True)
         except NodeException as e:
             result = False
-            log.error(e)
+            log.debug(e)
         return result
 
 # ------------------------------------------------------------------------------
@@ -953,14 +955,14 @@ class GitNode(NodeSsh):
         try:
             _co = u"cd %s ; git --version --no-color" % self.path
             data = self.run_command(_co)
-            _regexp = u'(?:version) (?P<version>[0-9\.]+)'
+            _regexp = u'(?:version) (?P<version>[0-9\.]+)'  # noqa: W605,E501
             data = re.findall(_regexp, data)
             if data:
                 data = data[0]
             else:
                 data = None
         except Exception as e:
-            log.error(e)
+            log.debug(e)
             data = None
         return data
 
@@ -981,7 +983,7 @@ class GitNode(NodeSsh):
                 u"cd %s ; git rev-parse HEAD --no-color" % self.path)
         except NodeException as e:
             result = None
-            log.error(e)
+            log.debug(e)
         else:
             result = None
             if data:
@@ -1044,7 +1046,7 @@ class GitNode(NodeSsh):
                                                self._template))
         except NodeException as e:
             data = ""
-            log.error(e)
+            log.debug(e)
 
         list_nodes = []
         map_nodes = {}
@@ -1077,7 +1079,7 @@ class GitNode(NodeSsh):
                 u"cd %s ; git cat %s -r %s" % (self.path, file_name, revision))
         except NodeException as e:
             result = None
-            log.error(e)
+            log.debug(e)
         return result
 
     def get_initial_hash(self):
@@ -1090,7 +1092,7 @@ class GitNode(NodeSsh):
             data = self.run_command(_co % self.path)
         except NodeException as e:
             result = None
-            log.error(e)
+            log.debug(e)
         else:
             result = None
             if data:
@@ -1108,7 +1110,7 @@ class GitNode(NodeSsh):
             _co += " --format='%(refname:short)'"
             data = self.run_command(_co % (self.path))
         except NodeException as e:
-            log.error(e)
+            log.debug(e)
         else:
             branches = []
             if data:
@@ -1128,7 +1130,7 @@ class GitNode(NodeSsh):
             data = self.run_command(_co % (self.path, self._template))
         except NodeException as e:
             node = {}
-            log.error(e)
+            log.debug(e)
         else:
             node, author, branch, rev, parents, date, desc, tags = data.split(
                 u'|#|')
@@ -1155,7 +1157,7 @@ class GitNode(NodeSsh):
                 u'''cd %s ; git diff -c %s''' % (self.path, revision))
         except NodeException as e:
             diff_content = ""
-            log.error(e)
+            log.debug(e)
         return DiffWrapper(diff_content)
 
     def get_revision_description(self, rev):
@@ -1174,11 +1176,11 @@ class GitNode(NodeSsh):
         """
         result = True
         try:
-            data = self.run_command(
+            self.run_command(
                 u'cd %s ; git reset ; git reset %s' % (self.path, rev), True)
         except NodeException as e:
             result = False
-            log.error(e)
+            log.debug(e)
         return result
 
 # ------------------------------------------------------------------------------
@@ -1223,7 +1225,7 @@ class NodeController(object):
         result = False
 
         if exc_value:
-            log.error(exc_value)
+            log.debug(exc_value)
 
             if(self.silent):
                 result = True
@@ -1309,16 +1311,13 @@ class PoolSsh(object):
             node = HgNode(uri, project_id, local_pkey=local_pkey)
             node.lock_it()
             cls.nodes[key_uri_node] = [node]
-            log.info(u"creating additional node in pool")
+            log.info(u"new node in pool %s" % uri)
         else:
             t0 = time.time()
 
-            # we wait 60 seconds
-            # we wait to acquire a node (wait for a free node)
+            # we wait 60 seconds maximum to
+            # acquire a node (we wait for a free node)
             while node is None and time.time() - t0 < 60:
-
-                if time.time() - t0 > 1:
-                    time.sleep(1)
 
                 for __node in cls.nodes[key_uri_node]:
                     if not __node.is_locked():
@@ -1336,4 +1335,7 @@ class PoolSsh(object):
                     node.lock_it()
                     cls.nodes[key_uri_node].append(node)
 
+                if node is None:
+                    # sleep for 500 milliseconds
+                    time.sleep(0.2)
         return node

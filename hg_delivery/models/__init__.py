@@ -4,8 +4,8 @@
 #
 # This file is part of hg_delivery
 #
-# hg_delivery is free software; you can redistribute it and/or modify it under the
-# terms of the M.I.T License.
+# hg_delivery is free software; you can redistribute it and/or modify it under
+# the terms of the M.I.T License.
 #
 from sqlalchemy import engine_from_config
 from sqlalchemy.orm import sessionmaker
@@ -53,8 +53,8 @@ def get_tm_session(session_factory, transaction_manager):
 
     """
     dbsession = session_factory()
-    zope.sqlalchemy.register(
-        dbsession, transaction_manager=transaction_manager)
+    zope.sqlalchemy.register(dbsession,
+                             transaction_manager=transaction_manager)
     return dbsession
 
 
@@ -79,5 +79,4 @@ def includeme(config):
         # r.tm is the transaction manager used by pyramid_tm
         lambda r: get_tm_session(session_factory, r.tm),
         'dbsession',
-        reify=True
-    )
+        reify=True)
