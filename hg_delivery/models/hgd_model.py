@@ -20,11 +20,11 @@ from sqlalchemy import (
     Table,
     )
 
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 
 from .meta import Base
 
-from ..nodes import PoolSsh, NodeController, NodeException
+from ..nodes import PoolSsh, NodeController
 from datetime import datetime
 
 #------------------------------------------------------------------------------

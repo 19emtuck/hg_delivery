@@ -13,7 +13,7 @@ from pyramid.response import Response
 from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
 
-from sqlalchemy.exc import DBAPIError, IntegrityError
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 from collections import OrderedDict
 
@@ -25,7 +25,6 @@ from .models import (
     User,
     Acl,
     Task,
-    Group,
     Macro,
     ProjectGroup,
     MacroRelations,
@@ -40,7 +39,6 @@ from hg_delivery.nodes import (
     OutputError,
     )
 
-import paramiko
 try :
   from paramiko.ssh_exception import NoValidConnectionsError
 except :

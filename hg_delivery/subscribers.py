@@ -9,13 +9,10 @@
 # terms of the M.I.T License.
 #
 
-import time
 import logging
 from sqlalchemy.orm import joinedload
 
 from pyramid.events import (
-     NewRequest,
-     NewResponse,
      BeforeRender,
      ApplicationCreated,
      subscriber

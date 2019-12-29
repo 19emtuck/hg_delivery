@@ -8,7 +8,6 @@
 # hg_delivery is free software; you can redistribute it and/or modify it under the
 # terms of the M.I.T License.
 #
-from pyramid.response import Response
 from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
 from pyramid.security import remember, forget, Allow, Everyone, Authenticated, unauthenticated_userid
@@ -16,7 +15,6 @@ from pyramid.security import remember, forget, Allow, Everyone, Authenticated, u
 from .models import (
     User,
     Acl, 
-    Group,
     Project,
     Task,
     )
