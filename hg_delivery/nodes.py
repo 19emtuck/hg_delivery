@@ -42,6 +42,16 @@ else:
 # ------------------------------------------------------------------------------
 
 
+class UnavailableConnexion(Exception):
+    """
+    """
+
+    def __init__(self, value):
+        self.value = value
+
+# ------------------------------------------------------------------------------
+
+
 class NodeException(Exception):
     """
     """
@@ -460,14 +470,22 @@ class NodeSsh(object):
                     ret = self.decode_raw_bytes(ret)
                 result = ret
         except socket.gaierror:
+            # catch any, release the lock and throw again
+            # do not forget raised exception can't be handle
+            # by `with statement`
             self.release_lock()
             raise NodeException(u"host unavailable")
         except paramiko.ssh_exception.SSHException as e:
+            # catch any, release the lock and throw again
+            # do not forget raised exception can't be handle
+            # by `with statement`
             self.release_lock()
             raise NodeException(u"Command execution failed %s" %
                                 (self.decode_raw_bytes(e)))
         except Exception as e:
             # catch any, release the lock and throw again
+            # do not forget raised exception can't be handle
+            # by `with statement`
             self.release_lock()
             raise e
         return result
@@ -1250,7 +1268,7 @@ class PoolSsh(object):
 
     nodes = {}
     max_nodes_in_pool = 4
-    # seconds ...
+    # 1 hour
     time_elapse_before_closing_connection = 3600
 
     @classmethod
@@ -1315,9 +1333,9 @@ class PoolSsh(object):
         else:
             t0 = time.time()
 
-            # we wait 60 seconds maximum to
+            # we wait 10 seconds maximum to
             # acquire a node (we wait for a free node)
-            while node is None and time.time() - t0 < 60:
+            while node is None and time.time() - t0 < 20:
 
                 for __node in cls.nodes[key_uri_node]:
                     if not __node.is_locked():
@@ -1338,4 +1356,8 @@ class PoolSsh(object):
                 if node is None:
                     # sleep for 500 milliseconds
                     time.sleep(0.2)
+        if node is None:
+            _msg = "no connexion available"
+            _msg += ", please retry later or fix parameters"
+            raise UnavailableConnexion(_msg)
         return node

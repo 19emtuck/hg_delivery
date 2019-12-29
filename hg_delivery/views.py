@@ -39,6 +39,7 @@ from hg_delivery.nodes import (
     NodeController,
     OutputErrorCode,
     OutputError,
+    UnavailableConnexion,
 )
 
 try:
@@ -156,6 +157,12 @@ class SpeedUpdater(SpeedThread):
                                 ssh_node.run_command(task.content, log=True)
                             except NodeException as e:
                                 self.__tasks_exceptions.append(e.value)
+                                log.error(e)
+                            except UnavailableConnexion as e:
+                                _msg = e.value
+                                _msg += " (%s:%s)" % (self.project.host,
+                                                      self.project.path)
+                                self.__tasks_exceptions.append(_msg)
                                 log.error(e)
                             except OutputErrorCode as e:
                                 _msg = u"Task return an error code :"
@@ -364,6 +371,12 @@ def node_description(request):
         #   body = ', '.join([x[0] for x in addrs[:-1]])
         # TypeError: 'dict_keys' object is not subscriptable
         pass
+    except UnavailableConnexion as e:
+        node_description = u'No available connection to host (%s)... ' % (
+            project.host)
+        _msg = u'No available connection to host (%s)... '
+        log.error(_msg % (project.host))
+        log.error(e)
     except NoValidConnectionsError as e:
         node_description = u'No valid connection error to host (%s)... ' % (
             project.host)
@@ -883,6 +896,10 @@ def run_a_macro(request):
             try:
                 with NodeController(project) as ssh_node:
                     data = ssh_node.push_to(project, aim_project, force_branch)
+            except UnavailableConnexion as e:
+                __result = False
+                log.debug(e)
+                project_errors.append(aim_project.name)
             except HgNewBranchForbidden as e:
                 # we may inform user that he cannot push ...
                 # maybe add a configuration parameter to fix this
@@ -1108,6 +1125,11 @@ def add_project(request):
             _msg += u' before adding this project... '
             explanation = _msg % (host, path)
             log.error(e)
+        except UnavailableConnexion as e:
+            request.dbsession.rollback()
+            result = False
+            log.debug(e)
+            explanation = e.value + " (%s:%s)" % (host, path)
         except NoValidConnectionsError as e:
             request.dbsession.rollback()
             result = False
@@ -1431,6 +1453,13 @@ def edit_project(request):
         list_branches = []
         list_tags = []
         last_hundred_change_list, map_change_sets = [], {}
+    except UnavailableConnexion as e:
+        repository_error = e.value + " (%s:%s)" % (project.host, project.path)
+        log.debug(e.value)
+        current_node = None
+        list_branches = []
+        list_tags = []
+        last_hundred_change_list, map_change_sets = [], {}
     except NoValidConnectionsError as e:
         repository_error = u'No valid connection error to host (%s)... ' % (
             project.host)
@@ -1518,6 +1547,11 @@ def run_task(request):
         except NodeException as e:
             result = False
             explanation = e.value
+            log.debug(e)
+        except UnavailableConnexion as e:
+            result = False
+            explanation = e.value + " (%s:%s)" % (task.project.host,
+                                                  task.project.path)
             log.debug(e)
         except OutputErrorCode as e:
             result = False
@@ -1749,6 +1783,10 @@ def fetch_project(request):
                 limit, branch_filter=branch)
     except NodeException as e:
         repository_error = e.value
+        last_hundred_change_list = []
+        log.debug(e)
+    except UnavailableConnexion as e:
+        repository_error = e.value + " (%s:%s)" % (project.host, project.path)
         last_hundred_change_list = []
         log.debug(e)
 
