@@ -9,7 +9,8 @@ Test Teardown     Close All Browsers
 Suite Teardown     Close All Browsers
 
 *** Test Cases ***
- Projects Add
+
+Projects Add
     [Documentation]  Add a bunch of projects
     Login User
     Detach All Projects From Their Group
@@ -18,6 +19,7 @@ Suite Teardown     Close All Browsers
     :FOR  ${project_id}    IN    @{projects}
     \   Add New Project    ${project_id}    127.0.0.1   ${CURDIR}/repositories/${project_id}   ${SYSUSER}  ${SYSPWD}
     \   Sleep   1
+    Logout User
 
 User Can't Add Twice The Same Project
     [Documentation]   User Try to add twice the same project
@@ -33,3 +35,17 @@ User Can't Add Twice The Same Project
     Add New Project And Wait For Failure    ${project_id}    ${dest_host}   ${CURDIR}/repositories/${project_id}   ${SYSUSER}  ${SYSPWD}
     Sleep   1 
     Remove Project By Its Name   ${project_id}
+
+    # add another time the d1 project for getting normal situation
+    Add New Project    ${project_id}    ${dest_host}   ${CURDIR}/repositories/${project_id}   ${SYSUSER}  ${SYSPWD}
+    Logout User
+
+User Can't Load An Unknow Project
+    [Documentation]  check we can't reach an unknown project
+    ...              this shall redirect you to welcome page
+    Login User
+    Go To   ${LOGIN URL}/project/edit/666
+    # back to dashboard
+    Wait Until Page Contains    Dashboard
+    Welcome Page Should Be Open
+    Logout User

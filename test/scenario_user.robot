@@ -8,6 +8,7 @@ Test Teardown     Close All Browsers
 Suite Teardown     Close All Browsers
 
 *** Test Cases ***
+
 Test User Can Login
     Open Browser To Login Page
     Login Page Should Be Open
@@ -15,3 +16,4 @@ Test User Can Login
     Input Password  editor
     Submit Credentials
     Welcome Page Should Be Open
+    Logout User
