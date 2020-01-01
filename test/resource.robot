@@ -65,7 +65,7 @@ Logout User
 
 Open A Project By Its Label
     [Arguments]    ${project_name}
-    ${names_map}=  Execute Javascript     return Object.fromEntries(new Map($('#projects_list .project_link').map((id,item) => {return [[$(item).text(),$(item).attr('href')]];}).toArray()));
+    ${names_map}=  Execute Javascript     return Object.fromEntries(new Map($('#projects_list .project_link').map((id,item) => {return [[$(item).text(), window.location.origin+$(item).attr('href')]];}).toArray()));
     ${url}=    Evaluate  $names_map.get('${project_name}')
     Go To   ${url}
     Wait Until Page Contains Element  id=project_name
@@ -93,7 +93,8 @@ Detach All Projects From Their Group
 
 Add New Project
     [Documentation]
-    [Arguments]   ${name}     ${host}    ${path}   ${user}   ${pwd}
+    [Arguments]   ${name}     ${host}    ${path}   ${user}   ${pwd}   ${group}=
+    # back to default page to add a project
     Go To   ${WELCOME URL}
     Wait Until Page Contains Element    css=span[class="glyphicon glyphicon-plus"]
     Wait Until Element Is Visible       css=span[class="glyphicon glyphicon-plus"]
@@ -158,16 +159,17 @@ Remove Project By Its Name
 
 Remove All Repositories
     [Documentation]   remove local repositories directory
-    ${result}=   Start Process   rm     -rf     ${CURDIR}/repositories
+    ${result}=   Start Process   rm     -rf     ${CURDIR}${/}repositories
 
 Create All Repositories Folder
     [Documentation]   remove local repositories directory
-    ${result}=   Start Process   mkdir     ${CURDIR}/repositories
+    ${result}=   Start Process   mkdir     ${CURDIR}${/}repositories
 
 Init A Repository
     [Documentation]   Init a repo in repositories folder
     [Arguments]   ${folder}
-    ${result}=   Start Process   hg     init     ${CURDIR}/repositories/${folder}
+    ${handle}=   Start Process   hg     init     ${CURDIR}${/}repositories${/}${folder}
+    Wait For Process  ${handle}
 
 Write A File
     [Arguments]   ${file}   ${content}
@@ -176,12 +178,72 @@ Write A File
 
 Commit Changes
     [Arguments]   ${folder}  ${message}
-    ${result}=   Start Process   hg     ci   -m    "${message}"     ${CURDIR}/repositories/${folder}   -u   stephane.bard@gmail.com
+    ${handle}=   Start Process   hg     ci   -m    ${message}     ${CURDIR}${/}repositories${/}${folder}  -u   stephane.bard@gmail.com    cwd=${CURDIR}${/}repositories${/}${folder}
+    Wait For Process  ${handle}
 
 Add File To Repo
     [Arguments]   ${folder}  ${fileName}
-    ${result}=   Start Process   hg     add    ${filePath} 
+    ${handle}=   Start Process   hg     add    ${fileName}     cwd=${CURDIR}${/}repositories${/}${folder}
+    Wait For Process  ${handle}
 
 Clone
     [Arguments]   ${src}  ${dst}
-    ${result}=   Start Process   hg     clone   ${CURDIR}/repositories/${src}   ${CURDIR}/repositories/${dst}
+    ${handle}=   Start Process   hg     clone   ${CURDIR}${/}repositories${/}${src}   ${CURDIR}${/}repositories${/}${dst}
+    Wait For Process  ${handle}
+
+Push To
+    [Arguments]    ${to}
+    Wait Until Page Contains Element   css=a[href="#related"]
+    Click Element     css=a[href="#related"]
+    Wait Until Page Contains Element  css=#other_projects a[data-name="${to}"]
+    Wait Until Element Is Visible     css=#other_projects a[data-name="${to}"]
+    Click Element                     css=#other_projects a[data-name="${to}"]
+    Wait Until Element Is Visible     css=#button_push
+    Wait Until Page Contains Element  css=button[id="button_push"][disabled]
+    Wait Until Page Does Not Contain Element  css=button[id="button_push"][disabled]
+    Click Element                       css=#button_push
+    Wait Until Page Contains Element    css=.progress-bar
+    Wait Until Element Is Visible       css=.progress-bar
+    Wait Until Element Is Not Visible   css=.progress-bar
+    Wait Until Page Contains      nothing to synchronize ...
+    Sleep    500 milliseconds
+
+
+Pull From
+    [Arguments]  ${from}
+    Wait Until Page Contains Element   css=a[href="#related"]
+    Click Element     css=a[href="#related"]
+    Wait Until Element Is Visible  css=#other_projects a[data-name="d2"]
+    Click Element    css=#other_projects a[data-name="d2"]
+    Wait Until Element Is Visible  id=button_pull
+    Wait Until Page Contains Element  css=button[id="button_pull"][disabled]
+    Wait Until Page Does Not Contain Element  css=button[id="button_pull"][disabled]
+    Click Element                       css=#button_pull
+    Wait Until Page Contains Element    css=.progress-bar
+    Wait Until Element Is Visible       css=.progress-bar
+    Wait Until Element Is Not Visible   css=.progress-bar
+    Wait Until Page Contains      nothing to synchronize ...
+    Sleep    500 milliseconds
+
+Click On Row Col
+    [Arguments]    ${row}  ${col}
+    Execute Javascript   var e = document.createEvent('UIEvents');
+    ...                    e.initUIEvent('click', true, true);
+    ...                    $($('#d3_container ul').get(${row})).find('li:nth-child(${col}) a').get(0).dispatchEvent(e);
+
+Css On Row Col
+    [Arguments]    ${row}  ${col}   ${css_attr}  ${css_value}
+    Execute Javascript    $($('#d3_container ul').get(${row})).find('li:nth-child(${col})').css(css_attr, css_value);
+
+Get Link Label
+   ${link_str}=   Execute Javascript    return $($('#d3_container ul').get(1)).find('li:nth-child(7) a').text();
+   [Return]   ${link_str}
+
+Wait XHR Query
+    Wait Until Keyword Succeeds   10x  50 milliseconds   Execute Javascript   return $.active===1
+    Wait Until Keyword Succeeds   10x  50 milliseconds   Execute Javascript   return $.active===0
+
+Chmod Folder
+    [Arguments]   ${folder}  ${chmod}
+    ${handle}=   Start Process   chmod   ${chmod}   ${CURDIR}${/}repositories${/}${folder} 
+    Wait For Process  ${handle}
