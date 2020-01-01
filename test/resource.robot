@@ -15,6 +15,7 @@ ${VALID PASSWORD}    editor
 ${LOGIN URL}      http://${SERVER}/
 ${WELCOME URL}    http://${SERVER}/
 ${ERROR URL}      http://${SERVER}/error.html
+${LOCAL_PATH}     127.0.0.1
 
 *** Keywords ***
 Open Browser To Login Page
@@ -54,8 +55,6 @@ Login User
     Submit Credentials
     Welcome Page Should Be Open
 
-
-
 Detach Projects From A Group
    ${lst_projects_links}=     Execute Javascript    return $('a.list-group-item[href*=edit]').map(function(_i,_item){return $(_item).attr('href');}).toArray();
    Wait Until Page Contains Element   css=.list-group-item
@@ -76,20 +75,65 @@ Detach All Projects From Their Group
 
   Sleep  200 milliseconds
 
+Add New Project
+    [Documentation]
+    [Arguments]   ${name}     ${host}    ${path}   ${user}   ${pwd}
+    Click Element    css=span[class="glyphicon glyphicon-plus"]
+    Input Text       name        ${name}
+    Input Text       host        ${host}
+    Input Text       path        ${path}
+    Input Text       user        ${user}
+    Input Text       password    ${pwd}
+    Click Element    id=add_my_project
+    Wait Until Element Is Visible   id=new_project_dialog
+    Wait Until Element Is Visible   css=.alert-success
+    Wait Until Element Is Not Visible   css=.alert-success
+
+Add New Project And Wait For Failure
+    [Documentation]
+    [Arguments]   ${name}     ${host}    ${path}   ${user}   ${pwd}
+    Click Element    css=span[class="glyphicon glyphicon-plus"]
+    Input Text       name        ${name}
+    Input Text       host        ${host}
+    Input Text       path        ${path}
+    Input Text       user        ${user}
+    Input Text       password    ${pwd}
+    Click Element    id=add_my_project
+    Wait Until Element Is Visible   id=new_project_dialog
+    Wait Until Element Is Visible   css=.alert-danger
+    Wait Until Element Is Not Visible   css=.alert-danger
+
+Remove A Project By Its Url
+  [Arguments]  ${project_url}
+  Click Element   css=form[name="view_project"] button.dropdown-toggle
+  Click Element   css=#projects_list a[href='${project_url}']
+  Wait Until Element Is Visible   css=#project_home
+  Click Element   css=#manage_project
+  Click Element   css=#view_delete_project
 
 Remove All Projects
   [Documentation]  loop over projects to remove them ...
   ${projects_names}=  Execute Javascript     return $('#projects_list .project_link').map(function(id,item){return $(item).attr('href');}).toArray();
+  ${nb_projects}=   Get Length   ${projects_names}
+  ${index}=  Set Variable  0
+
   :FOR  ${next_link}    IN  @{projects_names}
-  \   Click Element   css=form[name="view_project"] button.dropdown-toggle
-  \   Click Element   css=#projects_list a[href='${next_link}']
-  \   Wait Until Element Is Visible   css=#project_home
-  \   Click Element   css=#manage_project
-  \   Click Element   css=#view_delete_project
-  \   Wait Until Element Is Visible   css=form[name="view_project"] button.dropdown-toggle
-  \   // wait a bit ...
-  \   Sleep  700 milliseconds
+  \   Remove A Project By Its Url   ${next_link}
+  \   Run KeyWord If  ${index}<(${nb_projects}-2)    Wait Until Element Is Visible   css=form[name="view_project"] button.dropdown-toggle
+  \   # wait a bit ...
+  \   Sleep  300 milliseconds
+  \   ${index}=    Evaluate    ${index} + 1
 
   ${projects_names}=  Execute Javascript  return $('#projects_list .project_link').map(function(id,item){return $(item).attr('href');}).toArray();
-  ${nb_projects}=   Get Length   ${project_names}
+  ${nb_projects}=   Get Length   ${projects_names}
   Should Be Equal As Numbers   0    ${nb_projects}
+
+Remove Project By Its Name
+  [Documentation]  
+  [Arguments]   ${project_name}
+  # ensure we are at the welcome URL
+  Go To   ${WELCOME URL}
+  ${names_map}=  Execute Javascript     return Object.fromEntries(new Map($('#projects_list .project_link').map((id,item) => {return [[$(item).text(),$(item).attr('href')]];}).toArray()));
+  ${url}=    Evaluate  $names_map.get('${project_name}')
+  Run Keyword If   '${url}'!='${None}'   Remove A Project By Its Url   ${url}
+
