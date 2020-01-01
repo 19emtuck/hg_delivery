@@ -1695,7 +1695,7 @@ def detach_project_from_that_group(request):
 
     if group is not None and len(group.projects)==0 :
       DBSession.delete(group)
-      redirect_url = request.route_path(route_name='users')
+      redirect_url = request.route_path(route_name='home')
 
   DBSession.flush()
 
