@@ -8,7 +8,7 @@ Resource          resource.robot
 Library           Collections
 
 Test Teardown     Close All Browsers
-Suite Teardown     Close All Browsers
+Suite Teardown    Close All Browsers
 
 *** Test Cases ***
 

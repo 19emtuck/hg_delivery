@@ -4,7 +4,7 @@ Documentation     A test suite about macros
 Resource          resource.robot
 
 Test Teardown     Close All Browsers
-Suite Teardown     Close All Browsers
+Suite Teardown    Close All Browsers
 
 
 *** Keywords ***

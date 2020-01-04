@@ -24,9 +24,11 @@ ${LOCAL_PATH}     127.0.0.1
 
 Open Browser To Login Page
     Open Browser    ${LOGIN URL}    ${BROWSER}
-    Set Window Size 	2048 	1024
+    Run KeyWord If   '${BROWSER}'=='Chrome'   Maximize Browser Window
+    Run KeyWord If   '${BROWSER}'=='headlesschrome'   Set Window Size 	2048 	1024
     Set Selenium Speed    ${DELAY}
     Set Selenium Timeout    20
+
     Login Page Should Be Open
 
 Login Page Should Be Open
@@ -331,10 +333,55 @@ Encapsulate JS Call
     [Return]  ${result}
 
 Wait XHR Query
+    # 5 seconds max, iterate each 50 milliseconds
     Wait Until Keyword Succeeds   100x  50 milliseconds   Encapsulate JS Call   return $.active===1
-    Wait Until Keyword Succeeds   100x  50 milliseconds   Encapsulate JS Call   return $.active===0
+    # 10 seconds max, iterate each 100 milliseconds
+    Wait Until Keyword Succeeds   100x  100 milliseconds   Encapsulate JS Call   return $.active===0
 
 Chmod Folder
     [Arguments]   ${folder}  ${chmod}
     ${handle}=   Start Process   chmod   ${chmod}   ${CURDIR}${/}repositories${/}${folder} 
     Wait For Process  ${handle}
+
+
+Remove All Tasks
+    [Documentation]
+    ${listTasksId}=   Execute Javascript   return $('button:contains("delete it")').map(function(id,item){return $(item).data('id');}).toArray();
+    # loop over tasks to remove them ...
+    :For   ${taskId}    IN  @{listTasksId}
+    \   Click Element   css=button[data-id="${taskId}"]
+    \   Wait XHR Query
+    \   Sleep  200 milliseconds
+
+Add A Task
+    [Documentation]
+    [Arguments]      ${task_content}
+    Click Element   css=button[onclick^="add_new"]
+    Wait Until Page Contains    save modifications
+    Wait Until Element Is Visible   css=input[name="task_content"]
+    Page Should Contain Element   css=input[name="task_content"]
+    Element Should Be Visible     css=input[name="task_content"]
+    Input Text     task_content    ${task_content}
+    Click Element   id=save_tasks
+    Wait Until Page Contains    saving ...
+    Wait Until Page Contains    save modifications
+    Wait Until Page Contains    run it ..
+
+Delete A Task
+    [Arguments]  ${taskId}
+    Click Element   css=button[data-id="${taskId}"].delete
+    Wait XHR Query
+    Sleep  100 milliseconds
+    Page Should Not Contain Element  css=button[data-id="${taskId}"].delete
+
+Check Last Log
+    [Arguments]  ${line}  ${different}=${False}
+    Wait Until Page Contains Element   css=#container_logs button.close
+    Wait Until Page Contains Element   id=button_log
+    Click Element  id=button_log
+    Page Should Contain Element     css=#container_logs button.close
+    ${lastLog}=   Execute Javascript    return $('.row_log:first li:last').text();
+    Run KeyWord If   ${different}==${False}     Should Be Equal As Strings   ${lastLog}   ${line}
+    Run KeyWord If   ${different}==${True}      Should Not Be Equal As Strings   ${lastLog}   ${line}
+    Click Element    css=#container_logs button.close
+    Wait Until Element Is Not Visible   css=#container_logs button.close

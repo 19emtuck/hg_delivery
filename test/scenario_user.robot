@@ -5,7 +5,7 @@ Documentation     A test suite with a single test for valid login.
 ...               the imported resource file.
 Resource          resource.robot
 Test Teardown     Close All Browsers
-Suite Teardown     Close All Browsers
+Suite Teardown    Close All Browsers
 
 *** Test Cases ***
 
