@@ -10,7 +10,8 @@ Library           OperatingSystem
 
 *** Variables ***
 ${SERVER}         localhost:6543
-${BROWSER}        Chrome
+# ${BROWSER}        Chrome
+${BROWSER}        headlesschrome
 ${DELAY}          0
 ${VALID USER}     editor
 ${VALID PASSWORD}    editor
@@ -20,10 +21,11 @@ ${ERROR URL}      http://${SERVER}/error.html
 ${LOCAL_PATH}     127.0.0.1
 
 *** Keywords ***
+
 Open Browser To Login Page
     Open Browser    ${LOGIN URL}    ${BROWSER}
-    Maximize Browser Window
-    # Set Selenium Speed    ${DELAY}
+    Set Window Size 	2048 	1024
+    Set Selenium Speed    ${DELAY}
     Set Selenium Timeout    20
     Login Page Should Be Open
 
@@ -320,9 +322,17 @@ Get Link Label
    ${link_str}=   Execute Javascript    return $($('#d3_container ul').get(1)).find('li:nth-child(7) a').text();
    [Return]   ${link_str}
 
+Encapsulate JS Call
+    [Documentation]  In order to use Wait Until Keyword Succeeds, we need to implement Fail
+    ...              ${js} should return a boolean true or false
+    [Arguments]   ${js}
+    ${result}=   Execute Javascript   ${js}
+    Run Keyword If  ${result} == ${FALSE}    Fail
+    [Return]  ${result}
+
 Wait XHR Query
-    Wait Until Keyword Succeeds   10x  50 milliseconds   Execute Javascript   return $.active===1
-    Wait Until Keyword Succeeds   10x  50 milliseconds   Execute Javascript   return $.active===0
+    Wait Until Keyword Succeeds   100x  50 milliseconds   Encapsulate JS Call   return $.active===1
+    Wait Until Keyword Succeeds   100x  50 milliseconds   Encapsulate JS Call   return $.active===0
 
 Chmod Folder
     [Arguments]   ${folder}  ${chmod}
