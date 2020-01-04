@@ -1,16 +1,19 @@
 *** Settings ***
-Documentation     A test suite with a single test for valid login.
+Documentation     A test suite with a bunch of operations over repositories
 ...
-...               This test has a workflow that is created using keywords in
-...               the imported resource file.
+...               push, pull, branch, errors about readonly ...
+...
+
 Resource          resource.robot
+Library           Collections
 
 Test Teardown     Close All Browsers
 Suite Teardown     Close All Browsers
 
 *** Test Cases ***
 
-check
+A Bunch Of Push Pull interactions
+    [Documentation]  do a Push, do a Pull, get an error, get a new branch
     Remove All Repositories
     Create All Repositories Folder
     Init A Repository    d1
@@ -37,7 +40,6 @@ check
     Append To File   ${CURDIR}${/}repositories${/}d1${/}README.txt   \nAFTER INIT
     Sleep   100 milliseconds
     Commit Changes    d1    my_first_commit
-    Login User
     Open A Project By Its Label   d1
     Push To      d2
     Open A Project By Its Label   d2
@@ -98,5 +100,58 @@ check
     Wait Until Page Contains   Project d1 has been updated successfully
     Sleep   100 milliseconds
     Wait Until Element Is Not Visible   css=.alert
+
     # after update a new pushpin icon appear which gives update dates to user
-    # Wait Until Element Is Not Visible   css=.glyphicon-pushpin
+    Element Should Be Visible  css=.glyphicon-pushpin
+
+    # now both commits separatly 
+    # but on different branch
+    Write A File    ${CURDIR}${/}repositories${/}d1${/}README.txt   PROJECT DESCRIPTION FILE\nHELLO WORLD !\nFROM d2 repositories. it rocks\nThis is pretty awesome
+    Branch   d1     brch_1
+    Commit Changes    d1    third_commit
+
+    Write A File    ${CURDIR}${/}repositories${/}d2${/}README.txt   PROJECT DESCRIPTION FILE\nHELLO WORLD !\nFROM d2 repositories. it rocks\nAre you sure ?
+    Commit Changes    d2    third_commit_d2
+
+    Open A Project By Its Label   d1
+    Open Linked Projects Tab
+
+    ${relatedLinks}=  Read Related Projects List
+    ${tmpList}=       Create List    d6  d5  d3  d2
+    Lists Should Be Equal       ${tmpList}    ${relatedLinks}    values=True
+
+    Select A Linked Project  d2
+    Wait PushPullAble
+    Click Element                       id=button_push
+    Wait Until Page Contains Element    css=.progress-bar
+    Wait Until Element Is Visible       css=.progress-bar
+
+    Wait Until Page Contains    It seems you are trying to push a new branch.
+
+    Wait Until Page Contains Element    id=new_branch
+    Wait Until Element Is Visible       id=new_branch
+    Wait Until Element Is Enabled       id=new_branch
+    Click Element                       id=new_branch
+
+    Wait Until Element Is Not Visible   css=.modal-dialog
+    Wait Until Page Contains Element    css=.progress-bar
+    Wait Until Element Is Visible       css=.progress-bar
+    Wait Until Element Is Not Visible   css=.progress-bar
+    Wait PushPullAble
+    Logout User
+
+User Check Single Lonly Repository
+    [Documentation]  user check a lonly Repository is not related to anything
+    # a sperate repository (no clone) shall not be related to anything
+
+    Login User
+    Init A Repository    d4
+    Write A File         ${CURDIR}${/}repositories${/}d4${/}README.txt   PROJECT DESCRIPTION FILE\nHELLO WORLD !
+    Add File To Repo     d4    README.txt
+    Commit Changes       d4    initial_commit
+
+    Add New Project  d4  127.0.0.1  ${CURDIR}${/}repositories${/}d4${/}     ${SYSUSER}     ${SYSPWD}
+    Open A Project By Its Label   d4
+    Open Linked Projects Tab
+    Page Should Contain    No linked project detected
+    Logout User

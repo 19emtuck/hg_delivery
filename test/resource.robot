@@ -23,7 +23,8 @@ ${LOCAL_PATH}     127.0.0.1
 Open Browser To Login Page
     Open Browser    ${LOGIN URL}    ${BROWSER}
     Maximize Browser Window
-    Set Selenium Speed    ${DELAY}
+    # Set Selenium Speed    ${DELAY}
+    Set Selenium Timeout    20
     Login Page Should Be Open
 
 Login Page Should Be Open
@@ -70,6 +71,7 @@ Open A Project By Its Label
     Go To   ${url}
     Wait Until Page Contains Element  id=project_name
     Wait Until Element Is Visible     id=project_name
+    Page Should Contain Element       id=project_name
 
 Detach Projects From A Group
     ${lst_projects_links}=     Execute Javascript    return $('a.list-group-item[href*=edit]').map(function(_i,_item){return $(_item).attr('href');}).toArray();
@@ -90,6 +92,47 @@ Detach All Projects From Their Group
     \   Detach Projects From A Group
 
     Sleep  200 milliseconds
+
+Delete All Macros
+    Open Macros Tab
+    ${listMacrosId}=   Execute Javascript    return Array.from($('button[data-macro_id][onclick^="delete_this_macro"]')).map((e)=>{return $(e).data('macro_id')})
+    ${nb_macros}=   Get Length   ${listMacrosId}
+
+    :FOR  ${_id}    IN    @{listMacrosId}
+    \  Click Element   css=button[data-macro_id="${_id}"]
+    \  Sleep  200 milliseconds
+
+    # check no more macro available
+    ${listMacrosId}=   Execute Javascript    return Array.from($('button[data-macro_id][onclick^="delete_this_macro"]')).map((e)=>{return $(e).data('macro_id')})
+    ${nb_macros}=   Get Length   ${listMacrosId}
+    Should Be Equal As Numbers   0    ${nb_macros}
+
+Create PushToAll Macro
+    [Arguments]   ${name}   ${direction}
+    Open Macros Tab
+
+    Click Element   css=div.tab-pane.active a
+    Wait Until Element Is Visible    id=new_macro_dialog
+    Wait Until Element Is Visible    css=input[name="macro_name"]
+    Wait Until Element Is Visible    css=select[name^="direction_"]
+    Page Should Contain Element    css=input[name="macro_name"]
+    Page Should Contain Element    css=select[name^="direction_"]
+    Input Text       macro_name        ${name}
+
+    ${projects_names}=  Execute Javascript     return Array.from($('select[name^="direction_"]')).map((e)=>{return $(e).attr('name')})
+    :FOR  ${name}    IN  @{projects_names}
+    \    Select From List By Label   css=select[name^="${name}"]    ${direction}
+
+    Click Element    id=button_add_macro
+    Wait Until Element Is Not Visible   id=new_macro_dialog
+    Wait Until Page Contains           Your macro has been recorded
+    # Wait Until Page Contains           ${name}
+    # Wait Until Page Contains           that imply : ${direction}
+    Wait Until Element Is Visible  css=.alert-success
+    Wait Until Element Is Not Visible  css=.alert-success
+
+
+    Sleep    100 milliseconds
 
 Add New Project
     [Documentation]
@@ -174,7 +217,6 @@ Init A Repository
 Write A File
     [Arguments]   ${file}   ${content}
     Create File   ${file}   ${content}
-    Append To File   ${file}   ${content}
 
 Commit Changes
     [Arguments]   ${folder}  ${message}
@@ -186,39 +228,78 @@ Add File To Repo
     ${handle}=   Start Process   hg     add    ${fileName}     cwd=${CURDIR}${/}repositories${/}${folder}
     Wait For Process  ${handle}
 
+Branch
+    [Arguments]  ${folder}   ${branchName}
+    ${handle}=   Start Process   hg     branch    ${branchName}     cwd=${CURDIR}${/}repositories${/}${folder}
+    Wait For Process  ${handle}
+
 Clone
     [Arguments]   ${src}  ${dst}
     ${handle}=   Start Process   hg     clone   ${CURDIR}${/}repositories${/}${src}   ${CURDIR}${/}repositories${/}${dst}
     Wait For Process  ${handle}
 
-Push To
-    [Arguments]    ${to}
+Open Project Tab
+    Wait Until Page Contains Element   css=a[href="#project_home"]
+    Click Element     css=a[href="#project_home"]
+
+Open Macros Tab
+    Wait Until Page Contains Element   css=a[href="#macros"]
+    Click Element     css=a[href="#macros"]
+
+Open Linked Projects Tab
     Wait Until Page Contains Element   css=a[href="#related"]
     Click Element     css=a[href="#related"]
-    Wait Until Page Contains Element  css=#other_projects a[data-name="${to}"]
-    Wait Until Element Is Visible     css=#other_projects a[data-name="${to}"]
-    Click Element                     css=#other_projects a[data-name="${to}"]
-    Wait Until Element Is Visible     css=#button_push
-    Wait Until Page Contains Element  css=button[id="button_push"][disabled]
-    Wait Until Page Does Not Contain Element  css=button[id="button_push"][disabled]
-    Click Element                       css=#button_push
+
+Open Revision Tab
+    Wait Until Page Contains Element   css=a[href="#revision"]
+    Click Element     css=a[href="#revision"]
+
+Open Rights Management Tab
+    Wait Until Page Contains Element   css=a[href="#users"]
+    Click Element     css=a[href="#users"]
+
+Open Additional Tasks Tab
+    Wait Until Page Contains Element   css=a[href="#tasks"]
+    Click Element     css=a[href="#tasks"]
+
+Read Related Projects List
+    [Documentation]  Returns a list of related projects
+    ${lst_projects_links}=     Execute Javascript    return Array.from($('#other_projects .list-group-item')).map((e)=>{return $(e).text()})
+    [return]   @{lst_projects_links}
+
+Select A Linked Project
+    [Arguments]   ${project}
+    Wait Until Page Contains Element  css=#other_projects a[data-name="${project}"]
+    Wait Until Element Is Visible     css=#other_projects a[data-name="${project}"]
+    Wait Until Element Is Enabled     css=#other_projects a[data-name="${project}"]
+    Sleep   200 milliseconds
+    Click Element                     css=#other_projects a[data-name="${project}"]
+
+Wait PushPullAble
+    Wait Until Page Contains Element            css=button[id="button_push"].has-spinner.active
+    Wait Until Page Contains Element            css=button[id="button_pull"].has-spinner.active
+    Wait Until Page Does Not Contain Element    css=button[id="button_push"].has-spinner.active
+    Wait Until Page Does Not Contain Element    css=button[id="button_pull"].has-spinner.active
+    Sleep   200 milliseconds
+
+Push To
+    [Arguments]    ${to}
+    Open Linked Projects Tab
+    Select A Linked Project  ${to}
+    Wait PushPullAble
+    Click Element                       id=button_push
     Wait Until Page Contains Element    css=.progress-bar
     Wait Until Element Is Visible       css=.progress-bar
     Wait Until Element Is Not Visible   css=.progress-bar
     Wait Until Page Contains      nothing to synchronize ...
     Sleep    500 milliseconds
 
-
 Pull From
     [Arguments]  ${from}
-    Wait Until Page Contains Element   css=a[href="#related"]
-    Click Element     css=a[href="#related"]
-    Wait Until Element Is Visible  css=#other_projects a[data-name="d2"]
-    Click Element    css=#other_projects a[data-name="d2"]
-    Wait Until Element Is Visible  id=button_pull
-    Wait Until Page Contains Element  css=button[id="button_pull"][disabled]
-    Wait Until Page Does Not Contain Element  css=button[id="button_pull"][disabled]
-    Click Element                       css=#button_pull
+    Open Linked Projects Tab
+    Select A Linked Project  ${from}
+    Wait PushPullAble
+    Click Element                       id=button_pull
     Wait Until Page Contains Element    css=.progress-bar
     Wait Until Element Is Visible       css=.progress-bar
     Wait Until Element Is Not Visible   css=.progress-bar
