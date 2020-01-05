@@ -388,7 +388,7 @@ Check Last Log
     Wait Until Element Is Not Visible   css=#container_logs button.close
 
 Add User
-    [Arguments]     ${name}   ${email}    ${password}
+    [Arguments]     ${name}   ${email}    ${password}  ${error}=${False}
     Page Should Contain Element       css=span[class="glyphicon glyphicon-plus"]
     Page Should Contain Element       css=button[alt="add a user"]
     Click Element                     css=button[alt="add a user"]
@@ -406,12 +406,17 @@ Add User
     Input Text    css=form[name="user"] input[name="pwd"]      ${password}
     Click Element       id=add_my_user
     Wait XHR Query
-    Wait Until Element Is Not Visible    css=form[name="user"]
-    Wait Until Page Contains   ${email}
-    Wait Until Element Is Visible    id=overview
-    Element Should Be Visible    id=overview
-    Wait Until Page Contains Element   id=users_acls
-    Element Should Be Visible    id=users_acls
+    Run KeyWord If  ${error}==${False}   Wait Until Element Is Not Visible    css=form[name="user"]
+    Run KeyWord If  ${error}==${False}   Wait Until Page Contains   ${email}
+    Run KeyWord If  ${error}==${False}   Wait Until Element Is Visible    id=overview
+    Run KeyWord If  ${error}==${False}   Element Should Be Visible    id=overview
+    Run KeyWord If  ${error}==${False}   Wait Until Page Contains Element   id=users_acls
+    Run KeyWord If  ${error}==${False}   Element Should Be Visible    id=users_acls
+
+    Run KeyWord If  ${error}==${True}   Wait Until Element Is Visible        css=.alert-danger
+    Run KeyWord If  ${error}==${True}   Page Should Contain Element          css=.alert-danger
+    Run KeyWord If  ${error}==${True}   Wait Until Element Is Not Visible    css=.alert-danger
+    Run KeyWord If  ${error}==${True}   Click Element                        id=cancel_add_user
 
 Remove Previous Users
   # loop to remove known users
