@@ -12,6 +12,7 @@ Suite Teardown     Close All Browsers
 
 Projects Add
     [Documentation]  Add a bunch of projects
+    Open Browser To Login Page
     Login User
     Detach All Projects From Their Group
     Remove All Projects
@@ -23,6 +24,7 @@ Projects Add
 
 User Can't Add Twice The Same Project
     [Documentation]   User Try to add twice the same project
+    Open Browser To Login Page
     Login User
     # remove if known
     ${project_id}=   Set Variable   d1
@@ -43,6 +45,7 @@ User Can't Add Twice The Same Project
 User Can't Load An Unknow Project
     [Documentation]  check we can't reach an unknown project
     ...              this shall redirect you to welcome page
+    Open Browser To Login Page
     Login User
     Go To   ${LOGIN URL}/project/edit/666
     # back to dashboard

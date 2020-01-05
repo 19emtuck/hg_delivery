@@ -27,6 +27,7 @@ A Bunch Of Push Pull interactions
     :For  ${label}   IN  @{lst_projects_labels}
     \   Clone  d1  ${label}
 
+    Open Browser To Login Page
     Login User
     Detach All Projects From Their Group
     Remove All Projects
@@ -144,6 +145,7 @@ User Check Single Lonly Repository
     [Documentation]  user check a lonly Repository is not related to anything
     # a sperate repository (no clone) shall not be related to anything
 
+    Open Browser To Login Page
     Login User
     Init A Repository    d4
     Write A File         ${CURDIR}${/}repositories${/}d4${/}README.txt   PROJECT DESCRIPTION FILE\nHELLO WORLD !

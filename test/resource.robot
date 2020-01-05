@@ -56,10 +56,10 @@ Welcome Page Should Be Open
     Title Should Be    Hg Delivery 1.0 welcome :)
 
 Login User
-    Open Browser To Login Page
+    [Arguments]   ${login}=editor   ${password}=editor
     Login Page Should Be Open
-    Input Username  editor
-    Input Password  editor
+    Input Username    ${login}
+    Input Password    ${password}
     Submit Credentials
     Welcome Page Should Be Open
 
@@ -77,6 +77,8 @@ Get All Projects URLs
 
 Open A Project By Its Label
     [Arguments]    ${project_name}
+    Wait Until Page Contains Element    id=projects_list
+    Page Should Contain Element         id=projects_list
     ${names_map}=  Execute Javascript     return Object.fromEntries(new Map($('#projects_list .project_link').map((id,item) => {return [[$(item).text(), window.location.origin+$(item).attr('href')]];}).toArray()));
     ${url}=    Evaluate  $names_map.get('${project_name}')
     Go To   ${url}
@@ -267,7 +269,7 @@ Open Revision Tab
 
 Open Rights Management Tab
     Wait Until Page Contains Element   css=a[href="#users"]
-    Click Element     css=a[href="#users"]
+    Click Element                      css=a[href="#users"]
 
 Open Additional Tasks Tab
     Wait Until Page Contains Element   css=a[href="#tasks"]
@@ -432,3 +434,30 @@ Remove Previous Users
     \    Execute Javascript   $('td:contains("${user_label}")').closest('tr').find('button:contains("delete")').click();
     \    Wait XHR Query   t1=0
     \    Sleep   50 milliseconds
+
+
+Restrict ACLs Display To Specific User
+    [Arguments]    ${userEmail}
+    Execute Javascript    $('#users_overview tr td:contains("${userEmail}")').closest('tr').find('button[onclick*="edit_user_acl"]').click()
+    Sleep    100 milliseconds
+
+Modify All ACL's User To Specific Value
+    [Arguments]   ${userEmail}   ${right}
+    Wait Until Page Contains Element   id=save_users_acl
+    Page Should Contain Element   id=save_users_acl
+    Restrict ACLs Display To Specific User  ${userEmail}
+    Execute Javascript    $('.ace').val('${right}');
+    Click Element  id=save_users_acl
+
+Read Rights
+    [Arguments]    ${userName}
+    ${result}=     Execute Javascript     return $("#project_acls table tr td:contains('${userName}')").closest('tr').find('select').val();
+    [Return]       ${result}
+
+Get ACL User Has On A Project
+    [Arguments]   ${userName}   ${project_name}
+    # disconnect current user and login with the user we aim
+    Open A Project By Its Label  ${project_name}
+    Open Rights Management Tab
+    ${result}=    Read Rights   ${userName}
+    [Return]      ${result}

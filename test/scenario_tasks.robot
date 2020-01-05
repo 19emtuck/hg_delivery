@@ -11,6 +11,7 @@ Suite Teardown    Close All Browsers
 
 Wrong Task
     [Documentation]   Create a Task and run it and get an error
+    Open Browser To Login Page
     Login User
     Open A Project By Its Label   d1
     Open Additional Tasks Tab
@@ -34,6 +35,7 @@ Wrong Task
 
 Simple Task
     [Documentation]  run a simple task and check it appears in the log
+    Open Browser To Login Page
     Login User
     Open A Project By Its Label   d1
     Open Additional Tasks Tab

@@ -18,6 +18,7 @@ Wait End Of Push
 
 Create A Push Macro And Execute It
     [Documentation]   Create a Push macro and execute it
+    Open Browser To Login Page
     Login User
     Open A Project By Its Label   d1
 
@@ -47,6 +48,7 @@ Create A Push Macro And Execute It
 
 Create A Pull Macro And Execute It
     [Documentation]   Create a Pull macro and execute it
+    Open Browser To Login Page
     Login User
     Open A Project By Its Label   d1
 

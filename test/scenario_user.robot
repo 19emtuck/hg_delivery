@@ -9,6 +9,11 @@ Resource          resource.robot
 Test Teardown     Close All Browsers
 Suite Teardown    Close All Browsers
 
+*** Keywords ***
+
+Open User View
+    Click Element   css=a[href*="users/view"]
+
 *** Test Cases ***
 
 Test User Can Login
@@ -32,8 +37,9 @@ Test User Can't Login
 
 Init Some Users
     [Documentation]  admin can add some users and delete them
+    Open Browser To Login Page
     Login User
-    Click Element  css=li a[href$="users/view"]
+    Open User View
     Wait Until Page Contains   User management
     Wait Until Element Is Visible   css=span[class="glyphicon glyphicon-plus"]
 
@@ -58,8 +64,9 @@ Init Some Users
 
 Can't Add Twice
     [Documentation]  Can't add the same user twice ...
+    Open Browser To Login Page
     Login User
-    Click Element  css=li a[href$="users/view"]
+    Open User View
     Wait Until Page Contains   User management
     Wait Until Element Is Visible   css=span[class="glyphicon glyphicon-plus"]
 
@@ -72,6 +79,7 @@ Can't Add Twice
 
 Unknown User Can't Access Pages
     [Documentation]  ...
+    Open Browser To Login Page
     Login User
     ${URLs}=   Get All Projects URLs
     Delete All cookies
@@ -80,3 +88,45 @@ Unknown User Can't Access Pages
     :For  ${project_url}   IN     @{URLs}
     \   Go To   ${project_url}
     \   Page Should Contain   403 Forbidden
+      
+Check Some User Credentials
+    [Documentation]   check credentials
+    # check some user exist
+    # change from role change it's credentials on a project
+    Open Browser To Login Page
+    Login User
+    Open User View
+
+    # check tata is there
+    ${userKnown}=   Execute Javascript   return $('td:contains("tata@free.fr")').length>0;
+    Run KeyWord If  ${userKnown}==${False}   Add User  tata    tata@free.fr   dudule
+    Wait Until Page Contains    tata@free.fr
+    Page Should Contain         tata@free.fr
+
+    Page Should Contain        d1
+    ${project_url} =   Execute Javascript    return window.location.origin+$('#projects_list a:contains("d1")').attr('href');
+    Go To   ${project_url}
+
+    Open Rights Management Tab
+    Open User View
+    # restrict ACLs display to the user we aime
+    Modify All ACL's User To Specific Value    tata@free.fr    edit
+    ${acls}=   Get ACL User Has On A Project  tata    d1
+    Log To Console   ${acls}
+    Should Be Equal As Strings   ${acls}   edit
+    Logout User
+
+    Login User  tata@free.fr  dudule
+    ${names_map}=  Execute Javascript     return Object.fromEntries(new Map($('#projects_list .project_link').map((id,item) => {return [[$(item).text(), window.location.origin+$(item).attr('href')]];}).toArray()));
+    Dictionary Should Contain Key   ${names_map}   d1
+    Open A Project By Its Label  d1
+    Logout User
+    Login User
+    Open User View
+    # restrict ACLs display to the user we aime
+    Modify All ACL's User To Specific Value    tata@free.fr    ${EMPTY}
+    Logout User
+    Login User  tata@free.fr  dudule
+    ${names_map}=  Execute Javascript     return Object.fromEntries(new Map($('#projects_list .project_link').map((id,item) => {return [[$(item).text(), window.location.origin+$(item).attr('href')]];}).toArray()));
+    Dictionary Should Not Contain Key   ${names_map}   d1
+    Logout User
