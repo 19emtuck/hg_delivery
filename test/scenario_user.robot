@@ -3,6 +3,8 @@ Documentation     A test suite with a single test for valid login.
 ...
 ...               This test has a workflow that is created using keywords in
 ...               the imported resource file.
+
+Library           Process
 Resource          resource.robot
 Test Teardown     Close All Browsers
 Suite Teardown    Close All Browsers
@@ -44,8 +46,15 @@ Init Some Users
     Add User  ${user1['name']}    ${user1['email']}   ${user1['pwd']}
     Add User  ${user2['name']}    ${user2['email']}   ${user2['pwd']}
     Add User  ${user3['name']}    ${user3['email']}   ${user3['pwd']}
-    
     Logout User
+
+    # new user can login
+    Go To   ${LOGIN URL}
+    Login Page Should Be Open
+    Input Username  ${user1['email']}
+    Input Password  ${user1['pwd']}
+    Submit Credentials
+    Welcome Page Should Be Open
 
 Can't Add Twice
     [Documentation]  Can't add the same user twice ...
@@ -60,3 +69,14 @@ Can't Add Twice
     Add User  ${user1['name']}    ${user1['email']}   ${user1['pwd']}
     Add User  ${user1['name']}    ${user1['email']}   ${user1['pwd']}   error=True
     Logout User
+
+Unknown User Can't Access Pages
+    [Documentation]  ...
+    Login User
+    ${URLs}=   Get All Projects URLs
+    Delete All cookies
+    Go To   ${WELCOME URL}/users/view
+    Page Should Contain   403 Forbidden
+    :For  ${project_url}   IN     @{URLs}
+    \   Go To   ${project_url}
+    \   Page Should Contain   403 Forbidden

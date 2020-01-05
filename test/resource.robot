@@ -6,6 +6,7 @@ Documentation     A resource file with reusable keywords and variables.
 ...               by the imported SeleniumLibrary.
 Library           Selenium2Library
 Library           Process
+Library           Collections
 Library           OperatingSystem
 
 *** Variables ***
@@ -67,6 +68,12 @@ Logout User
     Wait Until Page Contains    Sign in
     Wait Until Page Contains Element   css=button.btn[onclick*="login_form"]
     Login Page Should Be Open
+
+Get All Projects URLs
+    [Arguments]
+    ${names_map}=  Execute Javascript     return Object.fromEntries(new Map($('#projects_list .project_link').map((id,item) => {return [[$(item).text(), window.location.origin+$(item).attr('href')]];}).toArray()));
+    ${URLs}=    Get Dictionary Values    ${names_map}
+    [Return]   ${URLs}
 
 Open A Project By Its Label
     [Arguments]    ${project_name}
@@ -405,7 +412,7 @@ Add User
     Input Text    css=form[name="user"] input[name="email"]    ${email}
     Input Text    css=form[name="user"] input[name="pwd"]      ${password}
     Click Element       id=add_my_user
-    Wait XHR Query
+    Run KeyWord If  ${error}==${False}   Wait XHR Query
     Run KeyWord If  ${error}==${False}   Wait Until Element Is Not Visible    css=form[name="user"]
     Run KeyWord If  ${error}==${False}   Wait Until Page Contains   ${email}
     Run KeyWord If  ${error}==${False}   Wait Until Element Is Visible    id=overview
