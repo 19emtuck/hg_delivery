@@ -11,8 +11,8 @@ Library           OperatingSystem
 
 *** Variables ***
 ${SERVER}         localhost:6543
-${BROWSER}        Chrome
-# ${BROWSER}        headlesschrome
+# ${BROWSER}        Chrome
+${BROWSER}        headlesschrome
 ${DELAY}          0
 ${VALID USER}     editor
 ${VALID PASSWORD}    editor

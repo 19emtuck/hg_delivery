@@ -112,7 +112,6 @@ Check Some User Credentials
     # restrict ACLs display to the user we aime
     Modify All ACL's User To Specific Value    tata@free.fr    edit
     ${acls}=   Get ACL User Has On A Project  tata    d1
-    Log To Console   ${acls}
     Should Be Equal As Strings   ${acls}   edit
     Logout User
 
