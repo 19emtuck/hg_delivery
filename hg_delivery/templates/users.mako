@@ -10,9 +10,23 @@
           <span class='glyphicon glyphicon-plus' style="font-size:26px;vertical-align:bottom"></span>
         </button>
   </h2>
-
-  % if len(lst_users)>0 :
-  <div id="overview" class="panel panel-default">
+  <%
+     user_table_display=''
+  %>
+  
+  % if len(lst_users)==0 and len(projects_list)>0 :
+     <%
+        user_table_display='display:none'
+     %>
+    <div class="missing">
+        <h3><i>Please define users in order to link them to a project</i></h3>
+    </div>
+  % else :
+    <div>
+        <h3><i>Please create user and project first</i></h3>
+    </div>
+  % endif
+  <div id="overview" class="panel panel-default" style="${user_table_display}">
     <div>
        <p class="bg-info" style="padding:5px">
          Your list of users
@@ -49,15 +63,6 @@
        </table>
     </div>
   </div>
-  % elif len(lst_users)==0 and len(projects_list)>0 :
-    <div>
-        <h3><i>Please define users in order to link them to a project</i></h3>
-    </div>
-  % else :
-    <div>
-        <h3><i>Please create user and project first</i></h3>
-    </div>
-  % endif
 
   <!-- small global overview to manage all your user ACE instead of setting them
      project by project -->
