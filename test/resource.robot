@@ -10,8 +10,8 @@ Library           OperatingSystem
 
 *** Variables ***
 ${SERVER}         localhost:6543
-# ${BROWSER}        Chrome
-${BROWSER}        headlesschrome
+${BROWSER}        Chrome
+# ${BROWSER}        headlesschrome
 ${DELAY}          0
 ${VALID USER}     editor
 ${VALID PASSWORD}    editor
@@ -333,10 +333,11 @@ Encapsulate JS Call
     [Return]  ${result}
 
 Wait XHR Query
+    [Arguments]    ${t1}=50   ${t2}=100
     # 5 seconds max, iterate each 50 milliseconds
-    Wait Until Keyword Succeeds   100x  50 milliseconds   Encapsulate JS Call   return $.active===1
+     Run KeyWord If   ${t1}>0    Wait Until Keyword Succeeds   100x  ${t1} milliseconds   Encapsulate JS Call   return $.active===1
     # 10 seconds max, iterate each 100 milliseconds
-    Wait Until Keyword Succeeds   100x  100 milliseconds   Encapsulate JS Call   return $.active===0
+    Wait Until Keyword Succeeds   100x  ${t2} milliseconds   Encapsulate JS Call   return $.active===0
 
 Chmod Folder
     [Arguments]   ${folder}  ${chmod}
@@ -385,3 +386,37 @@ Check Last Log
     Run KeyWord If   ${different}==${True}      Should Not Be Equal As Strings   ${lastLog}   ${line}
     Click Element    css=#container_logs button.close
     Wait Until Element Is Not Visible   css=#container_logs button.close
+
+Add User
+    [Arguments]     ${name}   ${email}    ${password}
+    Page Should Contain Element       css=span[class="glyphicon glyphicon-plus"]
+    Page Should Contain Element       css=button[alt="add a user"]
+    Click Element                     css=button[alt="add a user"]
+    
+    Wait Until Element Is Visible    css=form[name="user"]
+    Wait Until Element Is Visible    css=form[name="user"] input[name="name"]
+    Wait Until Element Is Visible    css=form[name="user"] input[name="email"]
+    Wait Until Element Is Visible    css=form[name="user"] input[name="pwd"]
+    Page Should Contain Element      css=form[name="user"] input[name="name"]
+    Page Should Contain Element      css=form[name="user"] input[name="email"]
+    Page Should Contain Element      css=form[name="user"] input[name="pwd"]
+
+    Input Text    css=form[name="user"] input[name="name"]     ${name}
+    Input Text    css=form[name="user"] input[name="email"]    ${email}
+    Input Text    css=form[name="user"] input[name="pwd"]      ${password}
+    Click Element       id=add_my_user
+    Wait XHR Query
+    Wait Until Element Is Not Visible    css=form[name="user"]
+    Wait Until Page Contains   ${email}
+    Wait Until Element Is Visible    id=overview
+    Element Should Be Visible    id=overview
+    Wait Until Page Contains Element   id=users_acls
+    Element Should Be Visible    id=users_acls
+
+Remove Previous Users
+  # loop to remove known users
+  ${known_users}=  Execute Javascript   return $('#users_overview tbody tr td:nth-child(2)').map(function(id,item){return $(item).text();}).toArray();
+  :For   ${user_label}    IN   @{known_users}
+    \    Execute Javascript   $('td:contains("${user_label}")').closest('tr').find('button:contains("delete")').click();
+    \    Wait XHR Query   t1=0
+    \    Sleep   50 milliseconds
