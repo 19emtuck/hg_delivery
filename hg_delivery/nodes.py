@@ -322,8 +322,8 @@ class NodeSsh(object):
         time_out = False
 
         # add a foot print as a guid
-        # so we are sure
-        command += u";echo '%s'" % guid
+        # add leading white space to avoid history log
+        command = u" %s;echo '%s'" % (command, guid)
         try:
             channel = self.ssh.invoke_shell()
             channel.settimeout(self.__class__.max_timeout)
