@@ -30,9 +30,9 @@ from datetime import datetime
 # ------------------------------------------------------------------------------
 
 groups_projects_association = Table(
-    'project_group_links', Base.metadata, Column(
-        'project_id', Integer, ForeignKey('projects.id')), Column(
-            'project_group_id', Integer, ForeignKey('project_group.id')))
+    'project_group_links', Base.metadata,
+    Column('project_id', Integer, ForeignKey('projects.id')),
+    Column('project_group_id', Integer, ForeignKey('project_group.id')))
 
 # ------------------------------------------------------------------------------
 
@@ -56,35 +56,21 @@ class Project(Base):
     no_scan = Column(Boolean)
 
     logs = relationship('RemoteLog', cascade='delete, delete-orphan')
-    acls = relationship(
-        'Acl',
-        backref='project',
-        cascade='delete, delete-orphan')
-    tasks = relationship(
-        'Task',
-        backref='project',
-        cascade='delete, delete-orphan')
-    macros = relationship(
-        'Macro',
-        backref='project',
-        cascade='delete, delete-orphan')
-    groups = relationship(
-        "ProjectGroup",
-        secondary=groups_projects_association,
-        back_populates="projects")
+    acls = relationship('Acl',
+                        backref='project',
+                        cascade='delete, delete-orphan')
+    tasks = relationship('Task',
+                         backref='project',
+                         cascade='delete, delete-orphan')
+    macros = relationship('Macro',
+                          backref='project',
+                          cascade='delete, delete-orphan')
+    groups = relationship("ProjectGroup",
+                          secondary=groups_projects_association,
+                          back_populates="projects")
 
-    def __init__(
-            self,
-            name,
-            user,
-            password,
-            host,
-            path,
-            rev_init,
-            dashboard,
-            dvcs_release,
-            no_scan,
-            local_pkey):
+    def __init__(self, name, user, password, host, path, rev_init, dashboard,
+                 dvcs_release, no_scan, local_pkey):
         """
         """
         self.name = name
@@ -115,16 +101,18 @@ class Project(Base):
     def __json__(self, request):
         """
         """
-        return {'id': self.id,
-                'name': self.name,
-                'host': self.host,
-                'path': self.path,
-                'user': self.user,
-                'local_pkey': self.local_pkey,
-                'password': '*' * len(self.password),
-                'dashboard': self.dashboard,
-                'no_scan': self.no_scan,
-                'dvcs_release': self.dvcs_release}
+        return {
+            'id': self.id,
+            'name': self.name,
+            'host': self.host,
+            'path': self.path,
+            'user': self.user,
+            'local_pkey': self.local_pkey,
+            'password': '*' * len(self.password),
+            'dashboard': self.dashboard,
+            'no_scan': self.no_scan,
+            'dvcs_release': self.dvcs_release
+        }
 
     def get_uri(self):
         """
@@ -218,8 +206,10 @@ class RemoteLog(Base):
             'user': user_label,
             'host': self.host,
             'path': self.path,
-            'command': self.command,
-            'creation_date': self.creation_date.strftime('%d/%m/%Y %H : %M')}
+            'command': self.command.strip(),
+            'creation_date': self.creation_date.strftime('%d/%m/%Y %H : %M')
+        }
+
 
 # ------------------------------------------------------------------------------
 
@@ -246,7 +236,9 @@ class Group(Base):
         return {
             'id': self.id,
             'label': self.label,
-            'creation_date': self.creation_date.strftime('%d/%m/%Y %H : %M')}
+            'creation_date': self.creation_date.strftime('%d/%m/%Y %H : %M')
+        }
+
 
 # ------------------------------------------------------------------------------
 
@@ -293,17 +285,15 @@ class User(Base):
             'name': self.name,
             'email': self.email,
             'pwd': self.pwd,
-            'get_url': request.route_path(
-                route_name='user_get',
-                id=self.id),
-            'delete_url': request.route_path(
-                route_name='user_delete',
-                id=self.id),
-            'update_url': request.route_path(
-                route_name='user_update',
-                id=self.id),
+            'get_url': request.route_path(route_name='user_get', id=self.id),
+            'delete_url': request.route_path(route_name='user_delete',
+                                             id=self.id),
+            'update_url': request.route_path(route_name='user_update',
+                                             id=self.id),
             'group': self.group,
-            'creation_date': creation_date}
+            'creation_date': creation_date
+        }
+
 
 # ------------------------------------------------------------------------------
 
@@ -335,11 +325,13 @@ class Acl(Base):
     def __json__(self, request):
         """
         """
-        return {'id': self.id,
-                'id_project': self.id_project,
-                'id_user': self.id_user,
-                'acl': self.acl
-                }
+        return {
+            'id': self.id,
+            'id_project': self.id_project,
+            'id_user': self.id_user,
+            'acl': self.acl
+        }
+
 
 # ------------------------------------------------------------------------------
 
@@ -363,15 +355,16 @@ class Task(Base):
         """
         """
         return {
-            'id': self.id,
-            'content': self.content,
-            'execute_url': request.route_path(
-                route_name='project_run_task',
-                id=self.id),
-            'delete_url': request.route_path(
-                route_name='project_delete_task',
-                id=self.id),
+            'id':
+            self.id,
+            'content':
+            self.content,
+            'execute_url':
+            request.route_path(route_name='project_run_task', id=self.id),
+            'delete_url':
+            request.route_path(route_name='project_delete_task', id=self.id),
         }
+
 
 # ------------------------------------------------------------------------------
 
@@ -389,10 +382,9 @@ class ProjectGroup(Base):
     id_parent = Column(Integer, ForeignKey('project_group.id'))
     parent = relationship('ProjectGroup', remote_side=[id], backref='children')
     name = Column(String(100))
-    projects = relationship(
-        "Project",
-        secondary=groups_projects_association,
-        back_populates="groups")
+    projects = relationship("Project",
+                            secondary=groups_projects_association,
+                            back_populates="groups")
 
     def __init__(self, name):
         """
@@ -402,9 +394,10 @@ class ProjectGroup(Base):
     def __json__(self, request):
         """
         """
-        return {'id': self.id,
-                'name': self.name,
-                }
+        return {
+            'id': self.id,
+            'name': self.name,
+        }
 
 
 Index('groupe_name_unique', ProjectGroup.name, unique=True)
@@ -420,10 +413,9 @@ class Macro(Base):
     id = Column(Integer, primary_key=True)
     id_project = Column(Integer, ForeignKey(Project.id))
     label = Column(String(100))
-    relations = relationship(
-        'MacroRelations',
-        backref='macro',
-        cascade='delete, delete-orphan')
+    relations = relationship('MacroRelations',
+                             backref='macro',
+                             cascade='delete, delete-orphan')
 
     def __init__(self, id_project, label):
         """
@@ -441,18 +433,19 @@ class Macro(Base):
         for relation in self.relations:
             if relation.aim_project is not None:
                 lst_relations_label.append(
-                    "%s %s" %
-                    (relation.direction, relation.aim_project.name))
+                    "%s %s" % (relation.direction, relation.aim_project.name))
 
         return "that imply : %s" % (" then ".join(lst_relations_label))
 
     def __json__(self, request):
         """
         """
-        return {'id': self.id,
-                'id_macros': self.id_project,
-                'label': self.label,
-                }
+        return {
+            'id': self.id,
+            'id_macros': self.id_project,
+            'label': self.label,
+        }
+
 
 # ------------------------------------------------------------------------------
 
@@ -479,8 +472,9 @@ class MacroRelations(Base):
     def __json__(self, request):
         """
         """
-        return {'id': self.id,
-                'id_macros': self.id_project,
-                'id_third_project': self.id_third_project,
-                'direction': self.direction,
-                }
+        return {
+            'id': self.id,
+            'id_macros': self.id_project,
+            'id_third_project': self.id_third_project,
+            'direction': self.direction,
+        }

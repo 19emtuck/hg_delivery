@@ -9,7 +9,6 @@
 # the terms of the M.I.T License.
 #
 
-
 import paramiko
 import time
 import logging
@@ -33,11 +32,14 @@ log = logging.getLogger(__name__)
 # ------------------------------------------------------------------------------
 
 if sys.version < '3':
+
     def u(x, codec):
         return x.decode(codec)
 else:
+
     def u(x, codec):
         return str(x, codec)
+
 
 # ------------------------------------------------------------------------------
 
@@ -45,9 +47,9 @@ else:
 class UnavailableConnexion(Exception):
     """
     """
-
     def __init__(self, value):
         self.value = value
+
 
 # ------------------------------------------------------------------------------
 
@@ -55,9 +57,9 @@ class UnavailableConnexion(Exception):
 class NodeException(Exception):
     """
     """
-
     def __init__(self, value):
         self.value = value
+
 
 # ------------------------------------------------------------------------------
 
@@ -65,9 +67,9 @@ class NodeException(Exception):
 class HgNewBranchForbidden(Exception):
     """
     """
-
     def __init__(self, value):
         self.value = value
+
 
 # ------------------------------------------------------------------------------
 
@@ -75,9 +77,9 @@ class HgNewBranchForbidden(Exception):
 class HgNewHeadsForbidden(Exception):
     """
     """
-
     def __init__(self, value):
         self.value = value
+
 
 # ------------------------------------------------------------------------------
 
@@ -85,9 +87,9 @@ class HgNewHeadsForbidden(Exception):
 class OutputErrorCode(Exception):
     """
     """
-
     def __init__(self, value):
         self.value = value
+
 
 # ------------------------------------------------------------------------------
 
@@ -95,9 +97,9 @@ class OutputErrorCode(Exception):
 class OutputError(Exception):
     """
     """
-
     def __init__(self, value):
         self.value = value
+
 
 # ------------------------------------------------------------------------------
 
@@ -106,7 +108,6 @@ def check_connections(function):
     """
       A decorator to check SSH connections.
     """
-
     def deco(self, *args, **kwargs):
         if self.ssh is None:
             self.ssh = self.get_ssh()
@@ -115,7 +116,9 @@ def check_connections(function):
             if ret is None or (ret is not None and not ret()):
                 self.ssh = self.get_ssh()
         return function(self, *args, **kwargs)
+
     return deco
+
 
 # ------------------------------------------------------------------------------
 
@@ -123,7 +126,6 @@ def check_connections(function):
 class DiffWrapper(object):
     """
     """
-
     def __init__(self, raw_diff):
         """
         """
@@ -136,8 +138,9 @@ class DiffWrapper(object):
         if self.raw_diff:
             # we init content ...
             self.lst_files = self.__get_lst_files()
-            self.lst_basename_files = [os.path.basename(
-                f_name) for f_name in self.lst_files]
+            self.lst_basename_files = [
+                os.path.basename(f_name) for f_name in self.lst_files
+            ]
             self.dict_files = self.__get_files_to_diff()
 
     def __get_lst_files(self):
@@ -146,34 +149,34 @@ class DiffWrapper(object):
         # add some non capturing group for revision argument ...
         # (just for remind !)
         groups = re.findall(u"diff(?: -r [a-z0-9]+){1,2} (?P<file_name>.+)$",
-                            self.raw_diff,
-                            re.MULTILINE)
+                            self.raw_diff, re.MULTILINE)
         return groups
 
     def __get_files_to_diff(self):
         """
         """
         groups = self.__get_lst_files()
-        diffs_content = [highlight(bloc,
-                                   DiffLexer(),
-                                   HtmlFormatter(cssclass=u'source',
-                                                 style=u'colorful'))
-                         for bloc in re.split(
-                             u"\n*diff -r [a-z0-9]{8,20} [^\n]+\n",
-                             self.raw_diff) if bloc.strip()]
+        diffs_content = [
+            highlight(bloc, DiffLexer(),
+                      HtmlFormatter(cssclass=u'source', style=u'colorful'))
+            for bloc in re.split(u"\n*diff -r [a-z0-9]{8,20} [^\n]+\n",
+                                 self.raw_diff) if bloc.strip()
+        ]
         return dict(zip(groups, diffs_content))
 
     def __json__(self, request):
         """
         """
-        return {u'id': self.raw_diff,
-                u'lst_files': self.lst_files,
-                u'lst_basename_files': self.lst_basename_files,
-                u'dict_files': self.dict_files
-                }
+        return {
+            u'id': self.raw_diff,
+            u'lst_files': self.lst_files,
+            u'lst_basename_files': self.lst_basename_files,
+            u'dict_files': self.dict_files
+        }
 
 
 # ------------------------------------------------------------------------------
+
 
 class NodeSsh(object):
     """
@@ -208,9 +211,7 @@ class NodeSsh(object):
     def add_to_log(self, command):
         """
         """
-        self.__class__.logs.append((self.project_id,
-                                    self.host,
-                                    self.path,
+        self.__class__.logs.append((self.project_id, self.host, self.path,
                                     re.sub(u"^cd[^;]*;", '', command)))
 
     def lock_it(self):
@@ -259,12 +260,14 @@ class NodeSsh(object):
                 ssh.load_host_keys(os.path.expanduser('~/.ssh/known_hosts'))
                 ssh.set_missing_host_key_policy(
                     paramiko.AutoAddPolicy())  # no known_hosts error
-                ssh.connect(self.host, username=self.user,
+                ssh.connect(self.host,
+                            username=self.user,
                             key_filename=private_key_file)
             else:
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                ssh.connect(self.host, username=self.user,
+                ssh.connect(self.host,
+                            username=self.user,
                             password=self.password)
         except socket.gaierror:
             raise NodeException(u"host unavailable")
@@ -297,14 +300,15 @@ class NodeSsh(object):
             log.info(_msg % self.host)
 
     @check_connections
-    def run_command_and_feed_password_prompt(self,
-                                             command,
-                                             password,
-                                             reg_password='password: ',
-                                             reg_shell='[^\n\r]+@[^\n\r]+\$',  # noqa: W605,E501
-                                             log_it=True,
-                                             auth_with_pkey=False):
-        '''
+    def run_command_and_feed_password_prompt(
+        self,
+        command,
+        password,
+        reg_password='password: ',
+        reg_shell='[^\n\r]+@[^\n\r]+\$',  # noqa: W605,E501
+        log_it=True,
+        auth_with_pkey=False):
+        """
           Execute command through SSH and also feed prompt !
 
           we may return the full dialog text content.
@@ -312,7 +316,11 @@ class NodeSsh(object):
 
           --new-branch not allowed on push and so on ...
 
-        '''
+
+           add a leading blank char to avoid history, if HISTCONTROL is set
+           https://stackoverflow.com/questions/6475524/how-do-i-prevent-commands-from-showing-up-in-bash-history
+
+        """
         guid = uuid.uuid1().hex
 
         global_buff_content = ''
@@ -439,15 +447,25 @@ class NodeSsh(object):
             self.release_lock()
             raise e
 
-        return {u'out': full_log,
-                u'err': [],
-                u'retval': [],
-                u'exit_status': exit_status,
-                u'buff': global_buff_content}
+        return {
+            u'out': full_log,
+            u'err': [],
+            u'retval': [],
+            u'exit_status': exit_status,
+            u'buff': global_buff_content
+        }
 
     @check_connections
     def run_command(self, command, log=False):
-        ''' Executes command through SSH tunnel. '''
+        """
+           Executes command through SSH tunnel.
+
+           add a leading blank char to avoid history, if HISTCONTROL is set
+           https://stackoverflow.com/questions/6475524/how-do-i-prevent-commands-from-showing-up-in-bash-history
+        """
+
+        # HISTCONTROL usage
+        command = u" %s" % (command, )
         result = None
         try:
             stdin, stdout, stderr = self.ssh.exec_command(
@@ -466,7 +484,7 @@ class NodeSsh(object):
                 # we consider it's successfull
                 if log:
                     self.add_to_log(command)
-                if(type(ret) == bytes):
+                if (type(ret) == bytes):
                     ret = self.decode_raw_bytes(ret)
                 result = ret
         except socket.gaierror:
@@ -514,6 +532,7 @@ class NodeSsh(object):
                 break
 
         return result
+
 
 # ------------------------------------------------------------------------------
 
@@ -580,8 +599,8 @@ class HgNode(NodeSsh):
         if not local_project.dvcs_release:
             local_project.dvcs_release = self.get_release()
 
-        if (local_project.dvcs_release is not None and self.
-                compare_release_a_sup_equal_b(
+        if (local_project.dvcs_release is not None
+                and self.compare_release_a_sup_equal_b(
                     local_project.dvcs_release, '1.7.4')):
             insecure = u" --insecure "
         else:
@@ -594,12 +613,9 @@ class HgNode(NodeSsh):
             auth_with_pkey = True
 
         data = self.run_command_and_feed_password_prompt(
-            u'cd %s ; hg in -l 1 %sssh://%s@%s/%s' % (
-                self.path,
-                insecure,
-                target_project.user,
-                target_project.host,
-                target_project.path),
+            u'cd %s ; hg in -l 1 %sssh://%s@%s/%s' %
+            (self.path, insecure, target_project.user, target_project.host,
+             target_project.path),
             target_project.password,
             log_it=False,
             auth_with_pkey=auth_with_pkey)
@@ -614,9 +630,9 @@ class HgNode(NodeSsh):
         if not local_project.dvcs_release:
             local_project.dvcs_release = self.get_release()
 
-        if (local_project.dvcs_release is not None and self
-                .compare_release_a_sup_equal_b(local_project.dvcs_release,
-                                               '1.7.4')):
+        if (local_project.dvcs_release is not None
+                and self.compare_release_a_sup_equal_b(
+                    local_project.dvcs_release, '1.7.4')):
             insecure = u" --insecure "
         elif not target_project.local_pkey:
             # what ever mercurial release, even if its not mandatory
@@ -627,12 +643,9 @@ class HgNode(NodeSsh):
         if target_project.local_pkey:
             auth_with_pkey = True
         data = self.run_command_and_feed_password_prompt(
-            u'cd %s ; hg out -l 1 %sssh://%s@%s/%s' % (
-                self.path,
-                insecure,
-                target_project.user,
-                target_project.host,
-                target_project.path),
+            u'cd %s ; hg out -l 1 %sssh://%s@%s/%s' %
+            (self.path, insecure, target_project.user, target_project.host,
+             target_project.path),
             target_project.password,
             log_it=False,
             auth_with_pkey=auth_with_pkey)
@@ -653,9 +666,9 @@ class HgNode(NodeSsh):
         if not local_project.dvcs_release:
             local_project.dvcs_release = self.get_release()
 
-        if (local_project.dvcs_release is not None and self
-                .compare_release_a_sup_equal_b(local_project.dvcs_release,
-                                               '1.7.4')):
+        if (local_project.dvcs_release is not None
+                and self.compare_release_a_sup_equal_b(
+                    local_project.dvcs_release, '1.7.4')):
             insecure = u" --insecure "
         elif not target_project.local_pkey:
             # what ever mercurial release, even if its not mandatory
@@ -667,22 +680,18 @@ class HgNode(NodeSsh):
             auth_with_pkey = True
 
         data = self.run_command_and_feed_password_prompt(
-            u'cd %s ; hg push%sssh://%s@%s/%s%s' % (
-                self.path,
-                insecure,
-                target_project.user,
-                target_project.host,
-                target_project.path,
-                new_branch_arg),
+            u'cd %s ; hg push%sssh://%s@%s/%s%s' %
+            (self.path, insecure, target_project.user, target_project.host,
+             target_project.path, new_branch_arg),
             target_project.password,
             auth_with_pkey=auth_with_pkey)
 
-        if not force_branch and (data['buff']
-           .count('--new-branch') or data['buff']
-           .count('creates new remote branches')):
+        if not force_branch and (
+                data['buff'].count('--new-branch')
+                or data['buff'].count('creates new remote branches')):
             raise HgNewBranchForbidden(data)
-        elif not force_branch and (data['buff']
-                                   .count('details about pushing new heads')):
+        elif not force_branch and (
+                data['buff'].count('details about pushing new heads')):
             raise HgNewHeadsForbidden(data)
         elif data['buff'].count('remote: abort:'):
             # might be related to unknown node
@@ -700,9 +709,9 @@ class HgNode(NodeSsh):
         if not local_project.dvcs_release:
             local_project.dvcs_release = self.get_release()
 
-        if (local_project.dvcs_release is not None and self
-            .compare_release_a_sup_equal_b(local_project.dvcs_release,
-                                           '1.7.4')):
+        if (local_project.dvcs_release is not None
+                and self.compare_release_a_sup_equal_b(
+                    local_project.dvcs_release, '1.7.4')):
             insecure = " --insecure "
         elif not source_project.local_pkey:
             # what ever mercurial release, even if its not mandatory
@@ -714,12 +723,9 @@ class HgNode(NodeSsh):
             auth_with_pkey = True
 
         data = self.run_command_and_feed_password_prompt(
-            u'cd %s ; hg pull%sssh://%s@%s/%s' % (
-                self.path,
-                insecure,
-                source_project.user,
-                source_project.host,
-                source_project.path),
+            u'cd %s ; hg pull%sssh://%s@%s/%s' %
+            (self.path, insecure, source_project.user, source_project.host,
+             source_project.path),
             source_project.password,
             auth_with_pkey=auth_with_pkey)
         return data
@@ -732,36 +738,41 @@ class HgNode(NodeSsh):
           :param start_from_this_hash_revision: hash string, the revision hash
                                                 from which we retrieve log
         """
-        data = self.run_command(u'cd %s ; hg log --template "%s" -r%s:' %
-                                (self.path, self._template,
-                                    start_from_this_hash_revision))
+        data = self.run_command(
+            u'cd %s ; hg log --template "%s" -r%s:' %
+            (self.path, self._template, start_from_this_hash_revision))
         list_nodes = []
         map_nodes = {}
 
         if data:
             data = (line for line in data.splitlines())
             for line in reversed(tuple(data)):
-                (node, p1node, p2node, author, branch, rev, parents, date, desc,
-                    tags) = line.split(u'|#|')
+                (node, p1node, p2node, author, branch, rev, parents, date,
+                 desc, tags) = line.split(u'|#|')
                 desc = desc.replace(u'\\n', '\n').strip('"')
                 if not branch:
                     branch = 'default'
                 if len(p2node.strip('0')) == 0:
                     p2node = None
-                list_nodes.append({'node': node,
-                                   'p1node': p1node,
-                                   'p2node': p2node,
-                                   'branch': branch,
-                                   'author': author,
-                                   'rev': rev,
-                                   'parents': parents,
-                                   'desc': desc,
-                                   'tags': tags,
-                                   'date': date})
+                list_nodes.append({
+                    'node': node,
+                    'p1node': p1node,
+                    'p2node': p2node,
+                    'branch': branch,
+                    'author': author,
+                    'rev': rev,
+                    'parents': parents,
+                    'desc': desc,
+                    'tags': tags,
+                    'date': date
+                })
                 map_nodes[node] = list_nodes[-1]
         return list_nodes, map_nodes
 
-    def get_last_logs(self, nb_lines, branch_filter=None, revision_filter=None):
+    def get_last_logs(self,
+                      nb_lines,
+                      branch_filter=None,
+                      revision_filter=None):
         """
           return last logs ...
 
@@ -777,8 +788,8 @@ class HgNode(NodeSsh):
         elif revision_filter and isinstance(revision_filter,
                                             collections.Iterable):
             _co = u'cd %s ; hg log --template "%s" %s' % (
-                  self.path, self._template, " ".join(
-                      ("-r %s" % _e for _e in revision_filter)))
+                self.path, self._template, " ".join(
+                    ("-r %s" % _e for _e in revision_filter)))
             data = self.run_command(_co)
         elif branch_filter:
             _co = u'cd %s ; hg log -l %d --template "%s" -b %s' % (
@@ -786,7 +797,7 @@ class HgNode(NodeSsh):
             data = self.run_command(_co)
         else:
             _co = u'cd %s ; hg log -l %d --template "%s"' % (
-                  self.path, nb_lines, self._template)
+                self.path, nb_lines, self._template)
             data = self.run_command(_co)
 
         list_nodes = []
@@ -796,23 +807,25 @@ class HgNode(NodeSsh):
             data = (line for line in data.splitlines())
 
             for line in data:
-                (node, p1node, p2node, author, branch, rev, parents, date, desc,
-                 tags) = line.split(u'|#|')
+                (node, p1node, p2node, author, branch, rev, parents, date,
+                 desc, tags) = line.split(u'|#|')
                 desc = desc.replace(u'\\n', '\n').strip('"')
                 if not branch:
                     branch = 'default'
                 if len(p2node.strip('0')) == 0:
                     p2node = None
-                list_nodes.append({'node': node,
-                                   'p1node': p1node,
-                                   'p2node': p2node,
-                                   'branch': branch,
-                                   'author': author,
-                                   'rev': rev,
-                                   'parents': parents,
-                                   'desc': desc,
-                                   'tags': tags,
-                                   'date': date})
+                list_nodes.append({
+                    'node': node,
+                    'p1node': p1node,
+                    'p2node': p2node,
+                    'branch': branch,
+                    'author': author,
+                    'rev': rev,
+                    'parents': parents,
+                    'desc': desc,
+                    'tags': tags,
+                    'date': date
+                })
                 map_nodes[node] = list_nodes[-1]
 
         return list_nodes, map_nodes
@@ -823,8 +836,8 @@ class HgNode(NodeSsh):
         :param revision: the revision hash (string)
         """
         try:
-            result = self.run_command(
-                u"cd %s ; hg cat %s -r %s" % (self.path, file_name, revision))
+            result = self.run_command(u"cd %s ; hg cat %s -r %s" %
+                                      (self.path, file_name, revision))
         except NodeException as e:
             result = None
             log.debug(e)
@@ -836,8 +849,8 @@ class HgNode(NodeSsh):
           :return: string hash
         """
         try:
-            data = self.run_command(
-                u"cd %s ; hg --debug id -i -r 0" % self.path)
+            data = self.run_command(u"cd %s ; hg --debug id -i -r 0" %
+                                    self.path)
         except NodeException as e:
             result = None
             log.debug(e)
@@ -863,9 +876,8 @@ class HgNode(NodeSsh):
         else:
             tags_and_key_revisions = []
             if data:
-                _gt = (re.sub(' {2,}', ' ', e)
-                         .split(u' ') for e in data.strip()
-                         .split(u'\n') if e.split(u' ')[0])
+                _gt = (re.sub(' {2,}', ' ', e).split(u' ')
+                       for e in data.strip().split(u'\n') if e.split(u' ')[0])
                 tags_and_key_revisions = sorted(_gt)
 
         return tags_and_key_revisions
@@ -899,23 +911,25 @@ class HgNode(NodeSsh):
             node = {}
             log.debug(e)
         else:
-            (node, p1node, p2node, author, branch, rev, parents, date,
-             desc, tags) = data.split(u'|#|')
+            (node, p1node, p2node, author, branch, rev, parents, date, desc,
+             tags) = data.split(u'|#|')
             desc = desc.replace(u'\\n', '\n').strip('"')
             if not branch:
                 branch = 'default'
             if len(p2node.strip('0')) == 0:
                 p2node = None
-            node = {'node': node,
-                    'p1node': p1node,
-                    'p2node': p2node,
-                    'branch': branch,
-                    'author': author,
-                    'rev': rev,
-                    'parents': parents,
-                    'desc': desc,
-                    'tags': tags,
-                    'date': date}
+            node = {
+                'node': node,
+                'p1node': p1node,
+                'p2node': p2node,
+                'branch': branch,
+                'author': author,
+                'rev': rev,
+                'parents': parents,
+                'desc': desc,
+                'tags': tags,
+                'date': date
+            }
         return node
 
     def get_revision_diff(self, revision):
@@ -924,8 +938,8 @@ class HgNode(NodeSsh):
         """
         diff_content = ""
         try:
-            diff_content = self.run_command(
-                u'''cd %s ; hg diff -c %s''' % (self.path, revision))
+            diff_content = self.run_command(u'''cd %s ; hg diff -c %s''' %
+                                            (self.path, revision))
         except NodeException as e:
             diff_content = ""
             log.debug(e)
@@ -954,6 +968,7 @@ class HgNode(NodeSsh):
             result = False
             log.debug(e)
         return result
+
 
 # ------------------------------------------------------------------------------
 
@@ -997,8 +1012,8 @@ class GitNode(NodeSsh):
           index 0000000..e69de29
         """
         try:
-            data = self.run_command(
-                u"cd %s ; git rev-parse HEAD --no-color" % self.path)
+            data = self.run_command(u"cd %s ; git rev-parse HEAD --no-color" %
+                                    self.path)
         except NodeException as e:
             result = None
             log.debug(e)
@@ -1015,11 +1030,9 @@ class GitNode(NodeSsh):
         if target_project.local_pkey:
             auth_with_pkey = True
         _co = u'cd %s ; git push%sssh://%s@%s/%s'
-        data = self.run_command_and_feed_password_prompt(_co % (
-            self.path,
-            target_project.user,
-            target_project.host,
-            target_project.path),
+        data = self.run_command_and_feed_password_prompt(
+            _co % (self.path, target_project.user, target_project.host,
+                   target_project.path),
             target_project.password,
             auth_with_pkey=auth_with_pkey)
         return data
@@ -1031,16 +1044,17 @@ class GitNode(NodeSsh):
         if source_project.local_pkey:
             auth_with_pkey = True
         _co = u'cd %s ; git pull%sssh://%s@%s/%s'
-        data = self.run_command_and_feed_password_prompt(_co % (
-            self.path,
-            source_project.user,
-            source_project.host,
-            source_project.path),
+        data = self.run_command_and_feed_password_prompt(
+            _co % (self.path, source_project.user, source_project.host,
+                   source_project.path),
             source_project.password,
             auth_with_pkey=auth_with_pkey)
         return data
 
-    def get_last_logs(self, nb_lines, branch_filter=None, revision_filter=None):
+    def get_last_logs(self,
+                      nb_lines,
+                      branch_filter=None,
+                      revision_filter=None):
         """
           return last logs ...
           :param nb_lines: integer, limit the number of lines
@@ -1048,20 +1062,17 @@ class GitNode(NodeSsh):
         try:
             if revision_filter:
                 _co = u'cd %s ; git --no-pager log --pretty=format:%s -r %s'
-                data = self.run_command(_co % (self.path,
-                                               self._template,
-                                               revision_filter))
+                data = self.run_command(
+                    _co % (self.path, self._template, revision_filter))
             elif branch_filter:
                 _co = u'cd %s'
                 _co += u' ; git --no-pager log -n %d --pretty=format:%s HEAD %s'
-                data = self.run_command(_co % (self.path,
-                                               nb_lines,
-                                               self._template,
-                                               branch_filter))
+                data = self.run_command(
+                    _co % (self.path, nb_lines, self._template, branch_filter))
             else:
                 _co = u'cd %s ; git --no-pager log -n %d --pretty=format:%s'
-                data = self.run_command(_co % (self.path, nb_lines,
-                                               self._template))
+                data = self.run_command(_co %
+                                        (self.path, nb_lines, self._template))
         except NodeException as e:
             data = ""
             log.debug(e)
@@ -1072,19 +1083,21 @@ class GitNode(NodeSsh):
         if data:
             data = (line for line in data.splitlines())
             for line in data:
-                (node, author, branch, rev, parents, date,
-                 desc, tags) = line.split(u'|#|')
+                (node, author, branch, rev, parents, date, desc,
+                 tags) = line.split(u'|#|')
                 desc = desc.replace(u'\\n', '\n').strip('"')
                 if not branch:
                     branch = 'default'
-                list_nodes.append({'node': node,
-                                   'branch': branch,
-                                   'author': author,
-                                   'rev': rev,
-                                   'parents': parents,
-                                   'desc': desc,
-                                   'tags': tags,
-                                   'date': date})
+                list_nodes.append({
+                    'node': node,
+                    'branch': branch,
+                    'author': author,
+                    'rev': rev,
+                    'parents': parents,
+                    'desc': desc,
+                    'tags': tags,
+                    'date': date
+                })
                 map_nodes[node] = list_nodes[-1]
 
         return list_nodes, map_nodes
@@ -1093,8 +1106,8 @@ class GitNode(NodeSsh):
         """
         """
         try:
-            result = self.run_command(
-                u"cd %s ; git cat %s -r %s" % (self.path, file_name, revision))
+            result = self.run_command(u"cd %s ; git cat %s -r %s" %
+                                      (self.path, file_name, revision))
         except NodeException as e:
             result = None
             log.debug(e)
@@ -1132,8 +1145,7 @@ class GitNode(NodeSsh):
         else:
             branches = []
             if data:
-                branches = sorted((e.strip()
-                                   for e in data.strip().split(u'\n')
+                branches = sorted((e.strip() for e in data.strip().split(u'\n')
                                    if e.strip()))
         return branches
 
@@ -1155,14 +1167,16 @@ class GitNode(NodeSsh):
             desc = desc.replace(u'\\n', '\n').strip('"')
             if not branch:
                 branch = 'default'
-            node = {'node': node,
-                    'branch': branch,
-                    'author': author,
-                    'rev': rev,
-                    'parents': parents,
-                    'desc': desc,
-                    'tags': tags,
-                    'date': date}
+            node = {
+                'node': node,
+                'branch': branch,
+                'author': author,
+                'rev': rev,
+                'parents': parents,
+                'desc': desc,
+                'tags': tags,
+                'date': date
+            }
         return node
 
     def get_revision_diff(self, revision):
@@ -1171,8 +1185,8 @@ class GitNode(NodeSsh):
         """
         diff_content = ""
         try:
-            diff_content = self.run_command(
-                u'''cd %s ; git diff -c %s''' % (self.path, revision))
+            diff_content = self.run_command(u'''cd %s ; git diff -c %s''' %
+                                            (self.path, revision))
         except NodeException as e:
             diff_content = ""
             log.debug(e)
@@ -1201,6 +1215,7 @@ class GitNode(NodeSsh):
             log.debug(e)
         return result
 
+
 # ------------------------------------------------------------------------------
 
 
@@ -1219,7 +1234,6 @@ class NodeController(object):
        silent key-param could be provided to control that 'with' statement
        will re-raise exception
     """
-
     def __init__(self, project, silent=False):
         """
         :param Project project: an alchemy model
@@ -1245,7 +1259,7 @@ class NodeController(object):
         if exc_value:
             log.debug(exc_value)
 
-            if(self.silent):
+            if (self.silent):
                 result = True
             else:
                 result = False
@@ -1256,6 +1270,7 @@ class NodeController(object):
             self.ssh_node.release_lock()
 
         return result
+
 
 # ------------------------------------------------------------------------------
 
@@ -1343,8 +1358,8 @@ class PoolSsh(object):
                         node = __node
                         break
 
-                if node is None and len(cls
-                   .nodes[key_uri_node]) < cls.max_nodes_in_pool:
+                if node is None and len(
+                        cls.nodes[key_uri_node]) < cls.max_nodes_in_pool:
                     _msg = u"creating additional node in pool (%s)"
                     log.warning(_msg % (len(cls.nodes[key_uri_node])))
                     node = HgNode(uri, project_id)
