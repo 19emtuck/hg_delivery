@@ -72,11 +72,17 @@
                  <button id="manage_project" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="min-width:80px">
                    Manage project <span class="caret"></span>
                  </button>
+               % if request.acl_container.contains('edit') :
                  <ul class="dropdown-menu" role="menu">
                    <li><a href="#" onclick="$('#edit_project_dialog').modal('show');">Edit properties</a></li>
                    <li class="divider"></li>
                    <li><a id="view_delete_project" href="#" onclick="delete_this_project()" data-url="${url(route_name='project_delete',id=project.id)}">Delete</a></li>
                  </ul>
+               % else :
+                 <ul class="dropdown-menu" role="menu">
+                   <li>&nbsp;&nbsp;&nbsp;-----------------</li>
+                 </ul>
+               % endif
                  <button type="button" class="btn btn-default" id="button_log" style="margin-left:10px" id="logs" onclick="display_logs(this);" data-url="${url(route_name='project_logs',id=project.id)}">
                    Logs
                  </button>
