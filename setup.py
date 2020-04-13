@@ -77,7 +77,7 @@ else :
   sys.exit('Sorry, Python < 3.6 is not supported')
 
 setup(name='hg_delivery',
-      version='1.1.4',
+      version='1.1.5',
       description=description,
       long_description=README + '\n\n' + CHANGES,
       classifiers=classifiers,
