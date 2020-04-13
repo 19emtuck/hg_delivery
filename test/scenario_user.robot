@@ -109,7 +109,7 @@ Check Some User Credentials
 
     Open Rights Management Tab
     Open User View
-    # restrict ACLs display to the user we aime
+    # restrict ACLs display to the user we aim
     Modify All ACL's User To Specific Value    tata@free.fr    edit
     ${acls}=   Get ACL User Has On A Project  tata    d1
     Should Be Equal As Strings   ${acls}   edit
