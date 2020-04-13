@@ -86,8 +86,8 @@ class RootFactory(object):
 
     __acl__ = [(Allow, Everyone, 'view'),
                (Allow, 'group:editors', 'edit'),
-               (Allow, 'group:editors', 'authenticated'),
-               (Allow, Authenticated, 'authenticated')]
+               (Allow, 'group:editors', 'system.Authenticated'),
+               (Allow, Authenticated, 'system.Authenticated')]
 
     def __init__(self, request):
         """

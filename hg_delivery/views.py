@@ -19,6 +19,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 from collections import OrderedDict
 
+from pyramid.security import (
+    Everyone,
+    Authenticated,
+)
+
 from threading import Thread, Event
 
 from .models import (
@@ -340,7 +345,7 @@ def contact(request):
 @view_config(
     route_name='description',
     renderer='json',
-    permission='authenticated')
+    permission=Authenticated)
 def node_description(request):
     """
     return node description
@@ -405,7 +410,7 @@ def default_view(request):
         if _default_login == request.authenticated_userid:
             projects_list = request.dbsession.query(
                 Project).order_by(Project.name.desc()).all()
-        else:
+        elif hasattr(request, 'user') and request.user is not None :
             projects_list = request.dbsession.query(Project)\
                 .join(Acl)\
                 .join(User)\
@@ -1955,7 +1960,7 @@ def rename_project(request):
 @view_config(
     route_name='project_group_view',
     renderer='view_group.mako',
-    permission='authenticated')
+    permission=Authenticated)
 def view_project_group(request):
     """
     display a specific page for group content, description
