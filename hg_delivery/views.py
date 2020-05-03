@@ -20,7 +20,6 @@ from sqlalchemy.orm import joinedload
 from collections import OrderedDict
 
 from pyramid.security import (
-    Everyone,
     Authenticated,
 )
 
@@ -410,7 +409,7 @@ def default_view(request):
         if _default_login == request.authenticated_userid:
             projects_list = request.dbsession.query(
                 Project).order_by(Project.name.desc()).all()
-        elif hasattr(request, 'user') and request.user is not None :
+        elif hasattr(request, 'user') and request.user is not None:
             projects_list = request.dbsession.query(Project)\
                 .join(Acl)\
                 .join(User)\
