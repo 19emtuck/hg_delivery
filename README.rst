@@ -83,7 +83,7 @@ hg_delivery has been designed to simplify developper daily work.
 Licensing
 ---------
 
-Copyright (C) 2019  Stéphane Bard <stephane.bard@gmail.com>
+Copyright (C) 2021  Stéphane Bard <stephane.bard@gmail.com>
 
 hg_delivery is free software; you can redistribute it and/or modify it under the terms of the M.I.T License. The
 original author name should always be reminded as the original author.

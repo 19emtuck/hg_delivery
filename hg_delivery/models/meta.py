@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2019  Stéphane Bard <stephane.bard@gmail.com>
+# Copyright (C) 2021  Stéphane Bard <stephane.bard@gmail.com>
 #
 # This file is part of hg_delivery
 #
