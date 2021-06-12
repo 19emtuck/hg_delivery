@@ -757,6 +757,7 @@ function update_user(target_url){
         $('.alert-success').delay(3000).fadeOut(500,function(){$(this).remove();});
       }
       update_user_list();
+      document.location.reload(true);
     } else if(json_response.explanation){
       _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
       _alert_html += '<strong>'+json_response.explanation+'</strong></div>';
@@ -815,6 +816,8 @@ function delete_user(button,target_delete_url){
 }
 
 function update_user_list(){
+  $('div.missing').remove();
+  $('#overview').show();
   var target_url = $('#users_overview').data('update_url');
   $.ajax({ url:target_url,
     method:'GET',
@@ -829,6 +832,7 @@ function update_user_list(){
           var button_update = "<td><button class = \"btn btn-default\" onclick = \"edit_user('" + user.update_url + "','"+ user.get_url +"',"+user.id+")\">edit user properties</button></td>";
           var button_delete = "<td><button class = \"btn btn-default\" onclick = \"delete_user(this,'" + user.delete_url + "')\">delete</button></td>";
           $('#users_overview').append('<tr>'+name+email+creation_date+button_acl+button_update+button_delete+'</tr>');
+          document.location.reload(true);
         });
       } else {
         $('#users_overview').append('<tr><td colspan="5" style="text-align:center;padding-top:20px">No Users defined</td></tr>');

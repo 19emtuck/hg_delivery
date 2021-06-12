@@ -3,7 +3,7 @@ hg_delivery README
 
 A one-click deployment tool written in python with `pyramid <http://www.pylonsproject.org>`_ web framework
 
-**current release : v_1_0**
+**current release : v_1_1_0**
 
 Global overview
 ---------------
@@ -17,7 +17,25 @@ inspired from :
   - `like banana project <https://github.com/sniku/Likebanana>`_
 
 
+
+Manage Kombu
+------------
+
+In order to close unused SSH connexion by checking them each configured interval, you need to install
+the right broker and setup the right kombu url.
+hg_delivery will check each 15 minutes if there's unused connexion that needs to be closed.
+
+
+.. note::
+
+  # ensure that processed tasks will be done by the same process
+  scheduler.combined   = true
+  scheduler.broker.url = redis://127.0.0.1:6379/
+
+
 features list :
+---------------
+
 
   - remote repository access *ssh only*
 
@@ -65,7 +83,7 @@ hg_delivery has been designed to simplify developper daily work.
 Licensing
 ---------
 
-Copyright (C) 2014  Stéphane Bard <stephane.bard@gmail.com>
+Copyright (C) 2019  Stéphane Bard <stephane.bard@gmail.com>
 
 hg_delivery is free software; you can redistribute it and/or modify it under the terms of the M.I.T License. The
 original author name should always be reminded as the original author.
@@ -178,4 +196,8 @@ Changelog
   - v_1_0 :
 
     - attach projects to a group. redefine navigation with groups. 
+
+  - v_1_1 :
+
+    - python 3.8 check and last pyramid scafold adoption
 
