@@ -200,4 +200,5 @@ Changelog
   - v_1_1 :
 
     - python 3.8 check and last pyramid scafold adoption
+    - add sending password via email while creating account (pyramid mailer needs to be configured in .ini file)
 
