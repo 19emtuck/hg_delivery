@@ -2,3 +2,4 @@
 .hgtags
 .vscode/
 .hgignore
+__pycache__
