@@ -18,6 +18,9 @@ class TestProject(BasicDataIgnition):
             settings={'sqlalchemy.url': 'sqlite:///:memory:'})
         self.config.include('..models')
         settings = self.config.get_settings()
+        settings['sqlalchemy.echo'] = False
+
+        import logging
 
         from ..models import (
             get_engine,
@@ -33,6 +36,8 @@ class TestProject(BasicDataIgnition):
         session_factory = get_session_factory(self.engine)
         Base.metadata.create_all(bind=self.engine)
         self.session = get_tm_session(session_factory, transaction.manager)
+
+        logging.disable(logging.CRITICAL)
 
         # add a user
         self.users_list = self._add_some_user()

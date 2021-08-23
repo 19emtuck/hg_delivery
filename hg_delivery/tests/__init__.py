@@ -8,24 +8,12 @@
 # hg_delivery is free software; you can redistribute it and/or modify it under
 # the terms of the M.I.T License.
 #
-from re import I
 
-from pyramid.httpexceptions import HTTPError, HTTPFound, HTTPServerError
-from hg_delivery.models.hgd_model import Project
-from hg_delivery.views import contact, shall_we_pull
-from inspect import Parameter
 import unittest
-from sqlalchemy import exc
-import transaction
-from mock import MagicMock, Mock
-from mock_alchemy.mocking import AlchemyMagicMock
-from pyramid import testing
-from sqlalchemy.exc import IntegrityError, OperationalError
-import zope.component
-from unittest.mock import patch
 from datetime import datetime
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
 
 class BasicDataIgnition(unittest.TestCase):
 
@@ -57,7 +45,7 @@ class BasicDataIgnition(unittest.TestCase):
         project_a, project_b = self.projects_list[0:2]
         for i in range(count):
             self.session.add(RemoteLog(project_a.id, user.id,
-                                    '127.0.0.1', '/tmp/test', 'ls -al'))
+                                       '127.0.0.1', '/tmp/test', 'ls -al'))
             self.session.add(RemoteLog(project_b.id, user.id,
-                                    '127.0.0.1', '/tmp/test', 'ls -al'))
+                                       '127.0.0.1', '/tmp/test', 'ls -al'))
         self.session.flush()

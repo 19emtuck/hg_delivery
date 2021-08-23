@@ -4,3 +4,11 @@ build\/
 dist\/
 hg_delivery.egg-info
 test\/images
+.vscode
+venv_38
+.git
+htmlcov
+test/log.html
+test/output.xml
+test/report.html
+.coverage

@@ -1,13 +1,13 @@
 from . import BasicDataIgnition
-import unittest
-from sqlalchemy import exc
 import transaction
-from mock import MagicMock, Mock
+from mock import Mock
 from mock_alchemy.mocking import AlchemyMagicMock
 from pyramid import testing
-from sqlalchemy.exc import IntegrityError, OperationalError
+from sqlalchemy.exc import OperationalError
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+
 
 class TestViewLogs(BasicDataIgnition):
 
@@ -77,7 +77,7 @@ class TestViewLogs(BasicDataIgnition):
         """
         from ..views import logs
         request = testing.DummyRequest()
-        request.dbsession = AlchemyMagicMock() 
+        request.dbsession = AlchemyMagicMock()
         request.dbsession.execute.return_value.fetchall.return_value = []
         info = logs(request)
         self.assertEqual(len(info['logs']), 0)
@@ -147,7 +147,6 @@ class TestViewLogs(BasicDataIgnition):
         self.assertEqual(len(info['logs']), 0)
         self.assertEqual(info['error'], 'database timeout')
 
-
         request = testing.DummyRequest()
         request.matchdict['id'] = 1
         request.dbsession = AlchemyMagicMock()
@@ -158,7 +157,6 @@ class TestViewLogs(BasicDataIgnition):
         info = project_logs(request)
         self.assertEqual(len(info['logs']), 0)
         self.assertEqual(info['error'], "standard error")
-
 
     def test_limits(self):
         """

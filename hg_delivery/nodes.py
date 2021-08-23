@@ -456,7 +456,7 @@ class NodeSsh(object):
             # by `with statement`
             self.release_lock()
             raise e
-        except :
+        except:
             # catch exception without inheritance from Exception
             self.release_lock()
             raise Exception("Unknown exception")
@@ -553,9 +553,9 @@ class HgNode(NodeSsh):
         if not local_project.dvcs_release:
             local_project.dvcs_release = self.get_release()
 
-        if (local_project.dvcs_release is not None
-                and self.compare_release_a_sup_equal_b(
-                    local_project.dvcs_release, '1.7.4')):
+        if (local_project.dvcs_release is not None and
+            self.compare_release_a_sup_equal_b(local_project.dvcs_release,
+                                               '1.7.4')):
             insecure = u" --insecure "
         else:
             # what ever mercurial release, even if its not mandatory

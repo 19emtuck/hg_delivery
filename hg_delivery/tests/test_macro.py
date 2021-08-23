@@ -4,8 +4,8 @@ from mock import MagicMock, Mock
 from mock_alchemy.mocking import AlchemyMagicMock
 from pyramid import testing
 from unittest.mock import patch
-from datetime import datetime
 from sqlalchemy.exc import IntegrityError, OperationalError
+
 
 class TestMacro(BasicDataIgnition):
 
@@ -15,6 +15,7 @@ class TestMacro(BasicDataIgnition):
             settings={'sqlalchemy.url': 'sqlite:///:memory:'})
         self.config.include('..models')
         settings = self.config.get_settings()
+        import logging
 
         from ..models import (
             get_engine,
@@ -30,6 +31,8 @@ class TestMacro(BasicDataIgnition):
         session_factory = get_session_factory(self.engine)
         Base.metadata.create_all(bind=self.engine)
         self.session = get_tm_session(session_factory, transaction.manager)
+
+        logging.disable(logging.CRITICAL)
 
         # add a user
         self.users_list = self._add_some_user()
@@ -78,11 +81,10 @@ class TestMacro(BasicDataIgnition):
 
         nb_macro = self.session.query(Macro).count()
         self.assertEqual(nb_macro, 2)
-        macro = self.session.query(Macro).filter(Macro.id!=macro.id).first()
+        macro = self.session.query(Macro).filter(Macro.id != macro.id).first()
         self.assertEqual(macro.label, 'My MACRO LABEL 2')
         self.assertEqual(len(macro.relations), 1)
         self.assertEqual(macro.relations[0].id, p_2.id)
-
 
         nb_relations = self.session.query(MacroRelations).count()
         self.assertEqual(nb_relations, 2)
@@ -157,7 +159,6 @@ class TestMacro(BasicDataIgnition):
         nb_macro = self.session.query(Macro).count()
         self.assertEqual(nb_macro, 0)
 
-        
     def test_delete_macro(self):
         """
         """
@@ -191,7 +192,6 @@ class TestMacro(BasicDataIgnition):
         nb_macro = self.session.query(Macro).count()
         self.assertEqual(nb_macro, 0)
 
-
     def test_delete_unknown_macro(self):
         """
         """
@@ -206,7 +206,6 @@ class TestMacro(BasicDataIgnition):
         self.assertFalse(result['result'])
         self.assertIsInstance(result['result'], bool)
         self.assertEqual(result['error'], 'Unable to delete macro')
-        
         nb_relations = self.session.query(MacroRelations).count()
         self.assertEqual(nb_relations, 0)
         nb_macro = self.session.query(Macro).count()
@@ -233,7 +232,8 @@ class TestMacro(BasicDataIgnition):
         request.matchdict['macro_id'] = 1
 
         request.registry = MagicMock()
-        request.registry.return_value.settings.return_value = {'hg_delivery.default_login':'editor'}
+        d_conf = {'hg_delivery.default_login': 'editor'}
+        request.registry.return_value.settings.return_value = d_conf
         request.user = user
         result = run_a_macro(request)
         self.assertFalse(result['new_branch_stop'])
@@ -246,7 +246,8 @@ class TestMacro(BasicDataIgnition):
 
         self.assertIsInstance(result['buffers'], dict)
         self.assertEqual(len(result['buffers']), 1)
-        self.assertEqual(result['buffers']['project2'], "user don't have access to project2")
+        self.assertEqual(result['buffers']['project2'],
+                         "user don't have access to project2")
 
     def test_run_a_macro_not_authorized(self):
         from ..nodes import PoolSsh
@@ -274,14 +275,15 @@ class TestMacro(BasicDataIgnition):
         request.dbsession.flush()
 
         request.registry = MagicMock()
-        request.registry.return_value.settings.return_value = {'hg_delivery.default_login':'editor'}
+        d_conf = {'hg_delivery.default_login': 'editor'}
+        request.registry.return_value.settings.return_value = d_conf
         request.user = user
 
         cls_mmock = MagicMock()
-        returned_data = {'mock':'ok'}
+        returned_data = {'mock': 'ok'}
         cls_mmock.push_to.return_value = returned_data
 
-        with patch.object(PoolSsh, 'get_node', return_value=cls_mmock) as mock_get_node:
+        with patch.object(PoolSsh, 'get_node', return_value=cls_mmock):
             result = run_a_macro(request)
             self.assertTrue(result['result'])
             self.assertFalse(result['new_branch_stop'])
@@ -291,8 +293,7 @@ class TestMacro(BasicDataIgnition):
     def test_update_a_macro(self):
         """
         """
-        from ..nodes import PoolSsh
-        from ..models.hgd_model import Acl, Macro, MacroRelations
+        from ..models.hgd_model import Macro, MacroRelations
         from ..views import update_a_macro
 
         p_1, p_2 = self._add_some_projects()
@@ -330,7 +331,6 @@ class TestMacro(BasicDataIgnition):
         # relations didn't change
         self.assertEqual(request.dbsession.query(MacroRelations).count(), 1)
 
-
         request.matchdict['macro_id'] = id_macro
         request.dbsession = AlchemyMagicMock()
         exception_mock = OperationalError(None, None, 'database timeout')
@@ -349,13 +349,12 @@ class TestMacro(BasicDataIgnition):
         request.dbsession.add.raiseError.side_effect = exception_mock
         result = update_a_macro(request)
         self.assertFalse(result['result'])
-        self.assertEqual(result['explanation'], 'This macro has already been define  ...')
-
+        lb = 'This macro has already been define  ...'
+        self.assertEqual(result['explanation'], lb)
 
     def test_view_all_macros(self):
         """
         """
-        from ..nodes import PoolSsh
         from ..models.hgd_model import Acl, Macro, MacroRelations
         from ..views import view_all_macros
 
@@ -369,9 +368,12 @@ class TestMacro(BasicDataIgnition):
         request = testing.DummyRequest()
         request.dbsession = self.session
         request.user = default_user
-        self.config.testing_securitypolicy(userid='editor', permissive=True)  # Sets authenticated_userid
+
+        # Sets authenticated_userid
+        self.config.testing_securitypolicy(userid='editor', permissive=True)
         request.registry = MagicMock()
-        request.registry.return_value.settings.return_value = {'hg_delivery.default_login':'editor'}
+        d_conf = {'hg_delivery.default_login': 'editor'}
+        request.registry.return_value.settings.return_value = d_conf
         macro = Macro(p_1.id, 'macro test')
         self.session.add(macro)
         macro_relation = MacroRelations(p_2.id, 'push')
@@ -381,17 +383,5 @@ class TestMacro(BasicDataIgnition):
         request.dbsession.add(Acl(default_user.id, p_2.id, 'edit'))
         request.dbsession.flush()
         self.session.flush()
-        id_macro = macro.id
         result = view_all_macros(request)
         self.assertEqual(len(result['dict_project_to_macros']), 1)
-
-
-        # settings_mock = MagicMock()
-        # request.registry.settings = settings_mock
-        # settings_dict = {'hg_delivery.default_login':'editor'}
-        # settings_mock.__getitem__.side_effect = settings_dict.__getitem__
-
-
-        # Alchemy error
-
-        # Standard error

@@ -19,6 +19,8 @@ class TestViewtasks(BasicDataIgnition):
         self.config.include('..models')
         settings = self.config.get_settings()
 
+        import logging
+
         from ..models import (
             get_engine,
             get_session_factory,
@@ -33,6 +35,8 @@ class TestViewtasks(BasicDataIgnition):
         session_factory = get_session_factory(self.engine)
         Base.metadata.create_all(bind=self.engine)
         self.session = get_tm_session(session_factory, transaction.manager)
+
+        logging.disable(logging.CRITICAL)
 
         # add a user
         self.users_list = self._add_some_user()

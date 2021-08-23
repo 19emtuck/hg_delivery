@@ -11,11 +11,14 @@
 
 import re
 import time
+import logging
+
 from pyramid.response import Response
-from pyramid.httpexceptions import HTTPError, HTTPFound, HTTPServerError
+from pyramid.httpexceptions import HTTPBadRequest, HTTPError,\
+    HTTPFound, HTTPServerError
 from pyramid.view import view_config
 
-from sqlalchemy.exc import DatabaseError, IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import joinedload
 from collections import OrderedDict
 
@@ -52,7 +55,12 @@ except BaseException:
     # before paramiko 1.6
     from paramiko.ssh_exception import SSHException as NoValidConnectionsError
 
-import logging
+mailer_available = True
+try:
+    from pyramid_mailer.message import Message
+except Exception:
+    mailer_available = False
+    print("please install pyramid_mailer")
 
 logging.getLogger("paramiko").setLevel(logging.WARNING)
 
@@ -197,14 +205,14 @@ def update_user(request):
     explanation = None
 
     user_id = request.matchdict.get('id')
-    if user_id is None :
+    if user_id is None:
         explanation = 'Bad parameter'
     elif 'name' not in request.params:
         explanation = 'Bad parameter'
     elif 'email' not in request.params:
         explanation = 'Bad parameter'
-    else :
-        try :
+    else:
+        try:
             user = request.dbsession.query(User)\
                 .filter(User.id == user_id)\
                 .scalar()
@@ -215,17 +223,20 @@ def update_user(request):
                         setattr(user, attribute, request.params[attribute])
                     request.dbsession.flush()
                     result = True
-                    explanation = u'This user : %s (%s) has been updated ...' % (
+                    lb = u'This user : %s (%s) has been updated ...'
+                    explanation = lb % (
                         request.params['name'], request.params['email'])
-                except IntegrityError as e:
+                except IntegrityError:
                     request.dbsession.rollback()
                     result = False
-                    _msg = u"You can't update this user, this email is already used"
+                    _msg = u"You can't update this user,"
+                    _msg += u" this email is already used"
                     _msg += " (%s %s) ..."
                     explanation = _msg % (request.params['name'],
-                                        request.params['email'])
+                                          request.params['email'])
             else:
-                explanation = u"This user is unknown or has already been deleted"
+                lb = u"This user is unknown or has already been deleted"
+                explanation = lb
         except SQLAlchemyError as e:
             explanation = e.orig
         except Exception as e:
@@ -242,11 +253,11 @@ def delete_user(request):
     """
     delete user ...
     """
-    if 'id' not in request.matchdict :
+    if 'id' not in request.matchdict:
         return HTTPError(400)
 
     user_id = request.matchdict['id']
-    try :
+    try:
         user = request.dbsession.query(User)\
             .filter(User.id == user_id)\
             .scalar()
@@ -269,21 +280,21 @@ def get_user(request):
     result = False
     user = None
 
-    if 'id' not in request.matchdict :
+    if 'id' not in request.matchdict:
         error = "Bad parameter"
-    else :
-        try :
+    else:
+        try:
             user_id = request.matchdict['id']
             user = request.dbsession.query(User)\
                 .filter(User.id == user_id)\
                 .scalar()
         except SQLAlchemyError as e:
             error = e.orig
-        else :
+        else:
             result = True
 
     return {'result': result,
-            'error':error,
+            'error': error,
             'user': user}
 
 # ------------------------------------------------------------------------------
@@ -301,6 +312,8 @@ def add_user(request):
     email = request.params.get('email')
     password = request.params.get('pwd')
 
+    d_login = request.registry.settings['hg_delivery.default_login']
+
     # email is the key, and password cannot be empty
     if not name:
         explanation = u'Your user profile should contain a valid name'
@@ -308,7 +321,7 @@ def add_user(request):
     elif not email or not re.match('[^@]+@[^@]+', email):
         explanation = u'Your user profile should contain a valid email'
         result = False
-    elif email and email == request.registry.settings['hg_delivery.default_login']:
+    elif email and email == d_login:
         explanation = u'Your user profile should contain a valid email'
         result = False
     elif not password:
@@ -323,7 +336,36 @@ def add_user(request):
             result = True
             _msg = u'This user : %s (%s) has been added ...'
             explanation = _msg % (name, email)
+
+            if hasattr(request, 'mailer'):
+                mailer = request.mailer
+                r = request.registry.settings
+                email_sender = r.get('hg_delivery.email_sender')
+                host_domain = r.get('hg_delivery.host_domain')
+                if email_sender is not None\
+                   and host_domain is not None:
+                    subject = "hg_delivery account creation"
+                    message_body = """Hello,
+
+  We just create an account for you, allowing you to access the HG DELIVERY interface.
+  Please find below your access details and your new password to log in
+
+  Login : %s
+  Password: %s
+
+  Log in address  : %s
+  thank you for not replying to this email
+
+  Kind regards""" % (user.email, user.pwd, host_domain)
+
+                    message = Message(subject=subject,
+                                      sender=email_sender,
+                                      recipients=[user.email],
+                                      body=message_body)
+                    mailer.send_immediately(message, fail_silently=False)
+
         except IntegrityError as e:
+            log.error(e)
             result = False
             request.dbsession.rollback()
             _msg = u'This user and this email are already defined (%s %s) ...'
@@ -331,6 +373,9 @@ def add_user(request):
         except SQLAlchemyError as e:
             result = False
             explanation = e.orig
+
+    if not result:
+        return HTTPBadRequest(detail=explanation)
 
     return {'result': result,
             'explanation': explanation}
@@ -358,16 +403,16 @@ def manage_users(request):
         project_acls = {}
         for _p in request.dbsession.query(Project):
             project_acls[_p.id] = {_acl.id_user: _acl.acl for _acl in
-                                request.dbsession.query(Acl)
-                                        .filter(Acl.id_project == _p.id)}
+                                   request.dbsession.query(Acl)
+                                   .filter(Acl.id_project == _p.id)}
     except SQLAlchemyError as e:
         result = False
         error = e.orig
     else:
         result = True
 
-    return {'result':result,
-            'error':error,
+    return {'result': result,
+            'error': error,
             'lst_users': lst_users,
             'known_acls': Acl.known_acls,
             'project_acls': project_acls}
@@ -396,12 +441,12 @@ def node_description(request):
 
     repository_error = None
     result = None
-    node_description = {}
+    node_desc = {}
 
-    if 'id' not in request.matchdict :
+    if 'id' not in request.matchdict:
         # why not a 400 ?
         repository_error = 'Bad Parameter'
-    else :
+    else:
         id_project = request.matchdict['id']
 
         try:
@@ -432,17 +477,16 @@ def node_description(request):
                 u'No valid connection error to host (%s)... ' %
                 (project.host))
             log.error(e)
-        except :
+        except:
             repository_error = u'No valid connection error to host (%s)... ' % (
                 project.host)
             log.error(
                 u'No valid connection error to host (%s)... ' %
                 (project.host))
-        else :
+        else:
             try:
                 with NodeController(project, silent=True) as ssh_node:
-                    repository_node = ssh_node.get_current_revision_description()
-                    node_description = repository_node
+                    node_desc = ssh_node.get_current_revision_description()
             except NodeException:
                 # a paramiko error
                 # linked to network error
@@ -451,26 +495,28 @@ def node_description(request):
                 #  ssh_exception.py", line 168, in __init__
                 #   body = ', '.join([x[0] for x in addrs[:-1]])
                 # TypeError: 'dict_keys' object is not subscriptable
-                repository_error = 'Node Exception %s'%project.host
+                repository_error = 'Node Exception %s' % project.host
             except UnavailableConnexion as e:
-                node_description = u'No available connection to host (%s)... ' % (
+                lb = u'No available connection to host (%s)... '
+                node_desc = lb % (
                     project.host)
                 _msg = u'No available connection to host (%s)... '
                 log.error(_msg % (project.host))
                 repository_error = _msg % (project.host)
                 log.error(e)
             except NoValidConnectionsError as e:
-                node_description = u'No valid connection error to host (%s)... ' % (
+                lb = u'No valid connection error to host (%s)... '
+                node_desc = lb % (
                     project.host)
                 _msg = u'No valid connection error to host (%s)... '
                 log.error(_msg % (project.host))
                 repository_error = _msg % (project.host)
                 log.error(e)
-            else :
+            else:
                 result = True
 
-    return {'result':result,
-            'node_description': node_description,
+    return {'result': result,
+            'node_description': node_desc,
             'repository_error': repository_error}
 
 # ------------------------------------------------------------------------------
@@ -564,7 +610,7 @@ def project_logs(request):
         lst_logs = []
         error = str(e)
 
-    return {'logs': lst_logs, 'error':error}
+    return {'logs': lst_logs, 'error': error}
 
 # ------------------------------------------------------------------------------
 
@@ -581,13 +627,13 @@ def shall_we_push(request):
         error = 'bad parameter'
     elif 'target' not in request.matchdict:
         error = 'bad parameter'
-    else :
+    else:
         id_project = request.matchdict['id']
-        id_target_project = request.matchdict['target']
+        id_target = request.matchdict['target']
 
         try:
             project = request.dbsession.query(Project).get(id_project)
-            target_project = request.dbsession.query(Project).get(id_target_project)
+            target_project = request.dbsession.query(Project).get(id_target)
             result = False
             if project and target_project:
                 with NodeController(project, silent=True) as ssh_node:
@@ -616,12 +662,12 @@ def shall_we_pull(request):
         error = 'bad parameter'
     elif 'source' not in request.matchdict:
         error = 'bad parameter'
-    else :
+    else:
         id_project = request.matchdict['id']
-        id_target_project = request.matchdict['source']
+        id_target = request.matchdict['source']
         try:
             project = request.dbsession.query(Project).get(id_project)
-            source_project = request.dbsession.query(Project).get(id_target_project)
+            source_project = request.dbsession.query(Project).get(id_target)
 
             if project and source_project:
                 with NodeController(project, silent=True) as ssh_node:
@@ -700,9 +746,9 @@ def who_share_this_id(request):
                 .all()
 
         linked_projects = [p for p in projects_list
-                        if (p.rev_init is not None and p
-                            .rev_init == project.rev_init and p
-                            .id != project.id and not p.no_scan)]
+                           if (p.rev_init is not None and p
+                               .rev_init == project.rev_init and p
+                               .id != project.id and not p.no_scan)]
         thread_stack = []
 
         for __p in linked_projects:
@@ -775,7 +821,7 @@ def view_all_macros(request):
     error = None
     dict_project_to_macros = OrderedDict()
 
-    try :
+    try:
         _default_login = request.registry.settings['hg_delivery.default_login']
         if _default_login == request.authenticated_userid:
             macros = request.dbsession.query(Macro)\
@@ -806,11 +852,11 @@ def view_all_macros(request):
     except Exception as e:
         result = False
         error = str(e)
-    else :
+    else:
         result = True
 
-    return {'result':result,
-            'error':error,
+    return {'result': result,
+            'error': error,
             'dict_project_to_macros': dict_project_to_macros}
 
 # ------------------------------------------------------------------------------
@@ -875,7 +921,7 @@ def delete_a_macro(request):
         result = False
         error = 'Unable to delete macro'
 
-    return {'result': result, 'error':error}
+    return {'result': result, 'error': error}
 
 # ------------------------------------------------------------------------------
 
@@ -891,8 +937,8 @@ def update_a_macro(request):
 
     if 'macro_id' not in request.matchdict:
         explanation = "bad parameter"
-    else :
-        try :
+    else:
+        try:
             macro_id = request.matchdict['macro_id']
             macro = request.dbsession.query(Macro).options(
                 joinedload(Macro.relations)).get(macro_id)
@@ -914,7 +960,8 @@ def update_a_macro(request):
                             aim_value = request.params[_param]
                             macro_content[aim_id_project] = aim_value
 
-                    if macro_name and len(macro_name) > 1 and len(macro_content) > 0:
+                    if macro_name and len(macro_name) > 1\
+                       and len(macro_content) > 0:
                         macro.label = macro_name
 
                         # delete previous relationship
@@ -924,7 +971,8 @@ def update_a_macro(request):
                         macro.relations[0:] = []
 
                         for _p_id in macro_content:
-                            macro_relation = MacroRelations(_p_id, macro_content[_p_id])
+                            _dir = macro_content[_p_id]
+                            macro_relation = MacroRelations(_p_id, _dir)
                             request.dbsession.add(macro_relation)
                             macro.relations.append(macro_relation)
 
@@ -957,7 +1005,9 @@ def create_a_macro(request):
     # a name is mandatory for the macro ...
     macro_name = None
     try:
-      if request.dbsession.query(Project).filter(Project.id==id_project).count()==0:
+      if request.dbsession.query(Project)\
+                .filter(Project.id == id_project)\
+                .count() == 0:
           error = "source project is unknown"
       elif 'macro_name' in request.params:
           macro_name = request.params['macro_name']
@@ -973,9 +1023,11 @@ def create_a_macro(request):
                   aim_id_project = _param.split('_')[1]
                   aim_value = request.params[_param]
 
-                  if request.dbsession.query(Project).filter(Project.id==aim_id_project).count()==1:
+                  if request.dbsession.query(Project)\
+                                      .filter(Project.id == aim_id_project)\
+                                      .count() == 1:
                       macro_content[aim_id_project] = aim_value
-              elif re.match( '^direction_.*$', _param) is not None:
+              elif re.match('^direction_.*$', _param) is not None:
                   error = 'wrong format'
 
           if macro_name and len(macro_name) > 1 and len(macro_content) > 0:
@@ -988,16 +1040,16 @@ def create_a_macro(request):
                   macro.relations.append(macro_relation)
               request.dbsession.flush()
               result = True
-          elif error is None :
+          elif error is None:
               error = "aim project is unknown"
-      else :
+      else:
           error = "macro label is mandatory"
-    except BaseException as e:
+    except BaseException:
         request.dbsession.rollback()
         result = False
         error = "database error"
 
-    return {'result': result, 'error':error}
+    return {'result': result, 'error': error}
 
 # ------------------------------------------------------------------------------
 
@@ -1130,7 +1182,6 @@ def run_a_macro(request):
 
         result &= __result
 
-
     return {'new_branch_stop': new_branch_stop,
             'new_head_stop': new_head_stop,
             'lst_new_branches': lst_new_branches,
@@ -1225,13 +1276,13 @@ def pull(request):
       error = 'bad parameter'
     elif 'source' not in request.matchdict:
       error = 'bad parameter'
-    else :
-        try :
+    else:
+        try:
             id_project = request.matchdict['id']
-            id_source_project = request.matchdict['source']
+            id_source = request.matchdict['source']
 
             project = request.dbsession.query(Project).get(id_project)
-            source_project = request.dbsession.query(Project).get(id_source_project)
+            source_project = request.dbsession.query(Project).get(id_source)
 
             with NodeController(project, silent=True) as ssh_node:
                 ssh_node.pull_from(project, source_project)
@@ -1243,7 +1294,7 @@ def pull(request):
             error = str(e)
         else:
             result = True
-    return {'result':result, 'error':error}
+    return {'result': result, 'error': error}
 
 # ------------------------------------------------------------------------------
 
@@ -1338,7 +1389,8 @@ def add_project(request):
             except IntegrityError as e:
                 request.dbsession.rollback()
                 result = False
-                _msg = u'This project and this path are already defined (%s %s) ...'
+                _msg = u'This project and this path'
+                _msg += u' are already defined (%s %s) ...'
                 explanation = _msg % (host, path)
                 log.error(e)
             except NodeException as e:
@@ -1356,7 +1408,8 @@ def add_project(request):
             except NoValidConnectionsError as e:
                 request.dbsession.rollback()
                 result = False
-                explanation = u'No valid connection error to host (%s)... ' % (host)
+                lb = u'No valid connection error to host (%s)... '
+                explanation = lb % (host)
                 log.error(e)
             except Exception as e:
                 request.dbsession.rollback()
@@ -1480,9 +1533,9 @@ def delete_project(request):
     """
     result = False
     error = None
-    if 'id' not in request.matchdict :
+    if 'id' not in request.matchdict:
         error = 'bad parameter'
-    else :
+    else:
         try:
             id_project = request.matchdict['id']
             project = request.dbsession.query(Project).get(id_project)
@@ -1492,7 +1545,7 @@ def delete_project(request):
                 request.dbsession.delete(project)
                 request.dbsession.flush()
                 result = True
-            else :
+            else:
                 error = 'unknown project'
         except SQLAlchemyError as e:
             request.dbsession.rollback()
@@ -1618,7 +1671,7 @@ def edit_project(request):
     # while editing this project, we also check non inited projects
     # shall we ?
     # for p in projects_list :
-    #   if not p.is_initial_revision_init() :
+    #   if not p.is_initial_revision_init():
     #     p.init_initial_revision()
 
     delivered_hash = {}
@@ -1679,7 +1732,6 @@ def edit_project(request):
 
     try:
         with NodeController(project) as ssh_node:
-
             if not project.dvcs_release:
                 project.dvcs_release = ssh_node.get_release()
 
@@ -1838,9 +1890,9 @@ def view_all_tasks(request):
     result = False
     error = None
     dict_project_to_tasks = OrderedDict()
-    try :
+    try:
         _default_login = request.registry.settings['hg_delivery.default_login']
-        if _default_login == request.authenticated_userid :
+        if _default_login == request.authenticated_userid:
             tasks = request.dbsession.query(Task)\
                 .join(Project)\
                 .options(joinedload(Task.project))\
@@ -1867,10 +1919,12 @@ def view_all_tasks(request):
         error = e.orig
     except Exception as e:
         error = str(e)
-    else :
+    else:
         result = True
 
-    return {'result':result, 'dict_project_to_tasks': dict_project_to_tasks, 'error':error}
+    return {'result': result,
+            'dict_project_to_tasks': dict_project_to_tasks,
+            'error': error}
 
 # ------------------------------------------------------------------------------
 
@@ -1908,7 +1962,7 @@ def remove_project_task(request):
         else:
             result = True
 
-    return {'result': result, 'error':error}
+    return {'result': result, 'error': error}
 
 # ------------------------------------------------------------------------------
 
@@ -2273,7 +2327,7 @@ def view_project_group(request):
             p_id for (
                 p_id,
             ) in request.dbsession.query(
-                Project.id) .join() .join(Acl) .join(User) .filter(
+                Project.id) .join(Acl) .join(User) .filter(
                 User.id == request.user.id) .order_by(
                     Project.name.desc())}
 

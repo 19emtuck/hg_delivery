@@ -1,10 +1,8 @@
-from . import BasicDataIgnition
-
 import unittest
 from pyramid import testing
-from unittest.mock import patch
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
 
 class Contact(unittest.TestCase):
 

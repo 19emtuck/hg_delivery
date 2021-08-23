@@ -1,14 +1,14 @@
+from pyramid.httpexceptions import HTTPBadRequest
 from . import BasicDataIgnition
-import unittest
-from sqlalchemy import exc
 import transaction
 from mock import MagicMock, Mock
 from mock_alchemy.mocking import AlchemyMagicMock
 from pyramid import testing
-from sqlalchemy.exc import IntegrityError, OperationalError, SQLAlchemyError
+from sqlalchemy.exc import OperationalError
 from datetime import datetime
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
 
 class TestUser(BasicDataIgnition):
 
@@ -18,6 +18,8 @@ class TestUser(BasicDataIgnition):
             settings={'sqlalchemy.url': 'sqlite:///:memory:'})
         self.config.include('..models')
         settings = self.config.get_settings()
+
+        import logging
 
         from ..models import (
             get_engine,
@@ -33,6 +35,8 @@ class TestUser(BasicDataIgnition):
         session_factory = get_session_factory(self.engine)
         Base.metadata.create_all(bind=self.engine)
         self.session = get_tm_session(session_factory, transaction.manager)
+        logging.disable(logging.CRITICAL)
+
         self.users_list = self._add_some_user()
 
     def test_add_user(self):
@@ -44,27 +48,27 @@ class TestUser(BasicDataIgnition):
         request = testing.DummyRequest()
         settings_mock = MagicMock()
         request.registry.settings = settings_mock
-        settings_dict = {'hg_delivery.default_login':'editor'}
+        settings_dict = {'hg_delivery.default_login': 'editor'}
         settings_mock.__getitem__.side_effect = settings_dict.__getitem__
         request.dbsession = self.session
 
         # macro that pushes data from 1 to 2
         result = add_user(request)
-        self.assertIsInstance(result, dict)
-        self.assertFalse(result['result'])
-        self.assertEqual(result['explanation'], 'Your user profile should contain a valid name')
+        self.assertIsInstance(result, HTTPBadRequest)
+        lb = 'Your user profile should contain a valid name'
+        self.assertEqual(result.detail, lb)
 
         request.params['name'] = 'testMyName'
         result = add_user(request)
-        self.assertIsInstance(result, dict)
-        self.assertFalse(result['result'])
-        self.assertEqual(result['explanation'], 'Your user profile should contain a valid email')
+        self.assertIsInstance(result, HTTPBadRequest)
+        lb = 'Your user profile should contain a valid email'
+        self.assertEqual(result.detail, lb)
 
         request.params['email'] = 'test@free.fr'
         result = add_user(request)
-        self.assertIsInstance(result, dict)
-        self.assertFalse(result['result'])
-        self.assertEqual(result['explanation'], "Your user profile musn't be empty")
+        self.assertIsInstance(result, HTTPBadRequest)
+        lb = "Your user profile musn't be empty"
+        self.assertEqual(result.detail, lb)
 
         request.params['pwd'] = 'test'
         result = add_user(request)
@@ -73,9 +77,10 @@ class TestUser(BasicDataIgnition):
 
         # insert twice to trigger integrity error
         result = add_user(request)
-        self.assertIsInstance(result, dict)
-        self.assertFalse(result['result'])
-        self.assertEqual(result['explanation'], 'This user and this email are already defined (testMyName test@free.fr) ...')
+        self.assertIsInstance(result, HTTPBadRequest)
+        lb = 'This user and this email are already'
+        lb += ' defined (testMyName test@free.fr) ...'
+        self.assertEqual(result.detail, lb)
 
         request.params['name'] = 'testMyName2'
         request.dbsession = AlchemyMagicMock()
@@ -84,8 +89,8 @@ class TestUser(BasicDataIgnition):
         request.dbsession.add.side_effect = exception_mock
         request.dbsession.add.raiseError.side_effect = exception_mock
         result = add_user(request)
-        self.assertFalse(result['result'])
-        self.assertEqual(result['explanation'], 'database timeout')
+        self.assertIsInstance(result, HTTPBadRequest)
+        self.assertEqual(result.detail, 'database timeout')
 
     def test_add_admin_user(self):
         """
@@ -96,20 +101,22 @@ class TestUser(BasicDataIgnition):
 
         request = testing.DummyRequest()
         request.dbsession = self.session
-        self.config.testing_securitypolicy(userid='editor', permissive=True)  # Sets authenticated_userid
+        # Sets authenticated_userid
+        self.config.testing_securitypolicy(userid='editor', permissive=True)
 
         request.user = User('editor', 'editor', 'editor')
-        self.config.testing_securitypolicy(userid='editor', permissive=True)  # Sets authenticated_userid
+        # Sets authenticated_userid
+        self.config.testing_securitypolicy(userid='editor', permissive=True)
         settings_mock = MagicMock()
         request.registry.settings = settings_mock
-        settings_dict = {'hg_delivery.default_login':'editor@free.fr'}
+        settings_dict = {'hg_delivery.default_login': 'editor@free.fr'}
         settings_mock.__getitem__.side_effect = settings_dict.__getitem__
         request.params['name'] = 'editor'
         request.params['email'] = 'editor@free.fr'
         result = add_user(request)
-        self.assertIsInstance(result, dict)
-        self.assertFalse(result['result'])
-        self.assertEqual(result['explanation'], 'Your user profile should contain a valid email')
+        self.assertIsInstance(result, HTTPBadRequest)
+        lb = 'Your user profile should contain a valid email'
+        self.assertEqual(result.detail, lb)
 
     def test_manage_users(self):
         """
@@ -117,7 +124,7 @@ class TestUser(BasicDataIgnition):
         """
         from ..views import manage_users
         from ..models.hgd_model import Acl, User
-        p1,p2 = self._add_some_projects()
+        p1, p2 = self._add_some_projects()
         default_user = self.users_list[0]
 
         request = testing.DummyRequest()
@@ -238,7 +245,6 @@ class TestUser(BasicDataIgnition):
         self.assertEqual(result['error'], 'database timeout')
         self.assertIsNone(result['user'])
 
-
     def test_update_user(self):
         """ """
         from ..views import update_user
@@ -253,7 +259,8 @@ class TestUser(BasicDataIgnition):
         request.params['email'] = 'new_email@world.fr'
         result = update_user(request)
         self.assertTrue(result['result'])
-        self.assertEqual(result['explanation'], 'This user : new_name (new_email@world.fr) has been updated ...')
+        lb = 'This user : new_name (new_email@world.fr) has been updated ...'
+        self.assertEqual(result['explanation'], lb)
 
         # integrity error
         second_user = User('test', 'test', 'test2@france.fr', datetime.now())
@@ -265,7 +272,9 @@ class TestUser(BasicDataIgnition):
         request.params['email'] = 'test2@france.fr'
         result = update_user(request)
         self.assertFalse(result['result'])
-        self.assertEqual(result['explanation'], "You can't update this user, this email is already used (new_name test2@france.fr) ...")
+        lb = "You can't update this user, this email is"
+        lb += " already used (new_name test2@france.fr) ..."
+        self.assertEqual(result['explanation'], lb)
 
         # bad parameters
         request = testing.DummyRequest()
@@ -300,7 +309,8 @@ class TestUser(BasicDataIgnition):
         request.params['email'] = 'new_email@world.fr'
         result = update_user(request)
         self.assertFalse(result['result'])
-        self.assertEqual(result['explanation'], 'This user is unknown or has already been deleted')
+        lb = 'This user is unknown or has already been deleted'
+        self.assertEqual(result['explanation'], lb)
 
         # db error with mock
         request = testing.DummyRequest()
@@ -308,7 +318,6 @@ class TestUser(BasicDataIgnition):
         request.matchdict['id'] = 42
         request.params['name'] = 'new_name'
         request.params['email'] = 'new_email@world.fr'
-        cls_mmock = MagicMock()
         exception_mock = OperationalError(None, None, 'database timeout')
         request.dbsession = self.session
         request.dbsession.query = Mock()
@@ -325,7 +334,6 @@ class TestUser(BasicDataIgnition):
         request.params['name'] = 'new_name'
         request.params['email'] = 'new_email@world.fr'
 
-        cls_mmock = MagicMock()
         exception_mock = Exception('standard error')
         request.dbsession = self.session
         request.dbsession.query = Mock()
@@ -336,7 +344,6 @@ class TestUser(BasicDataIgnition):
         self.assertFalse(result['result'])
         self.assertEqual(result['explanation'], 'standard error')
 
-        cls_mmock = MagicMock()
         exception_mock = OperationalError(None, None, 'database timeout')
         request.dbsession = self.session
         request.dbsession.query = Mock()
