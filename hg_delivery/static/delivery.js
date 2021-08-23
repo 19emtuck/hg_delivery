@@ -779,6 +779,14 @@ function add_user(target_url){
   dataType:'json',
   complete:function(){
   },
+  error: function (response) {
+    var json_response = response.responseJSON;
+    console.log(json_response.message);
+    _alert_html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+    _alert_html += '<strong>' + json_response.message + '</strong></div>';
+    $('#new_user_dialog .modal-body').after(_alert_html);
+    $('.alert-danger').delay(3000).fadeOut(500, function () { $(this).remove(); });
+  },
   success:function(json_response){
     var $sel, default_url, _alert_html;
     $('.alert').remove();
